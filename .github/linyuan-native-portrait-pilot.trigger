@@ -1,1 +1,1 @@
-Read-only full HD source-bound 1.7B ASR trial plus automatic complete recollection proposals. Original visible caption differs from prior 0.6B raw; no text replacement or audio gold claim. Every final gate remains.
+Readonly HD portrait trial v2: replay unchanged source-bound 1.7B raw from 40030806284. Preserve complete recollection when the original cue contains the reported correction; reject future plans as past stories. All caption clocks, picture and independent final-media gates remain mandatory.

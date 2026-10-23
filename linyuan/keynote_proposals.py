@@ -39,11 +39,28 @@ def opening_error(text):
     return None
 
 
+def reported_reply_tail(text):
+    """A complete quoted correction at an existing cue edge, not new timing."""
+    match=re.search(r'(?:^|[，,：:。])我(?:当时)?(?:说|解释|澄清|回应|回答)[：:，,]?[“「]?'
+                    r'(?:那|这)是([^，,。！？!?]{4,32})[”」]?[，,。！？!?]$',text)
+    return bool(match and not re.search(r'(?:的|这个|那个|因为|所以|如果|但是|或者|还有|就是)$',match[1]))
+
+
 def windows(cues):
     units=selection.sentence_units(cues)
     expanded=[]
     for unit in units:
         expanded.append(unit)
+        # ASR punctuation may attach a reported reply to the following new
+        # topic. Keep the full original sentence, and additionally expose its
+        # existing cue edge after the quoted correction. No words or clocks
+        # are moved, and this is still only a proposal for independent review.
+        for end in range(unit['start'],unit['end']):
+            text=''.join(c['text'] for c in cues[unit['start']:end+1])
+            if (re.search(r'(?:结果|后来|随后).*(?:媒体|报道|误解|回应|反应)',text)
+                    and reported_reply_tail(text)
+                    and not re.search(r'假设|假如|虚构|编个|编一个',text)):
+                expanded.append(dict(start=unit['start'],end=end,text=text,reported_reply_end=True))
         for start in range(unit['start']+1,unit['end']+1):
             # A real timed cue may begin a self-contained recollection after
             # a comma/temporal transition. Expose that original clause as an
@@ -101,6 +118,8 @@ def request(rows):
             '会议、采访等真实经历要保留背景、本人当时发言和后续回应；不能从“那时候问我”省掉事件背景。'
             '在转入另一话题或一般原理之前自然结束。回忆若属于假设、虚构或否认，不当成实际经历；'
             '仍须通读原句上下文，不能只看新增备选。没有完整经历也可不选，不为凑数量补结论。')
+    if any(row.get('reported_reply_end') for row in rows):
+        prompt+='\n报道反应和本人纠正若被逗号连到新话题，新增备选只在已有原始字幕末尾结束；仍保留完整原句供核对，不从纠正半句开场。'
     return prompt,schema
 
 
@@ -118,14 +137,16 @@ def memory_episode_proposals(cues):
             start=opening['start']
             if not opening.get('memory_context') or start in seen:continue
             reaction=False
-            for unit in units:
+            for unit in sorted(rows,key=lambda row:(row['start'],row['end'])):
                 if unit['start']<=opening['end']:continue
                 if cues[unit['end']]['end']-cues[start]['start']>330:break
                 text=unit['text']
                 if re.search(r'假设|假如|虚构|编个|编一个',text):break
                 if re.search(r'(?:结果|后来|随后).*(?:媒体|报道|误解|回应|反应)',text):
-                    reaction=True;continue
-                if reaction and re.match(r'^我(?:当时)?(?:说|解释|澄清|回应|回答)',text):
+                    reaction=True
+                    if not unit.get('reported_reply_end'):continue
+                if reaction and (unit.get('reported_reply_end') or
+                                 re.match(r'^我(?:当时)?(?:说|解释|澄清|回应|回答)',text)):
                     picks,rejected=validate(cues,rows,dict(picks=[dict(start=start,end=unit['end'])]))
                     if not rejected and picks:
                         seen.add(start)

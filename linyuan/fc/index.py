@@ -2246,7 +2246,20 @@ def publish_catchup(event, context=None):
     return publish_handler({**event,**request,'force_publish':True},context)
 
 
+def proven_recall_source_error(part,entry):
+    repair=entry.get('experiment_proven_recall')
+    if not repair:return None
+    expected=repair.get('source_sha256')
+    if (not re.fullmatch('[a-f0-9]{64}',str(expected or ''))
+            or entry.get('experiment_mother_sha256')!=expected
+            or part.get('source_sha256')!=expected):
+        return '已验证源修复的实际母片哈希不一致，禁止使用试产证据批准其他素材'
+    return None
+
+
 def inventory_publication_error(part,entry,state):
+    error=proven_recall_source_error(part,entry)
+    if error:return error
     from source_admission_guard import restriction
     rights_error=restriction(entry.get('source_url') or part.get('source_origin_url') or '',[])
     if rights_error:return rights_error
@@ -2483,7 +2496,7 @@ def _dispatch_admitted(event=None, context=None):
         reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
         if source_inventory(st,reserve)['inventory_fresh']:
             if not recent_probe and any(exp_needs.values()):
-                story_reuse=list(experiment_reuse_candidates(st,reserve,items))
+                story_reuse=list(experiment_reuse_candidates(st,reserve,items,active_runs))
                 if any(r.get('historical_mother') and not r.get('run_id') for _,r in story_reuse):
                     # One read-only lookup recovers exact source-run IDs. The
                     # producer still accepts raw evidence only after source-
@@ -2560,8 +2573,7 @@ def _dispatch_admitted(event=None, context=None):
     if not recent_probe and success<target and any(exp_needs.values()):
         for parent,record,layout in experiment_reuse_plan(story_reuse,st,exp_needs):
             if success>=target or not any(exp_needs.values()):break
-            slug='ly-story-'+experiment.digest([experiment.EXPERIMENT_ID,
-                parent.get('source_sha256') or parent['source_url'],experiment.SELECTION_REVISION])[:10]
+            slug=experiment_reuse_slug(parent)
             gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{'ref':'main','inputs':{
                 'source':parent['source_url'],'slug':slug,'speaker':'林园',
                 'occasion':parent.get('title','')[:30],'auto_publish':'false',
@@ -2577,7 +2589,9 @@ def _dispatch_admitted(event=None, context=None):
                     editorial_profile=experiment.TREATMENT,output_layout=layout,
                     experiment_selection_revision=experiment.SELECTION_REVISION,
                     experiment_mother_sha256=parent.get('source_sha256'),
-                    experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id']))
+                    experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id'],
+                    **({'experiment_proven_recall':parent['experiment_proven_recall']}
+                       if parent.get('experiment_proven_recall') else {})))
             save_state(st)
             success+=1;exp_needs[layout]=max(0,exp_needs[layout]-1)
             log_event('dispatch_ok',f'已调度故事实验 {slug}',f'复用已核验母片 {parent["slug"]}，原库存保留')
@@ -2970,7 +2984,23 @@ def experiment_reuse_plan(candidates, state, needs):
         options=[]
         for i,(parent,record) in enumerate(pending):
             observed=experiment_reuse_layouts(parent,record,state)
+            repair=parent.get('experiment_proven_recall')
+            proven_layouts=set()
+            if repair:
+                for hint in record.get('source_geometry_hints',[]):
+                    size=hint.get('resolution') or {}
+                    if (hint.get('diagnostic_only') is True
+                            and hint.get('source_sha256')==repair.get('source_sha256')
+                            and hint.get('sha256')==repair.get('diagnostic_video_sha256')
+                            and hint.get('geometry_run_id')==repair.get('diagnostic_run_id')
+                            and hint.get('geometry_artifact_id')==repair.get('diagnostic_artifact_id')
+                            and all(type(size.get(k)) is int and size[k]>0 for k in ('width','height'))
+                            and size['width']!=size['height']):
+                        proven_layouts.add('landscape' if size['width']>size['height'] else 'portrait')
             for order,layout in enumerate(('landscape','portrait')):
+                # A bounded repair must reproduce its actual validated format,
+                # not consume its one attempt guessing at the opposite gap.
+                if repair and layout not in proven_layouts:continue
                 if remaining.get(layout,0)>0:
                     confidence=0 if layout in observed else 1 if not observed else 2
                     options.append(((confidence,-remaining[layout],i,order),i,layout))
@@ -3017,10 +3047,121 @@ def same_mother_scene_geometry(inventory, mother_sha):
     return hints
 
 
-def experiment_reuse_candidates(state, inventory, items):
+# Empty until an immutable full-source/negative-control and actual-media trial
+# passes. These rows permit one NEW normal job, never approve its output.
+PROVEN_COMPANY_RECALLS = (
+    {'id': '6f5d-guest-holding-context-v1-20261024',
+     'parent_slug': 'ly-story-7524eb9e46',
+     'parent_artifact_id': 12426894030,
+     'parent_run_id': 39771146000,
+     'source_url': 'https://www.bilibili.com/video/BV1se411H7tj',
+     'source_sha256': '6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d',
+     'selection_policy_sha256': 'cfb222984a1595049b4759034c9a6013998af33be7c4e5ed8c9f03f0e4ea4d69',
+     'expires_at': 1793030400,
+     'diagnostic_run_id': 40029308527,
+     'diagnostic_artifact_id': 12535431731,
+     'diagnostic_video_sha256': 'dd4f9996c7df2099e34874a826ffc8e30fa39bd49e6c98b99976a5bfe53b5c25',
+     'diagnostic_resolution': {'width': 1742, 'height': 922},
+     'diagnostic_render_mode': 'crop_delogo'},
+)
+
+
+def experiment_reuse_slug(parent):
+    key=[experiment.EXPERIMENT_ID,parent.get('source_sha256') or parent['source_url'],
+         experiment.SELECTION_REVISION]
+    repair=parent.get('experiment_proven_recall')
+    if repair:key.append(repair['id'])
+    return 'ly-story-'+experiment.digest(key)[:10]
+
+
+def proven_company_recall_candidates(state, inventory, items, active_runs=()):
+    """One source/code-bound child; preserve all old stock, receipts and budgets."""
+    import hashlib
+    from source_admission_guard import restriction
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    records={r.get('slug'):r for r in inventory.get('artifacts',[])}
+    running={str(r.get('display_title') or '').split(' · ')[-1] for r in active_runs
+             if r.get('status') in {'queued','in_progress'}}
+    policy=hashlib.sha256(Path(experiment.__file__).read_bytes()).hexdigest()
+    for scope in PROVEN_COMPANY_RECALLS:
+        if (time.time()>=scope['expires_at'] or policy!=scope['selection_policy_sha256']
+                or any((e.get('experiment_proven_recall') or {}).get('id')==scope['id']
+                       for e in state.get('dispatched',[]))):continue
+        entry=latest.get(scope['parent_slug']);record=records.get(scope['parent_slug'])
+        if (not entry or entry.get('uploading')
+                or entry['slug'] in REVIEW_PAUSED_SLUGS or entry.get('weekly_full_week')
+                or entry.get('source_url')!=scope['source_url']
+                or restriction(scope['source_url'],[])):continue
+        failed_parent=scope.get('failed_parent_sha256')
+        if failed_parent:
+            # One immutable, explicitly proven source repair may create a NEW
+            # job. The failed parent and its counters are never reset. A trial
+            # can guide geometry, but is not a verified inventory record.
+            if (not re.fullmatch('[a-f0-9]{64}',str(failed_parent))
+                    or entry.get('failed') is not True or record
+                    or experiment.digest(entry)!=failed_parent
+                    or (state.get('published',{}).get(entry['slug']) or {}).get('parts')
+                    or type(scope.get('diagnostic_run_id')) is not int or scope['diagnostic_run_id']<=0
+                    or type(scope.get('diagnostic_artifact_id')) is not int or scope['diagnostic_artifact_id']<=0
+                    or not re.fullmatch('[a-f0-9]{64}',str(scope.get('diagnostic_video_sha256') or ''))
+                    or not re.fullmatch('[a-f0-9]{64}',str(scope.get('source_sha256') or ''))
+                    or not experiment.long_candidate(dict(extra=dict(duration=scope.get('diagnostic_source_duration_sec'))))):continue
+            record=dict(run_id=None,parts=[])
+        elif (entry.get('failed') or not record
+                or record.get('artifact_id')!=scope['parent_artifact_id']
+                or record.get('run_id')!=scope['parent_run_id']
+                or not inventory_record_current(record)):continue
+        related=[e for e in latest.values() if e.get('source_url')==scope['source_url']
+                 or e.get('experiment_mother_sha256')==scope['source_sha256']]
+        if any(e['slug'] in running or e.get('uploading') or e.get('source_check_retry_after')
+               or (e.get('experiment_parent_slug') and not e.get('failed')
+                   and e['slug'] not in records
+                   and not any(p.get('status')=='published' and p.get('bvid') for p in
+                       (state.get('published',{}).get(e['slug']) or {}).get('parts',[])))
+               for e in related):continue
+        matches=[i for i in items if scope['source_url'] in
+                 (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if failed_parent:
+            # Collection metadata may describe all parts. The actual passed
+            # trial measures this exact requested page, not the collection.
+            matches=[{**i,'extra':{**i['extra'],'duration':scope['diagnostic_source_duration_sec']}}
+                     for i in matches if isinstance(i.get('extra'),dict)]
+        if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS
+                and not (i['extra'].get('no_reprint')==1
+                         or i['extra'].get('source_role') in {'reference','catalog_only'}
+                         or i['extra'].get('direct_dispatch') is False)
+                for i in matches if isinstance(i.get('extra'),dict)):continue
+        parts=[p for p in record.get('parts',[]) if p.get('status')=='verified']
+        if not failed_parent and (not parts or any(p.get('source_sha256')!=scope['source_sha256'] for p in parts)
+                or not any(int(p.get('index',-1)) not in processed_part_indices(entry)
+                           and not inventory_publication_error(p,entry,state) for p in parts)):continue
+        provenance={k:scope[k] for k in ('id','source_sha256','selection_policy_sha256',
+            'diagnostic_run_id','diagnostic_artifact_id','diagnostic_video_sha256')}
+        planning=record
+        size=scope.get('diagnostic_resolution') or {}
+        if (type(size.get('width')) is int and type(size.get('height')) is int
+                and min(size['width'],size['height'])>0 and size['width']!=size['height']
+                and scope.get('diagnostic_render_mode') in {'crop','crop_delogo','direct','live_video_card'}):
+            # The passed trial's actual T format is more informative than an
+            # old C layout. This copy guides planning only; never put diagnostic
+            # clips into stock or mutate the parent's verified parts.
+            hint=dict(source_sha256=scope['source_sha256'],resolution=size,
+                render_mode=scope['diagnostic_render_mode'],status='verified',
+                sha256=scope['diagnostic_video_sha256'],diagnostic_only=True,
+                geometry_run_id=scope['diagnostic_run_id'],
+                geometry_artifact_id=scope['diagnostic_artifact_id'])
+            planning={**record,'parts':[],'source_geometry_hints':[hint]}
+        elif failed_parent:continue  # A new format needs actual passed media geometry.
+        yield {**entry,'source_sha256':scope['source_sha256'],
+               'experiment_proven_recall':provenance},planning
+
+
+def experiment_reuse_candidates(state, inventory, items, active_runs=()):
     """One bounded automatic attempt per verified long mother, never relabel stock."""
     if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
     from source_admission_guard import restriction
+    proven=list(proven_company_recall_candidates(state,inventory,items,active_runs))
+    yield from proven
     latest={e['slug']:e for e in _latest_dispatches(state)}
     # One fresh attempt per mother for the fixed selector. Old fallback jobs
     # are not evidence this revision ran. Never cancel them or relabel output.
@@ -3039,6 +3180,8 @@ def experiment_reuse_candidates(state, inventory, items):
     used={e.get('experiment_parent_slug') for e in active_or_current.values()}
     used_sources={e.get('source_url') for e in active_or_current.values() if e.get('experiment_parent_slug')}
     used_hashes={e.get('experiment_mother_sha256') for e in active_or_current.values() if e.get('experiment_mother_sha256')}
+    used_sources.update(e['source_url'] for e,_ in proven)
+    used_hashes.update(e['source_sha256'] for e,_ in proven)
     # Older experiment dispatches omitted the hash, although their parent
     # artifact retained it. Reconstruct it read-only before admitting mirrors.
     for record in inventory.get('artifacts',[]):

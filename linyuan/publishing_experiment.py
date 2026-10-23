@@ -146,6 +146,7 @@ def selection_request(cues, candidates):
         '理论、原则、方法总结和应该怎么做的建议本身不是已经发生的个人经历；'
         'personal_story必须另有本人实际做过、没做过或明确采取某项选择的原句，不能只因为提到我们或过去经历就入选。'
         'personal_story的事件不要选比喻式劝告或“这样就行了”的建议结语；要选本人实际经历或选择的叙述原句，否则skip。'
+        '“我要抓住最后一次机会”等未来打算，以及以后看错会脸红的假设，本身不是已发生的个人故事；不能借相邻年份把它改成过去经历。'
         '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
@@ -164,6 +165,10 @@ def personal_event_error(event):
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
     advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
+    prospective_choice=re.search(r'(?:我|我们)(?:今后|未来|以后|打算|计划|准备|想要|要|将|会){1,2}'
+        r'[^，,。！？!?]{0,6}(?:抓住|买入|卖出|投资|退出|建仓|清仓|加仓|减仓|赚钱)',event)
+    if prospective_choice and not actual_action:
+        return 'A prospective personal plan is not an actual past event or completed choice'
     if (normative_recap or advice_conclusion) and not actual_action:
         return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
     return None

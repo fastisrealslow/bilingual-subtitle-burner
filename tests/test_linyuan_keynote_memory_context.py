@@ -58,3 +58,41 @@ def test_incomplete_or_fictional_recollection_cannot_supply_a_proposal(change):
         elif change=='no_reply':c['text']=c['text'].replace('我说：那是提起风险。','投资需要注意风险。')
         elif c['text'].startswith('我记得'):c['text']='假设'+c['text']
     assert not K.memory_episode_proposals(cues)
+
+
+def actual_17():
+    return json.loads((Path(__file__).parent/'fixtures/linyuan_actual_keynote_memory_17.json').read_text())
+
+
+def test_actual_17_reply_in_same_sentence_stops_at_existing_cue_before_new_topic(monkeypatch):
+    monkeypatch.setattr(K.editorial,'CONTENT_POLICY','reference_v1');monkeypatch.setattr(K.editorial,'MIN_SECONDS',20)
+    f=actual_17();cues=f['cues'];before=deepcopy(cues);rows=K.windows(cues)[0]
+    assert any(r.get('reported_reply_end') and r['end']==f['story_end'] for r in rows)
+    assert any(r['start']<f['story_end']<r['end'] and '真正的投资' in r['text'] for r in rows)
+    picks=K.memory_episode_proposals(cues)
+    assert [(p['start'],p['end']) for p in picks]==[(f['memory_start'],f['story_end'])]
+    text=''.join(c['text'] for c in cues[picks[0]['start']:picks[0]['end']+1])
+    assert text.startswith('我记得') and text.endswith('我说那是提醒风险，')
+    assert '线上的会议' in text and '媒体就报道' in text and '真正的投资' not in text
+    assert cues==before and cues[picks[0]['end']]['end']==416.04
+    assert not any(k in picks[0] for k in ('passed','story_selection','title','media_approved'))
+
+
+@pytest.mark.parametrize('change',['no_reaction','no_reply','incomplete_reply','fiction'])
+def test_same_sentence_reply_still_needs_literal_reaction_and_complete_correction(change):
+    f=actual_17();cues=deepcopy(f['cues'])
+    for cue in cues:
+        if change=='no_reaction':cue['text']=cue['text'].replace('结果这媒体就报道出去','大家后来又聊到')
+        elif change=='no_reply':cue['text']=cue['text'].replace('我说那是提醒风险，','投资需要注意风险，')
+        elif change=='incomplete_reply':cue['text']=cue['text'].replace('我说那是提醒风险，','我说那是因为这个，')
+        elif cue['text'].startswith('我记得'):cue['text']='假设'+cue['text']
+    assert not K.memory_episode_proposals(cues)
+
+
+def test_actual_pilot_future_opportunity_plan_is_not_a_completed_personal_story():
+    import publishing_experiment as E
+    event='我不能说说我最后说那个结果是个错的，你们听了，啊，这个这个就是，我也要正视啊，我们自己啊，我这也是人生，我今年六十一岁了，我要抓住这最后一次机会，我要看看我能不能抓住这是人生的最后一大机会啊！'
+    assert 'prospective' in E.personal_event_error(event)
+    assert E.personal_event_error('我记得两年前参加了一场线上的会议。') is None
+    assert E.personal_event_error('我买了这家公司，未来我要抓住它增长的机会。') is None
+    assert E.personal_event_error('我说那是提醒风险，媒体误解了我的意思。') is None
