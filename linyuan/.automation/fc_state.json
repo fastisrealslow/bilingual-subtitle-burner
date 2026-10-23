@@ -42085,7 +42085,37 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-26T11:01:22+08:00"
+   "publish_time": "2026-09-26T11:01:22+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-9352da",
+    "run_id": 39878057421,
+    "artifact_id": 12469794575,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1456/1871，总帧数2074；身份匹配但人脸短边不足96px的帧数414"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/862，总帧数4306；身份匹配但人脸短边不足96px的帧数862"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少针对主持人提问（句 0）的明确观点表达与完整解释，结尾停留在无关话题（句 11），构成未回答的新问题结尾。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39878057421,
+    "artifact_id": 12469794575,
+    "name": "production-reject-ly-1023-9352da",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1456/1871，总帧数2074；身份匹配但人脸短边不足96px的帧数414",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5335083749741207",
@@ -116057,6 +116087,13 @@
    "video_id": "BV1sUQHY3EiA",
    "ts": 1792716123,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我前一段时间就是偶尔的去了一个重庆一家企业，因为我在重庆，哎，他就给我推荐了一个六味安神胶囊。\", \"suspect_quote\": \"六味安神胶囊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词：中药‘六味地黄丸’常被误记为‘六味安神胶囊’，且‘六味安神胶囊’并非常见标准药品名，存在名称混淆风险。\"}, {\"sentence_id\": 10, \"quote\": \"我吃了大概现在有一一个多疗程呢。\", \"suspect_quote\": \"一一个多疗程\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述含口语重复‘一一个’，虽属正常口吃，但‘一一个’作为具体数量词出现时易被误判为识别错误；此处需确认是否为‘一个’的误读或填充词干扰。\"}]"
+  },
+  {
+   "slug": "ly-1023-9352da",
+   "key": "weibo_search:5347352644944793",
+   "video_id": "http://f.video.weibocdn.com/u0/mIzNtWcBgx08B60oI5U401041200W0wo0E010.mp4",
+   "ts": 1792716901,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1456/1871，总帧数2074；身份匹配但人脸短边不足96px的帧数414"
   }
  ],
  "reviewed_third_video_0910": {
