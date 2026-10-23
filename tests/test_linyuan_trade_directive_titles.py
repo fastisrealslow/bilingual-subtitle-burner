@@ -8,6 +8,14 @@ sys.path.insert(0,str(ROOT/'linyuan'))
 import title_rewrite as T
 
 
+def test_published_complete_source_keeps_its_faithful_title():
+    r=json.loads((ROOT/'tests/fixtures/linyuan_published_consumer_upgrade_title.json').read_text())
+    text=''.join(c['text'] for c in r['cues'])
+    assert r['published_bvid']=='BV1YAn46mEgJ'
+    assert r['cues'][0]['start']==203.48 and r['cues'][-1]['end']==234.36
+    assert T.error(r['published_title'],r['published_proof'],text) is None
+
+
 def test_actual_approved_flags_cannot_turn_asset_comparison_into_trade_advice():
     r=json.loads((ROOT/'tests/fixtures/linyuan_inferred_trade_directive.json').read_text())
     text=''.join(c['text'] for c in r['cues'])

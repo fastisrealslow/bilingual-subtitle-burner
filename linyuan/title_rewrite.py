@@ -1706,7 +1706,6 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
 这些只是排除项；其余编号的说话人仍须通读全文判断，不能自动视为嘉宾。
 先通读全部字幕，找主持人的完整问题和嘉宾实际回复。主持人提问前的背景、假设、举例仍属于主持人；嘉宾短答不等于确认问题全部前提。
 同一人的连续讲话是一个轮次，不能因为换了一条字幕或出现问号就换说话人。字幕标点可能不准，必须连贯理解上下文。
-没有主持人提问的独立讲话或演讲，也可能在陈述判断、比较、解释机制或讲述经历；a_guest_answer概括实际陈述，不因没有问答形式就写“无明确回答”，也不能虚构问题。说话人仍须依据原文确认，不自动将全文归为嘉宾。
 先在a_guest_answer用最多三句概括嘉宾明确回答的主要判断及限定条件，不抄整篇字幕，不混入主持人的总结。
 再用b_question_premise概括主持人问题和未确认假设。两个概括各不超过240字。
 读清问答后，最后在c_guest_spans标出嘉宾每段明确回答的原文范围：a_start为回答第一条字幕编号，b_end为回答最后一条字幕编号，两端都包含。
@@ -1733,11 +1732,6 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
         if answer_subject:
             reader_prompt+='''\n在e_subject_name写明这项主要回答实际讨论的具体对象（产品、公司、行业或市场的名称），不能用它、原因、标准等泛词。须逐字摘取原文中的名称，不自行扩成整个行业。
 程序会在已确认的嘉宾原句中逐字定位这个名称，可以出现在同一问答的后续解释。主持人问题只帮助理解指代，不能作为名称证据，也不能把主持人的假设附加到名称上。拿不准时不要猜。'''
-    if len(transcript)<=1200:
-        # Display cues can split a sentence/word. Offer the SAME complete
-        # source once for reading, keeping original numbered cues for binding.
-        # Do not truncate long interviews or invent a contextual summary.
-        reader_prompt+='\n以下连续原文仅按原顺序连接上述字幕，没有改写；先连贯阅读，再回到编号核对说话人：\n'+transcript
     reading_repair_note=''
     literal_attempted=set()
     def fallback(only_preferred=False):

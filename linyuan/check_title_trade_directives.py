@@ -33,16 +33,26 @@ def main():
     digest=next(m['digest'] for m in tags['models'] if m['name']==P.LOCAL_LLM_MODEL)
     assert digest=='56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90'
     result['model_digest']=digest
-    # Use the production writer; no preferred/old title or manually selected
-    # candidate is passed to the model. Raw responses remain in this artifact.
-    result['copy']=P.copywrite(cues,list(range(len(cues))),'林园','访谈','',out,
-        source_sha256=fixture['source_sha256'])
+    # The bad 29-second fragment remains a negative case. Three actual CPU
+    # replays could not bind a meaningful source reading; do not weaken those
+    # gates to make it a positive. Independently regenerate an already published
+    # complete source clip through the normal writer, with no preferred title.
+    positive=json.loads(Path('tests/fixtures/linyuan_published_consumer_upgrade_title.json').read_text())
+    positive_cues=positive['cues'];positive_text=''.join(c['text'] for c in positive_cues)
+    assert not T.error(positive['published_title'],positive['published_proof'],positive_text)
+    result['positive_source']=dict(published_bvid=positive['published_bvid'],
+        source_sha256=positive['source_sha256'],final_sha256=positive['final_sha256'])
+    result['positive_cues_sha256']=hashlib.sha256(json.dumps(positive_cues,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+    save()
+    result['copy']=P.copywrite(positive_cues,list(range(len(positive_cues))),'林园','访谈','',out,
+        source_sha256=positive['source_sha256'])
     save()
     copy=result['copy']
-    assert not T.error(copy['title'],copy['title_rewrite'],text)
-    assert not T.unsupported_trade_directive_error(copy['title'],copy['cover_title'],text)
+    assert not T.error(copy['title'],copy['title_rewrite'],positive_text)
+    assert not T.unsupported_trade_directive_error(copy['title'],copy['cover_title'],positive_text)
     assert list(out.glob('title_response*.txt')),'No actual CPU writer responses were retained'
     assert hashlib.sha256(json.dumps(cues,sort_keys=True,ensure_ascii=False).encode()).hexdigest()==result['original_cues_sha256']
+    assert hashlib.sha256(json.dumps(positive_cues,sort_keys=True,ensure_ascii=False).encode()).hexdigest()==result['positive_cues_sha256']
     result['passed']=True;save()
     print(json.dumps(dict(passed=True,title=copy['title'],cover=copy['cover_title'],
         registered_stock=False,published=False),ensure_ascii=False))
