@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 env:
   RUN_TEXT_MODEL: qwen3.5:9b
-  RUN_SOURCE: https://www.bilibili.com/video/BV1zRJ26DEok
+  RUN_SOURCE: https://www.bilibili.com/video/BV16PWPeFEq7
   RUN_SLUG: preview-${{ github.run_id }}
   RUN_SPEAKER: 林园
   RUN_OCCASION: 访谈
@@ -22,7 +22,7 @@ env:
   RUN_REVIEWED_PARTS: ''
   LINYUAN_AUTOMATIC_ONLY: 'true'
   RUN_MAX_OUTPUTS: '1'
-  RUN_RECOVERY_RUN_ID: '39851000559'
+  RUN_RECOVERY_RUN_ID: '39946150255'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   OUTPUT_LAYOUT: portrait
 jobs:
@@ -94,10 +94,10 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: "set -euo pipefail\nmkdir -p _src\ncurl -fLsS --retry 2 --max-time 300 -H \"Authorization:\
-        \ Bearer $GH_TOKEN\" \\\n  \"https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12457656605/zip\"\
+        \ Bearer $GH_TOKEN\" \\\n  \"https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12498925909/zip\"\
         \ -o /tmp/company-followup-mother.zip\nunzip -j -o /tmp/company-followup-mother.zip -d _src\n\
         rm /tmp/company-followup-mother.zip\npython - <<'CHECK'\nimport hashlib\nfrom pathlib import Path\n\
-        assert hashlib.sha256(Path('_src/video.mp4').read_bytes()).hexdigest()=='8f379d9cecd36dc6b22d8022beed3a3a698aa217e8e0e48fdf4e2a575294b210'\n\
+        assert hashlib.sha256(Path('_src/video.mp4').read_bytes()).hexdigest()=='4faede70120611074c7a711402e14e1cd3aa30d8da7399589f48beb859ee29bb'\n\
         CHECK\necho 'path=_src/video.mp4' >> \"$GITHUB_OUTPUT\"\n"
     - name: 素材质量门禁
       id: source_gate
@@ -128,7 +128,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         RECOVERY_RUN_ID: ${{ env.RUN_RECOVERY_RUN_ID }}
       run: 'python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
-        --artifact-name editorial-ly-story-25aa8c6a50
+        --artifact-name editorial-ly-1023-bf62b5
 
         '
     - name: 检查原始识别证据，避免重复下载和推理

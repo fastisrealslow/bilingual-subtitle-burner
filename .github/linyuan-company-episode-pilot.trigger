@@ -1,1 +1,1 @@
-2026-10-24 complete-source automatic company episode trial; diagnostic only.
+2026-10-24 different source: original first part BV16PWPeFEq7, official live no_reprint=0; normal gates still mandatory, diagnostic only.
