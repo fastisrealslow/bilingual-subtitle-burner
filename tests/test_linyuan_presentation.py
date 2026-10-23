@@ -573,3 +573,13 @@ def test_actual_covers_preserve_predicate_and_attributive_phrase(text, expected)
         assert lines==expected
         assert ''.join(lines)==text
         assert max(map(len,lines))<=9
+
+
+def test_actual_compact_footer_passes_unchanged_publisher_geometry_gate():
+    layout=V.footer_layout_for(1742,756,single_line=True)
+    meta=valid_meta(1742,layout['canvas']['height'])
+    meta['layout_proof']=layout
+    assert layout['subtitle_region']['height']>=2*layout['subtitle_font_px']
+    assert FC.presentation_quality_error(meta) is None
+    meta['layout_proof']['subtitle_region']['height']=2*layout['subtitle_font_px']-1
+    assert FC.presentation_quality_error(meta)=='缺少完整词句字幕证明'

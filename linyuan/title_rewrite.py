@@ -486,6 +486,57 @@ def bind_guest_candidate(item, raw_focus, units, subjects, guest_ids):
     return result
 
 
+def company_subject_context_error(context, transcript, subject, evidence):
+    """A named question can identify one company; its premise is not evidence."""
+    from publishing_experiment import (future_holding_subject, company_subject_error,
+        company_past_event_error, company_holding_detail_error, company_holding_context_error)
+    if (not isinstance(context,dict) or type(context.get('version')) is not int or context['version']!=1
+            or context.get('subject')!=subject or not isinstance(transcript,str) or not transcript):
+        return '公司对象上下文必须绑定完整原始问答'
+    q,event,detail=(context.get(k) for k in ('question_quote','event_quote','detail_quote'))
+    if (any(not isinstance(v,str) or not v or v not in transcript for v in (q,event,detail))
+            or not future_holding_subject(q)
+            or company_subject_error(dict(kind='company_case',subject_quote=q))
+            or subject not in q or company_past_event_error(event)
+            or company_holding_detail_error(detail) or company_holding_context_error(transcript)
+            or event in detail or detail in event):
+        return '公司名只能来自明确问题，实际持仓和后续选择必须另有嘉宾原话'
+    import jieba.posseg
+    other_names=[w.word for w in jieba.posseg.cut(event+detail)
+                 if w.flag in {'nr','ns','nt','nz','eng'} and len(w.word)>=2 and w.word not in subject]
+    if other_names:
+        return '嘉宾持仓回答另有具名对象，不能只靠提问自动补足公司：'+','.join(other_names)
+    if (not isinstance(evidence,list) or not evidence
+            or any(not isinstance(v,str) or not (v in event or v in detail) for v in evidence)
+            or company_past_event_error(''.join(evidence))
+            or compact(detail) not in compact(''.join(evidence))):
+        return '公司问题只补足对象；标题事实证据仍须是嘉宾真实过去持仓与当前选择，不能使用主持人推断'
+    return None
+
+
+def holding_title_guest_ids(focus, units, guest_ids):
+    if not focus or not focus.get('holding_subject_context'):return list(guest_ids)
+    quotes=(focus.get('source') or [])[1:]
+    # Intersect with the independent reader; never turn a host/unknown cue
+    # into guest speech. Full dialogue and raw reading remain unchanged.
+    return [i for i in guest_ids if any(units[i] in q for q in quotes)]
+
+
+def bind_story_company_context(item, focus, units):
+    if not focus or not focus.get('holding_subject_context'):return item
+    sources=focus.get('source') or [];names=focus.get('subjects') or []
+    if len(sources)!=3 or len(names)!=1 or focus['holding_subject_context']!=[sources[0]]:
+        raise ValueError('公司问题上下文不是唯一绑定的原句对象')
+    subject=names[0]
+    if subject not in str(item.get('title') or ''):
+        return item  # Ordinary subject/early-object checks will reject it.
+    context=dict(version=1,subject=subject,question_quote=sources[0],
+                 event_quote=sources[1],detail_quote=sources[2])
+    error=company_subject_context_error(context,''.join(units),subject,item.get('evidence'))
+    if error:raise ValueError(error)
+    return {**item,'subject':subject,'subject_context':context}
+
+
 def bind_candidate(item, focus, units, subjects, join_spans=()):
     title=re.sub(r'\s+',' ',str(item.get('title') or '')).strip()
     cover=re.sub(r'\s+',' ',str(item.get('cover_title') or '')).strip()
@@ -1446,7 +1497,11 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     subject = item.get('subject')
     if not isinstance(subject, str) or not 2 <= len(compact(subject)) <= 12 or subject in ABSTRACT_ANCHORS:
         return '缺少具体讨论对象'
-    if compact(subject) not in compact(title) or not any(compact(subject) in compact(q) for q in evidence):
+    context=item.get('subject_context')
+    if context is not None:
+        context_issue=company_subject_context_error(context,transcript,subject,evidence)
+        if context_issue:return context_issue
+    if compact(subject) not in compact(title) or (context is None and not any(compact(subject) in compact(q) for q in evidence)):
         return '标题对象与原文证据不对应'
     if any(compact(subject)*2 in compact(copy) for copy in (title,cover)):
         return '标题或封面重复写了同一对象，不能把转写口吃当标题'
@@ -1457,8 +1512,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     return None
 
 
-def _binding(title, cover, subject, evidence):
-    return hashlib.sha256(json.dumps([title, cover, subject, evidence], ensure_ascii=False).encode()).hexdigest()
+def _binding(title, cover, subject, evidence, subject_context=None):
+    data=[title,cover,subject,evidence]
+    if subject_context is not None:data.append(subject_context)
+    return hashlib.sha256(json.dumps(data,ensure_ascii=False).encode()).hexdigest()
 
 
 def editorial_features(item):
@@ -1498,13 +1555,14 @@ def select_reviewed_candidate(accepted, candidates):
 
 def _package(item, transcript, review, candidates):
     title, cover = item['title'], item['cover_title']
-    review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'])}
+    review = {**review, 'copy_sha256':_binding(title, cover, item['subject'], item['evidence'],item.get('subject_context'))}
     proof = dict(version=VERSION, kind='editorial_claim', title=title, cover=cover,
                  subject=item['subject'], evidence=item['evidence'], review=review,
                  cover_qualifier_policy=2026092101,
                  quantity_range_policy=2026092101,
                  source_hedge_policy=2026092101,
                  source_sha256=hashlib.sha256(compact(transcript).encode()).hexdigest())
+    if item.get('subject_context') is not None:proof['subject_context']=item['subject_context']
     return dict(title=title, cover_title=cover, title_rewrite=proof,
                 title_candidates=[c['title'] for c in candidates], title_quality_verified=True,
                 packaging_method='source_claim_editor', desc='本段讨论：' + title.split('：', 1)[1])
@@ -1825,6 +1883,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
             guest_ids=guest_evidence_ids(units,roles,speaker) if structured_model else []
+            guest_ids=holding_title_guest_ids(editorial_focus,units,guest_ids)
             if answer_focus:
                 try:
                     main_ids=bind_answer_focus(reading,units,roles,speaker)
@@ -1840,6 +1899,11 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 return fallback(only_preferred=True)
             if structured_model:
                 subjects=subject_catalog(units,allowed_ids=guest_ids)
+                if editorial_focus and editorial_focus.get('holding_subject_context'):
+                    # These IDs name question CONTEXT only. Proposal factual
+                    # evidence IDs remain constrained to guest_ids below.
+                    for name in editorial_focus.get('subjects',[]):
+                        subjects.setdefault(name,sorted({i for span in subject_cue_spans(name,units) for i in span}))
             draft_prompt=prompt.replace('__TITLE_SUBJECTS__',json.dumps(list(subjects),ensure_ascii=False) if subjects else '用原文中的讨论对象')
             draft_retry=retry_note
             if structured_model:
@@ -1907,6 +1971,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                     for candidate in candidates:
                         try:
                             item=bind_guest_candidate(candidate,raw_focus,units,subjects,guest_ids)
+                            item=bind_story_company_context(item,editorial_focus,units)
                             if bound_subject:
                                 item=require_answer_subject(item,bound_subject)
                             bound.append(require_answer_focus(item,main_ids) if answer_focus else item)
@@ -2065,6 +2130,23 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
     return fallback(only_preferred=prefer_reviewed_quote)
 
 
+def metadata_error(title, proof, speaker='林园'):
+    """Check the copy envelope; actual delivery must still replay raw subtitles.
+
+    A question may supply a company name missing from the guest's evidence.
+    Metadata has those bound excerpts but cannot authenticate them. Keep the
+    full-source error() strict and replay it in artifact_subtitle_error before
+    stock admission or publication.
+    """
+    context=proof.get('subject_context') if isinstance(proof,dict) else None
+    if context is None:return error(title,proof,speaker=speaker)
+    if not isinstance(context,dict):return '公司对象上下文格式不合法'
+    quotes=[context.get(k) for k in ('question_quote','event_quote','detail_quote')]
+    if any(not isinstance(q,str) or not q for q in quotes):
+        return '公司对象上下文缺少原始问答摘录'
+    return error(title,proof,''.join(quotes),speaker)
+
+
 def error(title, proof, transcript=None, speaker='林园'):
     from speaker_attribution import other_guest_indices
     if transcript and other_guest_indices([transcript],speaker):
@@ -2106,7 +2188,7 @@ def error(title, proof, transcript=None, speaker='林园'):
     if transcript is not None and any(compact(q) not in compact(transcript) for q in evidence):
         return '标题观点不能回溯真实字幕'
     review = proof.get('review') or {}
-    if review.get('copy_sha256') != _binding(title, proof['cover'], proof.get('subject'), evidence):
+    if review.get('copy_sha256') != _binding(title, proof['cover'], proof.get('subject'), evidence,proof.get('subject_context')):
         return '核验后标题、封面或证据发生变化'
     if review.get('method') == 'source_quote':
         from headline_policy import body, complete
@@ -2132,7 +2214,8 @@ def error(title, proof, transcript=None, speaker='林园'):
         quote_issue=review_source_quote_error(review['reason'], transcript)
         if quote_issue:
             return quote_issue
-        item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence)
+        item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence,
+                    **({'subject_context':proof['subject_context']} if 'subject_context' in proof else {}))
         issue = _candidate_error(item, transcript or ''.join(evidence), speaker, (), check_layout=False)
         if issue:
             return issue

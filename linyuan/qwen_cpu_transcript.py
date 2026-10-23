@@ -169,7 +169,9 @@ def main():
     duration=len(audio)/sr
     first=args.part*630 if args.part is not None else 0
     last=min(first+630,duration) if args.part is not None else duration
-    model_id='Qwen/Qwen3-ASR-0.6B' if args.mode=='decode' else 'Qwen/Qwen3-ForcedAligner-0.6B'
+    model_id=os.environ.get('QWEN3_ASR_MODEL_ID','Qwen/Qwen3-ASR-0.6B') if args.mode=='decode' else 'Qwen/Qwen3-ForcedAligner-0.6B'
+    if args.mode=='decode' and model_id not in ('Qwen/Qwen3-ASR-0.6B','Qwen/Qwen3-ASR-1.7B'):
+        raise ValueError('Unsupported explicit offline recognition model')
     weights=Path(args.weights) if args.weights else Path(snapshot_download(model_id))
     if not weights.is_dir():
         raise ValueError('Local offline model directory is missing')

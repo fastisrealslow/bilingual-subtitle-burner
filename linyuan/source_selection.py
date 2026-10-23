@@ -7,12 +7,19 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 44
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
     r'请问|想问|请教|您[^。]*[？?]|您.{0,100}(?:怎么|如何|能否|能不能|有没有|什么|哪些|怎样|多少|吗|呢|是否|建议|期待|分享|聊聊)'
     r'|你(?:们)?(?:是|当时|现在|未来|到底|最看好|对|认为|觉得|能|会|怎|如|在|的)[^。]{0,100}(?:怎么|如何|能不能|有没有|什么|哪些|怎样|多少|谁|吗|呢|是否|建议|期待|分享|聊聊)[^。！？?]*[？?]'
+    # A literal interviewer continuation may omit 您/你 while naming the
+    # held asset: “那这未来会继续看好茅台？” Keep the following actual
+    # holding answer separate from the preceding incident question. Require
+    # the continuation, future marker, continued investment action and object;
+    # a guest's bare 为什么/是吧 is still not a new host turn.
+    r'|^(?:那|那么)[，,\s]*(?:这)?(?:未来|以后|今后)(?:还)?会继续'
+    r'(?:看好|持有|投资)[^。！？?，,]{2,16}(?:吗|呢)?[？?]$'
     r'|(?:怎么|如何|能不能).{0,40}您'
     # #942 starts with “免税行业的机会，你怎么看？”: do not consume 怎
     # and then require a second 怎么 as the longer 你... pattern does.
@@ -203,7 +210,31 @@ def unresolved_question_tail(text):
     # one timestamped cue. Keep that cue; do not mistake an interior question
     # mark for an unanswered final question. A short “嗯/好的” is not an answer.
     after=re.split(r'[？?]',text)[-1]
-    return len(re.sub(r'[\W_]','',after))<8 or not STOP.search(after)
+    # An interior guest tag question followed by a complete short assertion
+    # (“…平常心了，是吧？无所谓的。”) is not an unanswered host turn.
+    # Keep the actual cue, including the tag and its original timestamp. Real
+    # addressed questions and empty acknowledgements remain unresolved.
+    tag=re.search(r'[，,](?:是吧|对吧)[？?]([^？?]*)$',text)
+    plain=re.sub(r'[\W_]','',after)
+    acknowledgement=re.fullmatch(r'(?:嗯|啊|呃|哦|好|好的|好吧|那|对|是|是的|没错|明白|知道|谢谢|感谢|了|吧|呀)+',plain)
+    if (tag and not question_unit(text) and len(plain)>=4 and not acknowledgement
+            and STOP.search(after)):
+        return False
+    return len(plain)<8 or not STOP.search(after)
+
+
+def closed_guest_tag_before_next_question(units, index):
+    """A source-confirmed closing assertion may share the next host cue.
+
+    Keep the preceding complete timed guest sentence. Never include half of
+    the next cue or invent an intra-cue timestamp to capture its short assent.
+    A bare tag alone is still insufficient without this adjacent source text.
+    """
+    if index+1>=len(units):return False
+    text=units[index]['text'];following=units[index+1]['text']
+    if question_unit(text) or not question_unit(following):return False
+    if not re.search(r'我(?:们)?[^。！？?]{0,20}(?:当[着成]|看[作成]|认为|觉得)[^。！？?]{1,24}了[，,](?:是吧|对吧)[？?]$',text):return False
+    return bool(re.match(r'^(?:无所谓的|很正常的|没有变化|不会改变|并不影响|就是这样)[。！!]',following))
 
 
 def speech_opening(text):
@@ -428,7 +459,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
             spans.append((i,j))
     for i,j in spans:
         if j is None:continue
-        if j<=i or question_unit(units[j]['text']) or unresolved_question_tail(units[j]['text']):continue
+        if (j<=i or question_unit(units[j]['text']) or (unresolved_question_tail(units[j]['text'])
+                and not closed_guest_tag_before_next_question(units,j))):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         if not editorial.MIN_SECONDS<=duration<=330:

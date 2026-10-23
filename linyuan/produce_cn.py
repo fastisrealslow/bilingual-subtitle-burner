@@ -738,6 +738,7 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
+from prepare_asr_runtime import recognition_model
 from audio_preprocessing import policy as audio_policy, matches as audio_matches, asr_args as audio_asr_args, render_prefix as audio_render_prefix
 from asr_context import specification as asr_context_spec, matches as asr_context_matches
 
@@ -763,7 +764,7 @@ def _asr_cache_identity(src, work=None):
                 if (report.get('source_video_sha256') != source_sha
                         or report.get('device') != 'cpu'
                         or report.get('networking_during_inference') is not False
-                        or report.get('model_id') != 'Qwen/Qwen3-ASR-0.6B'
+                        or report.get('model_id') != recognition_model(choice)
                         or report.get('model_revision') != revisions.get('asr')
                         or alignment.get('device') != 'cpu'
                         or alignment.get('networking_during_inference') is not False
@@ -866,6 +867,17 @@ def transcribe(src, work, api_key=None):
     return cues
 
 
+def release_local_text_weights_for_asr(model_id):
+    # Actual 1.7B float32 trial peaked near 13 GiB. Free the existing 9B
+    # text weights during fresh recognition; its next call reloads unchanged.
+    if model_id=='Qwen/Qwen3-ASR-0.6B' or TEXT_BACKEND!='local':return
+    cli=shutil.which('ollama')
+    if cli:
+        subprocess.run([cli,'stop',LOCAL_LLM_MODEL],check=True,timeout=30,
+                       stdout=subprocess.DEVNULL)
+        print('[离线识别] 已释放本地文本模型权重；文案调用按原配置自动恢复',flush=True)
+
+
 def _transcribe_qwen_cpu(src,work):
     """Explicit CPU backend; no ASR API or automatic model fallback."""
     import wave
@@ -885,6 +897,8 @@ def _transcribe_qwen_cpu(src,work):
     clock.update(source_sha256=video_sha,pcm_sha256=pcm_sha)
     (work/'audio_clock.json').write_text(json.dumps(clock,ensure_ascii=False,indent=2))
     video_sha=_sha256_file(src)
+    config=json.loads((BASE/'asr_production_config.json').read_text())
+    choice={**config,**config.get('source_overrides',{}).get(video_sha,{})}
     evidence=Path(os.environ.get('QWEN3_EVIDENCE_DIR') or work/'qwen_cpu')
     reports=load_reports(evidence)
     if not audio_matches(reports,selected_audio) or not asr_context_matches(reports,source_sha=video_sha):
@@ -895,20 +909,21 @@ def _transcribe_qwen_cpu(src,work):
             archive.mkdir(parents=True)
             evidence.replace(archive/'qwen_cpu')
     if not reports:
+        release_local_text_weights_for_asr(recognition_model(choice))
         evidence.mkdir(parents=True,exist_ok=True)
         for mode,env in [('decode','QWEN3_ASR_DIR'),('align','QWEN3_ALIGNER_DIR')]:
             subprocess.run([sys.executable,str(BASE/'qwen_cpu_transcript.py'),mode,
                 '--audio',str(wav),'--out',str(evidence),'--weights',os.environ[env],
-                '--source-video-sha',video_sha,'--audio-preprocessing',selected_audio],check=True,timeout=max(600,int(duration*4)))
+                '--source-video-sha',video_sha,'--audio-preprocessing',selected_audio],check=True,
+                env={**os.environ,'QWEN3_ASR_MODEL_ID':recognition_model(choice)},timeout=max(600,int(duration*4)))
         reports=load_reports(evidence)
-    config=json.loads((BASE/'asr_production_config.json').read_text())
-    choice={**config,**config.get('source_overrides',{}).get(video_sha,{})}
     revisions=choice.get('model_revisions') or {}
     if any(r.get('model_revision')!=revisions.get('asr')
            or (r.get('alignment') or {}).get('model_revision')!=revisions.get('aligner')
            for r in reports):
         raise ValueError('离线转写缓存与当前识别/对齐权重版本不同')
-    words=validated_words(reports,pcm_sha,video_sha,duration)
+    words=validated_words(reports,pcm_sha,video_sha,duration,
+        model_id=recognition_model(choice))
     (work/'asr_raw_chunks.json').write_text(json.dumps(reports,ensure_ascii=False,indent=1))
     tokens=[w['text'] for w in words];times=[w['start'] for w in words]
     (work/'asr_tokens.json').write_text(json.dumps(dict(tokens=tokens,timestamps=times,
@@ -2870,7 +2885,7 @@ def build_clean_source_plan(src, work, width, height, duration,
     }
 
 
-def reviewed_native_cleanup(source_report, width, height, start, end):
+def reviewed_native_cleanup(source_report, width, height, start, end, *, automatic_proposal=False):
     """Measured lower-third repair for the exact #888 source and interval.
 
     Native review 34933295617 showed the news panel beginning at source y=789.
@@ -2878,7 +2893,15 @@ def reviewed_native_cleanup(source_report, width, height, start, end):
     preserve native pixels and both participants. This is only a proposal:
     selected_native_clean_plan must render and verify it before use.
     """
-    if automatic_only():return None
+    if automatic_only() and not automatic_proposal:return None
+    if (automatic_only() and automatic_proposal
+            and source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
+            and (width,height)==(1920,1080) and 0<=start<end):
+        # This is the already measured SOURCE layout, never an approved time
+        # range. Invoke it only after selected-interval subtitle rejection;
+        # native pixels, face survival, the 30% crop budget, decoded emblem
+        # intervals and every final gate must all pass again.
+        return (1920,756,0,0)
     if (source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
             and (width,height)==(1920,1080)
             and abs(start-459.0)<.01 and abs(end-747.24)<.01):
@@ -2933,7 +2956,7 @@ def measured_emblem_intervals(src, start, end, rect):
 
 
 def selected_native_clean_plan(src, work, width, height, start, end, proposed_crop=None,
-                               proposed_logos=()):
+                               proposed_logos=(), caption_footer=False):
     """Reassess the selected interview before forcing a face-only window.
 
     A mother-level card decision can come from an unrelated introduction or a
@@ -2979,7 +3002,7 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
                 filters.insert(0,delogo_filter(proposed_logos,width,height)+f":enable='{active}'")
             proof['measured_emblem_intervals']=intervals
         output_h=ch
-        if proposed_crop:
+        if proposed_crop and not caption_footer:
             # Give our captions their own strip below the measured source
             # crop. Moving the normal lower captions up with a shorter canvas
             # would cover the chin in the source's close-ups. Every video frame
@@ -3007,11 +3030,12 @@ def selected_native_clean_plan(src, work, width, height, start, end, proposed_cr
                      sampled_frames=12,raw_row_coverage=before,
                      clean_row_coverage=ocr_row_coverage(cleaned,frames=12,strict=True),
                      old_subtitles_removed=True,external_logos_removed=True)
-        if proposed_crop:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
+        if proposed_crop and not caption_footer:proof['subtitle_strip_xywh']=[0,ch,cw,output_h-ch]
+        if caption_footer:proof['caption_layout']='dedicated_footer_single_line_v1'
         print(f'[原画适配] {start:.2f}–{end:.2f}秒可裁净旧字幕，保留横屏切镜和原始插图：{cw}x{ch}',flush=True)
         return dict(clean_strategy='crop_delogo' if logos or proposed_logos else 'crop',
             clean_video_filter=vf,clean_output_resolution=dict(width=cw,height=output_h),
-            native_context_proof=proof,geometry_source=str(sample))
+            native_context_proof=proof,geometry_source=str(sample),use_caption_footer=bool(caption_footer))
     except (VisualQualityError,subprocess.SubprocessError,OSError,ValueError) as exc:
         proof['reason']=str(exc)
         print('[原画适配] 未通过，继续按既有版式检查：'+str(exc),flush=True)
@@ -5645,7 +5669,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  allow_empty=False, visual_report=None, source_report=None,
                  prefer_live_video=False, existing_titles=None,
                  preselected_picks=None, require_live_video=False,
-                 _portrait_attempt=False, _picture_phase=None):
+                 _portrait_attempt=False, _picture_phase=None, _native_cleanup_retry=False):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
     prefer_live_video = prefer_live_video or require_live_video
@@ -5684,9 +5708,16 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         if _picture_phase is not None:_picture_phase['cover_started']=True
         prepared_scene_cover=out/(f'cover{suffix}.jpg' if suffix else 'cover_16x9.jpg')
         p0=picks[0]
+        cover_filter=''
+        if _native_cleanup_retry:
+            measured=reviewed_native_cleanup(source_report or {},W,H,cues[p0['start']]['start'],
+                cues[p0['end']]['end'],automatic_proposal=True)
+            if measured:
+                cw_,ch_,cx_,cy_=measured
+                cover_filter=f'crop={cw_}:{ch_}:{cx_}:{cy_}'
         try:
             make_cover(src,cues[p0['start']]['start'],cues[p0['end']]['end'],
-                '',speaker,prepared_scene_cover,video_filter='',
+                '',speaker,prepared_scene_cover,video_filter=cover_filter,
                 preferred_time=(visual_report or {}).get('best_cover_time'),
                 reference_path=_download_speaker_reference(speaker,work),
                 style='scene',allow_editorial_fallback=False,clean_scene_crop=True)
@@ -5761,13 +5792,15 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     strategy = source_report.get("clean_strategy", "direct")
     native_plan=None;interview_plan=None;participant_reference=None
     proposed_native=(reviewed_native_cleanup(source_report,W,H,
-        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 and not portrait_story else None)
+        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
+        automatic_proposal=_native_cleanup_retry) if len(picks)==1 and not portrait_story else None)
     if not portrait_story and (proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1):
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
             **({'proposed_crop':proposed_native,
                 # Measured non-text station emblem, missed by text OCR.
-                'proposed_logos':[(1728/W,52/H,1824/W,148/H)]}
+                'proposed_logos':[(1728/W,52/H,1824/W,148/H)],
+                'caption_footer':_native_cleanup_retry}
                if proposed_native else {}))
         if proposed_native and not native_plan:
             raise VisualQualityError('已确认原新闻字幕条残留；重新取景未通过，禁止复用旧原画方案')
@@ -5828,12 +5861,28 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 raise VisualQualityError('选段原画仍有原字幕或免责声明')
             if detect_corner_logos(native_preview,strict=True,frames=12):
                 raise VisualQualityError('选段原画仍有来源角标')
-        except ValueError as exc:
+        except (ValueError,VisualQualityError) as exc:
             # Only a deterministic picture rejection selects another framing.
             # Runtime/OCR outages remain recoverable errors, never approval.
             if not (isinstance(exc,VisualQualityError) or '黑' in str(exc)):
                 raise
             if not prefer_live_video:raise
+            if (not _native_cleanup_retry and len(picks)==1
+                    and str(exc)=='选段原画仍有原字幕或免责声明'
+                    and reviewed_native_cleanup(source_report,W,H,
+                        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
+                        automatic_proposal=True)):
+                (work/f'native-cleanup-retry{suffix}.json').write_text(json.dumps(dict(
+                    reason=str(exc),source_sha256=source_report.get('source_sha256'),
+                    source_start=geometry_start,duration=geometry_duration,
+                    proposal_only=True,final_quality_approved=False),ensure_ascii=False,indent=2))
+                print('[选段原画复核] 当前字幕条未清净，重新实测既有原生清理方案；不批准画面、不改选段',flush=True)
+                return _produce_one(src,work,out,cues,speaker,occasion,api_key,
+                    existing_subtitles,W,H,suffix,pick_cache_suffix=pick_cache_suffix,
+                    target_sec=target_sec,allow_empty=allow_empty,visual_report=visual_report,
+                    source_report=source_report,prefer_live_video=prefer_live_video,
+                    existing_titles=existing_titles,preselected_picks=picks,require_live_video=require_live_video,
+                    _portrait_attempt=_portrait_attempt,_picture_phase=_picture_phase,_native_cleanup_retry=True)
             print(f'[选段画面预检] 原画未通过，自动尝试动态取景：{exc}',flush=True)
             (work/f'native-rejection{suffix}.json').write_text(json.dumps(
                 dict(reason=str(exc),source_start=geometry_start,duration=geometry_duration),ensure_ascii=False))
@@ -5953,9 +6002,10 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
         from presentation import live_card_layout
         layout = live_card_layout(os.environ.get('LIVE_CARD_THEME', 'contrast'))
     # Rehearsal-only until the actual native video has been visually reviewed.
-    if strategy != 'audio_card' and os.environ.get('SUBTITLE_LAYOUT') == 'footer':
+    if strategy != 'audio_card' and (os.environ.get('SUBTITLE_LAYOUT') == 'footer'
+                                   or source_report.get('use_caption_footer')):
         from presentation import footer_layout_for
-        layout = footer_layout_for(crop_w, crop_h)
+        layout = footer_layout_for(crop_w, crop_h,single_line=bool(source_report.get('use_caption_footer')))
     en_map = {}
     parts = []
     render_audio=audio_render_prefix(audio_policy(_sha256_file(src)))
