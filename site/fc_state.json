@@ -42225,10 +42225,14 @@
    "publish_time": "2026-10-17T05:14:20+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-abeb50",
-    "run_id": 39864403310,
-    "artifact_id": 12467799290,
+    "run_id": 39881075724,
+    "artifact_id": 12471144459,
     "accepted": 0,
     "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", "
@@ -42239,8 +42243,8 @@
      }
     ]
    },
-   "source_check_report_id": 12467799290,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", \"suspect_quote\": \"两个公司都不在\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字/否定类疑点：‘两个公司’指代不明，前文仅明确提及‘长虹’和‘郑州百文’（后句才确认），此处‘两个’若指代这两家则逻辑成立，但若指代其他未明示对象则构成含义不明的关键数字指代；且‘都不在’作为否定表述，需确认是否确指上述两家公司均已退市\"}]",
+   "source_check_report_id": 12471144459,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
    "failure_stage": "quality-service",
    "automatic_rule_recoveries": {
     "media-tools-preparation-2026102301": {
@@ -42252,7 +42256,9 @@
     }
    },
    "source_check_attempts": 2,
-   "source_check_run_id": 39864403310
+   "source_check_run_id": 39881075724,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:5335084269831161",
@@ -42275,7 +42281,37 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-25T02:13:10.991457"
+   "publish_time": "2026-08-25T02:13:10.991457",
+   "production_failure_summary": {
+    "slug": "ly-1023-f69a1f",
+    "run_id": 39881808121,
+    "artifact_id": 12471244022,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39881808121,
+    "artifact_id": 12471244022,
+    "name": "production-reject-ly-1023-f69a1f",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5335085361401952",
@@ -42298,7 +42334,37 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-25T02:13:10.991446"
+   "publish_time": "2026-08-25T02:13:10.991446",
+   "production_failure_summary": {
+    "slug": "ly-1023-a9bdce",
+    "run_id": 39881819067,
+    "artifact_id": 12472021377,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39881819067,
+    "artifact_id": 12472021377,
+    "name": "production-reject-ly-1023-a9bdce",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5327406278641231",
@@ -116245,6 +116311,20 @@
    "video_id": "BV1Y2B9BNEif",
    "ts": 1792718511,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配32/719，总帧数3430；身份匹配但人脸短边不足96px的帧数678"
+  },
+  {
+   "slug": "ly-1023-a9bdce",
+   "key": "weibo_search:5335085361401952",
+   "video_id": "http://f.video.weibocdn.com/u0/UhzGpyvIgx08Ae0OEVqU01041201H1Xx0E010.mp4",
+   "ts": 1792719520,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1023-f69a1f",
+   "key": "weibo_search:5335084269831161",
+   "video_id": "http://f.video.weibocdn.com/u0/j2iHhQpngx08Ae0wb4jm01041201H1Te0E010.mp4",
+   "ts": 1792719521,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
