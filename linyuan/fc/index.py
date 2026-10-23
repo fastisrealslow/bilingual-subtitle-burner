@@ -1317,25 +1317,8 @@ def topic_similarity(a, b):
 
 def iter_published_parts(st):
     """兼容新旧 state，逐条返回真正发布过的 part。"""
-    seen = set()
-    for slug, info in (st.get("published") or {}).items():
-        parts = info.get("parts") or []
-        records = parts if parts else [info]
-        for part in records:
-            if part.get("status") == "skipped":
-                continue
-            marker = (part.get("bvid") or info.get("bvid") or "",
-                      part.get("title") or info.get("title") or "")
-            if marker in seen:
-                continue
-            seen.add(marker)
-            yield slug, {
-                "bvid": marker[0],
-                "title": marker[1],
-                "ts": part.get("ts") or info.get("ts") or 0,
-                "fingerprints": (part.get("fingerprints")
-                                 or info.get("fingerprints") or {}),
-            }
+    from publication_fingerprints import iter_published_parts as records
+    yield from records(st)
 
 
 def find_recent_topic(title, st, now=None, threshold=0.55, exclude_slug=None):
@@ -1375,22 +1358,15 @@ def fingerprint_duplicate(current, previous):
     if current.get("sha256") and current.get("sha256") == previous.get("sha256"):
         return "文件 SHA256 完全相同"
 
-    cur_ngrams = set(current.get("transcript_ngrams") or [])
-    old_ngrams = set(previous.get("transcript_ngrams") or [])
-    shared = len(cur_ngrams & old_ngrams)
-    containment = shared / max(1, min(len(cur_ngrams), len(old_ngrams)))
-    if shared >= 8 and containment >= 0.45:
-        return f"转写片段重合 {containment:.0%}"
-
-    cur_text = current.get("transcript_simhash") or []
-    old_text = previous.get("transcript_simhash") or []
-    text_ratio = _fingerprint_match_ratio(cur_text, old_text, 10)
-    text_matches = round(text_ratio * len(cur_text))
-    if text_ratio >= 0.60 and text_matches >= min(2, len(cur_text)):
-        return f"转写内容重合 {text_ratio:.0%}"
+    from publication_fingerprints import transcript_duplicate
+    text_reason=transcript_duplicate(current,previous)
+    if text_reason:return text_reason
 
     video_ratio = _fingerprint_match_ratio(
         current.get("video_dhash") or [], previous.get("video_dhash") or [], 8)
+    # This branch requires BOTH video and audio agreement. A failed video
+    # predicate cannot be repaired by audio; avoid its quadratic comparison.
+    if video_ratio < 0.50:return None
     cur_audio = current.get("audio_chromaprint") or current.get("audio_spectral") or []
     old_audio = previous.get("audio_chromaprint") or previous.get("audio_spectral") or []
     audio_ratio = _fingerprint_match_ratio(cur_audio, old_audio, 3)

@@ -6240,9 +6240,23 @@ def story_selection_inputs(cues, candidates, source_report, source_url, publicat
                                                   end=cues[pick['end']]['end'])])
         history=comparison_state(meta,publication_state,preflight=True)
         reason=editorial.source_reuse_error(meta,source_url,history)
+        if not reason:reason=published_transcript_error(cues,[pick],history)
         if reason:excluded.append(dict(candidate_index=index,start=pick['start'],end=pick['end'],reason=reason))
         else:eligible.append(pick)
     return eligible,excluded
+
+
+def published_transcript_error(cues,picks,state):
+    """Same raw text fingerprints as final output; no approval on a miss."""
+    from publication_fingerprints import find_transcript_duplicate
+    selected=sorted({i for pick in picks for i in range(pick['start'],pick['end']+1)})
+    text=''.join(cues[i]['text'] for i in selected)
+    fingerprints=dict(transcript_ngrams=transcript_ngram_fingerprints(text),
+                      transcript_simhash=transcript_fingerprints(text))
+    duplicate=find_transcript_duplicate(fingerprints,state)
+    if duplicate:
+        return '与已发布内容文字指纹重复：'+duplicate['reason']+'（'+duplicate['bvid']+'）'
+    return None
 
 
 def main():
@@ -6594,6 +6608,12 @@ def main():
                     candidate_meta,os.environ.get('SOURCE_ORIGIN_URL',''),history)
                 if reuse_error:
                     raise VisualQualityError(reuse_error)
+                # A different page or raw video SHA can carry the same speech.
+                # Reuse the unchanged final publisher text rule BEFORE tracking,
+                # independent audit and title generation. Full interviews use
+                # their existing separate path, not this short-candidate gate.
+                text_duplicate=published_transcript_error(seg_cues,preselected_picks,history)
+                if text_duplicate:raise VisualQualityError(text_duplicate)
             # Context expansion can propose overlapping candidates; retain the
             # first accepted complete argument, never duplicate the same speech.
             if preselected_picks:

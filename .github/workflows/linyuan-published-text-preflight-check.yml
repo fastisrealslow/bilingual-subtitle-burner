@@ -1,0 +1,34 @@
+name: 已发布原话前置去重实物回放（不出片不投稿）
+on:
+  push:
+    branches: [codex/linyuan-published-text-preflight-20261023]
+    paths:
+      - linyuan/publication_fingerprints.py
+      - linyuan/produce_cn.py
+      - linyuan/fc/index.py
+      - scripts/check_linyuan_published_text_preflight.py
+      - .github/workflows/linyuan-published-text-preflight-check.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q jieba
+      - name: 原37段排除已发布19段，保留实际合格横版正例
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u scripts/check_linyuan_published_text_preflight.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: published-text-preflight-verification
+          path: published-text-preflight-verification.json
+          retention-days: 30
+          if-no-files-found: error
