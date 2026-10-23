@@ -3565,10 +3565,10 @@
       "family": "phoenix_2026_09",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792559433.061651,
-      "next_retry_at": 1792645833.061651,
+      "last_attempt_at": 1792766612.8334446,
+      "next_retry_at": 1792853012.8334446,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -3827,10 +3827,10 @@
       "family": "hnw_course",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 7,
+      "attempts": 8,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792576209.2461596,
-      "next_retry_at": 1792662609.2461596,
+      "last_attempt_at": 1792766614.9111326,
+      "next_retry_at": 1792853014.9111326,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6369,15 +6369,37 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 4,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792576509.2566204,
-      "next_retry_at": 1792662909.2566204,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1792766843.6681974,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "2272cccf99b3efcf89f16dba1194e8e4b2988fd0ae207ee5cae41b71b2c482ec",
+        "duration_sec": 2674.126077,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1337.06
+          }
+        ],
+        "audio_fingerprint_count": 21577,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "39965703420"
     },
     "fac958ca9c23202307e1": {
       "url": "https://www.bilibili.com/video/BV1pZ421q7sn",
@@ -7595,8 +7617,7 @@
     }
   },
   "reference_refresh": {
-    "status": "retry_next_run",
-    "error": "RuntimeError",
+    "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -7605,20 +7626,8 @@
       "errors": [
         {
           "stage": "collection_page",
-          "season_id": 6334328,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
-          "season_id": 8098861,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
           "season_id": 5016608,
-          "page": 2,
+          "page": 1,
           "error": "ValueError"
         },
         {
@@ -7630,8 +7639,8 @@
       ]
     }
   },
-  "search_cursor": 15,
-  "updated_at": 1792758090,
-  "last_run_id": "39951199132",
+  "search_cursor": 3,
+  "updated_at": 1792766843,
+  "last_run_id": "39965703420",
   "audio_match_candidates": []
 }
