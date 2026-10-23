@@ -51,6 +51,19 @@
       "source_origin_url": "https://www.bilibili.com/video/BV1se411H7tj",
       "validation_status": "diagnostic_only_pending_actual_full_source_delivery",
       "recognition_rollout_note": "Source-hash pilot only. Same production PCM probes: 1.7B with existing finance-v1 vocabulary preserves 林园 and reads 地球 matching original visible subtitle; 0.6B with/without vocabulary reads 地市. No text replacement or inferred audio gold. Full source decode/alignment, automatic selection and original media QA still required before rollout."
+    },
+    "03d6609a426bebac728302a11d61384357cfb6bc9bd4694ca0ee4b4d0ca76d68": {
+      "backend": "qwen3",
+      "asr_model_id": "Qwen/Qwen3-ASR-1.7B",
+      "recognition_context_profile": "finance-v1",
+      "model_revisions": {
+        "asr": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+        "aligner": "c7cbfc2048c462b0d63a45797104fc9db3ad62b7"
+      },
+      "source_origin_url": "https://www.bilibili.com/video/BV16G411m7JT",
+      "validation_status": "diagnostic_only_pending_actual_full_source_delivery",
+      "recognition_diagnostic_comparison_run_id": 40032486779,
+      "recognition_rollout_note": "Draft read-only exact-source trial. Prior 0.6B raw reads 当下十点的券商怎么看; original visible subtitle at 1.1s reads 当下时点的券商怎么看. Full 108.75s recognition and alignment, all independent subtitle and live-media gates still required. Do not replace words or label embedded captions audio gold."
     }
   },
   "model_revisions": {
