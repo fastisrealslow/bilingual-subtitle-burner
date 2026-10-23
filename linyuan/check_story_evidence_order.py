@@ -44,6 +44,12 @@ def main():
     report = E.choose_stories(cues, candidates, call, out / 'actual-source.json', budget_sec=1200)
     result['new_selected'] = report['selected']; save()
     assert report['selection_completed'] and not report['retryable']
+    # The first actual replay surfaced an extra false pairing: an own general
+    # method was coupled to a hypothetical third party's failed DCA schedule.
+    # It must not become the guest's personal history. A different coherent
+    # actual event/reason from that whole candidate remains eligible.
+    assert not any('为什么有的定投他' in p['story_selection']['detail_quote']
+        for p in report['selected'])
     positive = candidates[6]; negative = candidates[8]
     assert any(p['start'] == positive['start'] and p['end'] == positive['end']
         and p['story_selection']['kind'] == 'personal_story' for p in report['selected'])
