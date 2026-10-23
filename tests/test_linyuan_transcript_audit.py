@@ -164,7 +164,7 @@ def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path
     text='几块钱的是五六块钱。';calls=[]
     def call(prompt,schema):
         calls.append(prompt)
-        assert list(schema['properties'])==['explanation','issues']
+        assert list(schema['properties'])==(['issues','explanation'] if len(calls)==1 else ['explanation','issues'])
         if len(calls)==1:
             return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
                 kind='ambiguous_number_or_negation',reason='正常口语范围，'+disavowal)],explanation='无污染'))
@@ -194,3 +194,14 @@ def test_real_corrupt_term_survives_an_extra_self_disavowed_issue(tmp_path):
                    lambda *a:json.dumps(reply),tmp_path/'audit.json')
     assert not proof['passed'] and [i['suspect_quote'] for i in proof['issues']]==['TCATCA']
     assert proof['invalid_issue_evidence'][0]['suspect_quote']=='五六块钱'
+
+
+def test_real_corrupt_term_keeps_initial_protocol_without_retry(tmp_path):
+    calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        assert list(schema['properties'])==['issues','explanation']
+        return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='道琼市指数',
+            kind='unintelligible_term',reason='专名错写需核实')],explanation='真实具体错词'))
+    proof=A.review('道琼市指数影响投资。','林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==1 and not proof['passed']

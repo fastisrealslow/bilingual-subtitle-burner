@@ -7,7 +7,7 @@ from editorial_evidence import sentences
 from editorial_policy import text_digest
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102303
+SPOKEN_RANGE_POLICY_VERSION = 2026102304
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 
@@ -48,8 +48,8 @@ def review(text, speaker, model, call, path):
         reason=dict(type='string',minLength=1,maxLength=120)))
     issue['required']=list(issue['properties'])
     schema=dict(type='object',additionalProperties=False,properties=dict(
-        explanation=dict(type='string',minLength=1,maxLength=180),
-        issues=dict(type='array',maxItems=6,items=issue)))
+        issues=dict(type='array',maxItems=6,items=issue),
+        explanation=dict(type='string',minLength=1,maxLength=180)))
     schema['required']=list(schema['properties'])
     prompt=('只检查以下自动识别文字是否有明显影响理解的识别疑点，不审核观点完整性、吸引力或投资判断对错。'
         '你没有听到原音，不能声称核实了发音，更不能修改原文。'
@@ -73,11 +73,19 @@ def review(text, speaker, model, call, path):
         '每项必须用suspect_quote摘录真正有疑点的最小词语（1到24字），不得用整句代替具体问题。'
         '数字或否定类必须指明原文中实际的数字或否定字。不要推测替换词，不要审核事实真伪。'
         '有疑点时返回原句编号和具体理由，无疑点时issues为空数组。'
-        '先在explanation简述是否实际存在识别污染，再填写issues；理由认定并非识别错误的项目不得列入issues。'
         '目标嘉宾：'+speaker+'。编号原句：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
     last = None
+    explanation_first_retry = False
     for attempt in range(2):
-        raw = call(prompt,schema)
+        request_schema=schema
+        if explanation_first_retry:
+            # Keep the validated first-pass protocol for real corrupt terms.
+            # Only an explicit, contradictory "not an ASR error" response may
+            # receive a fresh explanation-first decision. Never waive an issue.
+            request_schema={**schema,'properties':dict(
+                explanation=schema['properties']['explanation'],issues=schema['properties']['issues']),
+                'required':['explanation','issues']}
+        raw = call(prompt,request_schema)
         path.with_name(path.stem+f'-response-{attempt}.txt').write_text(raw)
         try:
             data=json.loads(raw)
@@ -95,6 +103,7 @@ def review(text, speaker, model, call, path):
                     raise ValueError('Issue must identify an actual source sentence and reason')
                 evidence=dict(sentence_id=ident,quote=units[ident],suspect_quote=quote,kind=item['kind'],reason=reason)
                 if re.search(r'(?:并非|非|不是|不属于|不构成)(?:明显的|任何)?(?:识别错误|识别污染|识别疑点)',reason):
+                    explanation_first_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '此项理由明确否认识别错误，不能同时列为负面识别证据。仅保留实际认为有污染的最小词语；'
                         '正常口语范围必须保持原样，不能凭空另造精确读法。'})
@@ -119,4 +128,6 @@ def review(text, speaker, model, call, path):
         except (ValueError,TypeError,AttributeError) as exc:
             last=exc
             prompt+='\n上次响应格式错误：'+str(exc)+'。请仅使用schema字段并核对句编号。'
+            if explanation_first_retry:
+                prompt+='先在explanation独立判断是否实际存在识别污染，再填写issues；保持原话，不得把你认为不是识别错误的项目列为错误。'
     raise ValueError('Text plausibility reviewer returned invalid evidence: '+str(last))
