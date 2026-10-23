@@ -14,7 +14,7 @@ def build_trial():
         'paths':['.github/linyuan-company-followup-actual.trigger']}}
     result['concurrency']={'group':'company-followup-actual-${{ github.ref }}','cancel-in-progress':False}
     result['env'].update(RUN_SOURCE='https://www.bilibili.com/video/BV1se411H7tj',
-        RUN_SLUG='preview-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39771146000',
+        RUN_SLUG='preview-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39985269866',
         RUN_SOURCE_PLATFORM='bilibili',RUN_TEXT_MODEL='qwen3.5:9b',
         LINYUAN_EDITORIAL_PROFILE='field-story-v1',OUTPUT_LAYOUT='portrait')
     production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
@@ -42,6 +42,8 @@ assert hashlib.sha256(Path('_src/video.mp4').read_bytes()).hexdigest()=='6f5ddec
 CHECK
 echo 'path=_src/video.mp4' >> "$GITHUB_OUTPUT"
 '''
+        if s.get('name')=='复用同源失败任务的已完成证据':
+            s['run']=s['run'].rstrip()+' --artifact-name preview-editorial-preview-39985269866\n'
         if s.get('id')=='render':s['env'].pop('SOURCE_VISUAL_CHAPTERS',None)
         steps.append(s)
         if s.get('name')=='验收真实实验交付（缺实验成片即失败）':

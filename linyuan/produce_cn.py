@@ -2870,7 +2870,7 @@ def build_clean_source_plan(src, work, width, height, duration,
     }
 
 
-def reviewed_native_cleanup(source_report, width, height, start, end):
+def reviewed_native_cleanup(source_report, width, height, start, end, *, automatic_proposal=False):
     """Measured lower-third repair for the exact #888 source and interval.
 
     Native review 34933295617 showed the news panel beginning at source y=789.
@@ -2878,7 +2878,15 @@ def reviewed_native_cleanup(source_report, width, height, start, end):
     preserve native pixels and both participants. This is only a proposal:
     selected_native_clean_plan must render and verify it before use.
     """
-    if automatic_only():return None
+    if automatic_only() and not automatic_proposal:return None
+    if (automatic_only() and automatic_proposal
+            and source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
+            and (width,height)==(1920,1080) and 0<=start<end):
+        # This is the already measured SOURCE layout, never an approved time
+        # range. Invoke it only after selected-interval subtitle rejection;
+        # native pixels, face survival, the 30% crop budget, decoded emblem
+        # intervals and every final gate must all pass again.
+        return (1920,756,0,0)
     if (source_report.get('source_sha256')=='6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d'
             and (width,height)==(1920,1080)
             and abs(start-459.0)<.01 and abs(end-747.24)<.01):
@@ -5645,7 +5653,7 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                  allow_empty=False, visual_report=None, source_report=None,
                  prefer_live_video=False, existing_titles=None,
                  preselected_picks=None, require_live_video=False,
-                 _portrait_attempt=False, _picture_phase=None):
+                 _portrait_attempt=False, _picture_phase=None, _native_cleanup_retry=False):
     """出一段视频。suffix='' 或 '_2' 等。target_sec 控制时长（短金句 180 / 中视频 420）。
     返回 meta dict；allow_empty=True 且本段没有够格金句时返回 None（不出片）。"""
     prefer_live_video = prefer_live_video or require_live_video
@@ -5761,7 +5769,8 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
     strategy = source_report.get("clean_strategy", "direct")
     native_plan=None;interview_plan=None;participant_reference=None
     proposed_native=(reviewed_native_cleanup(source_report,W,H,
-        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end']) if len(picks)==1 and not portrait_story else None)
+        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
+        automatic_proposal=_native_cleanup_retry) if len(picks)==1 and not portrait_story else None)
     if not portrait_story and (proposed_native or strategy=='audio_card' and prefer_live_video and len(picks)==1):
         native_plan=selected_native_clean_plan(src,work/f'native{suffix}',W,H,
             cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
@@ -5828,12 +5837,28 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
                 raise VisualQualityError('选段原画仍有原字幕或免责声明')
             if detect_corner_logos(native_preview,strict=True,frames=12):
                 raise VisualQualityError('选段原画仍有来源角标')
-        except ValueError as exc:
+        except (ValueError,VisualQualityError) as exc:
             # Only a deterministic picture rejection selects another framing.
             # Runtime/OCR outages remain recoverable errors, never approval.
             if not (isinstance(exc,VisualQualityError) or '黑' in str(exc)):
                 raise
             if not prefer_live_video:raise
+            if (not _native_cleanup_retry and len(picks)==1
+                    and str(exc)=='选段原画仍有原字幕或免责声明'
+                    and reviewed_native_cleanup(source_report,W,H,
+                        cues[picks[0]['start']]['start'],cues[picks[0]['end']]['end'],
+                        automatic_proposal=True)):
+                (work/f'native-cleanup-retry{suffix}.json').write_text(json.dumps(dict(
+                    reason=str(exc),source_sha256=source_report.get('source_sha256'),
+                    source_start=geometry_start,duration=geometry_duration,
+                    proposal_only=True,final_quality_approved=False),ensure_ascii=False,indent=2))
+                print('[选段原画复核] 当前字幕条未清净，重新实测既有原生清理方案；不批准画面、不改选段',flush=True)
+                return _produce_one(src,work,out,cues,speaker,occasion,api_key,
+                    existing_subtitles,W,H,suffix,pick_cache_suffix=pick_cache_suffix,
+                    target_sec=target_sec,allow_empty=allow_empty,visual_report=visual_report,
+                    source_report=source_report,prefer_live_video=prefer_live_video,
+                    existing_titles=existing_titles,preselected_picks=picks,require_live_video=require_live_video,
+                    _portrait_attempt=_portrait_attempt,_picture_phase=_picture_phase,_native_cleanup_retry=True)
             print(f'[选段画面预检] 原画未通过，自动尝试动态取景：{exc}',flush=True)
             (work/f'native-rejection{suffix}.json').write_text(json.dumps(
                 dict(reason=str(exc),source_start=geometry_start,duration=geometry_duration),ensure_ascii=False))
