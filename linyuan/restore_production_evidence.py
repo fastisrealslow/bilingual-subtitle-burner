@@ -88,6 +88,12 @@ def restore(evidence, work, *, titles_only=False):
     # edit proof. Never copy old semantic approvals or editing proofs.
     patterns=(('copywrite*.json',) if titles_only else
               ('highlights*.json','copywrite*.json','semantic*.readable-*.json'))
+    if not titles_only and (evidence/'story_selection.json').is_file():
+        # This is NOT restored semantic approval. The selector only reads its
+        # unfinished scheduling indices, after matching current cues, revision
+        # and the entire candidate set. All selections are reviewed again.
+        shutil.copy2(evidence/'story_selection.json',work/'story_review_progress.json')
+        copied.append('story_review_progress.json')
     for pattern in patterns:
         for path in evidence.glob(pattern):
             shutil.copy2(path,work/path.name);copied.append(path.name)

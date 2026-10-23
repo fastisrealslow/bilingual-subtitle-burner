@@ -249,6 +249,21 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
         else:
             report['rejected'].append(dict(index=index,reason='no_substantive_answer_evidence'))
     report['eligible_candidates']=len(rows)
+    # A retry previously restarted at the first answer, repeatedly exhausting
+    # the same budget before later answers were reached. Restore scheduling
+    # hints only; every verdict, including old positives, is independently
+    # requested and validated again under the unchanged protocol.
+    if path is not None:
+        hint=Path(path).with_name('story_review_progress.json')
+        try:prior=json.loads(hint.read_text())
+        except (OSError,ValueError):prior=None
+        from story_review_progress import continuation_order
+        order,progress=continuation_order(candidates,prior,
+            transcript_sha256=report['transcript_sha256'],revision=SELECTION_REVISION)
+        positions={index:position for position,index in enumerate(order)}
+        rows.sort(key=lambda row:positions[row['index']])
+        report['continuation']=progress
+    report['review_order']=[row['index'] for row in rows]
     deadline=time.monotonic()+budget_sec
     for start in range(0,len(rows),2):
         if time.monotonic()>=deadline:
