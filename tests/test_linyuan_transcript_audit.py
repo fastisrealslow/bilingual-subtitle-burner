@@ -159,13 +159,15 @@ def test_range_prompt_never_waives_a_returned_numeric_or_name_issue(tmp_path):
     assert not proof['ignored_style_objections']
 
 
-def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path):
+@pytest.mark.parametrize('disavowal',['并非识别错误','非识别错误','不是识别污染','不构成识别疑点'])
+def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path,disavowal):
     text='几块钱的是五六块钱。';calls=[]
     def call(prompt,schema):
         calls.append(prompt)
+        assert list(schema['properties'])==['explanation','issues']
         if len(calls)==1:
             return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
-                kind='ambiguous_number_or_negation',reason='正常口语范围，并非识别错误。')],explanation='无污染'))
+                kind='ambiguous_number_or_negation',reason='正常口语范围，'+disavowal)],explanation='无污染'))
         assert '明确否认识别错误' in prompt
         return json.dumps(dict(issues=[],explanation='重审后未发现实际文字识别疑点'))
     proof=A.review(text,'林园','model',call,tmp_path/'audit.json')
