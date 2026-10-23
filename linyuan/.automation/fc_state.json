@@ -42891,11 +42891,28 @@
     "basis": "unknown"
    },
    "publish_time": "2025-02-02T12:23:19+00:00",
-   "source_check_report_id": 12477354950,
-   "source_check_run_id": 39896001989,
-   "last_error": "取源未完成：SourceMediaMismatch: 下载媒体时长 635.00s 与请求页面 2264.00s 不匹配（容差 113.20s）",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "source_check_report_id": 12481520804,
+   "source_check_run_id": 39901671195,
+   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
+   "failure_stage": "quality-service",
+   "source_check_attempts": 1,
+   "production_failure_summary": {
+    "slug": "ly-1023-4b6916",
+    "run_id": 39901671195,
+    "artifact_id": 12481520804,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 679.82s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "source_check_retry_after": 1792736517
   },
   {
    "key": "bilibili_search:BV1Tb421z7AG",
