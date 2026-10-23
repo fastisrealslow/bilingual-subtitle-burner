@@ -45577,8 +45577,8 @@
    "publish_time": "2024-08-18T09:00:30+00:00",
    "production_failure_summary": {
     "slug": "ly-1023-44951f",
-    "run_id": 39951453293,
-    "artifact_id": 12503410652,
+    "run_id": 40034635886,
+    "artifact_id": 12537250058,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -45598,15 +45598,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39951453293,
-    "artifact_id": 12503410652,
+    "run_id": 40034635886,
+    "artifact_id": 12537250058,
     "name": "production-reject-ly-1023-44951f",
     "retained": true
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "visual-preflight-v2": {
@@ -45644,25 +45644,36 @@
    "publish_time": "2026-10-20T08:00:02+08:00",
    "production_failure_summary": {
     "slug": "ly-1020-8096f7",
-    "run_id": 39396048274,
-    "artifact_id": 12251863031,
+    "run_id": 40034646047,
+    "artifact_id": 12536762015,
     "accepted": 0,
     "failures": [
      {
       "stage": "editorial-selection",
       "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a17edd9349f876d9f6e3eeba660c3af2b1f46f104bde35ee030102713b80e527",
+     "duration_sec": 64.32,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5356004318646407"
+    }
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39396048274,
-    "artifact_id": 12251863031,
+    "run_id": 40034646047,
+    "artifact_id": 12536762015,
     "name": "production-reject-ly-1020-8096f7",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
