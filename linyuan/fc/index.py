@@ -2984,7 +2984,23 @@ def experiment_reuse_plan(candidates, state, needs):
         options=[]
         for i,(parent,record) in enumerate(pending):
             observed=experiment_reuse_layouts(parent,record,state)
+            repair=parent.get('experiment_proven_recall')
+            proven_layouts=set()
+            if repair:
+                for hint in record.get('source_geometry_hints',[]):
+                    size=hint.get('resolution') or {}
+                    if (hint.get('diagnostic_only') is True
+                            and hint.get('source_sha256')==repair.get('source_sha256')
+                            and hint.get('sha256')==repair.get('diagnostic_video_sha256')
+                            and hint.get('geometry_run_id')==repair.get('diagnostic_run_id')
+                            and hint.get('geometry_artifact_id')==repair.get('diagnostic_artifact_id')
+                            and all(type(size.get(k)) is int and size[k]>0 for k in ('width','height'))
+                            and size['width']!=size['height']):
+                        proven_layouts.add('landscape' if size['width']>size['height'] else 'portrait')
             for order,layout in enumerate(('landscape','portrait')):
+                # A bounded repair must reproduce its actual validated format,
+                # not consume its one attempt guessing at the opposite gap.
+                if repair and layout not in proven_layouts:continue
                 if remaining.get(layout,0)>0:
                     confidence=0 if layout in observed else 1 if not observed else 2
                     options.append(((confidence,-remaining[layout],i,order),i,layout))

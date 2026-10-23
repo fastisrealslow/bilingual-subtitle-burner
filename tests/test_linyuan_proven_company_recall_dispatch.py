@@ -147,3 +147,28 @@ def test_source_repair_output_is_bound_to_the_actual_proven_mother():
     assert F.proven_recall_source_error(dict(source_sha256='a'*64),entry)
     assert F.proven_recall_source_error({},dict(experiment_proven_recall=dict(source_sha256='bad')))
     assert F.proven_recall_source_error({},dict()) is None
+
+
+@pytest.mark.parametrize('layout',['portrait','landscape'])
+def test_proven_repair_waits_for_its_measured_format_instead_of_guessing(monkeypatch,layout):
+    scope,state,inventory,items=fixture(monkeypatch)
+    scope.update(diagnostic_resolution=(dict(width=720,height=1280) if layout=='portrait'
+        else dict(width=1742,height=922)),diagnostic_render_mode='crop_delogo')
+    choices=list(F.proven_company_recall_candidates(state,inventory,items));before=deepcopy(choices)
+    other='landscape' if layout=='portrait' else 'portrait'
+    assert F.experiment_reuse_plan(choices,state,{layout:0,other:2})==[]
+    plan=F.experiment_reuse_plan(choices,state,{layout:1,other:2})
+    assert len(plan)==1 and plan[0][2]==layout and choices==before
+
+
+@pytest.mark.parametrize('change',['source','video','run','artifact','missing'])
+def test_proven_layout_requires_the_same_actual_diagnostic_identity(monkeypatch,change):
+    scope,state,inventory,items=fixture(monkeypatch)
+    scope.update(diagnostic_resolution=dict(width=1742,height=922),diagnostic_render_mode='crop_delogo')
+    choices=list(F.proven_company_recall_candidates(state,inventory,items));hint=choices[0][1]['source_geometry_hints'][0]
+    if change=='source':hint['source_sha256']='c'*64
+    elif change=='video':hint['sha256']='c'*64
+    elif change=='run':hint['geometry_run_id']+=1
+    elif change=='artifact':hint['geometry_artifact_id']+=1
+    else:choices[0][1].pop('source_geometry_hints')
+    assert not F.experiment_reuse_plan(choices,state,dict(portrait=2,landscape=2))
