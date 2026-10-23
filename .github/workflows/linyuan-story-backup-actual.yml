@@ -6,8 +6,7 @@ run-name: 真实母片回退验证 · ${{ github.run_id }}
     branches:
     - fix/story-failure-baseline-backups-20261023
     paths:
-    - .github/workflows/linyuan-story-backup-actual.yml
-    - scripts/build_linyuan_story_backup_actual.py
+    - .github/linyuan-story-backup-actual.trigger
 permissions:
   contents: read
   actions: read
@@ -17,7 +16,7 @@ concurrency:
 env:
   RUN_TEXT_MODEL: qwen3.5:9b
   RUN_SOURCE: https://www.bilibili.com/video/BV1hS421X7Xd
-  RUN_SLUG: preview-story-backups-${{ github.run_id }}
+  RUN_SLUG: preview-${{ github.run_id }}
   RUN_SPEAKER: 林园
   RUN_OCCASION: 访谈
   RUN_SOURCE_PLATFORM: bilibili

@@ -11,10 +11,10 @@ def build_trial():
     result['name']='真实失败母片普通备用验收（缓存源，不入库不投稿）'
     result['run-name']='真实母片回退验证 · ${{ github.run_id }}'
     result['on']={'push':{'branches':['fix/story-failure-baseline-backups-20261023'],
-        'paths':['.github/workflows/linyuan-story-backup-actual.yml','scripts/build_linyuan_story_backup_actual.py']}}
+        'paths':['.github/linyuan-story-backup-actual.trigger']}}
     result['concurrency']={'group':'story-backup-actual-${{ github.ref }}','cancel-in-progress':False}
     result['env'].update(RUN_SOURCE='https://www.bilibili.com/video/BV1hS421X7Xd',
-        RUN_SLUG='preview-story-backups-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39944885125',
+        RUN_SLUG='preview-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39944885125',
         RUN_SOURCE_PLATFORM='bilibili',RUN_TEXT_MODEL='qwen3.5:9b',
         LINYUAN_EDITORIAL_PROFILE='field-story-v1',OUTPUT_LAYOUT='portrait')
     production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
