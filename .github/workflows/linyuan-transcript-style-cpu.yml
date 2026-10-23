@@ -1,7 +1,7 @@
 name: 独立CPU文字审核风格与真错误对照
 on:
   push:
-    branches: [codex/transcript-style-audit]
+    branches: [codex/transcript-style-audit, codex/linyuan-spoken-range-audit-20261023]
     paths:
       - .github/workflows/linyuan-transcript-style-cpu.yml
       - linyuan/transcript_audit.py
@@ -77,6 +77,8 @@ jobs:
             assert json.load(response)['message']['content']
           PY
       - name: 正常口语不能误挡，实际错词仍须拒绝
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python -u scripts/check_linyuan_transcript_style_cpu.py
       - uses: actions/upload-artifact@v4
         if: always()

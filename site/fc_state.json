@@ -33732,13 +33732,13 @@
    "publish_time": "2025-11-16T02:40:48+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-1739cd",
-    "run_id": 38581119430,
-    "artifact_id": 11905615775,
+    "run_id": 39040063409,
+    "artifact_id": 12103654154,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该错误出现在介绍人物身份的关键位置，严重影响指代准确性。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。\", \"suspect_quote\": \"林元\", \"kind\":"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"正在翻看行情的这位男士，就是经济半小时栏目曾经报道过的股市传奇人物林元。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，此处识别为“林元”属于明显的同音错别字，且该词在后续句子中多次出现（如句 12、13、35、37、41、48），若统一修正为“林园”会导致人名不一致的严重逻辑矛盾。\"}, {\"sentence_id\": 3, \"quote\": \"在二零零六年五月播出的节目中，林元曾经春风得意的向记者展示了自己赚钱的速度。"
      }
     ]
    },
@@ -33782,8 +33782,8 @@
    "publish_time": "2026-06-29T12:49:41+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-6bb758",
-    "run_id": 38574796380,
-    "artifact_id": 11903121253,
+    "run_id": 39040071318,
+    "artifact_id": 12104207700,
     "accepted": 0,
     "failures": [
      {
@@ -37848,17 +37848,33 @@
    "recovery_origin_run_id": 39411448572,
    "production_failure_summary": {
     "slug": "ly-story-7884c0eb85",
-    "run_id": 39750537949,
-    "artifact_id": 12413916434,
+    "run_id": 39046394552,
+    "artifact_id": 12106715507,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，'是五六块钱'中的'是'字在此处作为口语连接词使用，但'五六块钱'指代模糊（是约数还是具体区间？），且与前文'几块钱'的对比逻辑在字幕中不够清晰，可能影响对价格判断的理解。\"}]"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'放放回到'不符合中文语法逻辑，应为'放回'或'放回到'，多出的'放'字导致语义不通。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是是没"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似口吃或识别冗余，但结合上下文“把您放回到”语义通顺，此处“放放”极可能是口语重复而非错别字；若严格按“无法解释的具体词语”标准，此处在口语中可接受，暂不列为疑点。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不不没投这个东西。\", \"suspect_quote\": \"我也我虽然不不没投这个东西。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不不没’存在多重否定叠加且无明确逻辑指向，属于含义不明的关键否定结构，需指出原文实际否定字‘不、没’的混乱组合。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
      }
     ]
    },
@@ -41763,7 +41779,33 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-25T15:30:02+00:00"
+   "publish_time": "2025-12-25T15:30:02+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1022-179861",
+    "run_id": 39872463536,
+    "artifact_id": 12471621133,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配32/719，总帧数3430；身份匹配但人脸短边不足96px的帧数678"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1973，总帧数9864；身份匹配但人脸短边不足96px的帧数1973"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39872463536,
+    "artifact_id": 12471621133,
+    "name": "production-reject-ly-1022-179861",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配32/719，总帧数3430；身份匹配但人脸短边不足96px的帧数678",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5327198606070910",
@@ -42095,7 +42137,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1esJv6rEgQ",
@@ -42182,10 +42225,14 @@
    "publish_time": "2026-10-17T05:14:20+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-abeb50",
-    "run_id": 39864403310,
-    "artifact_id": 12467799290,
+    "run_id": 39881075724,
+    "artifact_id": 12471144459,
     "accepted": 0,
     "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", "
@@ -42196,8 +42243,8 @@
      }
     ]
    },
-   "source_check_report_id": 12467799290,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", \"suspect_quote\": \"两个公司都不在\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字/否定类疑点：‘两个公司’指代不明，前文仅明确提及‘长虹’和‘郑州百文’（后句才确认），此处‘两个’若指代这两家则逻辑成立，但若指代其他未明示对象则构成含义不明的关键数字指代；且‘都不在’作为否定表述，需确认是否确指上述两家公司均已退市\"}]",
+   "source_check_report_id": 12471144459,
+   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
    "failure_stage": "quality-service",
    "automatic_rule_recoveries": {
     "media-tools-preparation-2026102301": {
@@ -42209,7 +42256,9 @@
     }
    },
    "source_check_attempts": 2,
-   "source_check_run_id": 39864403310
+   "source_check_run_id": 39881075724,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:5335084269831161",
@@ -42232,7 +42281,37 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-25T02:13:10.991457"
+   "publish_time": "2026-08-25T02:13:10.991457",
+   "production_failure_summary": {
+    "slug": "ly-1023-f69a1f",
+    "run_id": 39881808121,
+    "artifact_id": 12471244022,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39881808121,
+    "artifact_id": 12471244022,
+    "name": "production-reject-ly-1023-f69a1f",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5335085361401952",
@@ -42255,7 +42334,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-25T02:13:10.991446"
+   "publish_time": "2026-08-25T02:13:10.991446",
+   "production_failure_summary": {
+    "slug": "ly-1023-a9bdce",
+    "run_id": 39881819067,
+    "artifact_id": 12472021377,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39881819067,
+    "artifact_id": 12472021377,
+    "name": "production-reject-ly-1023-a9bdce",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
+  },
+  {
+   "key": "weibo_search:5327406278641231",
+   "video_id": "http://f.video.weibocdn.com/u0/SW4CeZJ8gx08zGdiHReo01041202Ulij0E020.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "field-story-v1",
+   "experiment_duration_probe": {
+    "requested_at": 1792718582,
+    "reason": "missing_ledger_duration"
+   },
+   "slug": "ly-1023-c339ed",
+   "ts": 1792718584,
+   "source_url": "https://m.weibo.cn/detail/5327406278641231",
+   "asset_url": "https://m.weibo.cn/detail/5327406278641231",
+   "title": "#昕礽果复利增长价值亿亿金 林园总聊牛市初期投资策略20201026\n股市稳赚不赔的底层逻辑#得中药龙头者得天下 htt",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "昕礽果复利增长",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-08-02T13:25:09.995276"
   }
  ],
  "makeup_receipts": {
@@ -116168,6 +116304,27 @@
    "video_id": "http://f.video.weibocdn.com/u0/wrj7r8kpgx08Ae0ntRy801041201H1Xx0E010.mp4",
    "ts": 1792717296,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1022-179861",
+   "key": "bilibili_search:BV1Y2B9BNEif",
+   "video_id": "BV1Y2B9BNEif",
+   "ts": 1792718511,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配32/719，总帧数3430；身份匹配但人脸短边不足96px的帧数678"
+  },
+  {
+   "slug": "ly-1023-a9bdce",
+   "key": "weibo_search:5335085361401952",
+   "video_id": "http://f.video.weibocdn.com/u0/UhzGpyvIgx08Ae0OEVqU01041201H1Xx0E010.mp4",
+   "ts": 1792719520,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1023-f69a1f",
+   "key": "weibo_search:5335084269831161",
+   "video_id": "http://f.video.weibocdn.com/u0/j2iHhQpngx08Ae0wb4jm01041201H1Te0E010.mp4",
+   "ts": 1792719521,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
@@ -117561,7 +117718,7 @@
  },
  "source_refresh_requested_at": 1792702271,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 5,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
