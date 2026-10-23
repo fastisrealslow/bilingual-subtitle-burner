@@ -192,7 +192,7 @@ def test_incomplete_proposal_is_a_retryable_source_nonverdict_in_actual_batch(tm
 
 
 @pytest.mark.parametrize('proposed,explicit_limit,expected_attempts,expected_accepted',[
-    (True,0,3,2),(True,1,2,1),(False,0,5,4)])
+    (True,0,3,2),(True,1,2,1),(False,0,5,4),(False,2,3,2)])
 def test_delivery_limit_counts_real_acceptances_and_retains_failed_candidate_backups(
         tmp_path,monkeypatch,proposed,explicit_limit,expected_attempts,expected_accepted):
     import produce_cn as P
