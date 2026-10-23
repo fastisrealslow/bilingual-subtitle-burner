@@ -84,7 +84,7 @@ jobs:
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5
         continue-on-error: true
-        run: python -u monitor_v2.py --source-types yicai_video weibo_video public_roadshow_catalog
+        run: python -u monitor_v2.py --source-types yicai_video weibo_video public_roadshow_catalog ifeng_video
 
       - name: 提前展开长合集的原生分集（有界轮换，不新增生产并发）
         timeout-minutes: 5

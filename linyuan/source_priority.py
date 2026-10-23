@@ -54,6 +54,7 @@ def recording_recency_rank(candidate, now):
 # Exact pages with first-party interview bylines, not a platform-wide whitelist.
 # This ranks provenance only: it neither proves a reference match nor grants reuse.
 VERIFIED_PRIMARY_PAGES = frozenset({
+    'https://v.ifeng.com/c/8WHpW9qUT1g',
     'https://www.yicai.com/video/103329354.html',
     'https://www.yicai.com/video/102581577.html',
 })
