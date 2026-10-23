@@ -6448,7 +6448,8 @@ def main():
         (work/'selection_diagnostics.json').write_text(json.dumps(diagnostics,ensure_ascii=False,indent=2))
         (work/'source_question_answers.json').write_text(json.dumps(source_picks,ensure_ascii=False,indent=2))
     from publishing_experiment import profile, TREATMENT, MIN_MOTHER_SECONDS, choose_stories
-    requested_editorial_profile=profile()
+    from source_profile_feasibility import profile_for_source
+    requested_editorial_profile=profile_for_source(source_report,work)
     story_review={}
     if profile()==TREATMENT and source_picks:
         mother_seconds=float(source_report.get('duration_sec') or 0)
