@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792748800,
+  "updated_at": 1792748926,
   "inventory_updated_at": 1792748799,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 15,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -97,18 +97,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792748800,
+    "updated_at": 1792748925,
     "records": 11513,
     "video_records": 9934,
-    "initial_candidates": 61,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 60,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1579,
       "clip_title": 1159,
-      "already_attempted_or_cooling": 1610,
+      "already_attempted_or_cooling": 1611,
       "speaker_unconfirmed": 6834,
       "noise": 21,
       "unrelated": 65,
@@ -118,16 +118,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1vN411c7Ej",
-        "title": "2019.12.20林园：投资买入和持有要分开，买股就要买印钞机器",
-        "source": "bilibili_search",
-        "author": "财报掘金",
-        "url": "https://www.bilibili.com/video/BV1vN411c7Ej",
-        "duration_sec": 201.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 15,
@@ -145,12 +136,12 @@
     "complete": 142,
     "failed": 1285,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 6,
-    "retry_queued": 1,
-    "running": 5
+    "retry_queued": 2,
+    "running": 6
   },
   "tasks": [
     {
@@ -26695,14 +26686,14 @@
     },
     {
       "slug": "ly-1023-da53ab",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792748378,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792750647,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -26728,6 +26719,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39934008074",
       "run_started_at": "2026-10-23T09:44:07Z",
       "run_updated_at": "2026-10-23T09:44:11Z"
+    },
+    {
+      "slug": "ly-1023-5426b3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792748884,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39934490422,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39934490422",
+      "run_started_at": "2026-10-23T09:48:04Z",
+      "run_updated_at": "2026-10-23T09:48:08Z"
     }
   ],
   "runs": {
@@ -38556,17 +38565,6 @@
       "run_number": 2574,
       "display_title": "中文源出片 · ly-1023-259492"
     },
-    "ly-1023-070fd8": {
-      "id": 39934008074,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-23T09:44:07Z",
-      "updated_at": "2026-10-23T09:44:11Z",
-      "run_started_at": "2026-10-23T09:44:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39934008074",
-      "run_number": 2582,
-      "display_title": "中文源出片 · ly-1023-070fd8"
-    },
     "ly-1023-da53ab": {
       "id": 39933467381,
       "status": "completed",
@@ -38577,6 +38575,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39933467381",
       "run_number": 2581,
       "display_title": "中文源出片 · ly-1023-da53ab"
+    },
+    "ly-1023-5426b3": {
+      "id": 39934490422,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T09:48:04Z",
+      "updated_at": "2026-10-23T09:48:08Z",
+      "run_started_at": "2026-10-23T09:48:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39934490422",
+      "run_number": 2583,
+      "display_title": "中文源出片 · ly-1023-5426b3"
+    },
+    "ly-1023-070fd8": {
+      "id": 39934008074,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-23T09:44:07Z",
+      "updated_at": "2026-10-23T09:44:11Z",
+      "run_started_at": "2026-10-23T09:44:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39934008074",
+      "run_number": 2582,
+      "display_title": "中文源出片 · ly-1023-070fd8"
     },
     "ly-1023-f12cef": {
       "id": 39932976956,
