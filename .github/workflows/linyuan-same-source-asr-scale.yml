@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: 安装与生产相同的媒体解码工具
+        run: bash linyuan/ci_install_media_tools.sh
       - name: 获取既有母片和真实识别缓存，不访问上游视频站
         env:
           GH_TOKEN: ${{ github.token }}
@@ -43,6 +45,8 @@ jobs:
         if: always()
         with:
           name: same-source-asr-scale-trial
-          path: same-source-asr-trial/
+          path: |
+            same-source-asr-trial/*.json
+            same-source-asr-trial/core-*.wav
           retention-days: 30
           if-no-files-found: error

@@ -181,6 +181,14 @@ if __name__ == '__main__':
     parser.add_argument('--old-asr', type=Path)
     parser.add_argument('--size', choices=MODELS)
     args = parser.parse_args()
-    if args.mode == 'prepare': prepare(args.root, args.mother, args.old_asr)
+    if args.mode == 'prepare':
+        try:
+            prepare(args.root, args.mother, args.old_asr)
+        except Exception as exc:
+            args.root.mkdir(parents=True, exist_ok=True)
+            save(args.root / 'preparation-failure.json', dict(complete=False, diagnostic_only=True,
+                phase='exact_source_pcm_preparation', error_type=type(exc).__name__, error=str(exc),
+                production_model_changed=False, registered_stock=False, published=False))
+            raise
     elif args.mode == 'infer': infer(args.root, args.size)
     else: compare(args.root)
