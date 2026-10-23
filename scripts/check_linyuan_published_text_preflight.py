@@ -55,10 +55,18 @@ def main():
         accepted=json.loads(z.read('meta.json'))
         if hashlib.sha256(z.read('final.mp4')).hexdigest()!='fbb19708492be26a2646d58c0219f919f0995eeb90db97b382f250e74d5021fe':
             raise ValueError('Existing accepted final bytes changed')
-    positive=F.find_content_duplicate(accepted['fingerprints'],state)
+    audio_scans=0
+    original_ratio=F._fingerprint_match_ratio
+    def counted(current,previous,distance):
+        nonlocal audio_scans
+        audio_scans+=int(distance==3)
+        return original_ratio(current,previous,distance)
+    F._fingerprint_match_ratio=counted
+    try:positive=F.find_content_duplicate(accepted['fingerprints'],state)
+    finally:F._fingerprint_match_ratio=original_ratio
     passed=(len(candidates)==len(before)==37 and len(eligible)==18 and len(text_excluded)==19
         and selected_indices.issubset({r['candidate_index'] for r in text_excluded})
-        and positive is None and snapshot==json.dumps(state,sort_keys=True))
+        and positive is None and audio_scans==0 and snapshot==json.dumps(state,sort_keys=True))
     report=dict(diagnostic_only=True,publication_approved=False,audio_verified=False,
         source_cues_changed=False,state_unchanged=snapshot==json.dumps(state,sort_keys=True),
         frozen_state_commit=frozen,frozen_state_blob=blob,source_artifact=12472006702,
@@ -66,6 +74,7 @@ def main():
         original_candidates=37,old_preflight_eligible=len(before),new_preflight_eligible=len(eligible),
         already_published_text_duplicates=len(text_excluded),excluded=excluded,
         old_selected_indices=sorted(selected_indices),existing_accepted_landscape_duplicate=positive,
+        unnecessary_audio_scans=audio_scans,
         new_stock=0,passed=passed)
     Path('published-text-preflight-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps({k:v for k,v in report.items() if k!='excluded'},ensure_ascii=False))

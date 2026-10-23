@@ -1364,6 +1364,9 @@ def fingerprint_duplicate(current, previous):
 
     video_ratio = _fingerprint_match_ratio(
         current.get("video_dhash") or [], previous.get("video_dhash") or [], 8)
+    # This branch requires BOTH video and audio agreement. A failed video
+    # predicate cannot be repaired by audio; avoid its quadratic comparison.
+    if video_ratio < 0.50:return None
     cur_audio = current.get("audio_chromaprint") or current.get("audio_spectral") or []
     old_audio = previous.get("audio_chromaprint") or previous.get("audio_spectral") or []
     audio_ratio = _fingerprint_match_ratio(cur_audio, old_audio, 3)

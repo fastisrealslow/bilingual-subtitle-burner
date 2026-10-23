@@ -107,3 +107,31 @@ def test_pre_render_text_check_precedes_any_produce_call_and_final_media_gate_un
     assert 'fingerprints = build_content_fingerprints(final, transcript_text)' in inspect.getsource(P._produce_one)
     assert 'video_ratio >= 0.50' in inspect.getsource(F.fingerprint_duplicate)
     assert 'audio_ratio >= 0.625' in inspect.getsource(F.fingerprint_duplicate)
+
+
+@pytest.mark.parametrize('video_ratio,audio_ratio,expected,calls',[
+    (0,1,False,1),(.49,1,False,1),(.5,.624,False,2),(.5,.625,True,2),(1,1,True,2)])
+def test_boolean_shortcut_preserves_exact_media_boundaries_without_scanning_irrelevant_audio(
+        monkeypatch,video_ratio,audio_ratio,expected,calls):
+    seen=[]
+    def ratio(current,previous,distance):
+        seen.append(distance);return video_ratio if distance==8 else audio_ratio
+    monkeypatch.setattr(F,'_fingerprint_match_ratio',ratio)
+    assert bool(F.fingerprint_duplicate({'video_dhash':['a'],'audio_chromaprint':['b']},
+                                        {'video_dhash':['c'],'audio_chromaprint':['d']})) is expected
+    assert len(seen)==calls
+
+
+def test_media_policy_decisions_match_original_and_with_spectral_fallback():
+    rng=random.Random(23)
+    for _ in range(200):
+        cur=dict(video_dhash=[format(rng.getrandbits(64),'x') for _ in range(rng.randrange(5))],
+                 audio_chromaprint=[format(rng.getrandbits(32),'x') for _ in range(rng.randrange(5))])
+        old=deepcopy(cur) if rng.randrange(2) else dict(
+            video_dhash=[format(rng.getrandbits(64),'x') for _ in range(rng.randrange(5))],
+            audio_spectral=[format(rng.getrandbits(32),'x') for _ in range(rng.randrange(5))])
+        video=F._fingerprint_match_ratio(cur['video_dhash'],old['video_dhash'],8)
+        audio=F._fingerprint_match_ratio(cur['audio_chromaprint'],
+                                        old.get('audio_chromaprint') or old.get('audio_spectral') or [],3)
+        expected=f'音频 {audio:.0%} + 画面 {video:.0%} 重合' if audio>=.625 and video>=.5 else None
+        assert F.fingerprint_duplicate(cur,old)==expected
