@@ -92,3 +92,25 @@ test('missing, stale, malformed or relaxed inventory is never treated as covered
   for (const data of [null,{},stale,relaxed,future,supply(null),supply('12'),supply(-1),supply(12,0)])
     assert.equal(continuity(data,now).status,'unknown');
 });
+
+
+test('actual 21 stock split warns at one day and cannot fill missing portrait slots',()=>{
+  const data=supply(21);
+  data.continuity.plan={version:2,verified_by_layout:{portrait:4,landscape:17},
+    daily_by_layout:{portrait:3,landscape:1},reserve_targets_by_layout:{portrait:10,landscape:2}};
+  const result=continuity(data,now);
+  assert.equal(result.status,'at_risk');
+  assert.match(result.message,/折算 1 天/);
+  assert.match(result.message,/未来七天还缺竖屏 17、横屏 0 条/);
+  assert.match(result.message,/储备目标还缺 6 条/);
+  data.continuity.plan.verified_by_layout={portrait:0,landscape:21};
+  assert.match(continuity(data,now).message,/折算 0 天/);
+  data.continuity.plan.verified_by_layout={portrait:4,landscape:20};
+  assert.equal(continuity(data,now).status,'unknown');
+});
+
+test('current daily target replaces obsolete two-to-three floor in new zero-stock plans',()=>{
+  const data=supply(0);data.continuity.plan={version:2};
+  assert.match(continuity(data,now).message,/未来七天目标共 28 条/);
+  assert.doesNotMatch(continuity(data,now).message,/争取 3 条/);
+});
