@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 42
+VERSION = 52
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -185,6 +185,25 @@ def contextual_self_answer(units,cues,index):
     return bool(re.search(r'AI|人工智能|医药|白酒|半导体|新能源|食品饮料',opening))
 
 
+def closing_summary_request(text):
+    """An addressed closing invitation is a new turn even without a '?'.
+
+    Require the closing context, an actual request and the addressee. A
+    guest's own recap, a hypothetical or a quoted interview stays untouched.
+    This only classifies original sentence units; it supplies no timestamps.
+    """
+    if re.search(r'[“”「」『』"\']|比如|例如|假如|假设|如果(?:有人|主持人)|他说|她说|我说|问我', text):
+        return False
+    prefix = r'(?:^|[。！？!?])(?:[啊呃嗯那好，,\s]|那么|好的)*(?:(?:如果说)?在[，,\s]*)?'
+    context = r'(?:(?:本期|今天的|这次的)?(?:节目|栏目|访谈|对谈|采访)(?:的)?(?:最后|结束前)|最后)'
+    request = r'[^。！？!?]{0,100}(?:总结|回顾|概括)(?:一)?下[^。！？!?]{0,100}'
+    if re.search(prefix + context + r'[，,\s]*(?:我|我们)', text):
+        return False
+    if not re.search(prefix + context + request, text):
+        return False
+    return bool(re.search(r'您|请你|能否请你|能不能请你', text))
+
+
 def question_unit(text):
     # Quoted examples and a speaker's rhetorical self-questions are not a host
     # turn. Explicit 您/请问 remains a real question even in a long sentence.
@@ -193,7 +212,7 @@ def question_unit(text):
     if not re.search(r'您|请问|请教', text) and re.search(
             r'比如|就像|我说[：:]|很多人问我|所以很多人问我|我的意思', text):
         return False
-    return bool(QUESTION.search(text))
+    return closing_summary_request(text) or bool(QUESTION.search(text))
 
 
 def unresolved_question_tail(text):
@@ -329,6 +348,8 @@ def boundary_error(cues,pick):
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
+        if closing_summary_request(u['text']) and (i or len(units)==1):
+            return '选段带入主持人结尾总结邀请；须在原始句界分开，并保留该邀请的完整回答'
         if i and SELF_TOPIC_SECTION.fullmatch(u['text']):
             return '选段跨入讲者明确自问自答的新章节；须在原始句界分开，不能拼接不同主题'
         if i and SUMMARY_SECTION.search(u['text']):
