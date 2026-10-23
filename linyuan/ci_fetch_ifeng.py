@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import subprocess
+import time
 import urllib.request
 from urllib.parse import urlsplit
 
@@ -43,26 +43,39 @@ def article_video(page, article_url):
 
 
 def fetch(url,output):
-    from ci_fetch_bilibili import validate_media
+    from ci_fetch_bilibili import download_one, validate_media, sha256_file
     request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://finance.ifeng.com/'})
     with urllib.request.urlopen(request,timeout=45) as response:
         page=response.read(12*1024*1024).decode('utf-8')
     origin=article_video(page,url)
     output=Path(output);output.parent.mkdir(parents=True,exist_ok=True)
-    temporary=output.with_name(output.stem+'.download.mp4')
-    try:
-        subprocess.run(['curl','-fLsS','--retry','2','--connect-timeout','20','--max-time','240',
-            '--user-agent','Mozilla/5.0','--referer',url,'--output',str(temporary),origin['media_url']],
-            check=True,timeout=750)
-        valid=validate_media(temporary)
-        if abs(valid['duration']-origin['declared_duration'])>3:
-            raise ValueError('实际媒体时长与正文附件不符')
-        origin.update(sha256=hashlib.sha256(temporary.read_bytes()).hexdigest(),duration_sec=valid['duration'])
-        temporary.replace(output)
-        output.with_suffix('.origin.json').write_text(json.dumps(origin,ensure_ascii=False,indent=2)+'\n')
-        return output
-    finally:
-        temporary.unlink(missing_ok=True)
+    identity={k:origin[k] for k in ('article','guid','media_url')}
+    proof=output.with_suffix('.origin.json')
+    if output.exists() and proof.exists():
+        try:
+            saved=json.loads(proof.read_text())
+            with output.open('rb') as handle: digest=sha256_file(handle)
+            if all(saved.get(k)==v for k,v in identity.items()) and saved.get('sha256')==digest:
+                valid=validate_media(output)
+                if abs(valid['duration']-origin['declared_duration'])<=3:
+                    return output
+        except (ValueError,RuntimeError,OSError):
+            pass
+    # Isolate the exact article, document GUID and public representation.
+    # The existing whole _src cache already survives failed source steps.
+    key=hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()[:20]
+    temporary=output.with_name(output.stem+'.official-'+key+'.mp4')
+    download_one(urllib.request.build_opener(),[origin['media_url']],url,temporary,
+        attempts=1,deadline=time.monotonic()+750,
+        stop_http_statuses=(401,403,412,429,451,567))
+    valid=validate_media(temporary)
+    if abs(valid['duration']-origin['declared_duration'])>3:
+        raise ValueError('实际媒体时长与正文附件不符')
+    with temporary.open('rb') as handle:digest=sha256_file(handle)
+    origin.update(sha256=digest,duration_sec=valid['duration'])
+    temporary.replace(output)
+    proof.write_text(json.dumps(origin,ensure_ascii=False,indent=2)+'\n')
+    return output
 
 
 if __name__=='__main__':

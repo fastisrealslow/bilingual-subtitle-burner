@@ -20,6 +20,7 @@ import re
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from urllib.parse import parse_qs, urlparse
 from pathlib import Path
@@ -358,7 +359,7 @@ def mirror_prefix_proof(op, url, referer, partial, total, etag, deadline,
         raise RuntimeError('当前镜像前缀核对达到独立预算；保留原断点，尝试其他镜像') from exc
 
 
-def download_one(op, urls, referer, out, attempts=3, deadline=None):
+def download_one(op, urls, referer, out, attempts=3, deadline=None, stop_http_statuses=()):
     """镜像轮换 + 断点续传 + Content-Length 校验，避免长母片反复从零下载。"""
     out = Path(out)
     last = None
@@ -498,6 +499,10 @@ def download_one(op, urls, referer, out, attempts=3, deadline=None):
             except FetchBudgetExceeded:
                 raise
             except Exception as exc:
+                if isinstance(exc,urllib.error.HTTPError) and exc.code in stop_http_statuses:
+                    # Caller-specific upstream refusals stop this round. Keep
+                    # the exact-source checkpoint; do not try another entrance.
+                    raise
                 last = exc
                 # Tiny/error responses are not reusable. A substantial partial
                 # file is kept and resumed on the next mirror or attempt.
