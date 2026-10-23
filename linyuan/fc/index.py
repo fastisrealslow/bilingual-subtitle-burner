@@ -2640,8 +2640,12 @@ def _dispatch_admitted(event=None, context=None):
             if ((long_source or duration_probe) and any(exp_needs.values())
                     and (not full_week or exp_needs['portrait'])):
                 editorial_profile=experiment.TREATMENT
-                output_layout=('portrait' if full_week or duration_probe else
-                               'landscape' if exp_needs['landscape'] else 'portrait')
+                # Use outstanding, active-job-adjusted gaps, as raw-mother
+                # reuse already does. A smaller W reserve gap must not take
+                # the only admitted mother while the P treatment shelf is empty.
+                # Ties keep the existing W-first order; no running job changes.
+                output_layout=('portrait' if full_week or duration_probe
+                               or exp_needs['portrait']>exp_needs['landscape'] else 'landscape')
             probe_requested_at=int(time.time())
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
