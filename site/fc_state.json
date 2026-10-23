@@ -37495,13 +37495,13 @@
    "recovery_origin_run_id": 39730313232,
    "production_failure_summary": {
     "slug": "ly-story-3b04cd0934",
-    "run_id": 39746574446,
-    "artifact_id": 12412034420,
+    "run_id": 39730313232,
+    "artifact_id": 12407205510,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"大概我我五十七岁的时候，我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中‘开支是零’与后文‘每个月的开支是两千五’存在明显的逻辑矛盾。在口语语境下，‘零’极大概率是识别错误（可能应为‘很低’或具体数值），或者说话人表述混乱导致含义不明。根据指令要求，必须指出数字或否定本身的具体污染，"
      }
     ]
    },
@@ -37679,8 +37679,8 @@
    "recovery_origin_run_id": 39734965914,
    "production_failure_summary": {
     "slug": "ly-story-423df312c3",
-    "run_id": 39749468116,
-    "artifact_id": 12414182611,
+    "run_id": 39734965914,
+    "artifact_id": 12408528520,
     "accepted": 0,
     "failures": [
      {
@@ -38866,13 +38866,105 @@
    "recovery_origin_run_id": null,
    "production_failure_summary": {
     "slug": "ly-story-2a8f12b578",
-    "run_id": 39781987409,
-    "artifact_id": 12427953160,
+    "run_id": 39736168964,
+    "artifact_id": 12418332343,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"也属于传统老登，这个归类。\", \"suspect_quote\": \"传统老登\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“传统老牌”或“传统龙头”误识别为网络用语“老登”，该词在正式访谈语境中含义不明且带有非正式色彩，影响专业理解。\"}, {\"sentence_id\": 3, \"quote\": \"我我不大去不大去买，嗯，反正是需要再投资的，我都不不行。\", \"suspect_quote\": \"我都不不行\", \"kind\": \"unintelligible_term\", \"rea"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/912，总帧数4555；身份匹配但人脸短边不足96px的帧数912"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/688，总帧数3437；身份匹配但人脸短边不足96px的帧数688"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1014，总帧数5066；身份匹配但人脸短边不足96px的帧数1014"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1614，总帧数8069；身份匹配但人脸短边不足96px的帧数1614"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1201，总帧数6002；身份匹配但人脸短边不足96px的帧数1201"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"因为我本人学医的，我认为啊，你别听他们嘛，呃，这人让瞎催，以后呃人能永久的活，给你植入器官，他没有医学常识。\", \"suspect_quote\": \"这人让瞎催\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误。'瞎催'在医学或日常语境中无明确含义，结合上下文'你别听他们嘛'及后文'没有医学常识'，此处极可能是将口语中的否定词或特定称呼（如'瞎吹'、'乱说'）误识为'瞎催'，属于无法解释的具体词语污染。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1448，总帧数7238；身份匹配但人脸短边不足96px的帧数1448"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"呃，当然您现在看来看的话是没有怎么卖过的，所以在您看来是在哪些情况出现的时候，你会重新去评估，甚至去放弃原有的判判断，或者是去卖出呢？\", \"suspect_quote\": \"判判断\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“判判断”存在明显的重复字现象，极可能是语音识别将“判断”误识为“判判断”，导致语义不通顺。\"}, {\"sentence_id\": 5, \"quote\": \"嗯，我觉得最后能够众上讲的不一定是你啊。\", \"suspect_quote\": \"众上讲\", \"ki"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配40/334，总帧数1469；身份匹配但人脸短边不足96px的帧数263"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"现在是左四，嗯。\", \"suspect_quote\": \"现在是左四\", \"kind\": \"unintelligible_term\", \"reason\": \"“左四”在金融或消费行业语境下无明确含义，疑似识别错误（如将“左侧”、“第四”或其他术语误识），且无法通过上下文解释其具体指代。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/636，总帧数3178；身份匹配但人脸短边不足96px的帧数636"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/201，总帧数1001；身份匹配但人脸短边不足96px的帧数201"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在回答中未形成对‘其他医药股’的具体判断，而是将话题转向消费，导致关于医药板块的完整观点表达缺失。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配6/1199，总帧数5962；身份匹配但人脸短边不足96px的帧数1147"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/219，总帧数1092；身份匹配但人脸短边不足96px的帧数219"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/267，总帧数1330；身份匹配但人脸短边不足96px的帧数234"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"癌症公司，它这这个行业你选了以后，一定是它这个这个公司它有核心的产品。\", \"suspect_quote\": \"癌症公司，它这这个行业你选了以后，一定是它这个这\", \"kind\": \"unintelligible_term\", \"reason\": \"“癌症公司”在金融访谈语境下极大概率是识别错误。嘉宾林园以投资心脑血管药物闻名，此处结合上下文（后文提到“恶性肿瘤活不了几年”、“心脑血管还能活着”），他实际想表达的应是“心脑血管公司”。将“心脑血管”误识为“癌症”，属于典型的同音或近音词\"}, {\"sentence_id\": 2,"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配10/274，总帧数1318；身份匹配但人脸短边不足96px的帧数255"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配37/887，总帧数4248；身份匹配但人脸短边不足96px的帧数850"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 17, \"quote\": \"它是这样，投的最多了，最后这个产品生产多了，一下就过世。\", \"suspect_quote\": \"一下就过世\", \"kind\": \"unintelligible_term\", \"reason\": \"“过世”通常用于形容人的死亡，在此处描述产品因产能过剩而失去市场价值或企业倒闭属于用词不当，疑似识别错误（应为“过时”、“过剩”或口误导致的错别字），严重影响理解。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"能有百分之二一，我都愿意意去，下动手去试了。\", \"suspect_quote\": \"能有百分之二一，我都愿意意去，下动手去试了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之二一'表述不规范且含义不明（是 21% 还是笔误？），同时存在疑似错写的词语'愿意意'和语序混乱的'下动手'，导致关键意图难以准确理解。\"}]"
      }
     ]
    },
@@ -44895,7 +44987,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV12b421E7vz:p2",
@@ -45003,7 +45096,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-18T09:00:30+00:00"
+   "publish_time": "2024-08-18T09:00:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-44951f",
+    "run_id": 39951453293,
+    "artifact_id": 12503410652,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "16afd52f80030b07e64676b281e833002448f0a523a20d3c3d673d1429a70af5",
+     "duration_sec": 1161.6,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV16PWPeFEq7?p=4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39951453293,
+    "artifact_id": 12503410652,
+    "name": "production-reject-ly-1023-44951f",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1T6Ti6TEpk",
@@ -120656,6 +120782,13 @@
    "video_id": "BV12b421E7vz:p3",
    "ts": 1792759976,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+  },
+  {
+   "slug": "ly-1023-44951f",
+   "key": "bilibili_search:BV16PWPeFEq7:p4",
+   "video_id": "BV16PWPeFEq7:p4",
+   "ts": 1792760529,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
@@ -122049,7 +122182,7 @@
  },
  "source_refresh_requested_at": 1792749097,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 4,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
