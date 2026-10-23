@@ -2640,8 +2640,12 @@ def _dispatch_admitted(event=None, context=None):
             if ((long_source or duration_probe) and any(exp_needs.values())
                     and (not full_week or exp_needs['portrait'])):
                 editorial_profile=experiment.TREATMENT
-                output_layout=('portrait' if full_week or duration_probe else
-                               'landscape' if exp_needs['landscape'] else 'portrait')
+                # Use outstanding, active-job-adjusted gaps, as raw-mother
+                # reuse already does. A smaller W reserve gap must not take
+                # the only admitted mother while the P treatment shelf is empty.
+                # Ties keep the existing W-first order; no running job changes.
+                output_layout=('portrait' if full_week or duration_probe
+                               or exp_needs['portrait']>exp_needs['landscape'] else 'landscape')
             probe_requested_at=int(time.time())
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
@@ -3704,10 +3708,10 @@ def _recover_changed_production_rule(st, candidate, run):
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
         range_policy_patch=(file.get('filename')=='linyuan/transcript_audit.py'
-            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*20261023(?:0[5-9]|1[01])\s*$',
+            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*20261023(?:0[5-9]|1[0-2])\s*$',
                           str(file.get('patch') or ''),re.M))
         text_only_patch=(file.get('filename')=='linyuan/transcript_audit.py'
-            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*20261023(?:0[6-9]|1[01])\s*$',
+            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*20261023(?:0[6-9]|1[0-2])\s*$',
                           str(file.get('patch') or ''),re.M))
         if case[0]=='transcript-text-only-evidence-v1':
             return bool(text_only_patch and any(_text_only_audit_audio_claim(r)

@@ -89,6 +89,24 @@ def actual_text_only_case():
         usage='text_plausibility_only_not_audio_or_media_approval')
 
 
+def control_evidence_passed(name,proof,expected):
+    if proof.get('passed') is not expected:return False
+    if expected:return not proof.get('issues')
+    required={
+        'corrupt_term':('道琼市',),
+        'audio_retry_corrupt_term':('道琼市',),
+        'corrupt_numeric_unit':('百分之元','点点'),
+        'audio_retry_corrupt_numeric_unit':('百分之元','点点'),
+        'actual_corrupt_company_name':('TCATCA',),
+        'contradictory_duplicate_company':('TCATCA',),
+    }
+    # A rejection for an unrelated pronoun/style complaint cannot prove that
+    # the actual gold corruption survived source binding and independent retry.
+    return name in required and any(
+        bad in str(issue.get('suspect_quote') or '')
+        for issue in proof.get('issues') or [] for bad in required[name])
+
+
 def main():
     import produce_cn as producer
     model=os.environ.get('LOCAL_LLM_MODEL','')
@@ -155,7 +173,7 @@ def main():
             transcript_sha256=hashlib.sha256(text.encode()).hexdigest(),calls=calls)
         try:
             proof=audit.review(text,'林园',model,call,out/(name+'-proof.json'))
-            row.update(proof=proof,control_passed=proof['passed'] is expected)
+            row.update(proof=proof,control_passed=control_evidence_passed(name,proof,expected))
         except Exception as exc:
             row.update(control_passed=False,error=str(exc))
         finally:

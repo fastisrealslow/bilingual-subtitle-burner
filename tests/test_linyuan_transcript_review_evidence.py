@@ -153,6 +153,23 @@ def test_same_issue_conflict_is_not_automatic_clearance_of_real_corruption(tmp_p
     assert len(calls)==2 and not proof['passed'] and proof['issues'][0]['suspect_quote']=='TCATCA'
 
 
+@pytest.mark.parametrize('quote,reason',[
+    ('TCATCA','专名识别污染：异常字母堆积，无法确定实体，需复核原音。'),
+    ('林元','人名错写，具体人物身份需核实。'),
+])
+def test_wrong_numeric_label_cannot_discard_explicit_source_bound_entity_negative(tmp_path,quote,reason):
+    text=quote+'谈投资。';calls=[]
+    reply=dict(verdict='needs_audio',issues=[dict(sentence_id=0,suspect_quote=quote,
+        kind='ambiguous_number_or_negation',reason=reason)],explanation='需核实具体实体')
+    proof=A.review(text,'林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+    assert len(calls)==1 and not proof['passed'] and not proof['audio_verified']
+    issue=proof['issues'][0]
+    assert issue['suspect_quote']==quote and issue['quote']==text
+    assert issue['kind']=='unintelligible_term' and issue['reported_kind']=='ambiguous_number_or_negation'
+    assert issue['kind_binding']=='explicit_entity_contamination_negative_only'
+    assert proof['transcript_sha256']==A.text_digest(text)
+
+
 def test_audio_retry_is_source_only_not_anchored_to_previous_hallucination(tmp_path):
     calls=[]
     def call(prompt,schema):
@@ -217,10 +234,11 @@ def test_modality_followup_keeps_prior_bounded_range_recovery(monkeypatch):
     RANGE,
     '原始ASR存在影响理解的疑点，禁止猜改后发布：原文听感上更像别的词',
 ])
-def test_explicit_decision_policy_keeps_only_existing_scoped_recovery(monkeypatch,reason):
+@pytest.mark.parametrize('policy',[2026102311,2026102312])
+def test_explicit_decision_policy_keeps_only_existing_scoped_recovery(monkeypatch,reason,policy):
     state,entry,run,writes=modality_case(monkeypatch,reason)
     monkeypatch.setattr(F,'gh',lambda *a,**k:dict(files=[dict(
-        filename='linyuan/transcript_audit.py',patch='+SPOKEN_RANGE_POLICY_VERSION = 2026102311\n')]))
+        filename='linyuan/transcript_audit.py',patch=f'+SPOKEN_RANGE_POLICY_VERSION = {policy}\n')]))
     assert F._recover_changed_production_rule(state,entry,run)
     assert entry['source_check_attempts']==2 and entry['quality_retries']==1 and len(writes)==1
 
@@ -239,7 +257,7 @@ def test_modality_only_patch_never_reopens_other_asr_or_source_failures(monkeypa
     assert entry['failed'] and not writes
 
 
-@pytest.mark.parametrize('future_policy',[2026102309,2026102310,2026102311,2026102401])
+@pytest.mark.parametrize('future_policy',[2026102309,2026102310,2026102311,2026102312,2026102401])
 def test_future_cache_version_cannot_fall_through_legacy_broad_asr_recovery(monkeypatch,future_policy):
     state,entry,run,writes=modality_case(monkeypatch,
         '原始ASR存在影响理解的疑点，禁止猜改后发布：TCATCA公司名乱码')

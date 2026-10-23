@@ -8,7 +8,7 @@ from editorial_policy import text_digest
 from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102311
+SPOKEN_RANGE_POLICY_VERSION = 2026102312
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
@@ -16,6 +16,8 @@ NO_CONTAMINATION = re.compile(
     r'|(?:无|没有|未发现|不存在)(?:(?:具体|实际|明确|明显|任何|真正|相关|的))*'
     r'(?:识别错误|识别污染|识别疑点)'
     r'|(?:此项|该项|本项)(?:暂不|不|无需|不应)(?:再)?(?:列为|作为|认定为)(?:识别)?错误')
+ENTITY_CONTAMINATION = re.compile(
+    r'(?:专名|专有名词|公司名|企业名|人名|机构名)(?:识别)?(?:污染|错写|乱码|粘连|错误|疑点)')
 
 
 def bind_layout_quote(quote,unit):
@@ -153,6 +155,15 @@ def review(text, speaker, model, call, path):
                     ignored.append({**evidence,'ignored_reason':'ordinary_disfluency_not_asr_error'})
                     continue
                 if item['kind']=='ambiguous_number_or_negation' and not CRITICAL_TOKEN.search(quote):
+                    if ENTITY_CONTAMINATION.search(reason):
+                        # NEGATIVE ONLY: keep an explicit, source-bound entity
+                        # complaint even if the model chose the numeric label.
+                        # Never edit ASR, approve a quote, infer a replacement,
+                        # or normalize an ordinary style-only objection here.
+                        bound.append({**evidence,'kind':'unintelligible_term',
+                            'reported_kind':item['kind'],
+                            'kind_binding':'explicit_entity_contamination_negative_only'})
+                        continue
                     independent_evidence_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类'})

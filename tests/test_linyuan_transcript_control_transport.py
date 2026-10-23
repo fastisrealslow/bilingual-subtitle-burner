@@ -47,3 +47,29 @@ def test_control_retains_actual_production_output_truncation_rejection(monkeypat
     with pytest.raises(P.LocalTextUnavailable,match='长度上限'):
         C.production_audit_request(P,'original source',dict(type='object'))
     assert len(requests)==1 and not list((tmp_path/'.llm_cache').glob('*.json'))
+
+
+@pytest.mark.parametrize('name',['actual_corrupt_company_name','contradictory_duplicate_company'])
+def test_bad_company_control_requires_its_actual_bound_blocker_not_any_rejection(name):
+    proof=dict(passed=False,issues=[dict(suspect_quote='两个公司都不在')],
+        explanation='另在说明里提到TCATCA，不是绑定证据')
+    assert not C.control_evidence_passed(name,proof,False)
+    proof['issues'].append(dict(suspect_quote='TCATCA'))
+    assert C.control_evidence_passed(name,proof,False)
+    proof['passed']=True
+    assert not C.control_evidence_passed(name,proof,False)
+
+
+@pytest.mark.parametrize('name,bad',[
+    ('corrupt_term','道琼市'),('audio_retry_corrupt_term','道琼市'),
+    ('corrupt_numeric_unit','百分之元'),('audio_retry_corrupt_numeric_unit','点点'),
+])
+def test_each_negative_control_requires_a_specific_original_corruption(name,bad):
+    assert not C.control_evidence_passed(name,dict(passed=False,issues=[dict(suspect_quote='原话')]),False)
+    assert C.control_evidence_passed(name,dict(passed=False,issues=[dict(suspect_quote=bad)]),False)
+
+
+def test_normal_control_still_requires_actual_clear_proof_and_no_issues():
+    assert C.control_evidence_passed('spoken_style',dict(passed=True,issues=[]),True)
+    assert not C.control_evidence_passed('spoken_style',dict(passed=False,issues=[]),True)
+    assert not C.control_evidence_passed('spoken_style',dict(passed=True,issues=[{}]),True)

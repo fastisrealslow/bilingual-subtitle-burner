@@ -169,6 +169,44 @@ def test_known_long_candidate_keeps_priority_and_unknown_stays_baseline(dispatch
     assert not any(e.get('experiment_duration_probe') for e in state['dispatched'])
 
 
+@pytest.mark.parametrize('needs,layout',[
+    (dict(portrait=2,landscape=1),'portrait'),
+    (dict(portrait=1,landscape=2),'landscape'),
+    (dict(portrait=2,landscape=2),'landscape'),
+    (dict(portrait=1,landscape=1),'landscape'),
+    (dict(portrait=1,landscape=0),'portrait'),
+    (dict(portrait=0,landscape=1),'landscape'),
+])
+def test_known_long_new_mother_follows_larger_actual_treatment_gap(dispatch_env,monkeypatch,needs,layout):
+    state,candidates,posts,runs=dispatch_env
+    candidates.append(candidate(1,1800))
+    monkeypatch.setattr(F.experiment,'production_deficits',lambda *a:dict(needs))
+    assert F._dispatch_admitted({'execution_backend':'github'})['dispatched']==1
+    assert posts[0]['editorial_profile']==F.experiment.TREATMENT
+    assert posts[0]['output_layout']==layout and state['dispatched'][0]['output_layout']==layout
+    assert not state['published'] and not state['dispatched'][0].get('experiment_duration_probe')
+
+
+def test_each_intent_consumes_only_its_layout_gap_and_never_becomes_stock(dispatch_env,monkeypatch):
+    state,candidates,posts,runs=dispatch_env
+    candidates.extend([candidate(1,1800),candidate(2,1800),candidate(3,1800)])
+    monkeypatch.setattr(F.experiment,'production_deficits',lambda *a:dict(portrait=2,landscape=1))
+    monkeypatch.setattr(F,'MAX_PER_DAY',3)
+    assert F._dispatch_admitted({'execution_backend':'github'})['dispatched']==3
+    assert [p['output_layout'] for p in posts]==['portrait','landscape','portrait']
+    assert all(p['editorial_profile']==F.experiment.TREATMENT for p in posts)
+    assert not state['published'] and len(state['dispatched'])==3
+
+
+def test_full_interview_and_unknown_probes_keep_their_existing_portrait_rule(dispatch_env,monkeypatch):
+    state,candidates,posts,runs=dispatch_env
+    candidates.append(candidate(1,1800))
+    monkeypatch.setattr(F.experiment,'production_deficits',lambda *a:dict(portrait=1,landscape=2))
+    monkeypatch.setattr(F,'weekly_full_request',lambda *a:True)
+    assert F._dispatch_admitted({'execution_backend':'github'})['dispatched']==1
+    assert posts[0]['output_layout']=='portrait' and posts[0]['include_full']=='true'
+
+
 def test_daily_probe_budget_keeps_ordinary_supply_not_extra_dispatches(dispatch_env):
     state,candidates,posts,runs=dispatch_env
     state['dispatched'].extend([row('old1',NOW-7200,failed=True),row('old2',NOW-3700,failed=True)])
