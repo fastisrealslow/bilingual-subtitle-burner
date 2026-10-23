@@ -254,12 +254,22 @@ def company_holding_question(text):
         r'(?:看好|持有|投资))[^。！？?]{0,100}[？?]',text))
 
 
+def company_holding_context_error(text):
+    if not isinstance(text,str) or not text.strip():
+        return 'Company holding recall requires the complete original transcript'
+    if re.search(r'假设|假如|如果|(?:不是|并非|并不是).{0,12}(?:实际|真实).{0,8}(?:交易|买卖|持仓)',text):
+        return 'Company holding recall cannot extract actual trades from a hypothetical or denied full context'
+    return None
+
+
 def company_holding_request(cues,pick):
     """A narrow second review; never offers the personal-story category.
 
     The original classifier is unchanged. Retry only a named-company question
     with an intact, explicit past holding/action sentence in its own answer.
     """
+    context=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    if company_holding_context_error(context):return None
     rows=_selection_rows(cues,[pick])
     if not rows:return None
     units=rows[0]['sentences']

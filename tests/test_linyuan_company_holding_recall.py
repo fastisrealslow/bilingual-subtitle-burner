@@ -66,3 +66,33 @@ def test_recall_service_failure_stays_unresolved_and_does_not_erase_other_succes
     result=E.choose_stories(holding(),[dict(start=0,end=0)],call,tmp_path/'report.json')
     assert result['retryable'] and not result['selection_completed'] and len(result['calls'])==2
 
+
+def test_actual_false_positive_cross_sentence_hypothesis_cannot_be_extracted():
+    text='您怎么看腾讯？我们先做一个假设。我当年买了腾讯。我们现在仍然持有。刚才说的是假设的持仓，并不是我们的实际交易。'
+    assert E.company_past_event_error('我当年买了腾讯。') is None
+    assert E.company_holding_detail_error('我们现在仍然持有。') is None
+    assert E.company_holding_context_error(text)
+    assert E.company_holding_request([dict(text=text)],dict(start=0,end=0)) is None
+
+
+def test_independent_publisher_replays_full_original_context_before_accepting_recall(tmp_path):
+    import caption_readability as C
+    import title_rewrite as T
+    from fc import index as F
+    raw='您怎么看腾讯？我们先做一个假设。我当年买了腾讯。我们现在仍然持有。刚才说的是假设的持仓，并不是我们的实际交易。'
+    _,proof=C.clean_entries([dict(start_sec=0,end_sec=30,zh=raw)])
+    name='subtitle_edit_proof_1.json'
+    (tmp_path/name).write_text(json.dumps(proof,ensure_ascii=False))
+    (tmp_path/'subtitles.ass').write_text('Dialogue: 0,0:00:00.00,0:00:30.00,Default,,0,0,0,,'+proof['display_text'])
+    # Even a completely replayable subtitle proof and an old all-green title
+    # approval cannot turn the quoted hypothetical trade into an actual one.
+    import hashlib
+    meta=dict(title='林园：腾讯买入后一直持有',subtitle_files=['subtitles.ass'],
+        subtitle_text_sha256=F.editorial.text_digest(proof['display_text']),
+        subtitle_edit_proof_version=1,subtitle_edit_proofs=[name],
+        title_rewrite=dict(source_sha256=hashlib.sha256(T.compact(raw).encode()).hexdigest()),
+        experiment_proof=dict(selection=dict(company_holding_recall_version=1)))
+    assert 'hypothetical' in F.artifact_subtitle_error(meta,tmp_path)
+    meta.pop('title_rewrite')
+    assert '完整原始字幕' in F.artifact_subtitle_error(meta,tmp_path)
+
