@@ -156,12 +156,30 @@ def personal_event_error(event):
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
     if (normative_recap or advice_conclusion) and not actual_action:
         return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
+    # A timeless description of one's method is not a particular episode.
+    # Actual choices concerning a named industry/company are still eligible;
+    # this guard targets generic good-assets/profit recaps and conditional cash
+    # allocation. Invalid evidence is retried from the SAME complete candidate.
+    method_allocation=re.search(r'(?:我的|我们(?:的)?)方法[^。！？!?]{0,50}(?:有钱|没钱)[^。！？!?]{0,20}就(?:买|投)',event)
+    generic_profit=re.search(r'(?:我|我们)[^。！？!?]{0,12}(?:抓|买|投|挑|选)[^。！？!?]{0,6}'
+        r'(?:好(?:的)?公司|好(?:的)?资产|好(?:的)?企业)[^。！？!?]{0,90}'
+        r'(?:使|让|帮|通过)[^。！？!?]{0,20}(?:赚钱|盈利)',event)
+    if method_allocation or generic_profit:
+        return '个人经历必须交代具体事件；有钱就投的方法或好公司使我们赚钱的泛泛总结不是实际事件，请从同段重选真实经历，否则skip'
     return None
 
 
 def personal_detail_error(detail):
     """An outcome's future timing alone is not a past story's reason/detail."""
     plain=re.sub(r'[\s，,。！？!?；;]','',detail)
+    # First-person speech can occur inside a hypothetical third-party example.
+    # Do not borrow that person's imagined contribution/loss as the guest's own
+    # history. Actual dated or witnessed third-party interactions are untouched.
+    generic_third_party=re.match(r'(?:嗯|啊|所以|那|为什么)*'
+        r'(?:有的|有些|有一些|有的人|有人|每个人|很多人)',plain)
+    imagined_process=re.search(r'(?:他|每个人)(?:本来)?想好|如果|假如|假设|本来(?:我是)?想好',plain)
+    if generic_third_party and imagined_process:
+        return '泛指他人的假设过程不能充当嘉宾本人经历的细节；请从同段选择同一真实事件的原因或后果，否则skip'
     if re.fullmatch(r'(?:嗯|啊|这个|那个|那|其实|所以|反正)*'
             r'(?:(?:这个|那个)?时间(?:不|不会|也不|也不会|并不)?(?:太|很|算)?长)?'
             r'(?:大概|大约|可能|差不多|再过)?'

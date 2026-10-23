@@ -33,3 +33,15 @@ def test_fixed_experiment_and_actual_event_vetoes_unchanged():
     assert E.personal_event_error('我自己觉得是没问题。')
     assert E.personal_event_error('再爬起来就行了。')
     assert E.personal_detail_error('五年以后就能见分晓。')
+
+
+def test_actual_false_personal_selections_rejected_without_erasing_real_life_event():
+    f = json.loads((ROOT / 'tests/fixtures/linyuan_actual_false_personal_stories.json').read_text())
+    for pick in f['false_selections']:
+        evidence = pick['story_selection']
+        assert E.personal_event_error(evidence['event_quote']) or E.personal_detail_error(evidence['detail_quote'])
+    assert E.personal_detail_error('有的人他想好了，我今天投十万，明天投十万，结果他不敢投了。')
+    assert not E.personal_event_error('我当时选择了医药行业。')
+    assert not E.personal_detail_error('去年有个人问我为什么退出房地产，我跟他讲过原因。')
+    assert not E.personal_event_error('我去了以后，他就不舒服了，啊，就心衰，送到那个国际医学去看病。')
+    assert not E.personal_detail_error('就这，人家国际医学还给我妈，他，在那住了十天的院，都还给免费了。')
