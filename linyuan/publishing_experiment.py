@@ -246,17 +246,24 @@ def company_holding_detail_error(text):
     return None
 
 
+def company_holding_question(text):
+    # Keep this shared proof check lightweight: the publisher does not ship
+    # the producer's complete source-selection module or its dependencies.
+    return bool(isinstance(text,str) and re.fullmatch(
+        r'(?:(?:请问|请教)?您|那(?:么)?[，,\s]*(?:这)?(?:未来|以后|今后)(?:还)?会继续'
+        r'(?:看好|持有|投资))[^。！？?]{0,100}[？?]',text))
+
+
 def company_holding_request(cues,pick):
     """A narrow second review; never offers the personal-story category.
 
     The original classifier is unchanged. Retry only a named-company question
     with an intact, explicit past holding/action sentence in its own answer.
     """
-    from source_selection import question_unit
     rows=_selection_rows(cues,[pick])
     if not rows:return None
     units=rows[0]['sentences']
-    subjects=[s['id'] for s in units if len(s['text'])<=140 and question_unit(s['text'])
+    subjects=[s['id'] for s in units if len(s['text'])<=140 and company_holding_question(s['text'])
         and not company_subject_error(dict(kind='company_case',subject_quote=s['text']))]
     events=[s['id'] for s in units if 4<=len(s['text'])<=140 and not company_past_event_error(s['text'])]
     details=[s['id'] for s in units if 4<=len(s['text'])<=140
@@ -648,7 +655,7 @@ def proof_error(meta):
     if company_issue:return company_issue
     if 'company_holding_recall_version' in s:
         if (type(s['company_holding_recall_version']) is not int or s['company_holding_recall_version']!=1
-                or s['kind']!='company_case'):
+                or s['kind']!='company_case' or not company_holding_question(s['subject_quote'])):
             return 'Invalid company holding recall proof'
         issue=company_past_event_error(s['event_quote'])
         issue=issue or company_holding_detail_error(s['detail_quote'])
