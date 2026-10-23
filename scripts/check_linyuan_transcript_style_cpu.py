@@ -90,10 +90,28 @@ def main():
     cases+=actual_cases
     text_only_case,text_only_provenance=actual_text_only_case()
     cases.append(text_only_case)
+    # Explicit protocol-fault injection, NOT a model decision or approval:
+    # force the fresh text-only retry on known corrupt controls, then require
+    # an actual independent CPU response to retain the real blocker.
+    injected={
+        'audio_retry_corrupt_term':(1,'道琼市指数','unintelligible_term'),
+        'audio_retry_corrupt_numeric_unit':(0,'百分之元','ambiguous_number_or_negation'),
+    }
+    cases.extend([
+        ('audio_retry_corrupt_term','我们分析企业的现金流。道琼市指数影响投资。',False),
+        ('audio_retry_corrupt_numeric_unit','我们说的是股价，股价是百分之元，收益率是点点。',False),
+    ])
     rows=[]
     for name,text,expected in cases:
         calls=[]
         def call(prompt,schema):
+            if name in injected and not calls:
+                ident,quote,kind=injected[name]
+                raw=json.dumps(dict(issues=[dict(sentence_id=ident,suspect_quote=quote,
+                    kind=kind,reason='原文听感上更像别的字词')],explanation='协议故障注入，非模型判断'),ensure_ascii=False)
+                calls.append(dict(prompt=prompt,response=raw,seconds=0,
+                    model=None,injected_protocol_fault=True))
+                return raw
             started=time.monotonic()
             payload=dict(model=model,messages=[dict(role='user',content=prompt)],
                 format=schema,stream=False,think=False,

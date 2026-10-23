@@ -8,7 +8,7 @@ from editorial_policy import text_digest
 from transcript_review_evidence import AUDIO_ACCESS_CLAIM
 
 VERSION = 4
-SPOKEN_RANGE_POLICY_VERSION = 2026102306
+SPOKEN_RANGE_POLICY_VERSION = 2026102307
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 NO_CONTAMINATION = re.compile(
@@ -81,6 +81,7 @@ def review(text, speaker, model, call, path):
         '目标嘉宾：'+speaker+'。编号原句：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
     last = None
     explanation_first_retry = False
+    audio_access_retry = False
     for attempt in range(2):
         request_schema=schema
         if explanation_first_retry:
@@ -101,6 +102,7 @@ def review(text, speaker, model, call, path):
             bound=[];ignored=[];invalid=[]
             if AUDIO_ACCESS_CLAIM.search(data['explanation']):
                 explanation_first_retry=True
+                audio_access_retry=True
                 invalid.append(dict(scope='explanation',invalid_reason=
                     '文字审核未收到原音，不能声称听感、听过或核实发音。'
                     '请独立重审实际文字是否有具体识别污染，不猜替换词，不改原话。'))
@@ -114,6 +116,7 @@ def review(text, speaker, model, call, path):
                 evidence=dict(sentence_id=ident,quote=units[ident],suspect_quote=quote,kind=item['kind'],reason=reason)
                 if AUDIO_ACCESS_CLAIM.search(reason):
                     explanation_first_retry=True
+                    audio_access_retry=True
                     invalid.append({**evidence,'invalid_reason':
                         '文字审核未收到原音，不能用听感或声称核实发音作为证据。'
                         '请独立判断实际文字中的具体污染，不猜替换词，不改原话。'})
@@ -143,6 +146,21 @@ def review(text, speaker, model, call, path):
             return proof
         except (ValueError,TypeError,AttributeError) as exc:
             last=exc
+            if audio_access_retry:
+                # A fresh, source-only decision, not an instruction to find
+                # more faults or to justify a hallucinated previous verdict.
+                # Do not include that verdict or any guessed replacement word.
+                prompt=('独立审核下面的自动转写文字。你未收到原音，不能声称听过、听感或核实发音，不能猜替换词。'
+                    '只报告从完整上下文可具体指出、影响理解的识别污染：无法理解的实际词语、错写专名、'
+                    '被截断或互相矛盾的关键数字、含义不明的否定。'
+                    '这是文字可理解性检查，不是润色或事实核查。口语省略、重复、语气词、松散句法、'
+                    '标点把连续意思分开，均不能单独作为识别错误；请连读前后句。'
+                    '正常泛指数词、程度和排名观点不因不精确或可能不符合事实就成为识别错误。'
+                    '不能假设原音还有不同的字词或限定，再据此报错。'
+                    '解释中独立判断实际是否有污染；issues只保留有具体文字依据的最小疑词。'
+                    '无法指出实际污染时issues为空，保持原话；确有错词、数字或否定疑点仍必须列出。'
+                    '目标嘉宾：'+speaker+'。编号完整原文：'+json.dumps(dict(enumerate(units)),ensure_ascii=False))
+                continue
             prompt+='\n上次响应格式错误：'+str(exc)+'。请仅使用schema字段并核对句编号。'
             if explanation_first_retry:
                 prompt+='先在explanation独立判断是否实际存在识别污染，再填写issues；保持原话，不得把你认为不是识别错误的项目列为错误。'

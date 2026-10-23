@@ -59,7 +59,21 @@ def test_prior_text_only_policy_cache_requires_actual_fresh_decision(tmp_path):
     proof=A.review(text,'林园','model',lambda *a:calls.append(1) or json.dumps(
         dict(issues=[],explanation='仅按文字重新判断，无具体污染')),path)
     assert calls==[1] and proof['passed'] and not proof['audio_verified']
-    assert proof['spoken_range_policy_version']==2026102306
+    assert proof['spoken_range_policy_version']==2026102307
+
+
+def test_audio_retry_is_source_only_not_anchored_to_previous_hallucination(tmp_path):
+    calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        if len(calls)==1:
+            return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='原话',
+                kind='unintelligible_term',reason='听感像虚构替换词ABC')],explanation='需复核'))
+        assert '虚构替换词ABC' not in prompt and '上次响应格式错误' not in prompt
+        assert '连读前后句' in prompt and '错词、数字或否定疑点仍必须列出' in prompt
+        return json.dumps(dict(issues=[],explanation='没有具体识别污染'))
+    proof=A.review('这是真实原话。','林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==2 and proof['passed'] and not proof['audio_verified']
 
 
 @pytest.mark.parametrize('reason',[
