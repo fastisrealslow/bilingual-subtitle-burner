@@ -90,3 +90,25 @@ def test_actual_cli_tries_baseline_only_after_all_story_quality_failures_and_nev
         assert result['fallback'] is bool(accepted)
     assert E.profile() == E.TREATMENT
     assert not list(tmp_path.rglob('final*.mp4'))
+
+
+def test_real_mother_workflow_preserves_source_and_media_gates_without_external_writes():
+    import yaml
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+    from build_linyuan_story_backup_actual import build_trial
+    doc = build_trial()
+    saved = yaml.safe_load((Path(__file__).resolve().parents[1] / '.github/workflows/linyuan-story-backup-actual.yml').read_text())
+    assert saved == doc and doc['permissions'] == dict(contents='read', actions='read')
+    assert doc['concurrency']['cancel-in-progress'] is False
+    steps = doc['jobs']['preview']['steps']
+    ids = [s.get('id') for s in steps]
+    assert ids.index('source_admission') < ids.index('src') < ids.index('source_gate') < ids.index('render')
+    source = next(s for s in steps if s.get('id') == 'src')
+    assert '12497946616' in source['run'] and 'fc8b5dc5ebf11a64' in source['run']
+    assert 'ci_fetch_bilibili.py --url' not in source['run']
+    names = {s.get('name') for s in steps}
+    assert not names.intersection({'B 站投稿', '上传成片到 Release', '明确触发库存核验与自动补位'})
+    assert any('--preview-only' in s.get('run', '') for s in steps)
+    assert doc['env']['LINYUAN_AUTOMATIC_ONLY'] == 'true'
+    render = next(s for s in steps if s.get('id') == 'render')
+    assert 'SOURCE_VISUAL_CHAPTERS' not in render['env']
