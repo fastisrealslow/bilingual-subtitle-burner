@@ -6,9 +6,7 @@ run-name: 完整访谈漏选复测 · ${{ github.run_id }}
     branches:
     - fix/company-followup-question-boundaries-20261023
     paths:
-    - .github/workflows/linyuan-company-followup-actual.yml
-    - linyuan/source_selection.py
-    - scripts/build_linyuan_company_followup_actual.py
+    - .github/linyuan-company-followup-actual.trigger
 permissions:
   contents: read
   actions: read
@@ -18,7 +16,7 @@ concurrency:
 env:
   RUN_TEXT_MODEL: qwen3.5:9b
   RUN_SOURCE: https://www.bilibili.com/video/BV1se411H7tj
-  RUN_SLUG: preview-company-followup-${{ github.run_id }}
+  RUN_SLUG: preview-${{ github.run_id }}
   RUN_SPEAKER: 林园
   RUN_OCCASION: 访谈
   RUN_SOURCE_PLATFORM: bilibili

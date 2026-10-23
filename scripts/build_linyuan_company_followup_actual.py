@@ -11,11 +11,10 @@ def build_trial():
     result['name']='真实母片省略称呼追问验收（不入库不投稿）'
     result['run-name']='完整访谈漏选复测 · ${{ github.run_id }}'
     result['on']={'push':{'branches':['fix/company-followup-question-boundaries-20261023'],
-        'paths':['.github/workflows/linyuan-company-followup-actual.yml','linyuan/source_selection.py',
-                 'scripts/build_linyuan_company_followup_actual.py']}}
+        'paths':['.github/linyuan-company-followup-actual.trigger']}}
     result['concurrency']={'group':'company-followup-actual-${{ github.ref }}','cancel-in-progress':False}
     result['env'].update(RUN_SOURCE='https://www.bilibili.com/video/BV1se411H7tj',
-        RUN_SLUG='preview-company-followup-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39771146000',
+        RUN_SLUG='preview-${{ github.run_id }}',RUN_RECOVERY_RUN_ID='39771146000',
         RUN_SOURCE_PLATFORM='bilibili',RUN_TEXT_MODEL='qwen3.5:9b',
         LINYUAN_EDITORIAL_PROFILE='field-story-v1',OUTPUT_LAYOUT='portrait')
     production=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
