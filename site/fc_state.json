@@ -46466,10 +46466,10 @@
    "source": "bilibili_search",
    "author": "投资就是滚雪球",
    "publish_time": "2026-10-12T14:21:00+00:00",
-   "failed": false,
-   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "failed": true,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step",
    "source_quality_rejected": false,
-   "failure_stage": "editorial-or-render",
+   "failure_stage": "quality-service",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
      "run_id": 38295018684,
@@ -46482,10 +46482,24 @@
      "ts": 1792795191
     }
    },
-   "source_check_exhausted": false,
+   "source_check_exhausted": true,
    "recovery_origin_run_id": 38356058996,
-   "source_check_run_id": 38356058996,
-   "source_check_attempts": 2
+   "source_check_run_id": 40037882447,
+   "source_check_attempts": 2,
+   "production_failure_summary": {
+    "slug": "ly-1012-05dd54",
+    "run_id": 40037882447,
+    "artifact_id": 12537723142,
+    "accepted": 0,
+    "source_context": null,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+     }
+    ]
+   },
+   "source_check_report_id": 12537723142
   }
  ],
  "makeup_receipts": {
