@@ -509,6 +509,14 @@ def company_subject_context_error(context, transcript, subject, evidence):
     return None
 
 
+def holding_title_guest_ids(focus, units, guest_ids):
+    if not focus or not focus.get('holding_subject_context'):return list(guest_ids)
+    quotes=(focus.get('source') or [])[1:]
+    # Intersect with the independent reader; never turn a host/unknown cue
+    # into guest speech. Full dialogue and raw reading remain unchanged.
+    return [i for i in guest_ids if any(units[i] in q for q in quotes)]
+
+
 def bind_story_company_context(item, focus, units):
     if not focus or not focus.get('holding_subject_context'):return item
     sources=focus.get('source') or [];names=focus.get('subjects') or []
@@ -1870,6 +1878,7 @@ def generate(transcript, speaker='林园', existing_titles=(), model=None, prefe
                 roles=bind_reading(proposed_reading,units)
                 reading=proposed_reading
             guest_ids=guest_evidence_ids(units,roles,speaker) if structured_model else []
+            guest_ids=holding_title_guest_ids(editorial_focus,units,guest_ids)
             if answer_focus:
                 try:
                     main_ids=bind_answer_focus(reading,units,roles,speaker)

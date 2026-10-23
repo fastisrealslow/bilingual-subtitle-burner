@@ -82,3 +82,11 @@ def test_company_context_does_not_relabel_the_question_as_a_guest_statement():
     item=T.bind_story_company_context(item,E.title_focus(f['selection']),units)
     assert item['subject']=='茅台' and item['evidence_ids']==[1,2,3,4]
     assert (units,guest_ids)==before
+
+
+def test_factual_drafting_intersects_reader_with_actual_case_without_dropping_dialogue():
+    f=actual();units=f['units'];reader_guest_ids=list(range(1,10));before=deepcopy((units,reader_guest_ids))
+    ids=T.holding_title_guest_ids(E.title_focus(f['selection']),units,reader_guest_ids)
+    assert ids==[1,2,3,4] and (units,reader_guest_ids)==before
+    assert T.holding_title_guest_ids(E.title_focus(f['selection']),units,[1,2,3])==[1,2,3]
+    assert T.holding_title_guest_ids(None,units,reader_guest_ids)==reader_guest_ids
