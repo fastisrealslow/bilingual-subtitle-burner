@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792736391,
+  "updated_at": 1792736477,
   "inventory_updated_at": 1792736389,
   "continuity": {
     "daily_target": 4,
@@ -97,7 +97,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792736391,
+    "updated_at": 1792736476,
     "records": 11485,
     "video_records": 9911,
     "initial_candidates": 62,
@@ -134,14 +134,14 @@
   },
   "counts": {
     "complete": 141,
-    "failed": 1267,
+    "failed": 1268,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 6,
-    "retry_queued": 2,
-    "running": 6
+    "retry_queued": 3,
+    "running": 5
   },
   "tasks": [
     {
@@ -26326,14 +26326,14 @@
     },
     {
       "slug": "ly-1023-320e8d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792735972,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792737313,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -26380,11 +26380,11 @@
     },
     {
       "slug": "ly-1023-ae5964",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792735991,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -26394,7 +26394,7 @@
       "run_id": 39910165422,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910165422",
       "run_started_at": "2026-10-23T06:13:11Z",
-      "run_updated_at": "2026-10-23T06:13:15Z"
+      "run_updated_at": "2026-10-23T06:19:44Z"
     },
     {
       "slug": "ly-1023-a7ec00",
@@ -38067,10 +38067,10 @@
     },
     "ly-1023-ae5964": {
       "id": 39910165422,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-23T06:13:11Z",
-      "updated_at": "2026-10-23T06:13:15Z",
+      "updated_at": "2026-10-23T06:19:44Z",
       "run_started_at": "2026-10-23T06:13:11Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39910165422",
       "run_number": 2556,
