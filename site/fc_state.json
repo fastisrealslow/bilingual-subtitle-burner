@@ -42813,7 +42813,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-11-21T02:15:04+00:00"
+   "publish_time": "2023-11-21T02:15:04+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39896031502,
+    "artifact_id": 12476994425,
+    "name": "source-reject-ly-1023-2e23cc",
+    "retained": true
+   },
+   "last_error": "清理后预计短边 384 < 480",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1Y4Jv6gEYq",
@@ -42839,27 +42849,19 @@
    "publish_time": "2026-10-17T05:14:20+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-abeb50",
-    "run_id": 39888629731,
-    "artifact_id": 12475754660,
+    "run_id": 39896517167,
+    "artifact_id": 12477313629,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是对‘TCL'的误听/误识（多音字或发音相似导致），属于无法解释的具体词语疑点。\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我说以前啊，过去比如说十年前，白酒的股息率也就不到百分之一，大概百分之零点八、百分之零点七几的百分。\", \"suspect_quote\": \"百分之零点八、百分之零点七几的百分\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表达存在明显识别疑点：‘百分之零点七几’中‘几’字在口语中通常指代不确定范围，但此处紧接‘的百分’，导致数值单位不完整（缺少‘之一’或‘之十’等后缀），且‘零点七几’与后文‘不到百分之一’的逻辑衔接因单位缺失而模糊。此外，‘百分之零点八\"}]"
      }
     ]
    },
    "source_check_report_id": 12475754660,
-   "last_error": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句",
-   "failure_stage": "quality-service",
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我说以前啊，过去比如说十年前，白酒的股息率也就不到百分之一，大概百分之零点八、百分之零点七几的百分。\", \"suspect_quote\": \"百分之零点八、百分之零点七几的百分\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表达存在明显识别疑点：‘百分之零点七几’中‘几’字在口语中通常指代不确定范围，但此处紧接‘的百分’，导致数值单位不完整（缺少‘之一’或‘之十’等后缀），且‘零点七几’与后文‘不到百分之一’的逻辑衔接因单位缺失而模糊。此外，‘百分之零点八\"}]",
+   "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "media-tools-preparation-2026102301": {
      "run_id": 39859196983,
@@ -42891,10 +42893,16 @@
    },
    "source_check_attempts": 4,
    "source_check_run_id": 39888629731,
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
-   "source_quality_rejected": false,
-   "recovery_origin_run_id": 39888629731
+   "source_quality_rejected": true,
+   "recovery_origin_run_id": 39888629731,
+   "failure_evidence": {
+    "run_id": 39896517167,
+    "artifact_id": 12477313629,
+    "name": "production-reject-ly-1022-abeb50",
+    "retained": true
+   }
   }
  ],
  "makeup_receipts": {
@@ -117219,6 +117227,20 @@
    "video_id": "http://f.video.weibocdn.com/u0/VQRc69I2gx08B7WoSvOw01041204VKmn0E020.mp4",
    "ts": 1792725942,
    "error": "选段原画仍有来源角标"
+  },
+  {
+   "slug": "ly-1022-abeb50",
+   "key": "bilibili_search:BV1Y4Jv6gEYq",
+   "video_id": "BV1Y4Jv6gEYq",
+   "ts": 1792728760,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我说以前啊，过去比如说十年前，白酒的股息率也就不到百分之一，大概百分之零点八、百分之零点七几的百分。\", \"suspect_quote\": \"百分之零点八、百分之零点七几的百分\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表达存在明显识别疑点：‘百分之零点七几’中‘几’字在口语中通常指代不确定范围，但此处紧接‘的百分’，导致数值单位不完整（缺少‘之一’或‘之十’等后缀），且‘零点七几’与后文‘不到百分之一’的逻辑衔接因单位缺失而模糊。此外，‘百分之零点八\"}]"
+  },
+  {
+   "slug": "ly-1023-2e23cc",
+   "key": "bilibili_search:BV1Ju4y1j7xC",
+   "video_id": "BV1Ju4y1j7xC",
+   "ts": 1792728760,
+   "error": "清理后预计短边 384 < 480"
   }
  ],
  "reviewed_third_video_0910": {
