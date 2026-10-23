@@ -3033,7 +3033,21 @@ def same_mother_scene_geometry(inventory, mother_sha):
 
 # Empty until an immutable full-source/negative-control and actual-media trial
 # passes. These rows permit one NEW normal job, never approve its output.
-PROVEN_COMPANY_RECALLS = ()
+PROVEN_COMPANY_RECALLS = (
+    {'id': '6f5d-guest-holding-context-v1-20261024',
+     'parent_slug': 'ly-story-7524eb9e46',
+     'parent_artifact_id': 12426894030,
+     'parent_run_id': 39771146000,
+     'source_url': 'https://www.bilibili.com/video/BV1se411H7tj',
+     'source_sha256': '6f5ddecc6db4f2045e37a83f63a7d3a122f08287ee1258e9c6f085abdb2b9c2d',
+     'selection_policy_sha256': 'cfb222984a1595049b4759034c9a6013998af33be7c4e5ed8c9f03f0e4ea4d69',
+     'expires_at': 1793030400,
+     'diagnostic_run_id': 40029308527,
+     'diagnostic_artifact_id': 12535431731,
+     'diagnostic_video_sha256': 'dd4f9996c7df2099e34874a826ffc8e30fa39bd49e6c98b99976a5bfe53b5c25',
+     'diagnostic_resolution': {'width': 1742, 'height': 922},
+     'diagnostic_render_mode': 'crop_delogo'},
+)
 
 
 def experiment_reuse_slug(parent):
@@ -3548,7 +3562,7 @@ def artifact_quality_error(meta):
             "authority_reference", "verified_source_frame"}:
         return "封面人物图来源不可验证"
     from headline_policy import complete, body
-    from title_rewrite import error as rewrite_error, summary_heading
+    from title_rewrite import metadata_error as rewrite_error, summary_heading
     if summary_heading(meta.get('title')):
         return '标题是关键词目录，需重新提炼中心观点'
     rewritten=meta.get('title_rewrite')
@@ -3681,6 +3695,11 @@ def artifact_subtitle_error(meta, delivery_dir):
         return "真实ASS字幕为空"
     if editorial.text_digest(text) != meta.get("subtitle_text_sha256"):
         return "真实ASS字幕与meta文本指纹不一致"
+    holding_selection=((meta.get('experiment_proof') or {}).get('selection') or {})
+    recall=experiment.holding_evidence(holding_selection)
+    holding_scope=recall or (holding_selection.get('kind')=='company_case' and experiment.future_holding_subject(holding_selection.get('subject_quote')))
+    if holding_scope and (not meta.get('title_rewrite') or meta.get('subtitle_edit_proof_version')!=1):
+        return '公司持仓复核缺少完整原始字幕编辑证明，不能凭摘录通过'
     if meta.get('title_rewrite'):
         from title_rewrite import error as rewrite_error, compact
         source_text=text
@@ -3700,11 +3719,16 @@ def artifact_subtitle_error(meta, delivery_dir):
                 if display_payload_text(''.join(displays))!=display_payload_text(text):
                     raise ValueError('编辑证明与真实ASS字幕不一致')
                 source_text=''.join(originals)
+                if holding_scope:
+                    problem=experiment.company_holding_context_error(source_text)
+                    if problem:return problem
                 import hashlib
                 if hashlib.sha256(compact(source_text).encode()).hexdigest()!=meta['title_rewrite'].get('source_sha256'):
                     raise ValueError('编辑前原文与标题核对的母片原话不一致')
             except (OSError,ValueError,KeyError,TypeError) as exc:
                 return '标题/字幕编辑证明无法重放：'+str(exc)
+        if holding_scope and experiment.proof_error(meta):
+            return '公司持仓事例证明未通过，不能降为常规片绕过：'+experiment.proof_error(meta)
         problem=rewrite_error(meta.get('title'),meta['title_rewrite'],source_text)
         if problem:return problem
     return editorial.transcript_integrity_error(text)

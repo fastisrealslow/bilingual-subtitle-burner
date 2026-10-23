@@ -50,7 +50,7 @@ def test_complete_existing_tools_do_not_require_apt_or_waive_font_checks(tmp_pat
     scripts={
         'ffmpeg':"printf ' ... subtitles V->V\n'",
         'ffprobe':"printf 'ffprobe version test\n'",
-        'pdftoppm':':','zstd':':','fc-cache':':',
+        'pdftoppm':':','pdftotext':':','zstd':':','fc-cache':':',
         'ldconfig':"printf 'libGL.so.1 lib\nlibglib-2.0.so.0 lib\n'",
         'fc-match':f"printf '%s' '{font}'",
         'sudo':f"printf 'called' > '{marker}'; exit 90",
@@ -147,3 +147,39 @@ def test_setup_failure_receipt_does_not_change_inventory_or_import_runtime(tmp_p
         assert receipt['inventory_refreshed'] is False
         assert receipt['previous_inventory_updated_at'] == 123
         assert inventory.read_bytes() == before
+
+
+def test_monitor_reuses_working_tools_and_preserves_its_source_schedule(tmp_path):
+    import os
+    doc=yaml.safe_load((ROOT/'.github/workflows/linyuan-monitor.yml').read_text())
+    step=next(s for s in doc['jobs']['monitor']['steps'] if s.get('name')=='安装系统依赖')
+    assert step['timeout-minutes']==15 and 'apt-get' not in step['run']
+    assert doc['jobs']['monitor']['timeout-minutes']==60
+    assert doc['concurrency']==dict(group='monitor',**{'cancel-in-progress':False})
+    assert (doc.get('on') or doc.get(True))['schedule']==[dict(cron='17 * * * *')]
+    directory=tmp_path/'bin';directory.mkdir();marker=tmp_path/'unexpected-installer';pip=tmp_path/'pip-args'
+    scripts={**{k:':' for k in ['ffmpeg','ffprobe','pdftotext']},
+        'bash':f"printf called > '{marker}'; exit 90",
+        'python':f"printf '%s\\n' \"$@\" > '{pip}'"}
+    for name,body in scripts.items():
+        path=directory/name;path.write_text('#!/bin/sh\n'+body+'\n');path.chmod(0o755)
+    r=subprocess.run(['/bin/bash','-c',step['run']],cwd=ROOT/'linyuan',env={**os.environ,'PATH':str(directory)},
+        text=True,capture_output=True,timeout=10)
+    assert r.returncode==0,r.stderr
+    assert not marker.exists() and '--retries' in pip.read_text() and '--timeout' in pip.read_text()
+
+
+def test_monitor_missing_tools_use_the_existing_installer_before_pip(tmp_path):
+    import os
+    doc=yaml.safe_load((ROOT/'.github/workflows/linyuan-monitor.yml').read_text())
+    step=next(s for s in doc['jobs']['monitor']['steps'] if s.get('name')=='安装系统依赖')
+    directory=tmp_path/'bin';directory.mkdir();marker=tmp_path/'installer';pip=tmp_path/'pip'
+    scripts={'ffmpeg':':','ffprobe':':',
+        'bash':f"printf '%s' \"$1\" > '{marker}'; printf '#!/bin/sh\\nexit 0\\n' > '{directory}/pdftotext'; /bin/chmod +x '{directory}/pdftotext'",
+        'python':f"test -f '{marker}' && printf called > '{pip}'"}
+    for name,body in scripts.items():
+        path=directory/name;path.write_text('#!/bin/sh\n'+body+'\n');path.chmod(0o755)
+    r=subprocess.run(['/bin/bash','-c',step['run']],cwd=ROOT/'linyuan',env={**os.environ,'PATH':str(directory)},
+        text=True,capture_output=True,timeout=10)
+    assert r.returncode==0,r.stderr
+    assert marker.read_text()=='ci_install_media_tools.sh' and pip.exists()

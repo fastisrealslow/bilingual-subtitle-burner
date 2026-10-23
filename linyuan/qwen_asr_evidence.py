@@ -9,7 +9,9 @@ def content(text):
     return ''.join(c.lower() for c in text if c.isalnum())
 
 
-def validated_words(reports, pcm_sha, video_sha, duration):
+def validated_words(reports, pcm_sha, video_sha, duration, *, model_id='Qwen/Qwen3-ASR-0.6B'):
+    if model_id not in ('Qwen/Qwen3-ASR-0.6B','Qwen/Qwen3-ASR-1.7B'):
+        raise ValueError('Unsupported explicit offline recognition model')
     from asr_context import matches
     if not matches(reports,source_sha=video_sha):
         raise ValueError('Offline transcript evidence has different recognition context')
@@ -20,7 +22,7 @@ def validated_words(reports, pcm_sha, video_sha, duration):
                 or report.get('source_video_sha256')!=video_sha
                 or report.get('device')!='cpu' or report.get('networking_during_inference') is not False
                 or align.get('device')!='cpu' or align.get('networking_during_inference') is not False
-                or report.get('model_id')!='Qwen/Qwen3-ASR-0.6B'
+                or report.get('model_id')!=model_id
                 or align.get('model_id')!='Qwen/Qwen3-ForcedAligner-0.6B'
                 or not report.get('model_revision') or not align.get('model_revision')):
             raise ValueError('Offline transcript evidence has different source, model or inference provenance')
