@@ -999,6 +999,21 @@ def personal_cause_qualifier_error(title, cover, transcript):
     return None
 
 
+def market_order_scope_error(title, cover, transcript):
+    """The observed first/second market example must keep its negated object."""
+    source=str(transcript or '')
+    if not (re.search(r'一级市场(?:就)?(?:该|应该|应当)比二级市场贵[。！!，,\s]*我说(?:那)?是瞎扯',source)
+            and re.search(r'二级市场是有定价权',source)):
+        return None
+    for copy in (str(title or ''),str(cover or '')):
+        reversed_price=re.search(r'二级(?:市场)?(?:的价格)?比一级(?:市场)?(?:更)?(?:贵|高)',copy)
+        if reversed_price and re.search(r'别信|不是|瞎扯|错误|扯淡|不对',copy):
+            return '原话反对把一级市场应该比二级贵当成常识，不能交换一级与二级后再否定'
+        if re.search(r'二级市场(?:的)?定价权[^。！？!?，,]{0,8}(?:瞎扯|错误|不对|不存在)',copy):
+            return '原话明确说二级市场有定价权，不能把对一级更贵说法的否定移给二级市场定价权'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -1006,6 +1021,8 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    market_issue=market_order_scope_error(title,cover,transcript)
+    if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
     if cause_issue:return cause_issue
     sale_issue=rare_sale_scope_error(title,cover,transcript)
