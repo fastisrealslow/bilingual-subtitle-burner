@@ -26,9 +26,18 @@ def digest(value):
 def opening_allowed(text):
     # Classification only; never strip or rewrite a source cue.
     plain=re.sub(r'^(?:[啊嗯呃哦][，,、\s]*|对[，,、\s]+)+','',text)
+    if temporal_action_opening(plain):return True
     return bool(len(re.sub(r'\W','',plain))>=8 and not re.match(
         r'^(?:因为|所以|但是|因此|不过|而且|然后|实际上|除此|其中|'
         r'它|他|她|他们|这个|这些|这种|这就是|那个|那些|那是|那就|那么|那时候|那个时候|那次|那一天)',plain))
+
+
+def temporal_action_opening(text):
+    """A leading 那么 need not hide an explicit dated, completed own action."""
+    return bool(re.match(r'^(?:那么|那)[，,]*(?:从)?(?:去年|前年|20\d{2}年)'
+        r'[^。！？!?]{0,24}(?:到|至)(?:现在|今天|今年)',text)
+        and re.search(r'(?:我|我们)[^。！？!?]{0,40}(?:组织|举办|参加|访问)(?:了|过)',text)
+        and not re.search(r'如果|假设|假如|虚构|编个|编一个|没有(?:组织|举办|参加|访问)',text))
 
 
 def opening_error(text):
@@ -78,6 +87,8 @@ def windows(cues):
     rows=[dict(unit,description=f"{unit['start']}-{unit['end']}|"
         f"{cues[unit['start']]['start']:.2f}-{cues[unit['end']]['end']:.2f}|{unit['text']}")
         for unit in expanded]
+    for row in rows:
+        if temporal_action_opening(row['text']):row['temporal_action_context']=True
     result=[];start=0
     while start<len(rows):
         end=start;size=0
@@ -120,6 +131,8 @@ def request(rows):
             '仍须通读原句上下文，不能只看新增备选。没有完整经历也可不选，不为凑数量补结论。')
     if any(row.get('reported_reply_end') for row in rows):
         prompt+='\n报道反应和本人纠正若被逗号连到新话题，新增备选只在已有原始字幕末尾结束；仍保留完整原句供核对，不从纠正半句开场。'
+    if any(row.get('temporal_action_context') for row in rows):
+        prompt+='\n“那么”后若完整交代过去到现在的时间和本人实际组织、参加过的活动，可从该完整原句提出经历及直接动机，不必有采访者问答；后续预测仍是预测，不能把它当已经发生的事。'
     return prompt,schema
 
 

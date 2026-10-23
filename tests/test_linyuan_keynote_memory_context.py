@@ -96,3 +96,35 @@ def test_actual_pilot_future_opportunity_plan_is_not_a_completed_personal_story(
     assert E.personal_event_error('我记得两年前参加了一场线上的会议。') is None
     assert E.personal_event_error('我买了这家公司，未来我要抓住它增长的机会。') is None
     assert E.personal_event_error('我说那是提醒风险，媒体误解了我的意思。') is None
+
+
+def test_actual_temporal_completed_activity_is_a_whole_original_opening():
+    text='那么从去年九月份到现在，实际上我们组织了很多次活动，我见的人超过五千人。'
+    assert K.temporal_action_opening(text) and K.opening_allowed(text)
+    cues=[dict(start=326.2,end=332.84,text=text),dict(start=334.28,end=334.6,text='为什么？'),
+        dict(start=335.48,end=344.28,text='那就是我觉得这个位置，是让人有磨难，最后能让人能够记得起来的事儿。'),
+        dict(start=345.88,end=348.44,text='一生当中啊，能够记起、记得起来。')]
+    before=deepcopy(cues);rows=K.windows(cues)[0];prompt,schema=K.request(rows)
+    assert 0 in schema['properties']['picks']['items']['properties']['start']['enum']
+    assert '实际组织' in prompt and cues==before
+
+
+@pytest.mark.parametrize('text',[
+    '那么明年九月份，我们计划组织很多次活动。',
+    '那么从去年九月份到现在，如果我们组织了活动，可能就有机会。',
+    '那么从去年九月份到现在，实际上我们没有组织过活动。',
+    '那么从去年九月份到现在，未来我们要组织很多次活动。',
+    '那么我现在的判断是，过了时间不长的时候，你们会想起我说过一些话。'])
+def test_temporal_opening_exception_does_not_admit_future_denied_or_hypothetical_activity(text):
+    assert not K.temporal_action_opening(text)
+    assert not K.opening_allowed(text)
+
+
+def test_actual_activity_original_cues_become_available_without_selecting_a_range():
+    f=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_keynote_activity_17.json').read_text())
+    cues=f['cues'];before=deepcopy(cues);rows=K.windows(cues)[0]
+    actual=[r for r in rows if r.get('temporal_action_context')]
+    assert len(actual)==1 and actual[0]['start']==f['activity_start']
+    assert actual[0]['text']==''.join(c['text'] for c in cues[actual[0]['start']:actual[0]['end']+1])
+    assert f['activity_start'] in K.request(rows)[1]['properties']['picks']['items']['properties']['start']['enum']
+    assert cues==before and not any(k in actual[0] for k in ('picks','passed','story_selection','title'))

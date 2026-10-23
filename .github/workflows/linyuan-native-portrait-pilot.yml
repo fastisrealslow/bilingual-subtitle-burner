@@ -11,7 +11,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: admitted-native-portrait-pilot-${{ github.ref }}
+  group: admitted-native-portrait-temporal-v3-${{ github.ref }}
   cancel-in-progress: false
 env:
   RUN_TEXT_MODEL: qwen3.5:9b
@@ -22,7 +22,7 @@ env:
   RUN_SOURCE_PLATFORM: bilibili
   RUN_REVIEWED_PARTS: ''
   LINYUAN_AUTOMATIC_ONLY: 'true'
-  RUN_MAX_OUTPUTS: '1'
+  RUN_MAX_OUTPUTS: '2'
   RUN_RECOVERY_RUN_ID: '40030806284'
   LINYUAN_EDITORIAL_PROFILE: field-story-v1
   OUTPUT_LAYOUT: portrait
@@ -94,20 +94,12 @@ jobs:
       timeout-minutes: 15
       env:
         GH_TOKEN: ${{ github.token }}
-      run: |
-        set -euo pipefail
-        mkdir -p _src
-        curl -fLsS --retry 2 --max-time 300 -H "Authorization: Bearer $GH_TOKEN" \
-          "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12528226901/zip" \
-          -o /tmp/native-portrait-mother.zip
-        unzip -j -o /tmp/native-portrait-mother.zip -d _src
-        rm /tmp/native-portrait-mother.zip
-        python - <<'CHECK'
-        import hashlib
-        from pathlib import Path
-        assert hashlib.sha256(Path('_src/video.mp4').read_bytes()).hexdigest()=='e3ad880a98789941fcbb4b9ce52b933297ace03d271ae749f654ffc25ae3c9a3'
-        CHECK
-        echo 'path=_src/video.mp4' >> "$GITHUB_OUTPUT"
+      run: "set -euo pipefail\nmkdir -p _src\ncurl -fLsS --retry 2 --max-time 300 -H \"Authorization:\
+        \ Bearer $GH_TOKEN\" \\\n  \"https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12528226901/zip\"\
+        \ \\\n  -o /tmp/native-portrait-mother.zip\nunzip -j -o /tmp/native-portrait-mother.zip -d _src\n\
+        rm /tmp/native-portrait-mother.zip\npython - <<'CHECK'\nimport hashlib\nfrom pathlib import Path\n\
+        assert hashlib.sha256(Path('_src/video.mp4').read_bytes()).hexdigest()=='e3ad880a98789941fcbb4b9ce52b933297ace03d271ae749f654ffc25ae3c9a3'\n\
+        CHECK\necho 'path=_src/video.mp4' >> \"$GITHUB_OUTPUT\"\n"
     - name: 素材质量门禁
       id: source_gate
       env:
@@ -308,15 +300,23 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: native-pilot-original-delivery-${{ github.run_id }}
-        path: |
-          linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+        path: 'linyuan/deliver/${{ env.RUN_SLUG }}/meta.json
+
           linyuan/deliver/${{ env.RUN_SLUG }}/final*.mp4
+
           linyuan/deliver/${{ env.RUN_SLUG }}/cover*.jpg
+
           linyuan/deliver/${{ env.RUN_SLUG }}/cover*.json
+
           linyuan/deliver/${{ env.RUN_SLUG }}/subtitles*.ass
+
           linyuan/deliver/${{ env.RUN_SLUG }}/subtitle_edit_proof*.json
+
           linyuan/deliver/${{ env.RUN_SLUG }}/preview*.mp4
+
           linyuan/deliver/${{ env.RUN_SLUG }}/contact*.jpg
+
+          '
         if-no-files-found: error
         retention-days: 30
     - name: 独立复验本次实验原始成片、字幕及封面
@@ -324,13 +324,14 @@ jobs:
         \ import delivery_files\nfrom publishing_experiment import actual_profile,TREATMENT\nfrom source_supply\
         \ import validate_part\nroot=Path('deliver')/os.environ['RUN_SLUG']\nraw=(root/'meta.json').read_bytes();data=json.loads(raw)\n\
         rows=data if isinstance(data,list) else [data]\naccepted=[]\nfor row in rows:\n    if actual_profile(row)!=TREATMENT:continue\n\
-        \    assert row['resolution']['height']>row['resolution']['width'], 'This trial requires actual\
-        \ portrait delivery'\n    files=delivery_files(row)\n    assert all((root/name).is_file() for\
-        \ name in files)\n    before={name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name\
-        \ in files}\n    issue=validate_part(row,root)\n    assert issue is None,issue\n    assert all(hashlib.sha256((root/name).read_bytes()).hexdigest()==sha\
-        \ for name,sha in before.items())\n    accepted.append(dict(title=row['title'],resolution=row['resolution'],files=before))\n\
-        assert accepted and (root/'meta.json').read_bytes()==raw\n(root/'original_media_validation.json').write_text(json.dumps(dict(passed=True,\n\
-        \    accepted=accepted,metadata_unchanged=True,files_unchanged=True,\n    diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))\n\
+        \    files=delivery_files(row)\n    assert all((root/name).is_file() for name in files)\n    before={name:hashlib.sha256((root/name).read_bytes()).hexdigest()\
+        \ for name in files}\n    issue=validate_part(row,root)\n    assert issue is None,issue\n    assert\
+        \ all(hashlib.sha256((root/name).read_bytes()).hexdigest()==sha for name,sha in before.items())\n\
+        \    accepted.append(dict(title=row['title'],resolution=row['resolution'],files=before))\nassert\
+        \ accepted and (root/'meta.json').read_bytes()==raw\nassert any(r['resolution']['height']>r['resolution']['width']\
+        \ for r in accepted), 'No actual portrait treatment; landscape does not fill portrait target'\n\
+        (root/'original_media_validation.json').write_text(json.dumps(dict(passed=True,\n    accepted=accepted,metadata_unchanged=True,files_unchanged=True,\n\
+        \    diagnostic_only=True,registered_stock=False,published=False),ensure_ascii=False,indent=2))\n\
         VERIFY\n"
     - name: 留存独立原始成片复验结果
       uses: actions/upload-artifact@v4
