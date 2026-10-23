@@ -47,6 +47,7 @@ def test_preview_matches_production_steps_and_has_no_publication_capability():
     assert preflight['env']['LINYUAN_TITLE_DRAFT_PROFILE']=='production'
     render=next(s for s in steps if s.get('id')=='render')
     assert '--max-outputs "$RUN_MAX_OUTPUTS"' in render['run']
+    assert render['run'].count('--max-outputs')==1
     assert '\n+' not in render['run']
     # Validate actual generated Bash, including continuations, after replacing
     # expression placeholders with inert values (no network or rendering).
