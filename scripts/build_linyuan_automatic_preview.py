@@ -26,6 +26,10 @@ def build():
             step['env']['LINYUAN_EDITORIAL_PROFILE']="${{ env.LINYUAN_EDITORIAL_PROFILE || 'baseline' }}"
             step['env']['OUTPUT_LAYOUT']="${{ env.OUTPUT_LAYOUT || 'auto' }}"
             step['env']['SOURCE_VISUAL_CHAPTERS']='true'
+            # Previews have their own explicit output limit. Do not inherit
+            # the daily production cap and override RUN_MAX_OUTPUTS later.
+            step['run']=''.join(line for line in step['run'].splitlines(keepends=True)
+                if "'--max-outputs 2'" not in line)
             step['run'] = step['run'].replace('--split-highlights \\', '--max-outputs "$RUN_MAX_OUTPUTS" \\\n            --split-highlights \\')
         if step.get('name')=='复用同源失败任务的已完成证据':
             step['if']="env.RUN_RECOVERY_RUN_ID != ''"

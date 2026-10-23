@@ -1870,11 +1870,13 @@ class IfengVideoSource(Source):
 
     def fetch(self, page):
         from ci_fetch_ifeng import article_video
-        for url in self.seed_batch(self.config.get('urls', []), 3):
+        reference_urls=self.config.get('reference_urls', [])
+        for url in self.seed_batch(self.config.get('urls', [])+reference_urls, 3):
             # Parse only the main document's unique public media attachment;
             # no recommendation feeds, player guesses or signed-in requests.
             try:
-                info = article_video(http_get(url, timeout=25), url)
+                info = article_video(http_get(url, timeout=25), url, metadata_only=True)
+                reference=info['media_access_restricted'] or url in reference_urls
                 title = info.get('article_title') or ''
                 if '林园' not in title or not BilibiliSearchSource.FULL_TITLE_PAT.search(title):
                     continue
@@ -1884,7 +1886,9 @@ class IfengVideoSource(Source):
                     publish_time=info.get('published_at') or '',
                     extra=json.dumps(dict(has_video=True,
                         duration=info['declared_duration'], guid=info['guid'],
-                        origin_role='official_publisher', source_role='mother_candidate',
+                        origin_role='official_publisher', source_role='reference' if reference else 'mother_candidate',
+                        **(dict(direct_dispatch=False,media_access_restricted=info['media_access_restricted'],
+                            preview_seconds=info['preview_seconds']) if reference else {}),
                         metadata_provenance=info['provenance'],
                         recording_date_verified=False, media_quality_approved=False,
                         rights_clearance=False), ensure_ascii=False)))

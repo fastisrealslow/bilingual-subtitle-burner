@@ -22,20 +22,40 @@ DAILY_MINIMUM = 2
 DAILY_PREFERRED = 3
 
 
-def supply_plan(usable, now):
+def supply_plan(usable, now, stock=None):
     """Conservative planning evidence, not reservations or upload permission.
 
     Production/candidates never count. Even today's verified stock must be
     rechecked at publication (expiry, dedup and portrait/landscape constraints).
     """
     today = datetime.fromtimestamp(now, timezone(timedelta(hours=8))).date()
-    return dict(daily_minimum=DAILY_MINIMUM, daily_preferred=DAILY_PREFERRED,
+    plan=dict(daily_minimum=DAILY_MINIMUM, daily_preferred=DAILY_PREFERRED,
         planning_days=7, verified_stock_snapshot=usable,
         minimum_week_shortfall=(None if usable is None else max(0, 7*DAILY_MINIMUM-usable)),
         preferred_week_shortfall=(None if usable is None else max(0, 7*DAILY_PREFERRED-usable)),
         reserve_shortfall=(None if usable is None else max(0, fc.TARGET_READY_RESERVE-usable)),
         dates=[str(today+timedelta(days=i)) for i in range(7)],
         requires_publish_time_revalidation=True, includes_unfinished_production=False)
+    if stock is None:
+        return plan
+    needs=dict(portrait=sum(h!=fc.LANDSCAPE_HOUR for h in fc.PUBLISH_HOURS),
+               landscape=sum(h==fc.LANDSCAPE_HOUR for h in fc.PUBLISH_HOURS))
+    available={k:stock.get('verified_'+k) for k in needs}
+    valid=(usable is not None and sum(needs.values())==fc.MAX_PUBLISH_PER_DAY
+        and all(type(v) is int and v>=0 for v in available.values())
+        and sum(available.values())==usable)
+    reserves=dict(portrait=fc.TARGET_PORTRAIT_RESERVE,landscape=fc.TARGET_LANDSCAPE_RESERVE)
+    weekly={k:max(0,7*needs[k]-available[k]) for k in needs} if valid else None
+    missing={k:max(0,reserves[k]-available[k]) for k in needs} if valid else None
+    plan.update(version=2,daily_target=fc.MAX_PUBLISH_PER_DAY,daily_by_layout=needs,
+        verified_by_layout=available if valid else None,
+        full_schedule_days=min(available[k]//v for k,v in needs.items() if v) if valid else None,
+        required_week_shortfall=sum(weekly.values()) if valid else None,
+        required_week_shortfall_by_layout=weekly,
+        reserve_targets_by_layout=reserves,
+        reserve_shortfall_by_layout=missing,
+        reserve_shortfall=sum(missing.values()) if valid else None)
+    return plan
 
 
 def timestamp(value):
@@ -176,13 +196,15 @@ def build(state, inventory, runs, now=None):
            and inventory.get('editorial_policy_version')==fc.editorial.VERSION)
     usable=int(stock.get('daily_mix_usable') or 0)
     activity=sum(t['status'] in {'running','queued','retry_queued','awaiting_validation'} for t in tasks)
+    plan=supply_plan(usable if fresh else None,now,stock)
     continuity=dict(daily_target=fc.MAX_PUBLISH_PER_DAY,reserve_target=fc.TARGET_READY_RESERVE,
         verified_daily_stock=usable if fresh else None,active_or_recovering_sources=activity,
         waiting_candidates=admission.get('candidate_count'),
         status=('unknown' if not fresh else 'stockout' if usable==0 else
-                'at_risk' if usable<fc.MAX_PUBLISH_PER_DAY else 'covered'),
+                'unknown' if plan['full_schedule_days'] is None else
+                'at_risk' if plan['full_schedule_days']<1 or plan['reserve_shortfall'] else 'covered'),
         quality_gates_relaxed=False,
-        plan=supply_plan(usable if fresh else None, now))
+        plan=plan)
     experiment_stock=dict(portrait=0,landscape=0) if fresh else None
     if fresh:
         latest={e['slug']:e for e in fc._latest_dispatches(state)}

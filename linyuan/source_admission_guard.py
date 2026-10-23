@@ -18,6 +18,9 @@ def official_page_key(url):
     if parsed.hostname in {'bilibili.com','www.bilibili.com','m.bilibili.com'}:
         match=re.fullmatch(r'/video/(BV[0-9A-Za-z]{10})/?',parsed.path)
         return ('bilibili',match[1]) if match else None
+    if parsed.hostname in {'v.ifeng.com','finance.ifeng.com','original.ifeng.com','news.ifeng.com'}:
+        match=re.fullmatch(r'/c/([A-Za-z0-9]+)/?',parsed.path)
+        return ('ifeng',match[1]) if match else None
     if parsed.hostname not in {'www.yicai.com','yicai.com'}:return None
     match=re.fullmatch(r'/video/(\d+)\.html/?',parsed.path)
     return ('yicai',match[1]) if match else None
