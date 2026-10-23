@@ -136,6 +136,16 @@ def test_modality_only_patch_never_reopens_other_asr_or_source_failures(monkeypa
     assert entry['failed'] and not writes
 
 
+@pytest.mark.parametrize('future_policy',[2026102309,2026102310,2026102401])
+def test_future_cache_version_cannot_fall_through_legacy_broad_asr_recovery(monkeypatch,future_policy):
+    state,entry,run,writes=modality_case(monkeypatch,
+        '原始ASR存在影响理解的疑点，禁止猜改后发布：TCATCA公司名乱码')
+    monkeypatch.setattr(F,'gh',lambda *a,**k:dict(files=[dict(
+        filename='linyuan/transcript_audit.py',patch=f'+SPOKEN_RANGE_POLICY_VERSION = {future_policy}\n')]))
+    assert not F._recover_changed_production_rule(state,entry,run)
+    assert entry['failed'] and not writes and entry['source_check_attempts']==2
+
+
 @pytest.mark.parametrize('changes',[
     dict(run_id=999),dict(slug='other'),dict(accepted=1),dict(artifact_id=0),dict(accepted=False)])
 def test_unbound_secondary_audio_claim_cannot_authorize_recovery(monkeypatch,changes):

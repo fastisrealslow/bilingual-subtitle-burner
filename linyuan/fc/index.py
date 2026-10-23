@@ -3712,9 +3712,13 @@ def _recover_changed_production_rule(st, candidate, run):
         if case[0]=='transcript-text-only-evidence-v1':
             return bool(text_only_patch and any(_text_only_audit_audio_claim(r)
                                                for r in [reason]+secondary))
-        if text_only_patch and case[0] in ('transcript-valid-negatives-v4','transcript-review-model-v3'):
+        review_cache_patch=(file.get('filename')=='linyuan/transcript_audit.py'
+            and re.search(r'^\+SPOKEN_RANGE_POLICY_VERSION\s*=\s*\d+\s*$',
+                          str(file.get('patch') or ''),re.M))
+        if review_cache_patch and case[0] in ('transcript-valid-negatives-v4','transcript-review-model-v3'):
             # Do not use an unchanged legacy catch-all to replay real corrupt
-            # words/numbers merely because the review protocol changed.
+            # words/numbers merely because the review protocol changed. An
+            # unknown future cache version must fail closed too.
             return False
         if case[0]=='transcript-spoken-ranges-v1' or (range_policy_patch and case[0] in (
                 'transcript-valid-negatives-v4','transcript-review-model-v3')):
