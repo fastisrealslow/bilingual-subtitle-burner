@@ -45561,7 +45561,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-16T22:55:00+00:00"
+   "publish_time": "2024-08-16T22:55:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-c8ca0c",
+    "run_id": 39965204281,
+    "artifact_id": 12509711515,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b91bb9a475cc6fb36db6140d4071d60bed34f77ed880293f8a9feb9dcc0e6ea0",
+     "duration_sec": 1161.73,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV12b421E7vz?p=4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39965204281,
+    "artifact_id": 12509711515,
+    "name": "production-reject-ly-1023-c8ca0c",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -121292,6 +121325,13 @@
    "video_id": "https://v.ifeng.com/c/8WHpW9qUT1g",
    "ts": 1792765072,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配289/550，总帧数1300；身份匹配但人脸短边不足96px的帧数204"
+  },
+  {
+   "slug": "ly-1023-c8ca0c",
+   "key": "bilibili_search:BV12b421E7vz:p4",
+   "video_id": "BV12b421E7vz:p4",
+   "ts": 1792766671,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
