@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 45
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -384,6 +384,15 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
     units=units[:end]
     questions=[i for i,u in enumerate(units) if question_unit(u['text'])
                or BACKREF_QUESTION.search(u['text']) and host_premise_start(units,cues,i) is not None]
+    # A complete short source can open with a topic prompt omitting 您/你:
+    # “当下时点的券商怎么看？” Preserve that first question and all of its
+    # answer. Do not promote similar guest self-questions inside an answer.
+    if (whole_source and natural_end and not questions and units
+            and cues[units[-1]['end']]['end']-cues[units[0]['start']]['start']<=330
+            and re.fullmatch(r'(?:当下|当前|目前|现在)[^。！？?]{0,20}'
+                r'(?:券商|银行|白酒|医药|消费|科技|市场|行业|股票|基金|资产)'
+                r'[^。！？?]{0,12}(?:怎么看|如何看待|有什么看法)[？?]',units[0]['text'])):
+        questions=[0]
     # Adjacent questions from the same interviewer turn belong together.
     starts=[i for k,i in enumerate(questions) if k==0 or
             (i>questions[k-1]+1 and not all(re.search(r'[？?]$',units[t]['text'])

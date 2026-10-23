@@ -1,0 +1,1 @@
+Read-only full 108.75s original: preserve literal initial topic question and complete answer; exact-source 1.7B ASR trial; independently require real portrait, unchanged subtitles/title/cover and full AV checks. Not long-mother yield or experimental stock.
