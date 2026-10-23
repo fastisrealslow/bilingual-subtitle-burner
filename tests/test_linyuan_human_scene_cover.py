@@ -20,7 +20,7 @@ def setup_frames(monkeypatch,dirty=False):
         checked.extend(frames)
         return ['external logo'] if dirty and any(p.name.endswith('.0.png') for p in frames) else []
     monkeypatch.setattr(P,'detect_corner_logos_in_images',logos)
-    def identify(frames,reference):
+    def identify(frames,reference,**kwargs):
         assert frames and all(p in checked for p in frames)
         if dirty:assert not any(p.name.endswith('.0.png') for p in frames)
         return frames[0],(400,120,180,240),dict(sharpness=100,cosine_score=.7,selected_frame=frames[0].name)
