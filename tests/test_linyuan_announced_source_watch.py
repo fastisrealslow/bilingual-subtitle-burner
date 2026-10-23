@@ -19,4 +19,6 @@ def test_announcement_is_not_a_downloadable_mother_or_dispatchable_stock():
     catalog = json.loads((ROOT / 'linyuan/source_lineage.json').read_text())
     event = next(f for f in catalog['families'] if f['id'] == 'simuwang_2026_10_15')
     assert not event['official_urls'] and not event['mirror_urls']
-    assert event['official_status'] == 'first_party_announcement_not_recording'
+    assert event['official_status'] == 'first_party_recording_landing_media_unverified'
+    assert event['research_only_urls'] == ['https://ly.simuwang.com/roadshow/13044.html']
+    assert 'https://www.simuwang.com/news/287708.html' in event['evidence']
