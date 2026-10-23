@@ -165,7 +165,7 @@ def test_auto_cover_reuses_verified_frame_but_explicit_scene_stays_strict(tmp_pa
         Image.new('RGB',(720,1280),'#789798').save(cmd[-1])
     monkeypatch.setattr(P.subprocess,'run',extract)
     monkeypatch.setattr(P,'detect_corner_logos_in_images',lambda _: [])
-    monkeypatch.setattr(P,'select_verified_cover_face',lambda frames,ref:
+    monkeypatch.setattr(P,'select_verified_cover_face',lambda frames,ref,**kwargs:
         (frames[0],(230,160,180,240),dict(engine='test_identity_stub',sharpness=100)))
     def no_scene(*args):
         raise ValueError('竖图不适合现场横版封面')
@@ -179,7 +179,7 @@ def test_auto_cover_reuses_verified_frame_but_explicit_scene_stays_strict(tmp_pa
     assert len(captures)==7  # one sampling pass, no second extraction on fallback
     with pytest.raises(P.VisualQualityError,match='竖图'):
         P.make_cover('source.mp4',0,120,'医药股经营不好，便宜也不买','林园',tmp_path/'strict.jpg',style='scene')
-    monkeypatch.setattr(P,'select_verified_cover_face',lambda frames,ref:
+    monkeypatch.setattr(P,'select_verified_cover_face',lambda frames,ref,**kwargs:
         (frames[0],(230,160,180,240),dict(engine='test_identity_stub',sharpness=10)))
     with pytest.raises(P.VisualQualityError,match='清晰度不足'):
         P.make_cover('source.mp4',0,120,'医药股经营不好，便宜也不买','林园',tmp_path/'blur.jpg',
