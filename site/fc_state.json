@@ -39963,17 +39963,13 @@
    "recovery_origin_run_id": 38866481077,
    "production_failure_summary": {
     "slug": "ly-story-13c07fb2f2",
-    "run_id": 39813834448,
-    "artifact_id": 12442753314,
+    "run_id": 39808235125,
+    "artifact_id": 12437994243,
     "accepted": 0,
     "failures": [
      {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'放放回到'不符合中文语法逻辑，应为'放回'或'放回到'，多出的'放'字导致语义不通。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是是没"
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
      }
     ]
    },
@@ -40514,10 +40510,14 @@
    "recovery_origin_run_id": 38866041586,
    "production_failure_summary": {
     "slug": "ly-story-9ccd46299a",
-    "run_id": 39832181727,
-    "artifact_id": 12449617822,
+    "run_id": 39803476094,
+    "artifact_id": 12439207071,
     "accepted": 0,
     "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"uni"
@@ -40665,8 +40665,8 @@
    "recovery_origin_run_id": 39014441603,
    "production_failure_summary": {
     "slug": "ly-story-fb8a34b6b5",
-    "run_id": 39840153216,
-    "artifact_id": 12454635385,
+    "run_id": 39810793747,
+    "artifact_id": 12444260025,
     "accepted": 0,
     "failures": [
      {
@@ -40675,7 +40675,7 @@
      },
      {
       "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
      }
     ]
    },
@@ -119511,7 +119511,7 @@
  },
  "source_refresh_requested_at": 1792733837,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 2,
+ "rule_recovery_page": 3,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
