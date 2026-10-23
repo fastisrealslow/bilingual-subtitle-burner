@@ -35,7 +35,7 @@ def candidates(cache_key):
 
 
 def restore(choice,work,cache_key):
-    from prepare_asr_runtime import restore_raw_qwen_evidence
+    from prepare_asr_runtime import restore_raw_qwen_evidence,recognition_model
     from qwen_asr_evidence import load_reports,validated_words
     source_sha=choice['source_sha256'];work=Path(work)
     attempts=0
@@ -50,11 +50,11 @@ def restore(choice,work,cache_key):
                     subprocess.run(['gh','api','repos/'+os.environ['GITHUB_REPOSITORY']+
                         '/actions/artifacts/'+str(artifact['id'])+'/zip'],stdout=stream,
                         stderr=subprocess.PIPE,check=True,timeout=45)
-                if not restore_raw_qwen_evidence(archive,stage,source_sha,choice.get('model_revisions') or {}):continue
+                if not restore_raw_qwen_evidence(archive,stage,source_sha,choice.get('model_revisions') or {},recognition_model(choice)):continue
                 reports=load_reports(stage)
                 # Reject partial or internally inconsistent alignment before
                 # skipping recognition. Actual PCM is checked again in render.
-                try:validated_words(reports,reports[0]['source_pcm_sha256'],source_sha,float(reports[0]['duration']))
+                try:validated_words(reports,reports[0]['source_pcm_sha256'],source_sha,float(reports[0]['duration']),model_id=recognition_model(choice))
                 except (KeyError,ValueError,TypeError):continue
                 target=work/'recovered_raw_asr'/str(artifact['id']);target.mkdir(parents=True,exist_ok=True)
                 for i,report in enumerate(reports):

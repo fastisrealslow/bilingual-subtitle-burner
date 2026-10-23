@@ -738,6 +738,7 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
+from prepare_asr_runtime import recognition_model
 from audio_preprocessing import policy as audio_policy, matches as audio_matches, asr_args as audio_asr_args, render_prefix as audio_render_prefix
 from asr_context import specification as asr_context_spec, matches as asr_context_matches
 
@@ -763,7 +764,7 @@ def _asr_cache_identity(src, work=None):
                 if (report.get('source_video_sha256') != source_sha
                         or report.get('device') != 'cpu'
                         or report.get('networking_during_inference') is not False
-                        or report.get('model_id') != 'Qwen/Qwen3-ASR-0.6B'
+                        or report.get('model_id') != recognition_model(choice)
                         or report.get('model_revision') != revisions.get('asr')
                         or alignment.get('device') != 'cpu'
                         or alignment.get('networking_during_inference') is not False
@@ -866,6 +867,17 @@ def transcribe(src, work, api_key=None):
     return cues
 
 
+def release_local_text_weights_for_asr(model_id):
+    # Actual 1.7B float32 trial peaked near 13 GiB. Free the existing 9B
+    # text weights during fresh recognition; its next call reloads unchanged.
+    if model_id=='Qwen/Qwen3-ASR-0.6B' or TEXT_BACKEND!='local':return
+    cli=shutil.which('ollama')
+    if cli:
+        subprocess.run([cli,'stop',LOCAL_LLM_MODEL],check=True,timeout=30,
+                       stdout=subprocess.DEVNULL)
+        print('[离线识别] 已释放本地文本模型权重；文案调用按原配置自动恢复',flush=True)
+
+
 def _transcribe_qwen_cpu(src,work):
     """Explicit CPU backend; no ASR API or automatic model fallback."""
     import wave
@@ -885,6 +897,8 @@ def _transcribe_qwen_cpu(src,work):
     clock.update(source_sha256=video_sha,pcm_sha256=pcm_sha)
     (work/'audio_clock.json').write_text(json.dumps(clock,ensure_ascii=False,indent=2))
     video_sha=_sha256_file(src)
+    config=json.loads((BASE/'asr_production_config.json').read_text())
+    choice={**config,**config.get('source_overrides',{}).get(video_sha,{})}
     evidence=Path(os.environ.get('QWEN3_EVIDENCE_DIR') or work/'qwen_cpu')
     reports=load_reports(evidence)
     if not audio_matches(reports,selected_audio) or not asr_context_matches(reports,source_sha=video_sha):
@@ -895,20 +909,21 @@ def _transcribe_qwen_cpu(src,work):
             archive.mkdir(parents=True)
             evidence.replace(archive/'qwen_cpu')
     if not reports:
+        release_local_text_weights_for_asr(recognition_model(choice))
         evidence.mkdir(parents=True,exist_ok=True)
         for mode,env in [('decode','QWEN3_ASR_DIR'),('align','QWEN3_ALIGNER_DIR')]:
             subprocess.run([sys.executable,str(BASE/'qwen_cpu_transcript.py'),mode,
                 '--audio',str(wav),'--out',str(evidence),'--weights',os.environ[env],
-                '--source-video-sha',video_sha,'--audio-preprocessing',selected_audio],check=True,timeout=max(600,int(duration*4)))
+                '--source-video-sha',video_sha,'--audio-preprocessing',selected_audio],check=True,
+                env={**os.environ,'QWEN3_ASR_MODEL_ID':recognition_model(choice)},timeout=max(600,int(duration*4)))
         reports=load_reports(evidence)
-    config=json.loads((BASE/'asr_production_config.json').read_text())
-    choice={**config,**config.get('source_overrides',{}).get(video_sha,{})}
     revisions=choice.get('model_revisions') or {}
     if any(r.get('model_revision')!=revisions.get('asr')
            or (r.get('alignment') or {}).get('model_revision')!=revisions.get('aligner')
            for r in reports):
         raise ValueError('离线转写缓存与当前识别/对齐权重版本不同')
-    words=validated_words(reports,pcm_sha,video_sha,duration)
+    words=validated_words(reports,pcm_sha,video_sha,duration,
+        model_id=recognition_model(choice))
     (work/'asr_raw_chunks.json').write_text(json.dumps(reports,ensure_ascii=False,indent=1))
     tokens=[w['text'] for w in words];times=[w['start'] for w in words]
     (work/'asr_tokens.json').write_text(json.dumps(dict(tokens=tokens,timestamps=times,

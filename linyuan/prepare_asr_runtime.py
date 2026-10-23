@@ -12,7 +12,20 @@ from audio_preprocessing import policy, matches
 from asr_context import specification, matches as context_matches
 
 
-def restore_raw_qwen_evidence(archive, directory, source_sha, revisions):
+DEFAULT_ASR_MODEL='Qwen/Qwen3-ASR-0.6B'
+ASR_MODELS={DEFAULT_ASR_MODEL:'5eb144179a02acc5e5ba31e748d22b0cf3e303b0',
+            'Qwen/Qwen3-ASR-1.7B':'7278e1e70fe206f11671096ffdd38061171dd6e5'}
+
+
+def recognition_model(choice):
+    model=choice.get('asr_model_id',DEFAULT_ASR_MODEL)
+    if model not in ASR_MODELS:raise ValueError('Unsupported pinned offline recognition model')
+    if model!=DEFAULT_ASR_MODEL and (choice.get('model_revisions') or {}).get('asr')!=ASR_MODELS[model]:
+        raise ValueError('Larger ASR pilot requires its exact model revision')
+    return model
+
+
+def restore_raw_qwen_evidence(archive, directory, source_sha, revisions, model_id=DEFAULT_ASR_MODEL):
     """Reuse actual complete decoder/alignment records, never an editorial pass."""
     with zipfile.ZipFile(archive) as z:
         names=[n for n in z.namelist() if n.endswith('/asr_raw_chunks.json') or n=='asr_raw_chunks.json']
@@ -24,7 +37,7 @@ def restore_raw_qwen_evidence(archive, directory, source_sha, revisions):
         alignment=report.get('alignment') or {}
         if (report.get('source_video_sha256')!=source_sha or report.get('device')!='cpu'
                 or report.get('networking_during_inference') is not False
-                or report.get('model_id')!='Qwen/Qwen3-ASR-0.6B'
+                or report.get('model_id')!=model_id
                 or report.get('model_revision')!=revisions.get('asr')
                 or alignment.get('model_id')!='Qwen/Qwen3-ForcedAligner-0.6B'
                 or alignment.get('model_revision')!=revisions.get('aligner')
@@ -42,6 +55,7 @@ def configuration(report_path):
     source=json.loads(Path(report_path).read_text())['source_sha256']
     override=config.get('source_overrides',{}).get(source,{})
     choice={**config,**override,'source_sha256':source}
+    recognition_model(choice)
     context=specification(source_sha=source)['identity']
     if context:choice['recognition_context']=context
     if choice['backend'] not in ('sensevoice','qwen3'):
@@ -66,6 +80,7 @@ def mother_cache_key(choice, root=None):
     from audio_preprocessing import DEFAULT, normalized_policy
     root=Path(root) if root is not None else Path(__file__).parent
     identity={key:choice[key] for key in ('source_sha256','backend','model_revisions')}
+    if choice.get('asr_model_id'):identity['asr_model_id']=recognition_model(choice)
     identity['audio_preprocessing']=normalized_policy(choice.get('audio_preprocessing',DEFAULT))
     context=specification(root=root,source_sha=choice['source_sha256'])['identity']
     if context:identity['recognition_context']=context
@@ -90,7 +105,7 @@ def cached_evidence(report_path,choice):
         alignment=report.get('alignment') or {}
         if (report.get('source_video_sha256')!=choice['source_sha256']
                 or report.get('device')!='cpu' or report.get('networking_during_inference') is not False
-                or report.get('model_id')!='Qwen/Qwen3-ASR-0.6B'
+                or report.get('model_id')!=recognition_model(choice)
                 or report.get('model_revision')!=revisions.get('asr')
                 or alignment.get('device')!='cpu' or alignment.get('networking_during_inference') is not False
                 or alignment.get('model_id')!='Qwen/Qwen3-ForcedAligner-0.6B'
@@ -131,7 +146,7 @@ def immutable_run_evidence(choice):
             or not context_matches(reports,source_sha=choice['source_sha256'])
             or any(r.get('source_video_sha256')!=choice['source_sha256']
                 or r.get('device')!='cpu' or r.get('networking_during_inference') is not False
-                or r.get('model_id')!='Qwen/Qwen3-ASR-0.6B'
+                or r.get('model_id')!=recognition_model(choice)
                 or r.get('model_revision')!=revisions.get('asr')
                 or (r.get('alignment') or {}).get('device')!='cpu'
                 or (r.get('alignment') or {}).get('networking_during_inference') is not False
@@ -160,6 +175,7 @@ def main():
         return
     if args.mode=='select':
         emit('ASR_BACKEND',choice['backend'])
+        emit('QWEN3_ASR_MODEL_ID',recognition_model(choice))
         # Cache recognition once per exact mother video, model and code. This
         # remains a hypothesis cache, never a substitute for editorial review.
         # Rendering/editorial edits must not invalidate expensive recognition.
@@ -172,7 +188,7 @@ def main():
     if choice['backend']!='qwen3':return
     from huggingface_hub import snapshot_download
     revisions=choice.get('model_revisions') or {}
-    for env,model,key in [('QWEN3_ASR_DIR','Qwen/Qwen3-ASR-0.6B','asr'),
+    for env,model,key in [('QWEN3_ASR_DIR',recognition_model(choice),'asr'),
                           ('QWEN3_ALIGNER_DIR','Qwen/Qwen3-ForcedAligner-0.6B','aligner')]:
         path=snapshot_download(model,revision=revisions.get(key))
         emit(env,path)
@@ -199,7 +215,7 @@ def main():
                         subprocess.run(['gh','api',f'repos/{repo}/actions/artifacts/{int(artifact["id"])}/zip'],
                             stdout=stream,check=True,timeout=90)
                     directory=(Path('_asr_evidence')/choice['source_sha256']/str(artifact['id'])).resolve()
-                    if restore_raw_qwen_evidence(archive,directory,choice['source_sha256'],revisions):
+                    if restore_raw_qwen_evidence(archive,directory,choice['source_sha256'],revisions,recognition_model(choice)):
                         emit('QWEN3_EVIDENCE_DIR',directory)
                         print('复用实际完整CPU转写证据，重新选段及审核：',artifact['id'])
                         break
