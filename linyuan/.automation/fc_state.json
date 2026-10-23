@@ -42906,29 +42906,29 @@
    "publish_time": "2026-08-02T13:25:09.995276",
    "production_failure_summary": {
     "slug": "ly-1023-c339ed",
-    "run_id": 39889904692,
-    "artifact_id": 12474459393,
+    "run_id": 39910123732,
+    "artifact_id": 12484660135,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}, {\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quo"
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有保留足够人物占比的清晰现场封面"
      }
     ]
    },
    "source_check_report_id": 12473103360,
    "source_check_run_id": 39889904692,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}, {\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}]",
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有保留足够人物占比的清晰现场封面",
    "failure_stage": "editorial-or-render",
    "source_check_attempts": 2,
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39889904692,
-    "artifact_id": 12474459393,
+    "run_id": 39910123732,
+    "artifact_id": 12484660135,
     "name": "production-reject-ly-1023-c339ed",
     "retained": true
    },
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "automatic_rule_recoveries": {
     "transcript-text-only-evidence-v1": {
      "run_id": 39889904692,
@@ -43131,7 +43131,8 @@
     ]
    },
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1pSraBeEUe",
