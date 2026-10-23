@@ -93,6 +93,7 @@ def main():
         '您当年为什么投资腾讯？不是，我们从来没买过腾讯。刚才只是在比较行业，不是在介绍我们的投资经历。',
         '您当年为什么投资腾讯？这个问题我们先不谈，下一位朋友请提问。今天主要讨论一般性的阅读方法和基础知识。',
         '您当年买过腾讯？我当年买入的是其他公司的股票。后来退出了那家企业，并没有买过腾讯。',
+        '您怎么看腾讯？我们先做一个假设。我当年买了腾讯。我们现在仍然持有。刚才说的是假设的持仓，并不是我们的实际交易。',
     ]
     negative_call,negative_cache=primary_and_fresh('negative-controls.json')
     negative=E.choose_stories([dict(text=t) for t in texts],[dict(start=i,end=i) for i in range(len(texts))],
