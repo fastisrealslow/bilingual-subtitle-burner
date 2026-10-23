@@ -158,7 +158,15 @@ def main():
     previous=json.loads(out.read_text());state=json.loads(state_path.read_text());now=time.time()
     due=due_receipts(previous,state,now)
     if not due:
-        print(json.dumps(dict(due=0,changed=False)));return
+        # Receipt/group projection must not wait until a video is 24h old.
+        # This imports actual publication receipts only: no counter request,
+        # fabricated zero, late backfill or observation-clock changes.
+        result=reconcile([],previous,state,now)
+        changed=previous.get('publishing_experiment')!=result
+        if changed:
+            previous['publishing_experiment']=result
+            out.write_text(json.dumps(previous,ensure_ascii=False,indent=1))
+        print(json.dumps(dict(due=0,changed=changed)));return
     try:items,errors=fetch_views(due)
     except (OSError,ValueError,TypeError) as exc:
         items=[];errors=[dict(bvid=b,error_type=type(exc).__name__) for b in due]

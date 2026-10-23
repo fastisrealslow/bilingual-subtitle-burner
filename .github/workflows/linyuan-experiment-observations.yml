@@ -2,6 +2,11 @@ name: 实验视频同龄播放采样（不投稿）
 on:
   schedule:
     - cron: '17 * * * *'
+  # Hosted cron can miss the two-hour observation window. Trusted production
+  # completions offer additional read-only opportunities; no window widening.
+  workflow_run:
+    workflows: ['林园监控 · 每日抓取', '林园素材与真实成片库存', '中文源出片', '林园每日四条实际发布验收']
+    types: [completed]
   push:
     branches: [main]
     paths: [linyuan/collect_experiment_stats.py, linyuan/bili_archive_status.py, .github/workflows/linyuan-experiment-observations.yml]
@@ -13,10 +18,16 @@ concurrency:
   cancel-in-progress: false
 jobs:
   collect:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

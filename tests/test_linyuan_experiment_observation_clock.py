@@ -144,6 +144,40 @@ def test_unavailable_counter_retains_data_and_fails_loudly(tmp_path,monkeypatch)
     assert report['publishing_experiment']['sampling_health']['missing_is_zero'] is False
 
 
+def test_event_before_counter_window_syncs_only_actual_receipts_without_login_or_samples(tmp_path,monkeypatch):
+    (tmp_path/'site').mkdir();(tmp_path/'linyuan/.automation').mkdir(parents=True)
+    out=tmp_path/'site/stats.json';out.write_text(json.dumps(dict(peers=['retain peer data'])))
+    (tmp_path/'linyuan/.automation/fc_state.json').write_text(json.dumps(state()))
+    monkeypatch.setattr(C,'ROOT',tmp_path);monkeypatch.setattr(C.time,'time',lambda:PUB+60)
+    monkeypatch.setattr(sys,'argv',['collector'])
+    monkeypatch.setattr(C,'fetch_views',lambda *a:pytest.fail('No due window: do not access credentials/API'))
+    C.main();report=json.loads(out.read_text());experiment=report['publishing_experiment']
+    assert report['peers']==['retain peer data'] and experiment['experiment_id']==E.EXPERIMENT_ID
+    assert len(experiment['receipts'])==1 and experiment['receipts'][0]['bvid']==BVID
+    assert experiment['daily'][-1]['compliant_treatment']==1
+    assert not experiment['clock_samples'] and all(g['mean'] is None for g in experiment['groups'])
+    unchanged=out.read_bytes();C.main();assert out.read_bytes()==unchanged
+
+
+def test_event_hooks_are_trusted_main_only_with_no_collection_cycle():
+    import yaml
+    root=Path(__file__).resolve().parents[1]
+    workflow=yaml.safe_load((root/'.github/workflows/linyuan-experiment-observations.yml').read_text())
+    events=workflow.get('on',workflow.get(True))
+    assert events['schedule']==[dict(cron='17 * * * *')]
+    upstream=events['workflow_run']
+    assert upstream['types']==['completed'] and workflow['name'] not in upstream['workflows']
+    names={yaml.safe_load(p.read_text()).get('name') for p in (root/'.github/workflows').glob('*.yml')}
+    assert set(upstream['workflows']).issubset(names)
+    job=workflow['jobs']['collect'];condition=job['if']
+    assert "github.event_name != 'workflow_run'" in condition
+    assert "github.event.workflow_run.head_branch == 'main'" in condition
+    assert 'github.event.workflow_run.head_repository.full_name == github.repository' in condition
+    checkout=next(s for s in job['steps'] if s.get('uses')=='actions/checkout@v4')
+    assert checkout['with']['ref']=='main'
+    assert workflow['concurrency']==dict(group='linyuan-stats',**{'cancel-in-progress':False})
+
+
 def test_batch_reader_uses_existing_authorized_owner_and_keeps_unknown_unknown(monkeypatch):
     monkeypatch.setenv('BILIBILI_COOKIES','unit-test-placeholder')
     def read(ids,owner,cookies,include_statistics=False):
