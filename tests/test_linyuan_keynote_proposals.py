@@ -122,16 +122,19 @@ def test_invalid_or_timed_out_inference_stays_unresolved_and_is_not_replayed_as_
 
 
 @pytest.mark.parametrize('change',[dict(passed=False),dict(source_sha256='wrong'),
-    dict(duration_sec=899),dict(duration_sec=5401),dict(duration_sec=float('nan'))])
+    dict(duration_sec=720),dict(duration_sec=5401),dict(duration_sec=float('nan'))])
 def test_only_a_fresh_checked_long_mother_can_use_proposals(tmp_path,change):
     s=source();s.update(change)
     with pytest.raises(ValueError):K.propose(cues(),s,lambda *a:pytest.fail('Unverified source'),tmp_path/'p.json')
 
 
-@pytest.mark.parametrize('profile,width,height,expected',[
-    ('baseline',1920,1080,True),('field-story-v1',1920,1080,True),
-    ('field-story-v1',852,480,True)])
-def test_actual_cli_offers_control_ranges_when_native_t_is_impossible(tmp_path,monkeypatch,profile,width,height,expected):
+@pytest.mark.parametrize('profile,width,height,duration,expected',[
+    ('baseline',1920,1080,1200,True),('field-story-v1',1920,1080,1200,True),
+    ('field-story-v1',852,480,1200,True),
+    ('baseline',1484,720,822.08,True),('baseline',1484,720,720,False),
+    ('baseline',1484,720,96.27,False),('baseline',1484,720,5401,False),
+    ('field-story-v1',1484,720,822.08,True)])
+def test_actual_cli_offers_control_ranges_when_native_t_is_impossible(tmp_path,monkeypatch,profile,width,height,duration,expected):
     import produce_cn as P
     import publishing_experiment as E
     import source_selection as S
@@ -143,7 +146,8 @@ def test_actual_cli_offers_control_ranges_when_native_t_is_impossible(tmp_path,m
     monkeypatch.setattr(P,'BASE',tmp_path)
     monkeypatch.setattr(P,'TEXT_BACKEND','local')
     monkeypatch.setattr(P,'load_key',lambda:None)
-    original=cues();report={**source(), 'visual_identity':{},'resolution':dict(width=width,height=height)}
+    original=cues();report={**source(), 'duration_sec':duration,
+        'visual_identity':{},'resolution':dict(width=width,height=height)}
     monkeypatch.setattr(P,'run_source_quality_gate',lambda *a:report)
     monkeypatch.setattr(P,'transcribe',lambda *a:original)
     monkeypatch.setattr(S,'select',lambda *a,**k:[])
@@ -153,14 +157,43 @@ def test_actual_cli_offers_control_ranges_when_native_t_is_impossible(tmp_path,m
         invoked.append(True);return dict(picks=[pick],unresolved=[],selection_completed=True)
     monkeypatch.setattr(K,'propose',propose)
     monkeypatch.setattr(P,'story_selection_inputs',lambda *a:([pick],[]))
-    monkeypatch.setattr(E,'choose_stories',lambda *a:dict(selected=[],unresolved=[]))
+    story_calls=[]
+    def choose(*args):
+        story_calls.append(True);return dict(selected=[],unresolved=[])
+    monkeypatch.setattr(E,'choose_stories',choose)
     monkeypatch.setattr(P,'pick_highlights',lambda *a,**k:[])
     video=tmp_path/'source.mp4';video.write_bytes(b'CLI fixture, not approved media')
     monkeypatch.setattr(P.sys,'argv',['produce_cn','--source',str(video),'--slug','proposal',
         '--split-highlights','--dry-run'])
     assert P.main()==0
     assert bool(invoked)==expected
+    if duration<1200:assert not story_calls
     assert not list(tmp_path.rglob('final*.mp4'))
+
+
+@pytest.mark.parametrize('duration,expected',[
+    (46.66,False),(96.27,False),(720,False),(720.01,True),(822.08,True),
+    (900,True),(5400,True),(5400.01,False),(True,False),
+    ('822.08',False),(None,False),(float('nan'),False),(float('inf'),False)])
+def test_duration_gap_is_closed_without_accepting_short_or_unknown_sources(duration,expected):
+    assert K.eligible_duration(duration) is expected
+
+
+def test_actual_822_second_structural_miss_now_reaches_source_sentence_proposals(tmp_path):
+    import source_selection as S
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_medium_keynote_822.json').read_text())
+    original=fixture['cues'];before=deepcopy(original);diagnostics={}
+    assert not S.select(original,whole_source=True,limit=None,diagnostics=diagnostics)
+    assert diagnostics['outcome']=='no_structural_candidate'
+    assert diagnostics['candidates'][0]['reason']=='duration_outside_20_720'
+    seen=[]
+    def empty_response(prompt,schema,budget):
+        seen.append(prompt);return '{"picks":[]}'
+    result=K.propose(original,dict(passed=True,source_sha256=fixture['source_sha256'],
+        duration_sec=fixture['duration_sec']),empty_response,tmp_path/'proposals.json')
+    assert seen and '未来我们该如何投资消费' in seen[0]
+    assert result['selection_completed'] and not result['picks']
+    assert result['media_approved'] is False and original==before
 
 
 def test_incomplete_proposal_is_a_retryable_source_nonverdict_in_actual_batch(tmp_path,monkeypatch):

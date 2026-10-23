@@ -6509,8 +6509,9 @@ def main():
         from source_selection import select
         diagnostics={}
         source_picks=select(cues,whole_source=True,limit=None,diagnostics=diagnostics)
+        from keynote_proposals import eligible_duration as keynote_duration_eligible
         if (not source_picks and automatic_only() and editorial.CONTENT_POLICY=='reference_v1'
-                and 900<=float(source_report.get('duration_sec') or 0)<=5400):
+                and keynote_duration_eligible(source_report.get('duration_sec'))):
             from publishing_experiment import profile as requested_profile, TREATMENT as treatment_profile
             from source_profile_feasibility import native_scene_unavailable
             if requested_profile()!=treatment_profile or native_scene_unavailable(W,H) is None:
