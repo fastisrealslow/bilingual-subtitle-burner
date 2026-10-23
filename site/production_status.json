@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792724887,
+  "updated_at": 1792725094,
   "inventory_updated_at": 1792724886,
   "continuity": {
     "daily_target": 4,
@@ -97,7 +97,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792724887,
+    "updated_at": 1792725094,
     "records": 11453,
     "video_records": 9884,
     "initial_candidates": 61,
@@ -134,9 +134,9 @@
   },
   "counts": {
     "complete": 140,
-    "failed": 1262,
+    "failed": 1263,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 16,
     "experiment_fallback": 9,
     "ready": 7,
@@ -26182,11 +26182,11 @@
     },
     {
       "slug": "ly-story-9c88bea169",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]",
       "signature": {
         "ts": 1792722598,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
