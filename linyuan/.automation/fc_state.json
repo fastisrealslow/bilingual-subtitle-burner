@@ -44987,7 +44987,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV12b421E7vz:p2",
@@ -45095,7 +45096,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-18T09:00:30+00:00"
+   "publish_time": "2024-08-18T09:00:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-44951f",
+    "run_id": 39951453293,
+    "artifact_id": 12503410652,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "16afd52f80030b07e64676b281e833002448f0a523a20d3c3d673d1429a70af5",
+     "duration_sec": 1161.6,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV16PWPeFEq7?p=4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39951453293,
+    "artifact_id": 12503410652,
+    "name": "production-reject-ly-1023-44951f",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1T6Ti6TEpk",
@@ -120748,6 +120782,13 @@
    "video_id": "BV12b421E7vz:p3",
    "ts": 1792759976,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+  },
+  {
+   "slug": "ly-1023-44951f",
+   "key": "bilibili_search:BV16PWPeFEq7:p4",
+   "video_id": "BV16PWPeFEq7:p4",
+   "ts": 1792760529,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
