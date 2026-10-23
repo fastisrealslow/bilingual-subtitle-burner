@@ -7,6 +7,7 @@ from editorial_evidence import sentences
 from editorial_policy import text_digest
 
 VERSION = 4
+SPOKEN_RANGE_POLICY_VERSION = 2026102301
 
 CRITICAL_TOKEN = re.compile(r'[0-9零〇一二两三四五六七八九十百千万亿兆点分成倍%％不没无未非否]')
 
@@ -28,7 +29,8 @@ def ordinary_disfluency(quote):
 
 def review(text, speaker, model, call, path):
     path = Path(path)
-    identity = dict(version=VERSION, transcript_sha256=text_digest(text), speaker=speaker, model=model)
+    identity = dict(version=VERSION, transcript_sha256=text_digest(text), speaker=speaker, model=model,
+                    spoken_range_policy_version=SPOKEN_RANGE_POLICY_VERSION)
     if path.exists():
         try:
             saved = json.loads(path.read_text())
@@ -60,6 +62,11 @@ def review(text, speaker, model, call, path):
         '“搞一点”是泛指少量，不能因为没有精确金额而报数字错误。'
         '“百分之十，或者百分之五”是明确的备选比例，不是互相冲突的数字；'
         '“百分之七八十、九十”是口语范围和追加数值，不因表述不够书面而报识别错误。'
+        '“几块钱的是五六块钱”“两三年”“七八百元”也都是可以原样保留的口语范围；'
+        '没有小数点或角分单位时，不得凭空另造“五点六”“五块六”等读法，再以无法排除该读法为由报错。'
+        '范围表达不需要变成精确价格；缺少精确数值不等于识别污染。'
+        '如果唯一理由是“正常口语模糊范围，但不知道是否还有另一种精确读法”，应返回issues为空，保持原话。'
+        '这不豁免数字检查：截断数值、单位不明、同段实际冲突的数字或否定仍需列出。'
         '带数字或否定字的句子也可能完全正常，必须指出数字或否定本身的具体污染，不可借分类之名审核比喻、指代或精确程度。'
         '“我我还没有这种感觉”中的重复和口语指代不能被标成否定识别错误；'
         '但真正不认识的行业词、错写的专名、截断或互相矛盾的关键数字、含义不明的否定，仍必须列出。'

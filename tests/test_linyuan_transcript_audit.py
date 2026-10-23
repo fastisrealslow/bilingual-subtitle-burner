@@ -131,3 +131,29 @@ def test_invalid_only_classification_never_becomes_a_pass(tmp_path):
     with pytest.raises(ValueError,match='数字或否定'):
         A.review('否则叫剁胳膊剁腿。','林园','model',lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
     assert len(calls)==2 and not (tmp_path/'audit.json').exists()
+
+
+def test_old_policy_negative_cache_is_not_reused_and_source_is_untouched(tmp_path):
+    path=tmp_path/'audit.json';text='几块钱的是五六块钱。';calls=[]
+    path.write_text(json.dumps(dict(version=4,transcript_sha256=A.text_digest(text),
+        speaker='林园',model='model',issues=[dict(suspect_quote='五六块钱')],passed=False)))
+    def call(prompt,schema):
+        calls.append(prompt)
+        assert '不得凭空另造' in prompt and '截断数值' in prompt
+        return json.dumps(dict(issues=[],explanation='原样保留口语范围，不声称核实音频'))
+    proof=A.review(text,'林园','model',call,path)
+    assert len(calls)==1 and proof['passed'] and proof['audio_verified'] is False
+    assert proof['transcript_sha256']==A.text_digest(text)
+    assert proof['spoken_range_policy_version']==A.SPOKEN_RANGE_POLICY_VERSION
+    A.review(text,'林园','model',lambda *a:pytest.fail('Current policy cache ignored'),path)
+
+
+def test_range_prompt_never_waives_a_returned_numeric_or_name_issue(tmp_path):
+    text='几块钱的是五六块钱。后面提到了TCATCA。'
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
+        kind='ambiguous_number_or_negation',reason='待核对数字'),
+        dict(sentence_id=1,suspect_quote='TCATCA',kind='unintelligible_term',reason='乱码词')],
+        explanation='保留实际负面证据，不能以范围规则免审数字')
+    proof=A.review(text,'林园','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    assert not proof['passed'] and len(proof['issues'])==2
+    assert not proof['ignored_style_objections']
