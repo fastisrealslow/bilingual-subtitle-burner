@@ -1,0 +1,48 @@
+name: 同源原始 PCM 0.6B 与 1.7B 识别对照（不入库不投稿）
+on:
+  push:
+    branches: [fix/same-source-asr-scale-trial-20261023]
+    paths: [linyuan/check_same_source_asr_scale.py, .github/workflows/linyuan-same-source-asr-scale.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 获取既有母片和真实识别缓存，不访问上游视频站
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fLsS --retry 2 --max-time 300 -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12497723200/zip" -o /tmp/mother.zip
+          curl -fLsS --retry 2 --max-time 60 -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12499602723/zip" -o /tmp/raw-asr.zip
+      - name: 使用同一生产时钟和完整识别窗口
+        run: |
+          python linyuan/check_same_source_asr_scale.py prepare --mother /tmp/mother.zip --old-asr /tmp/raw-asr.zip
+          rm /tmp/mother.zip /tmp/raw-asr.zip
+      - name: 安装独立 CPU 识别运行环境
+        run: |
+          python -m pip install -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -q qwen-asr
+      - name: 两模型按顺序独立进程识别，记录耗时和内存
+        run: python -u linyuan/check_same_source_asr_scale.py compare
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: same-source-asr-scale-trial
+          path: same-source-asr-trial/
+          retention-days: 30
+          if-no-files-found: error
