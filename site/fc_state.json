@@ -37840,8 +37840,8 @@
    "recovery_origin_run_id": 39395566037,
    "production_failure_summary": {
     "slug": "ly-story-63bd95723a",
-    "run_id": 39751850797,
-    "artifact_id": 12414845557,
+    "run_id": 39395566037,
+    "artifact_id": 12253246559,
     "accepted": 0,
     "failures": [
      {
@@ -37898,8 +37898,8 @@
    "recovery_origin_run_id": 39393334108,
    "production_failure_summary": {
     "slug": "ly-story-d1b46d7d9a",
-    "run_id": 39751868090,
-    "artifact_id": 12414273862,
+    "run_id": 39393334108,
+    "artifact_id": 12251747622,
     "accepted": 0,
     "failures": [
      {
@@ -38016,21 +38016,17 @@
    "recovery_origin_run_id": 39393321032,
    "production_failure_summary": {
     "slug": "ly-story-3fa68cb6f9",
-    "run_id": 39753322520,
-    "artifact_id": 12415126519,
+    "run_id": 39393321032,
+    "artifact_id": 12250754429,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且‘这个’指代不明，属于无法解释的口语填充或识别错误。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是实践是行业的"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时，实际上它是一对一个行业的宏观。\", \"suspect_quote\": \"这个就是宏，我们主要是研究这个择这个时，择这个时\", \"kind\": \"unintelligible_term\", \"reason\": \"‘这个就是宏’中‘宏’字后无宾语或完整词汇，疑似漏录‘宏观’二字导致语义断裂；‘择这个时’重复且口语化严重，虽属口吃但‘宏’单独成词无法解释，属于具体识别疑点。\"}, {\"sentence_id\": 14, \"quote\": \"它是，就是那个时候我们研究了它介入时机，那就是"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及第 2、6 句的口语重复特征（如“我基本上没卖过”），该处应为“我没有卖过”。‘把’字在此处无语法或语义支撑，属于典型的同音错别字，导致句子含义不明。”}]}**注：** 其他句子中的口吃（如第 2 句“我不我不”\"}, {\"sentence_id\": 6, \"quote\": \"到现在零零年以后，啊，基本上没没有没有卖过。\", \"suspect_"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字'百分之二一'在口语中极可能是'百分之二十一点'或'百分之二十一'的误听，存在歧义。结合上下文（前句提到百分之五、百分之十），此处若指具体比例，'二一'这种非标准口语表达（通常说'二十一点'或'二十一'）属于识别疑点；若为口吃导致的重复\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我不把卖过，是吧？\", \"suspect_quote\": \"我不把卖过\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：结合上下文及嘉宾回答“基本上没卖过”，此处“把”字极大概率是“有”字的误识（拼音输入法或语音识别混淆），导致语义不通。\"}]"
      }
     ]
    },
@@ -42599,7 +42595,8 @@
     "name": "production-reject-ly-1023-c339ed",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VL8JTA8UC",
@@ -42622,7 +42619,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-18T16:38"
+   "publish_time": "2026-10-18T16:38",
+   "production_failure_summary": {
+    "slug": "ly-1023-f9fcfe",
+    "run_id": 39890856581,
+    "artifact_id": 12475156974,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39890856581,
+    "artifact_id": 12475156974,
+    "name": "production-reject-ly-1023-f9fcfe",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么'语义模糊，结合上下文应为'地产是什么'或类似表达，此处同音疑点影响对‘不懂地产’这一理由的理解，需列入 audio_issues。\"]]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -116933,6 +116952,13 @@
    "video_id": "http://f.video.weibocdn.com/u0/SW4CeZJ8gx08zGdiHReo01041202Ulij0E020.mp4",
    "ts": 1792723764,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}, {\"sentence_id\": 4, \"quote\": \"啊，我们肯定我们的道理。\", \"suspect_quote\": \"我们肯定我们的道理\", \"kind\": \"unintelligible_term\", \"reason\": \"‘道理’在此处语义不明，结合上下文应为‘道里’（即‘道理/逻辑’的口语误读或口误），但原文听感上更像‘道理’，且无明确证据表明是错别字还是口吃导致的模糊表达；不过‘肯定我们的道理’在金融语境下极不自然，疑似将‘道里’（行业术语或特定说法）误\"}]"
+  },
+  {
+   "slug": "ly-1023-f9fcfe",
+   "key": "netease_video:VL8JTA8UC",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2610/18/0ki7wkqea1r/SD/0ki7wkqea1r-mobile.mp4",
+   "ts": 1792724237,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么'语义模糊，结合上下文应为'地产是什么'或类似表达，此处同音疑点影响对‘不懂地产’这一理由的理解，需列入 audio_issues。\"]]"
   }
  ],
  "reviewed_third_video_0910": {
@@ -118326,7 +118352,7 @@
  },
  "source_refresh_requested_at": 1792723790,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 5,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",

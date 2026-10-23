@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792723974,
-  "inventory_updated_at": 1792723947,
+  "updated_at": 1792724887,
+  "inventory_updated_at": 1792724886,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 14,
-    "active_or_recovering_sources": 5,
+    "verified_daily_stock": 16,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,9 +14,9 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 14,
+      "verified_stock_snapshot": 16,
       "minimum_week_shortfall": 0,
-      "preferred_week_shortfall": 7,
+      "preferred_week_shortfall": 5,
       "reserve_shortfall": 0,
       "dates": [
         "2026-10-23",
@@ -97,7 +97,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792723973,
+    "updated_at": 1792724887,
     "records": 11453,
     "video_records": 9884,
     "initial_candidates": 61,
@@ -121,27 +121,27 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 14,
+    "verified_live": 16,
     "verified_audio_card": 0,
     "verified_landscape": 11,
-    "verified_portrait": 3,
+    "verified_portrait": 5,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 14,
+    "daily_mix_usable": 16,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
     "complete": 140,
-    "failed": 1261,
+    "failed": 1262,
     "paused": 5,
     "interrupted": 7,
     "excluded": 16,
     "experiment_fallback": 9,
-    "ready": 6,
-    "running": 4,
-    "retry_queued": 1
+    "ready": 7,
+    "retry_queued": 1,
+    "running": 2
   },
   "tasks": [
     {
@@ -26074,8 +26074,8 @@
     },
     {
       "slug": "ly-1023-6a9bf5",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "2 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792719640,
         "failed": null,
@@ -26088,7 +26088,7 @@
       "run_id": 39885347227,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885347227",
       "run_started_at": "2026-10-23T01:40:40Z",
-      "run_updated_at": "2026-10-23T01:45:17Z"
+      "run_updated_at": "2026-10-23T03:02:00Z"
     },
     {
       "slug": "ly-1009-2f94e6",
@@ -26182,8 +26182,8 @@
     },
     {
       "slug": "ly-story-9c88bea169",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792722598,
         "failed": false,
@@ -26196,7 +26196,7 @@
       "run_id": 39889888595,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39889888595",
       "run_started_at": "2026-10-23T02:29:58Z",
-      "run_updated_at": "2026-10-23T02:32:48Z"
+      "run_updated_at": "2026-10-23T03:04:50Z"
     },
     {
       "slug": "ly-1023-c339ed",
@@ -26218,11 +26218,11 @@
     },
     {
       "slug": "ly-1023-f9fcfe",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：片段开头提到‘银行业务，我没怎么参与’和‘中国银行的这个市值是非常大’，但中间夹杂口吃（‘我我们’）、语气词（‘啊’）及未完成的比喻（‘其实我也不知道地产什么。最后的结局’），导致逻辑链条在‘地产’部分断裂，未能完整呈现从‘不懂地产’到‘回避银行’的类比推理过程，属于必要论述被切断。；原文问题：[[\"我我们总觉得中国银行的这个市值是非常大。\", \"口吃重复：'我我们'应为'我'，虽不影响核心意思但属口语瑕疵，按规则需标记。\"], [\"就像比如说，若干年前，我说这个地产，其实我也不知道地产什么。\", \"关键断言不完整：'其实我也不知道地产什么。最后的结局'中'地产什么'语义模糊，结合上下文应为'地产是什么'或类似表达，此处同音疑点影响对‘不懂地产’这一理由的理解，需列入 audio_issues。\"]]",
       "signature": {
         "ts": 1792723232,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37786,12 +37786,23 @@
       "run_number": 2542,
       "display_title": "中文源出片 · ly-1023-f9fcfe"
     },
+    "ly-1023-6a9bf5": {
+      "id": 39885347227,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-23T01:40:40Z",
+      "updated_at": "2026-10-23T03:02:00Z",
+      "run_started_at": "2026-10-23T01:40:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885347227",
+      "run_number": 2535,
+      "display_title": "中文源出片 · ly-1023-6a9bf5"
+    },
     "ly-story-9c88bea169": {
       "id": 39889888595,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-23T02:29:58Z",
-      "updated_at": "2026-10-23T02:32:48Z",
+      "updated_at": "2026-10-23T03:04:50Z",
       "run_started_at": "2026-10-23T02:29:58Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39889888595",
       "run_number": 2540,
@@ -37818,17 +37829,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885939292",
       "run_number": 2536,
       "display_title": "中文源出片 · ly-1009-6fdc57"
-    },
-    "ly-1023-6a9bf5": {
-      "id": 39885347227,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-23T01:40:40Z",
-      "updated_at": "2026-10-23T01:45:17Z",
-      "run_started_at": "2026-10-23T01:40:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39885347227",
-      "run_number": 2535,
-      "display_title": "中文源出片 · ly-1023-6a9bf5"
     }
   }
 }

@@ -421,7 +421,8 @@ def test_story_cannot_escape_into_static_portrait_stage_renderer(monkeypatch,tmp
     with pytest.raises(SceneReached if profile==E.TREATMENT else StageReached):
         P._produce_one('source',tmp_path,tmp_path,[dict(start=0,end=40,text='原文')],
             '林园','访谈','',False,1920,1080,'',prefer_live_video=True,
-            preselected_picks=[dict(start=0,end=0,story_selection=dict(kind='company_case'))])
+            preselected_picks=[dict(start=0,end=0,story_selection=dict(kind='company_case',
+                subject_quote='您当年为什么投资茅台？'))])
 
 
 def test_weekly_long_mother_can_supply_verified_stories_without_consuming_its_full_interview():
