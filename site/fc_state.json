@@ -43677,7 +43677,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1dDWVeUExM:p5",
@@ -43800,7 +43801,29 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-17T15:26:06+00:00"
+   "publish_time": "2024-08-17T15:26:06+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1023-f61ce5",
+    "run_id": 39927838078,
+    "artifact_id": 12492062229,
+    "accepted": 0,
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 39927838078,
+    "artifact_id": 12492062229,
+    "name": "production-reject-ly-1023-f61ce5",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1oYHd6CE2S:p4",
@@ -119214,6 +119237,13 @@
    "video_id": "BV1GGJm6uEgL:p3",
    "ts": 1792746983,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1023-f61ce5",
+   "key": "bilibili_search:BV1hS421X7Xd:p4",
+   "video_id": "BV1hS421X7Xd:p4",
+   "ts": 1792748085,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
