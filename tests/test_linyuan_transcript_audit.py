@@ -157,3 +157,38 @@ def test_range_prompt_never_waives_a_returned_numeric_or_name_issue(tmp_path):
     proof=A.review(text,'林园','model',lambda *a:json.dumps(reply),tmp_path/'audit.json')
     assert not proof['passed'] and len(proof['issues'])==2
     assert not proof['ignored_style_objections']
+
+
+def test_self_disavowed_numeric_issue_requires_new_independent_decision(tmp_path):
+    text='几块钱的是五六块钱。';calls=[]
+    def call(prompt,schema):
+        calls.append(prompt)
+        if len(calls)==1:
+            return json.dumps(dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
+                kind='ambiguous_number_or_negation',reason='正常口语范围，并非识别错误。')],explanation='无污染'))
+        assert '明确否认识别错误' in prompt
+        return json.dumps(dict(issues=[],explanation='重审后未发现实际文字识别疑点'))
+    proof=A.review(text,'林园','model',call,tmp_path/'audit.json')
+    assert len(calls)==2 and proof['passed'] and not proof['audio_verified']
+    assert proof['transcript_sha256']==A.text_digest(text)
+
+
+def test_repeated_self_disavowal_fails_closed_not_auto_pass(tmp_path):
+    reply=dict(issues=[dict(sentence_id=0,suspect_quote='五六块钱',
+        kind='ambiguous_number_or_negation',reason='正常口语范围，并非识别错误。')],explanation='无污染')
+    calls=[]
+    with pytest.raises(ValueError,match='明确否认识别错误'):
+        A.review('几块钱的是五六块钱。','林园','model',
+                 lambda *a:calls.append(a) or json.dumps(reply),tmp_path/'audit.json')
+    assert len(calls)==2 and not (tmp_path/'audit.json').exists()
+
+
+def test_real_corrupt_term_survives_an_extra_self_disavowed_issue(tmp_path):
+    reply=dict(issues=[
+        dict(sentence_id=0,suspect_quote='TCATCA',kind='unintelligible_term',reason='公司名乱码'),
+        dict(sentence_id=1,suspect_quote='五六块钱',kind='ambiguous_number_or_negation',
+             reason='正常范围，并非识别错误')],explanation='保留真实公司名疑点')
+    proof=A.review('TCATCA是后来的。几块钱的是五六块钱。','林园','model',
+                   lambda *a:json.dumps(reply),tmp_path/'audit.json')
+    assert not proof['passed'] and [i['suspect_quote'] for i in proof['issues']]==['TCATCA']
+    assert proof['invalid_issue_evidence'][0]['suspect_quote']=='五六块钱'

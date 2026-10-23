@@ -9,7 +9,7 @@ import pytest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan/fc'))
 import index as F
 
-PATCH='+SPOKEN_RANGE_POLICY_VERSION = 2026102301\n'
+PATCH='+SPOKEN_RANGE_POLICY_VERSION = 2026102302\n'
 RANGE='原始ASR存在影响理解的疑点，禁止猜改后发布：'+json.dumps([
     dict(suspect_quote='五六块钱',kind='ambiguous_number_or_negation',
          reason='原文为口语化的模糊数字范围，非精确数值冲突，但需精确读法。')],ensure_ascii=False)

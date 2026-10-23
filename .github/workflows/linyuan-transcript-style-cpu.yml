@@ -6,6 +6,7 @@ on:
       - .github/workflows/linyuan-transcript-style-cpu.yml
       - linyuan/transcript_audit.py
       - scripts/check_linyuan_transcript_style_cpu.py
+      - scripts/check_linyuan_unreviewed_story_cpu.py
   workflow_dispatch:
     inputs:
       local_text_model:
@@ -80,12 +81,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python -u scripts/check_linyuan_transcript_style_cpu.py
+      - name: 只复核实际未审完的13段，不提供人工故事结论
+        if: github.ref == 'refs/heads/codex/linyuan-spoken-range-audit-20261023'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -u scripts/check_linyuan_unreviewed_story_cpu.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: transcript-style-cpu-controls
           path: |
             transcript-style-cpu-results/
+            unreviewed-story-cpu-results/
             /tmp/ollama.log
           retention-days: 30
           if-no-files-found: error
