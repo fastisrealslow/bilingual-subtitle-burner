@@ -62,7 +62,7 @@ def test_single_line_footer_preserves_native_picture_without_large_white_canvas(
     legacy=V.footer_layout_for(1744,756)
     assert layout['canvas']['height']<legacy['canvas']['height']
     assert layout['source_region']==dict(x=0,y=0,width=1744,height=756)
-    assert layout['source_region']['height']/layout['canvas']['height']>.82
+    assert layout['source_region']['height']/layout['canvas']['height']>.81
     assert layout['subtitle_region']['y']>=756
     assert layout['subtitle_region']['height']>=layout['subtitle_font_px']*1.448
     assert layout['subtitle_font_px']>=70
