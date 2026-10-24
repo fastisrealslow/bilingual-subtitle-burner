@@ -19,6 +19,7 @@ on:
     paths:
       - .github/workflows/linyuan-monitor.yml
       - linyuan/monitor_v2.py
+      - linyuan/p5w_source.py
       - linyuan/weibo_media.py
       - linyuan/persist_monitor_metadata.sh
       - linyuan/monitor_v2_config.json
@@ -88,12 +89,12 @@ jobs:
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py tests/test_linyuan_p5w_source.py
 
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5
         continue-on-error: true
-        run: python -u monitor_v2.py --source-types yicai_video weibo_video public_roadshow_catalog ifeng_video
+        run: python -u monitor_v2.py --source-types yicai_video weibo_video p5w_video public_roadshow_catalog ifeng_video
 
       - name: 提前展开长合集的原生分集（有界轮换，不新增生产并发）
         timeout-minutes: 5
