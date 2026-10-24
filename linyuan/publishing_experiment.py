@@ -631,6 +631,8 @@ def story_title_prompt(prompt,schema,evidence):
             '想法、看法等原词也是实际动机对象，不要因词性标注而只盯着市场、目的。'
             '见过多少人不等于组织了一场同人数的活动；人数、活动次数与超过等范围不能互换或省略。'
             '希望日后印证看法不等于市场或别人已经认可，也不等于确定能验证正确。'
+            '说看看能不能印证，就保留尝试或期待语气；不能写成要证明自己正确。'
+            '印证和证实不能拼成印证实，不为缩短字数删除日常口语必需的的、把或对象。'
             '未明确唯一动机就不用只为、唯一目的；未核实讲话年份就不补具体年月。')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if holding_evidence(evidence):
@@ -783,6 +785,13 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     if focus.get('activity_motive_source'):
         motive=''.join(focus['activity_motive_source'])
         for copy in (body,str(cover or '')):
+            from title_quantity_context import NUMBER,number
+            event=''.join(focus.get('activity_event_source',[]))
+            lower_counts={number(m[1]) for m in re.finditer(rf'(?:超过|多于|逾)({NUMBER})人',event)}
+            for count in re.finditer(rf'({NUMBER})(多|余)?人',copy):
+                if (number(count[1]) in lower_counts and not count[2]
+                        and not re.search(r'超过|多于|逾|不止',copy[max(0,count.start()-3):count.start()])):
+                    return '原话见过的人数超过该数，不能在标题或封面删掉超过、多人等范围'
             if (re.search(r'只为|唯一目的|唯一动机',copy)
                     and not re.search(r'只为|唯一目的|唯一动机',motive)):
                 return '本人说明交流动机不等于唯一动机，不能新增只为或唯一目的'

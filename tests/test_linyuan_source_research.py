@@ -4,6 +4,61 @@ import random
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 import source_research as research
+import pytest
+
+
+P5W='https://www.p5w.net/v/ip/typyq/202511/t20251121_6424547.htm'
+
+
+def test_official_programme_research_uses_normal_validating_downloader(tmp_path,monkeypatch):
+    calls=[];path=tmp_path/'source.mp4'
+    def run(command,budget,**kw):
+        calls.append((command,budget))
+        directory=Path(command[command.index('--directory')+1]);media=directory/'video.mp4'
+        media.write_bytes(b'mocked subprocess output; not independent media evidence')
+        Path(command[command.index('--github-output')+1]).write_text('path='+str(media)+'\n')
+    monkeypatch.setattr(research,'bounded_run',run)
+    research.fetch_media(P5W,path,300)
+    command,budget=calls[0]
+    assert command[1]==str(research.BASE/'ci_fetch_generic.py') and budget==300
+    assert command[command.index('--url')+1]==P5W and '--failure-report' in command
+    assert path.is_file() and not list(tmp_path.glob('*.p5w-download/video.mp4'))
+
+
+@pytest.mark.parametrize('bad',['outside','multiple','missing_prefix'])
+def test_research_rejects_unbound_or_ambiguous_downloader_handoff(tmp_path,monkeypatch,bad):
+    path=tmp_path/'source.mp4';outside=tmp_path/'other.mp4';outside.write_bytes(b'other')
+    def run(command,budget,**kw):
+        output=Path(command[command.index('--github-output')+1])
+        output.write_text('path='+str(outside)+'\n' if bad=='outside' else
+            'path=a\npath=b\n' if bad=='multiple' else 'unverified')
+    monkeypatch.setattr(research,'bounded_run',run)
+    with pytest.raises(ValueError):research.fetch_media(P5W,path,300)
+    assert outside.read_bytes()==b'other' and not path.exists()
+
+
+def test_research_download_budget_preserves_partial_progress_without_approval(tmp_path,monkeypatch):
+    import subprocess
+    path=tmp_path/'source.mp4'
+    def run(command,budget,**kw):
+        folder=Path(command[command.index('--directory')+1])
+        (folder/'video.mp4.part').write_bytes(b'x'*123)
+        (folder/'video.mp4.ytdl').write_text('{}')
+        raise subprocess.TimeoutExpired(command,budget)
+    monkeypatch.setattr(research,'bounded_run',run)
+    with pytest.raises(subprocess.TimeoutExpired):research.fetch_media(P5W,path,300)
+    assert research.partial_media_bytes(P5W,path)==123 and not path.exists()
+
+
+def test_research_adapter_releases_the_known_unsupported_host_failure_only_once(tmp_path,monkeypatch):
+    monkeypatch.setattr(research,'BASE',tmp_path);(tmp_path/'up_videos.json').write_text('{}')
+    catalog=json.loads((Path(__file__).resolve().parents[1]/'linyuan/source_lineage.json').read_text())
+    job=dict(url=P5W,role='mother',status='retry_wait',last_error='ValueError',
+             attempts=3,next_retry_at=999999)
+    state=dict(jobs={research.key_for(P5W):job});research.seed_jobs(catalog,state,[])
+    assert job['next_retry_at']==0 and job['p5w_media_adapter_version']==1 and job['attempts']==3
+    job['next_retry_at']=999999;research.seed_jobs(catalog,state,[])
+    assert job['next_retry_at']==999999 and job['last_error']=='ValueError'
 
 
 def test_retry_is_persistent_and_success_does_not_redownload():

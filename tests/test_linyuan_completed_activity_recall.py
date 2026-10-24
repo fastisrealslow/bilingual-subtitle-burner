@@ -31,6 +31,19 @@ def actual_activity_selection():
     return selection
 
 
+def test_actual_automatically_approved_title_still_fails_observable_language_and_range_checks():
+    from headline_policy import readability_error
+    bad='林园：见过五千人，要把对市场看法印证实'
+    assert readability_error(bad)
+    focus=E.title_focus(actual_activity_selection())
+    assert E.title_focus_error(bad,focus)
+    assert E.title_focus_error('林园：见过五千人，想把看法说出来',focus)
+    assert E.title_focus_error('林园：见过五千多人，想把看法说出来',focus) is None
+    assert E.title_focus_error('林园：组织活动，想把看法说出来',focus) is None
+    assert not readability_error('林园：这件事印证了我的看法')
+    assert not readability_error('林园：我想看看这个判断能否得到证实')
+
+
 def test_actual_motive_objects_are_not_lost_to_pos_labels_or_abstract_purpose():
     selection=actual_activity_selection();focus=E.title_focus(selection)
     assert {'想法','看法'}<=set(focus['details']) and '目的' not in focus['details']
