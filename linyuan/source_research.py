@@ -80,6 +80,7 @@ def bounded_run(command,timeout,**kw):
 
 
 def fetch_media(url,path,budget):
+    path=Path(path)
     host=urlsplit(url).hostname or ''
     if host in {'www.bilibili.com','bilibili.com'}:
         command=[sys.executable,str(BASE/'ci_fetch_bilibili.py'),'--url',url,'--out',str(path)]
@@ -90,8 +91,37 @@ def fetch_media(url,path,budget):
             '-f','bv*[height<=1080]+ba/b[height<=1080]/b','--merge-output-format','mp4','-o',str(path),url]
     elif host in {'original.ifeng.com','finance.ifeng.com','v.ifeng.com'}:
         command=[sys.executable,str(BASE/'ci_fetch_ifeng.py'),'--url',url,'--out',str(path)]
+    elif host=='www.p5w.net':
+        from p5w_source import page_identity
+        page_identity(url)  # Only the exact public programme page contract.
+        directory=path.parent/(path.stem+'.p5w-download')
+        directory.mkdir(parents=True,exist_ok=True)
+        output=directory/'github-output.txt';output.unlink(missing_ok=True)
+        command=[sys.executable,str(BASE/'ci_fetch_generic.py'),'--url',url,
+            '--directory',str(directory),'--failure-report',str(directory/'source_quality.json'),
+            '--github-output',str(output)]
     else:raise ValueError('Unsupported source host')
     bounded_run(command,budget,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    if host=='www.p5w.net':
+        rows=output.read_text().splitlines()
+        if len(rows)!=1 or not rows[0].startswith('path='):
+            raise ValueError('Official programme downloader did not return one validated media file')
+        media=Path(rows[0][5:]).resolve()
+        if media.parent!=directory.resolve() or not media.is_file():
+            raise ValueError('Official programme media path escaped its download directory')
+        media.replace(path)
+
+
+def partial_media_bytes(url,path):
+    """Measure resumable transport progress, never media approval."""
+    path=Path(path)
+    if urlsplit(url).hostname=='www.p5w.net':
+        directory=path.parent/(path.stem+'.p5w-download')
+        return sum(p.stat().st_size for p in directory.rglob('*')
+                   if p.is_file() and not p.name.endswith(('.json','.txt','.ytdl')))
+    from ci_fetch_yicai import partial_path
+    partial=partial_path(path)
+    return partial.stat().st_size if partial.exists() else 0
 
 
 def inspect_media(path,out):
@@ -279,6 +309,10 @@ def seed_jobs(catalog,state,discovered):
                 job['download_resume_policy_version']=1
                 if job.get('last_error')=='TimeoutExpired' and not job.get('evidence'):
                     job['next_retry_at']=0  # One bounded retry after this concrete downloader fix.
+            if primary and urlsplit(url).hostname=='www.p5w.net' and not job.get('p5w_media_adapter_version'):
+                job['p5w_media_adapter_version']=1
+                if job.get('last_error')=='ValueError' and not job.get('evidence'):
+                    job['next_retry_at']=0  # The old research fetcher did not support this host.
         for url in f.get('candidate_urls',[]):add(url,'mother',f['id'],2)
         for url in f.get('research_only_urls',[]):add(url,'mother',f['id'],6)
         for url,proof in f.get('visual_reclassifications',{}).items():
@@ -308,9 +342,7 @@ def main():
         evidence_dir=args.cache/key
         if not due(job,now) or processed>=args.max_items:continue
         processed+=1;raw=args.cache/(key+'.mp4')
-        from ci_fetch_yicai import partial_path
-        partial=partial_path(raw)
-        before_bytes=partial.stat().st_size if partial.exists() else 0
+        before_bytes=partial_media_bytes(job['url'],raw)
         try:
             if not raw.is_file():fetch_media(job['url'],raw,args.download_budget)
             evidence=inspect_media(raw,evidence_dir)
@@ -322,7 +354,7 @@ def main():
             raw.unlink(missing_ok=True)
         except Exception as exc:
             failed(job,exc,time.time());raw.unlink(missing_ok=True)
-            partial_bytes=partial.stat().st_size if partial.exists() else 0
+            partial_bytes=partial_media_bytes(job['url'],raw)
             job['download_partial_bytes']=partial_bytes
             if partial_bytes>before_bytes:
                 job['next_retry_at']=time.time()+1800
