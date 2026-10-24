@@ -55,6 +55,8 @@ def test_packaged_runtime_passes_new_production_health(packaged_health):
     assert packaged_health['audience_copy_sha256'] == hashlib.sha256((ROOT/'linyuan/audience_copy.py').read_bytes()).hexdigest()
     assert packaged_health['source_restrictions_sha256'] == hashlib.sha256((ROOT/'linyuan/source_restrictions.json').read_bytes()).hexdigest()
     assert packaged_health['source_admission_guard_sha256'] == hashlib.sha256((ROOT/'linyuan/source_admission_guard.py').read_bytes()).hexdigest()
+    assert packaged_health['caption_readability_version'] == 2026102401
+    assert packaged_health['caption_readability_sha256'] == hashlib.sha256((ROOT/'linyuan/caption_readability.py').read_bytes()).hexdigest()
 
 
 def test_real_story_proof_runs_without_site_packages(tmp_path):
@@ -94,6 +96,7 @@ def test_deployed_health_rejects_missing_or_wrong_story_runtime(packaged_health,
     ('editorial_code_sha256', '0'*64), ('title_policy_sha256', '0'*64),
     ('source_restrictions_sha256','0'*64),('source_admission_guard_sha256','0'*64),
     ('audience_copy_version', 0), ('audience_copy_sha256', '0'*64),
+    ('caption_readability_version', 2026100901), ('caption_readability_sha256', '0'*64),
     ('copyright_requested', 1), ('copyright_requested', 2), ('copyright_mode', 'original'),
 ])
 def test_deploy_rejects_old_or_mismatched_runtime(packaged_health, field, value):

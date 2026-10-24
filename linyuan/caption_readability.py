@@ -13,8 +13,9 @@ SEPT23_VERSION = 2026092301
 PREVIOUS_VERSION = 2026092401
 OCT7_VERSION = 2026100701
 OCT8_VERSION = 2026100801
-VERSION = 2026100901
-SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, OCT8_VERSION, VERSION)
+OCT9_VERSION = 2026100901
+VERSION = 2026102401
+SUPPORTED_VERSIONS = (LEGACY_VERSION, SEPT23_VERSION, PREVIOUS_VERSION, OCT7_VERSION, OCT8_VERSION, OCT9_VERSION, VERSION)
 MAX_SECONDS = 6.0
 TARGET_SECONDS = 3.5
 
@@ -71,7 +72,7 @@ def clean_entries(entries, *, policy_version=VERSION):
         edits.append(dict(start=atoms[a][1], end=atoms[b-1][2],
                           removed=original[a:b], reason=reason))
 
-    if policy_version >= VERSION:
+    if policy_version >= OCT9_VERSION:
         # Display-only: remove repeated hesitation clusters, not affirmative
         # replies (嗯/嗯嗯), questions (啊？), lexical 呃逆 or words/numbers.
         # Preserve every surviving character's original anchor and raw ASR.
@@ -150,6 +151,14 @@ def clean_entries(entries, *, policy_version=VERSION):
         r'(啊|呃)(?=[，。；])',
     ):
         for m in re.finditer(pattern, original):
+            # A spoken confirmation question carries meaning. Deleting only
+            # 是吧 from “平常心了，是吧？” leaves “平常心了，？” and moves
+            # its question mark onto a different predicate. Keep its original
+            # words and clocks; hesitation/stutter cleanup still applies.
+            if (policy_version >= VERSION and m.group(1)=='是吧'
+                    and (m.start(1)==0 or original[m.start(1)-1] in PUNCTUATION)
+                    and original[m.end(1):m.end(1)+1] in {'？','?'}):
+                continue
             # A preceding condition makes 那么 semantically significant.
             if original[m.start(1):m.end(1)] == '那么' and re.search(
                     r'如果|假如|只要|只有|既然|除非', original[max(0,m.start()-60):m.start()]):
