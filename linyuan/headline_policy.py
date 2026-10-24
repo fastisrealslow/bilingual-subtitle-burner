@@ -45,6 +45,8 @@ def readability_error(text):
     are screening rules, not a prediction of CTR or a semantic certificate.
     """
     text=body(text).strip('。！？!?')
+    if re.search(r'印证实|都妈差',text):
+        return '标题包含已核实不自然的拼词或转写片段，须换选清楚原句，不猜改原词'
     if re.search(r'嗯|呃|额[，,]|(?:^|[，,])啊(?:[，,]|$)',text):
         return '标题文案含无信息的犹豫语气词'
     if re.search(r'(?:我|我们|这个|那个|那么|就是|还是|所以|因为){2}',text):
