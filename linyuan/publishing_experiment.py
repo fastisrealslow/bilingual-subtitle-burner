@@ -156,6 +156,9 @@ def selection_request(cues, candidates):
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
     plain=re.sub(r'[\s，,。！？!?；;]','',event)
+    if re.match(r'^(?:(?:但是|不过|那么|那|所以)[，,\s]*)?'
+                r'(?:(?:如果|假设|假如|要是|倘若)|(?:我|我们)(?:来|先|可以)?假设)',event):
+        return 'A governing hypothetical is not an actual personal event; do not borrow a later recollection from the same sentence'
     if re.fullmatch(r'(?:嗯|啊|呃|所以|那么)*(?:我|我们)(?:自己|个人)?'
                     r'(?:觉得|认为|感觉|估计)(?:是|应该|肯定)?'
                     r'(?:(?:没|没有|不会有)(?:什么)?问题|可以|行)(?:啊|吧|嗯)*',plain):

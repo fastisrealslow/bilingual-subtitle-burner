@@ -98,6 +98,18 @@ def test_actual_pilot_future_opportunity_plan_is_not_a_completed_personal_story(
     assert E.personal_event_error('我说那是提醒风险，媒体误解了我的意思。') is None
 
 
+@pytest.mark.parametrize('event',[
+    '但是如果今天这个位置，如果我觉得不该说这个话的时候，我可能什么都不说，甚至前两年，我记得两两两年前还是三年前，也是一个线上的会议，说是有很多人参加。',
+    '如果我当年参加了会议，我可能会说需要谨慎。',
+    '假设我买了这家公司，后来我会一直持有。',
+    '我先假设当时参加了会议，再谈可能的回应。',
+])
+def test_actual_prompt_false_positive_cannot_borrow_past_words_from_a_conditional(event):
+    import publishing_experiment as E
+    assert 'hypothetical' in E.personal_event_error(event)
+    assert E.personal_event_error('我当时制定了如果价格下跌就继续买入的计划。') is None
+
+
 def test_actual_temporal_completed_activity_is_a_whole_original_opening():
     text='那么从去年九月份到现在，实际上我们组织了很多次活动，我见的人超过五千人。'
     assert K.temporal_action_opening(text) and K.opening_allowed(text)
@@ -128,3 +140,28 @@ def test_actual_activity_original_cues_become_available_without_selecting_a_rang
     assert actual[0]['text']==''.join(c['text'] for c in cues[actual[0]['start']:actual[0]['end']+1])
     assert f['activity_start'] in K.request(rows)[1]['properties']['picks']['items']['properties']['start']['enum']
     assert cues==before and not any(k in actual[0] for k in ('picks','passed','story_selection','title'))
+
+
+def test_completed_actual_activity_keeps_motive_before_new_conditional_recollection(monkeypatch):
+    monkeypatch.setattr(K.editorial,'CONTENT_POLICY','reference_v1');monkeypatch.setattr(K.editorial,'MIN_SECONDS',20)
+    f=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_keynote_activity_17.json').read_text())
+    cues=f['cues'];before=deepcopy(cues);picks=K.completed_activity_proposals(cues)
+    assert len(picks)==1
+    p=picks[0];text=''.join(c['text'] for c in cues[p['start']:p['end']+1])
+    assert p['start']==f['activity_start'] and cues[p['end']]['end']==379.72
+    assert '组织了很多次活动' in text and '为什么？' in text
+    assert text.endswith('也是有目的。') and '能不能印证' in text
+    assert '但是如果' not in text and cues==before
+    assert not any(k in p for k in ('passed','story_selection','title','media_approved'))
+
+
+@pytest.mark.parametrize('change',['future','denied','hypothetical','no_motive'])
+def test_activity_boundary_does_not_supply_a_story_or_drop_its_governing_condition(change):
+    f=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_keynote_activity_17.json').read_text())
+    cues=deepcopy(f['cues'])
+    for c in cues:
+        if change=='future':c['text']=c['text'].replace('组织了','计划组织')
+        elif change=='denied':c['text']=c['text'].replace('组织了','没有组织过')
+        elif change=='hypothetical' and '那么从去年' in c['text']:c['text']='假设'+c['text']
+        elif change=='no_motive':c['text']=c['text'].replace('为什么？','谢谢大家。')
+    assert K.completed_activity_proposals(cues)==[]

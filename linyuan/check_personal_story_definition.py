@@ -13,6 +13,7 @@ import urllib.request
 import zipfile
 
 from check_scene_cover_borders import fetch
+import keynote_proposals as K
 import publishing_experiment as E
 
 
@@ -88,11 +89,39 @@ def main():
     result.update(original_artifact_id=artifact,source_sha256=source_sha,
                   transcript_sha256=original,baseline_selected=0,
                   baseline_revision=baseline['revision'],candidate_count=len(candidates),
-                  clarification=CLARIFICATION)
+                  clarification=CLARIFICATION,
+                  comparison_target='complete_activity_boundary_with_hypothetical_guard',
+                  selection_policy_sha256=hashlib.sha256(Path(E.__file__).read_bytes()).hexdigest())
     (out/'baseline.json').write_text(json.dumps(baseline,ensure_ascii=False,indent=2))
     (out/'original-cues.json').write_text(json.dumps(cues,ensure_ascii=False,indent=2))
+    # Reuse exact raw requests/responses, never previous semantic approvals.
+    # The previous comparison FAILED its complete-memory recall requirement;
+    # it also exposed a conditional-event false positive now rejected by E.
+    replay=12541335220
+    metadata=json.loads(subprocess.check_output(['gh','api',
+        f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{replay}'],timeout=60))
+    assert metadata['workflow_run']['id']==40044315941
+    assert metadata['workflow_run']['head_sha']=='20fce7110d5474915dd14e00d58eb32ba8f7f315'
+    cached={}
+    with tempfile.TemporaryDirectory(prefix='actual-story-response-') as tmp:
+        archive=Path(tmp)/'responses.zip';fetch(replay,archive)
+        with zipfile.ZipFile(archive) as z:
+            previous=json.loads(z.read(next(n for n in z.namelist() if n.endswith('personal-story-definition-check/result.json'))))
+            assert previous['passed'] is False and previous['model_digest']==digest
+            assert previous['transcript_sha256']==original and previous['source_sha256']==source_sha
+            for suffix in ('/actual.json','/synthetic-negatives.json'):
+                report=json.loads(z.read(next(n for n in z.namelist() if n.endswith(suffix))))
+                for row in report['calls']:
+                    if not row.get('error') and isinstance(row.get('response'),str):
+                        cached[E.digest([row['prompt'],row['schema']])]=row['response']
+    result.update(previous_comparison_artifact_id=replay,previous_comparison_passed=False,
+                  exact_raw_response_replays=0)
     def call(prompt,schema):
         # The saved request contains the actual text sent to the model.
+        key=E.digest([prompt,schema])
+        if key in cached:
+            result['exact_raw_response_replays']+=1
+            return cached[key]
         return P.llm([dict(role='user',content=prompt)],'',temperature=0,max_tokens=512,
                      budget_sec=600,response_schema=schema,read_cache=False)
     old=E.selection_request
@@ -103,6 +132,16 @@ def main():
     try:
         actual=E.choose_stories(cues,candidates,call,out/'actual.json',budget_sec=2400)
         result.update(actual_selected=len(actual['selected']),actual_completed=actual['selection_completed'])
+        save()
+        activities=K.completed_activity_proposals(cues)
+        assert len(activities)==1,'Actual complete activity alternative changed'
+        activity=E.choose_stories(cues,activities,call,out/'complete-activity.json',budget_sec=1200)
+        actual_event=any(K.temporal_action_opening(p['story_selection']['event_quote'])
+                         for p in activity['selected'])
+        result.update(complete_activity_proposal_count=len(activities),
+                      complete_activity_selected=len(activity['selected']),
+                      complete_activity_completed=activity['selection_completed'],
+                      complete_activity_event_is_completed_action=actual_event)
         save()
         negatives,negative_picks=negative_controls()
         negative=E.choose_stories(negatives,negative_picks,call,out/'synthetic-negatives.json',budget_sec=1200)
@@ -120,7 +159,8 @@ def main():
     result.update(complete_memory_selected=selected_memory,future_plan_selected=future_selected,
                   synthetic_controls_completed=negative['selection_completed'],
                   synthetic_false_positives=len(negative['selected']))
-    result['passed']=(actual['selection_completed'] and selected_memory and not future_selected
+    result['passed']=(actual['selection_completed'] and activity['selection_completed']
+                      and actual_event and not future_selected
                       and negative['selection_completed'] and not negative['selected'])
     save();print(json.dumps(result,ensure_ascii=False))
     assert result['passed'],'Prompt comparison did not meet positive recall and negative-control requirements'
