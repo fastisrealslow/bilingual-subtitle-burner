@@ -338,6 +338,50 @@ def company_holding_request(cues,pick):
     return prompt,schema
 
 
+def completed_activity_event_error(text):
+    if (not isinstance(text,str) or re.search(r'[？?]|如果|假设|假如|计划|打算|准备|未来|以后|将来|没有|从未|未曾',text)
+            or not re.search(r'从(?:去年|前年|20\d{2}年)[^。！？!?]{0,24}(?:到|至)(?:现在|今天|今年)',text)
+            or not re.search(r'(?:我|我们)[^。！？!?]{0,40}(?:组织|举办|参加|访问)(?:了|过)',text)):
+        return 'Activity recall requires an explicit dated, completed first-person activity'
+    return None
+
+
+def completed_activity_detail_error(text):
+    if (not isinstance(text,str) or re.search(r'[？?]|如果|假设|假如|计划|打算|明年|未来|将来',text)
+            or not re.search(r'(?:我|我们)[^。！？!?]{0,30}(?:就想|就是想|为了|希望把|想把)',text)
+            or not re.search(r'说出来|告诉|表达|分享|交流|沟通|传达',text)):
+        return 'Activity recall requires another original statement directly explaining the communication motive'
+    return personal_detail_error(text)
+
+
+def completed_activity_request(cues,pick):
+    """One stricter review of a completed activity with its stated motive."""
+    if pick.get('selection_method')!='literal_completed_activity_proposal_v1':return None
+    context=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    if not re.search(r'为什么[？?]',context):return None
+    rows=_selection_rows(cues,[pick])
+    if not rows:return None
+    units=rows[0]['sentences']
+    events=[s['id'] for s in units if 4<=len(s['text'])<=140 and not completed_activity_event_error(s['text'])]
+    details=[s['id'] for s in units if 4<=len(s['text'])<=140 and not completed_activity_detail_error(s['text'])]
+    if not events or not details:return None
+    props={**{k:dict(type='integer',enum=v) for k,v in (
+        ('subject_sentence',events),('event_sentence',events),('detail_sentence',details))},
+        'kind':dict(type='string',enum=['skip','personal_story'])}
+    schema=dict(type='object',additionalProperties=False,required=list(props),properties=props)
+    prompt=('只核对这一段原文是否讲清了一次本人已经做过的公开活动及其动机。'
+        '已经组织、举办或参加的具体活动也是亲身经历，不要求是股票买卖。'
+        'event_sentence必须是本人明确说已经实际组织、举办或参加的活动；'
+        'detail_sentence必须是另一条本人原话，直接解释为什么进行这些活动、为什么公开表达想法。'
+        '当前真实的沟通动机可以包含希望日后验证想法，但不能把未来是否应验当成已经发生的结果。'
+        '结合完整段落判断两句是否确实指同一件事。只有活动已发生且另一句直接交代该活动的动机才选personal_story；'
+        '只是计划、假设、否认、一般市场预测、相邻但无关的理由，或者动机并非嘉宾所说，一律skip。'
+        '本次只做原文事实判断，不批准字幕、标题、画面或发布；不改写，不跨段借事实。'
+        '编号均来自原文，先返回原句编号，最后返回kind；skip也可填任意允许编号。\n'
+        +json.dumps(units,ensure_ascii=False))
+    return prompt,schema
+
+
 def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200):
     """Isolate candidate errors and retry only unreviewed/invalid decisions.
 
@@ -451,6 +495,36 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
             else:report['rejected'].append(dict(index=index,reason='no_grounded_story'))
         except (RuntimeError,ValueError,TypeError,KeyError,AttributeError) as exc:
             record['error']=str(exc);report[bucket].remove(rejected)
+            report['unresolved'].append(dict(index=index,error=str(exc)))
+        save()
+    for rejected in list(report['rejected']):
+        if rejected.get('reason')!='no_grounded_story':continue
+        index=rejected['index'];request=completed_activity_request(cues,candidates[index])
+        if request is None:continue
+        if time.monotonic()>=deadline:
+            report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error='completed_activity_review_budget_exhausted'))
+            continue
+        prompt,schema=request
+        record=dict(indices=[index],stage='completed_activity_recall_v1',prompt=prompt,schema=schema)
+        report['calls'].append(record);save()
+        try:
+            raw=call(prompt,schema);record['response']=raw
+            verdict=json.loads(raw) if isinstance(raw,str) else raw
+            if (not isinstance(verdict,dict) or set(verdict)!=set(schema['properties'])
+                    or verdict.get('kind') not in ('skip','personal_story')):
+                raise ValueError('Invalid completed activity verdict')
+            chosen=validate_choices(cues,[candidates[index]],{'candidate_0':verdict})
+            for item in chosen:
+                selection=item['story_selection']
+                issue=completed_activity_event_error(selection['event_quote']) or completed_activity_detail_error(selection['detail_quote'])
+                if issue:raise ValueError(issue)
+                selection['completed_activity_recall_version']=1
+            report['rejected'].remove(rejected)
+            if chosen:report['selected'].extend(chosen)
+            else:report['rejected'].append(dict(index=index,reason='no_grounded_completed_activity'))
+        except (RuntimeError,ValueError,TypeError,KeyError,AttributeError) as exc:
+            record['error']=str(exc);report['rejected'].remove(rejected)
             report['unresolved'].append(dict(index=index,error=str(exc)))
         save()
     report['selection_completed']=not report['unresolved']
@@ -758,6 +832,12 @@ def proof_error(meta):
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
     if s['kind']=='personal_story':
         issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
+        if issue:return issue
+    if 'completed_activity_recall_version' in s:
+        if (type(s['completed_activity_recall_version']) is not int or s['completed_activity_recall_version']!=1
+                or s['kind']!='personal_story'):
+            return 'Invalid completed activity recall proof'
+        issue=completed_activity_event_error(s['event_quote']) or completed_activity_detail_error(s['detail_quote'])
         if issue:return issue
     focus=title_focus(s)
     company_issue=company_subject_error(s)

@@ -97,11 +97,11 @@ def main():
     # Reuse exact raw requests/responses, never previous semantic approvals.
     # The previous comparison FAILED its complete-memory recall requirement;
     # it also exposed a conditional-event false positive now rejected by E.
-    replay=12541335220
+    replay=12541112393
     metadata=json.loads(subprocess.check_output(['gh','api',
         f'repos/{os.environ["GITHUB_REPOSITORY"]}/actions/artifacts/{replay}'],timeout=60))
-    assert metadata['workflow_run']['id']==40044315941
-    assert metadata['workflow_run']['head_sha']=='20fce7110d5474915dd14e00d58eb32ba8f7f315'
+    assert metadata['workflow_run']['id']==40045438771
+    assert metadata['workflow_run']['head_sha']=='75579eda82859a544e6633fc052be06fe072d277'
     cached={}
     with tempfile.TemporaryDirectory(prefix='actual-story-response-') as tmp:
         archive=Path(tmp)/'responses.zip';fetch(replay,archive)
@@ -109,7 +109,7 @@ def main():
             previous=json.loads(z.read(next(n for n in z.namelist() if n.endswith('personal-story-definition-check/result.json'))))
             assert previous['passed'] is False and previous['model_digest']==digest
             assert previous['transcript_sha256']==original and previous['source_sha256']==source_sha
-            for suffix in ('/actual.json','/synthetic-negatives.json'):
+            for suffix in ('/actual.json','/complete-activity.json','/synthetic-negatives.json'):
                 report=json.loads(z.read(next(n for n in z.namelist() if n.endswith(suffix))))
                 for row in report['calls']:
                     if not row.get('error') and isinstance(row.get('response'),str):

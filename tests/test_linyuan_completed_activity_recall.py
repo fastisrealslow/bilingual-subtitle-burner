@@ -1,0 +1,70 @@
+"""Actual completed activity missed by the broad story classifier."""
+from copy import deepcopy
+import json
+from pathlib import Path
+import sys
+
+import pytest
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
+import keynote_proposals as K
+import publishing_experiment as E
+
+
+@pytest.fixture(autouse=True)
+def production_policy(monkeypatch):
+    monkeypatch.setattr(K.editorial,'CONTENT_POLICY','reference_v1')
+    monkeypatch.setattr(K.editorial,'MIN_SECONDS',20)
+
+
+def actual():
+    cues=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_keynote_activity_17.json').read_text())['cues']
+    return cues,K.completed_activity_proposals(cues)[0]
+
+
+@pytest.mark.parametrize('accept',[False,True])
+def test_real_primary_skip_gets_one_strict_model_review_without_forcing_acceptance(tmp_path,accept):
+    cues,pick=actual();before=deepcopy(cues);calls=[]
+    def call(prompt,schema):
+        calls.append((prompt,schema))
+        if 'candidate_0' in schema['properties']:
+            props=schema['properties']['candidate_0']['properties']
+            return {'candidate_0':dict(kind='skip',**{k:v['enum'][0] for k,v in props.items() if k!='kind'})}
+        props=schema['properties']
+        return dict(kind='personal_story' if accept else 'skip',
+            **{k:v['enum'][0] for k,v in props.items() if k!='kind'})
+    report=E.choose_stories(cues,[pick],call,tmp_path/'actual.json')
+    assert report['selection_completed'] and len(calls)==2 and cues==before
+    assert report['calls'][1]['stage']=='completed_activity_recall_v1'
+    assert bool(report['selected'])==accept
+    if accept:
+        proof=report['selected'][0]['story_selection']
+        assert proof['completed_activity_recall_version']==1
+        assert '组织了很多次活动' in proof['event_quote']
+        assert '说出来' in proof['detail_quote'] and '能不能印证' in proof['detail_quote']
+        assert proof['event_quote']!=proof['detail_quote']
+        assert not any(k in report['selected'][0] for k in ('passed','title','media_approved'))
+
+
+@pytest.mark.parametrize('replacement',['计划组织','没有组织过','将来组织','假设组织了'])
+def test_actual_action_cannot_be_replaced_with_a_plan_denial_or_hypothesis(replacement):
+    cues,pick=actual();cues=deepcopy(cues)
+    for cue in cues:cue['text']=cue['text'].replace('织了很多次活动',replacement+'很多次活动')
+    assert E.completed_activity_request(cues,pick) is None
+
+
+def test_generic_proposal_and_only_future_result_cannot_get_activity_recall():
+    cues,pick=actual()
+    assert E.completed_activity_request(cues,{**pick,'selection_method':'model_proposed_source_sentences_v1'}) is None
+    cues=deepcopy(cues)
+    for cue in cues:cue['text']=cue['text'].replace('我就想','大家都说')
+    assert E.completed_activity_request(cues,pick) is None
+    assert E.completed_activity_detail_error('过三年我们就能见分晓。')
+
+
+def test_same_sentence_or_invented_detail_is_not_a_recall_approval(tmp_path):
+    cues,pick=actual();prompt,schema=E.completed_activity_request(cues,pick)
+    props=schema['properties'];event=props['event_sentence']['enum'][0]
+    assert event not in props['detail_sentence']['enum']
+    assert E.completed_activity_event_error('如果我组织了活动，我会说出来。')
+    assert E.completed_activity_detail_error('我明年就想把我的想法说出来。')
