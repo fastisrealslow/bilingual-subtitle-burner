@@ -6,9 +6,9 @@
       "netease": 0,
       "yicai": 9,
       "weibo": 54,
-      "bilibili": 932
+      "bilibili": 937
     },
-    "total": 1057,
+    "total": 1062,
     "reference_only": 1079,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -16,24 +16,33 @@
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "added_count": 5,
-  "errors": [],
-  "counting_policy": "unique_parent_id_not_parts_or_stock",
-  "added_bvids": [
-    "BV1C7Jt6PEJD",
-    "BV1quXXBrE2i",
-    "BV17hzxBvE5H",
-    "BV1bw411o7aA",
-    "BV1esckzFEQ4"
+  "added_count": 0,
+  "errors": [
+    {
+      "stage": "search",
+      "error": "RuntimeError"
+    },
+    {
+      "stage": "search",
+      "error": "RuntimeError"
+    },
+    {
+      "stage": "search",
+      "error": "RuntimeError"
+    }
   ],
-  "roles": {
-    "mother_candidate": 3,
-    "catalog_only": 2
+  "counting_policy": "unique_parent_id_not_parts_or_stock",
+  "verification_paused": {
+    "until": 1792848134.230095,
+    "reason": "provider_restricted",
+    "http_status": 412,
+    "api_code": null
   },
-  "new_long_parent_count": 4,
+  "added_bvids": [],
+  "roles": {},
+  "new_long_parent_count": 0,
   "verification": {
-    "not_verified": 43,
-    "verified_metadata": 5
+    "not_verified": 1
   },
   "after": {
     "counts": {
@@ -49,13 +58,10 @@
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
   "verification_errors": {
-    "HTTPError": 42,
-    "ValueError": 1
+    "HTTPError": 1
   },
   "verification_http_status": {
-    "412": 42
+    "412": 1
   },
-  "verification_api_codes": {
-    "62012": 1
-  }
+  "verification_api_codes": {}
 }
