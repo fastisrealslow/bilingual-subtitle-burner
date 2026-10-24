@@ -47984,7 +47984,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-10-24T20:05:30+08:00"
+   "publish_time": "2026-10-24T20:05:30+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-01ac8d",
+    "run_id": 40094932274,
+    "artifact_id": 12560393461,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8348b989be0151658dc7e877ceaed9f866ab8110b768c3db66dd7313cca54c97",
+     "duration_sec": 231.23,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5357636440560196"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 90.80s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40094932274,
+    "artifact_id": 12560393461,
+    "name": "production-reject-ly-1024-01ac8d",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 90.80s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5357643455795642",
@@ -125103,6 +125136,13 @@
    "video_id": "BV1LYjC6tEGi",
    "ts": 1792845871,
    "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+  },
+  {
+   "slug": "ly-1024-01ac8d",
+   "key": "weibo_search:5357636440560196",
+   "video_id": "https://f.video.weibocdn.com/o0/VLshTSeklx08BPgMhhna01041201395n0E010.mp4",
+   "ts": 1792846807,
+   "error": "整段取景预检：源 90.80s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
