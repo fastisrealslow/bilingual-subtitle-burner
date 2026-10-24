@@ -37566,8 +37566,8 @@
    "recovery_origin_run_id": 37886234069,
    "production_failure_summary": {
     "slug": "ly-story-99ddef2e4b",
-    "run_id": 39835364910,
-    "artifact_id": 12451555391,
+    "run_id": 39823519451,
+    "artifact_id": 12446549111,
     "accepted": 0,
     "failures": [
      {
@@ -37670,10 +37670,14 @@
    "recovery_origin_run_id": 39014441603,
    "production_failure_summary": {
     "slug": "ly-story-fb8a34b6b5",
-    "run_id": 39840153216,
-    "artifact_id": 12454635385,
+    "run_id": 39825521967,
+    "artifact_id": 12450780118,
     "accepted": 0,
     "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是没有。\", \"suspect_quote\": \"那个年代的快快乐\", \"kind\": \"unintelligible_term\", \"reason\": \"词语“快快乐”在语境中含义不明，疑似将专有名词或特定词汇误识别为普通形容词，且无法通过上下文解释其具体指代。\"}, {\"sentence_id\": 12, \"quote\": \"嗯，那现在可能也有很很多年轻人会去抱怨说，当下这个市场也不存，就是您当年的那些改变命运的机会就比较少了。\", \"suspect_"
+     },
      {
       "stage": "part-quality",
       "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]"
@@ -39133,13 +39137,17 @@
    "recovery_origin_run_id": 39876029370,
    "production_failure_summary": {
     "slug": "ly-story-9c88bea169",
-    "run_id": 39889888595,
-    "artifact_id": 12475383118,
+    "run_id": 39828591328,
+    "artifact_id": 12450501746,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]"
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用频率的语境下，“睡觉就一天吃三次”存在严重的语义逻辑矛盾。正常服药行为发生在“睡觉前”或“醒来后”，而非“睡觉时”。此处极可能是将口语中的时间状语（如“睡前”）误识别为名词“睡觉”，导致动作发生的时间点与常识冲突，属于无法解释的错\"}]"
      },
      {
       "stage": "part-quality",
@@ -39147,7 +39155,11 @@
      },
      {
       "stage": "part-quality",
-      "reason": "选段原画仍有原字幕或免责声明"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那么，因为我这个人啊，就说话就是以最坏的打算，所以我就赶紧让他们赶紧把那个跟头那个事儿停了，啊。\", \"suspect_quote\": \"跟头那个事儿\", \"kind\": \"unintelligible_term\", \"reason\": \"“跟头”在金融语境下无明确含义，疑似将“跟投”误识别为“跟头”，属于关键动词/名词的错写，影响对业务行为（停止跟投）的理解。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"因为他上市就是一百几倍，你咋办？\", \"suspect_quote\": \"因为他上市就是一百几倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'一百几倍'表述模糊，未指明是市盈率、涨幅倍数还是其他指标，且‘几’为不确定量词，在涉及具体投资回报的语境中属于含义不明的关键数字/数值范围。\"}, {\"sentence_id\": 21, \"quote\": \"去年十月份您将产品的跟投比例从百分之二十下调至了百分之十。\", \"suspect_quote\": \"从百分之二十下调至"
      }
     ]
    },
@@ -125954,7 +125966,7 @@
  },
  "source_refresh_requested_at": 1792821540,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 4,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
