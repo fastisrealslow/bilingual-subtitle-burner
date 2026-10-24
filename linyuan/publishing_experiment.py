@@ -146,6 +146,7 @@ def selection_request(cues, candidates):
         '理论、原则、方法总结和应该怎么做的建议本身不是已经发生的个人经历；'
         'personal_story必须另有本人实际做过、没做过或明确采取某项选择的原句，不能只因为提到我们或过去经历就入选。'
         'personal_story的事件不要选比喻式劝告或“这样就行了”的建议结语；要选本人实际经历或选择的叙述原句，否则skip。'
+        '“我今天是最多的时候”“我今天的盈利实力最好”是自我评价，不是具体行动；有别的真实行为原句则重选，否则skip。'
         '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
@@ -162,6 +163,10 @@ def personal_event_error(event):
                     r'(?:觉得|认为|感觉|估计)(?:是|应该|肯定)?'
                     r'(?:(?:没|没有|不会有)(?:什么)?问题|可以|行)(?:啊|吧|嗯)*',plain):
         return 'A bare self-assessment is not a concrete personal event or actual choice'
+    if re.fullmatch(r'(?:我|我们)(?:今天|现在|目前|当时|那时)?'
+                    r'(?:的(?:盈利|赚钱|经营)(?:实力|能力|效率))?(?:是|处于)?'
+                    r'最(?:多|好|强|高)(?:的)?(?:时候|阶段|状态|水平)?(?:了|啊|吧)*',plain):
+        return 'A bare self-assessment or ranking is not a concrete personal event; select an actual source action'
     if re.search(r'(?:没有|不如|不像)您(?:这么|那么|这样|那样)',event):
         return 'An interviewer comparison addressed to the guest is not the guest personal event'
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
