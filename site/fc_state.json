@@ -46880,7 +46880,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-06T02:45:04+00:00"
+   "publish_time": "2026-10-06T02:45:04+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-853440",
+    "run_id": 40046679048,
+    "artifact_id": 12543246729,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "dbe92e8c599020206d259adc7bbec176a0529168faaeddf9794a36d8bf0d5477",
+     "duration_sec": 1495.97,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1oYHd6CE2S"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 957.03s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 996.90s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1078.50s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1123.67s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 521.03s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 510.47s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1283.23s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40046679048,
+    "artifact_id": 12543246729,
+    "name": "production-reject-ly-1024-853440",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 957.03s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -122632,6 +122689,13 @@
    "video_id": "BV1f34y1g7Pt",
    "ts": 1792768035,
    "error": "与已发布内容文字指纹重复：转写片段重合 47%（BV1MNeE6pEU2）"
+  },
+  {
+   "slug": "ly-1024-853440",
+   "key": "bilibili_search:BV1oYHd6CE2S",
+   "video_id": "BV1oYHd6CE2S",
+   "ts": 1792806417,
+   "error": "整段取景预检：源 957.03s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
