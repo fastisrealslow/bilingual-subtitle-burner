@@ -12,7 +12,10 @@ from seed_scan import rotating_batch
 
 QUERIES = ('林园 完整访谈', '林园 演讲', '林园 第一财经', '林园 腾讯财经',
            '林园 私募排排网', '林园 北大', '林园 春瑜会客厅', '林园 红周刊',
-           '林园 央视', '林园 雪球嘉年华', '林园 财联社', '林园 凤凰论坛')
+           '林园 央视', '林园 雪球嘉年华', '林园 财联社', '林园 凤凰论坛',
+           '林园 早年 经历 完整访谈', '林园 创业 经历 访谈',
+           '林园 第一笔钱 买房 访谈', '林园 茅台 可口可乐 投资 访谈',
+           '林园 实地调研 访谈', '林园 看走眼 亏损 访谈')
 
 
 def existing_roots(base):
@@ -140,6 +143,12 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         roles=dict(Counter(r['source_role'] for r in added)),
         new_long_parent_count=sum(any(p['duration'] >= 900 for p in r['pages']) for r in added),
         verification=dict(Counter(r['status'] for r in rows)), after=census(base))
+    failed=[r for r in rows if r['status']!='verified_metadata']
+    # Provider availability is not a media-quality rejection. Keep safe codes,
+    # never response bodies, credentials, or a failed lead's rights approval.
+    report.update(verification_errors=dict(Counter(r.get('error','unknown') for r in failed)),
+        verification_http_status=dict(Counter(str(r['http_status']) for r in failed if 'http_status' in r)),
+        verification_api_codes=dict(Counter(str(r['api_code']) for r in failed if 'api_code' in r)))
     return report
 
 
