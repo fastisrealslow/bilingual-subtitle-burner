@@ -47380,7 +47380,80 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-10T03:35:32+00:00"
+   "publish_time": "2022-06-10T03:35:32+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-61f93e",
+    "run_id": 40081070732,
+    "artifact_id": 12556874053,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b68f99512fecd6ad12b858691e0cc76a69e8aaede713337e1c4a34813eba6a6c",
+     "duration_sec": 1744.16,
+     "resolution": {
+      "width": 720,
+      "height": 960,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1AU4y1R728"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2038/2565，总帧数2630；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/111，总帧数554；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配247/356，总帧数542；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1064/1729，总帧数3320；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1798/2645，总帧数4230；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1001/1321，总帧数1596；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/143，总帧数712；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配175/308，总帧数664；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40081070732,
+    "artifact_id": 12556874053,
+    "name": "production-reject-ly-1024-61f93e",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2038/2565，总帧数2630；身份匹配但人脸短边不足96px的帧数0",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV18Z4y1T7C1",
@@ -124701,6 +124774,13 @@
    "video_id": "BV1YBnV6jEhx",
    "ts": 1792838551,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“他”指代不明（前文未提具体对象），且“对诊断学啊”语序混乱，疑似将“对于诊断学”或人名误转为“他”。\"}, {\"sentence_id\": 2, \"quote\": \"我觉得最大的，你道你，比如说以前可能不查体，现在这种技术的进步，他随时个人都可以知道自己的身体状况。\", \"suspect_quote\": \"你道你\", \"kind\": \"unintelligible_term\", \"reason\": \"“你道你”为口语填充或口误，非正常表达，疑似将“比如”“例如”等词误识别。\"}, {\"sentence_id\": 3, \"quote\": \"我相信他会对医药的这个需求，自己都能看病，这个倒是有可能。\", \"suspect_quote\": \"自己都能看病\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文，“自己都能看病”语义模糊，疑似将“自行诊断”或具体医疗行为误识别为泛化表述。\"}]"
+  },
+  {
+   "slug": "ly-1024-61f93e",
+   "key": "bilibili_search:BV1AU4y1R728",
+   "video_id": "BV1AU4y1R728",
+   "ts": 1792841238,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2038/2565，总帧数2630；身份匹配但人脸短边不足96px的帧数0"
   }
  ],
  "reviewed_third_video_0910": {
