@@ -19,6 +19,29 @@ def test_repeated_bad_media_is_deprioritized_but_not_filtered():
     assert evidence['observed_mothers']==3
 
 
+def test_static_portrait_failures_inform_dispatch_without_punishing_retries_or_receipts():
+    # Actual normal run 40081085173 rejected all three excerpts of
+    # BV1LYjC6tEGi: each motion proof has moving_by_third=[0,0,0].
+    reason='标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算'
+    first=entry(1,failed=True,last_error=reason)
+    retries=[{**first,'slug':f'retry-{i}','ts':1000+i} for i in range(3)]
+    one=observed_priorities(dict(dispatched=[first,*retries]),1010)[family(first)]
+    assert one['observed_mothers']==1 and one['adjustment']==0
+    # Three different mother URLs model repeated outcomes from one publisher;
+    # they are synthetic dispatch records, not new observed media evidence.
+    mothers=[entry(i,failed=True,last_error=reason) for i in range(1,4)]
+    negative=observed_priorities(dict(dispatched=mothers),1010)[family(first)]
+    assert negative['quality_rejected_mothers']==3 and -12<negative['adjustment']<0
+    published={e['slug']:dict(bvid='BVrealreceipt') for e in mothers}
+    positive=observed_priorities(dict(dispatched=mothers,published=published),1010)[family(first)]
+    assert positive['quality_rejected_mothers']==0 and positive['adjustment']>0
+
+
+def test_static_motion_service_failures_do_not_count_against_media():
+    rows=[entry(i,failed=True,last_error='真人动态验证不可用：HTTP Error 503') for i in range(3)]
+    assert observed_priorities(dict(dispatched=rows),1010)=={}
+
+
 def test_service_errors_retries_and_small_samples_do_not_penalize_author():
     bad=entry(1,failed=True,last_error='人物不一致或无法确认')
     transient=[entry(i,failed=True,last_error='人物 VLM 校验不可用：HTTP Error 402') for i in range(2,7)]

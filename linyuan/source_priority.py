@@ -116,7 +116,7 @@ def observed_priorities(state, now):
         if delivered:
             groups[key]['delivered_mothers'] += 1
         elif entry.get('failed') and failure_category(entry.get('last_error')) in {
-                'identity', 'resolution', 'framing', 'selection'}:
+                'identity', 'resolution', 'framing', 'selection', 'motion'}:
             groups[key]['quality_rejected_mothers'] += 1
     result = {}
     for key, counts in groups.items():
