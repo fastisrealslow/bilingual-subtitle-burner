@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792838448,
+  "updated_at": 1792838625,
   "inventory_updated_at": 1792838446,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 23,
-    "active_or_recovering_sources": 15,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 17,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -129,18 +129,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792838447,
+    "updated_at": 1792838624,
     "records": 11719,
     "video_records": 10064,
-    "initial_candidates": 57,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 56,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1655,
+      "already_attempted_or_cooling": 1643,
       "speaker_unconfirmed": 6930,
-      "already_attempted_or_cooling": 1642,
       "clip_title": 1168,
       "noise": 21,
       "unrelated": 65,
@@ -150,16 +150,7 @@
       "over_limit": 18,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5357605058511035",
-        "title": "#天玉朋友圈 连续三年对话林园投资董事长。林园最新观点认为：看好中药 相对看淡创新药。欢迎大佬们点赞转发评论关注。谢谢大",
-        "source": "weibo_search",
-        "author": "孙天玉_Joey",
-        "url": "https://m.weibo.cn/detail/5357605058511035",
-        "duration_sec": 231.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 23,
@@ -175,15 +166,16 @@
   },
   "counts": {
     "complete": 145,
-    "failed": 1296,
+    "failed": 1298,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 8,
     "excluded": 19,
     "experiment_fallback": 17,
     "ready": 5,
-    "retry_queued": 12,
-    "validation_failed": 2,
-    "running": 3
+    "retry_queued": 11,
+    "validation_failed": 1,
+    "running": 3,
+    "queued": 3
   },
   "tasks": [
     {
@@ -27377,48 +27369,12 @@
       "run_updated_at": "2026-10-24T09:13:09Z"
     },
     {
-      "slug": "ly-1024-cbfb33",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792833193,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792837202,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 40081085173,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081085173",
-      "run_started_at": "2026-10-24T09:13:12Z",
-      "run_updated_at": "2026-10-24T09:54:52Z"
-    },
-    {
-      "slug": "ly-1024-72efac",
-      "status": "validation_failed",
-      "detail": "成片复验未通过：标题重写证明不合格",
-      "signature": {
-        "ts": 1792833199,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 40081092106,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081092106",
-      "run_started_at": "2026-10-24T09:13:19Z",
-      "run_updated_at": "2026-10-24T10:02:08Z"
-    },
-    {
       "slug": "ly-1018-efeb96",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“他”指代不明（前文未提具体对象），且“对诊断学啊”语序混乱，疑似将“对于诊断学”或人名误转为“他”。\"}, {\"sentence_id\": 2, \"quote\": \"我觉得最大的，你道你，比如说以前可能不查体，现在这种技术的进步，他随时个人都可以知道自己的身体状况。\", \"suspect_quote\": \"你道你\", \"kind\": \"unintelligible_term\", \"reason\": \"“你道你”为口语填充或口误，非正常表达，疑似将“比如”“例如”等词误识别。\"}, {\"sentence_id\": 3, \"quote\": \"我相信他会对医药的这个需求，自己都能看病，这个倒是有可能。\", \"suspect_quote\": \"自己都能看病\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文，“自己都能看病”语义模糊，疑似将“自行诊断”或具体医疗行为误识别为泛化表述。\"}]",
       "signature": {
         "ts": 1792836337,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -27432,11 +27388,11 @@
     },
     {
       "slug": "ly-1019-c5b84b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1792836344,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -27447,6 +27403,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40084546032",
       "run_started_at": "2026-10-24T10:05:44Z",
       "run_updated_at": "2026-10-24T10:32:54Z"
+    },
+    {
+      "slug": "ly-1024-72efac",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1792838577,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40087005950,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087005950",
+      "run_started_at": "2026-10-24T10:42:56Z",
+      "run_updated_at": "2026-10-24T10:42:56Z"
+    },
+    {
+      "slug": "ly-1024-cbfb33",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1792838582,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40087011491,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087011491",
+      "run_started_at": "2026-10-24T10:43:02Z",
+      "run_updated_at": "2026-10-24T10:43:02Z"
+    },
+    {
+      "slug": "ly-1024-8c4d86",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1792838588,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40087018238,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087018238",
+      "run_started_at": "2026-10-24T10:43:08Z",
+      "run_updated_at": "2026-10-24T10:43:08Z"
     }
   ],
   "runs": {
@@ -39672,25 +39682,25 @@
       "display_title": "中文源出片 · ly-1024-1305d1"
     },
     "ly-1024-72efac": {
-      "id": 40081092106,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-10-24T09:13:19Z",
-      "updated_at": "2026-10-24T10:02:08Z",
-      "run_started_at": "2026-10-24T09:13:19Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081092106",
-      "run_number": 2701,
+      "id": 40087005950,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-24T10:42:56Z",
+      "updated_at": "2026-10-24T10:42:56Z",
+      "run_started_at": "2026-10-24T10:42:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087005950",
+      "run_number": 2704,
       "display_title": "中文源出片 · ly-1024-72efac"
     },
     "ly-1024-cbfb33": {
-      "id": 40081085173,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-24T09:13:12Z",
-      "updated_at": "2026-10-24T09:54:52Z",
-      "run_started_at": "2026-10-24T09:13:12Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081085173",
-      "run_number": 2700,
+      "id": 40087011491,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-24T10:43:02Z",
+      "updated_at": "2026-10-24T10:43:02Z",
+      "run_started_at": "2026-10-24T10:43:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087011491",
+      "run_number": 2705,
       "display_title": "中文源出片 · ly-1024-cbfb33"
     },
     "ly-story-df8057e0f6": {
@@ -39725,6 +39735,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40084537591",
       "run_number": 2702,
       "display_title": "中文源出片 · ly-1018-efeb96"
+    },
+    "ly-1024-8c4d86": {
+      "id": 40087018238,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-24T10:43:08Z",
+      "updated_at": "2026-10-24T10:43:08Z",
+      "run_started_at": "2026-10-24T10:43:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087018238",
+      "run_number": 2706,
+      "display_title": "中文源出片 · ly-1024-8c4d86"
     },
     "ly-1024-0aa3cd": {
       "id": 40081077169,
