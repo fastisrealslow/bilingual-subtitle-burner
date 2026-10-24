@@ -37305,13 +37305,17 @@
    "recovery_origin_run_id": 38866481077,
    "production_failure_summary": {
     "slug": "ly-story-13c07fb2f2",
-    "run_id": 39803460214,
-    "artifact_id": 12437717126,
+    "run_id": 39813834448,
+    "artifact_id": 12443950962,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：unreported_workflow_step"
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'放放回到'不符合中文语法逻辑，应为'放回'或'放回到'，多出的'放'字导致语义不通。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是是没"
      }
     ]
    },
@@ -37643,8 +37647,8 @@
    "recovery_origin_run_id": 38860911237,
    "production_failure_summary": {
     "slug": "ly-story-aa35da617a",
-    "run_id": 39821459333,
-    "artifact_id": 12445655619,
+    "run_id": 39810827206,
+    "artifact_id": 12443950304,
     "accepted": 0,
     "failures": [
      {
@@ -37843,8 +37847,8 @@
    "recovery_origin_run_id": 37886234069,
    "production_failure_summary": {
     "slug": "ly-story-99ddef2e4b",
-    "run_id": 39835364910,
-    "artifact_id": 12451555391,
+    "run_id": 39813108156,
+    "artifact_id": 12441728860,
     "accepted": 0,
     "failures": [
      {
@@ -123962,7 +123966,7 @@
  },
  "source_refresh_requested_at": 1792798237,
  "inventory_refresh_requested_at": 1792575625,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 4,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
