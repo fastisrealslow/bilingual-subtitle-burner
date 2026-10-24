@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1792845019,
-  "inventory_updated_at": 1792844938,
+  "updated_at": 1792845841,
+  "inventory_updated_at": 1792845839,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
@@ -17,7 +17,7 @@
       "verified_stock_snapshot": 24,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
-      "reserve_shortfall": 4,
+      "reserve_shortfall": 5,
       "dates": [
         "2026-10-24",
         "2026-10-25",
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 6,
-        "landscape": 18
+        "portrait": 5,
+        "landscape": 19
       },
-      "full_schedule_days": 2,
-      "required_week_shortfall": 15,
+      "full_schedule_days": 1,
+      "required_week_shortfall": 16,
       "required_week_shortfall_by_layout": {
-        "portrait": 15,
+        "portrait": 16,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -50,7 +50,7 @@
         "landscape": 2
       },
       "reserve_shortfall_by_layout": {
-        "portrait": 4,
+        "portrait": 5,
         "landscape": 0
       }
     }
@@ -60,7 +60,7 @@
     "selection_revision": 2026102201,
     "active": true,
     "verified_treatment": {
-      "portrait": 1,
+      "portrait": 0,
       "landscape": 0
     },
     "consecutive_fallbacks": 0,
@@ -125,11 +125,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "insufficient_treatment_by_layout"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792845018,
+    "updated_at": 1792845840,
     "records": 11723,
     "video_records": 10066,
     "initial_candidates": 56,
@@ -155,8 +155,8 @@
   "inventory": {
     "verified_live": 24,
     "verified_audio_card": 0,
-    "verified_landscape": 18,
-    "verified_portrait": 6,
+    "verified_landscape": 19,
+    "verified_portrait": 5,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -171,9 +171,9 @@
     "interrupted": 8,
     "excluded": 19,
     "experiment_fallback": 17,
-    "ready": 7,
+    "ready": 6,
     "retry_queued": 12,
-    "validation_failed": 1,
+    "validation_failed": 2,
     "running": 4
   },
   "tasks": [
@@ -27045,8 +27045,8 @@
     },
     {
       "slug": "ly-1024-6441d8",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "validation_failed",
+      "detail": "成片复验未通过：现场故事实验缺少完整证据：A bare self-assessment or ranking is not a concrete personal event; select an actual source action",
       "signature": {
         "ts": 1792806437,
         "failed": null,
