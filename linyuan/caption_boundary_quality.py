@@ -23,7 +23,9 @@ def boundary_events(rows,entries):
     entities=('贵州茅台','五粮液','片仔癀','可转债市场','港股市场','美股市场',
               '大概率事件','大概率','金融危机','现金流','新能源')
     spans=[m.span() for term in entities for m in re.finditer(re.escape(term),source)]
-    spans += [m.span() for m in re.finditer(r'\d+(?:\.\d+)?(?:亿元|万元|元|年|倍|%|％)|[A-Za-zＡ-Ｚａ-ｚ](?:企业|公司|股)',source)]
+    from caption_quantities import quantity_spans
+    spans += quantity_spans(source)
+    spans += [m.span() for m in re.finditer(r'[A-Za-zＡ-Ｚａ-ｚ](?:企业|公司|股)',source)]
     words,starts,ends=lexical_context(source)
     stops=set();clauses=set();offset=0
     for entry in entries:

@@ -10,6 +10,8 @@ def caption_word_spans(text):
     from presentation import word_spans
     bounds={0,len(text)}|{b for _,b in word_spans(text)}
     protected=[m.span() for m in re.finditer('大概率事件|大概率|金融危机|可转债市场|港股市场|美股市场|[A-Za-zＡ-Ｚａ-ｚ](?:企业|公司|股)',text)]
+    from caption_quantities import quantity_spans
+    protected += quantity_spans(text)
     bounds=sorted(b for b in bounds if not any(a<b<z for a,z in protected))
     return list(zip(bounds,bounds[1:]))
 

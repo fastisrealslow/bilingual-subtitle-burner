@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 53
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -237,9 +237,28 @@ def closed_guest_tag_before_next_question(units, index):
     return bool(re.match(r'^(?:无所谓的|很正常的|没有变化|不会改变|并不影响|就是这样)[。！!]',following))
 
 
+def incomplete_communication_opening(text):
+    """A dangling transfer clause cannot introduce a standalone clip.
+
+    Require both a bare demonstrative object and an unfinished communication
+    verb at the opening clause boundary. A later complete sentence does not
+    repair that missing recipient/content. Explicit recipients, explanations,
+    quotations and a premise retained earlier in the clip remain untouched.
+    This classifies original text only; it never edits a cue or guesses a cut.
+    """
+    return bool(re.match(
+        r'^(?:(?:嗯|啊|呃|那(?:么)?|所以|先|我(?:们)?(?:先|就|要|想)?)[，,\s]*)*'
+        r'把(?:这|那)(?:个|条|件|些)?(?:信息|消息|情况|事情|想法|观点|问题)'
+        r'(?:[啊呀嗯呃，,\s])*'
+        r'(?:告诉|告知|转告|传达|转达|说明)[啊呀嗯呃\s]*(?:[，,。！？!?]|$)',
+        text.strip()))
+
+
 def speech_opening(text):
     # Headline fluency is stricter than spoken source fluency. Keep every byte
     # of a topical spoken opening, including hesitations and rhetorical 是吧.
+    if incomplete_communication_opening(text):
+        return False
     normalized=re.sub(r'(?:[，,]?(?:是吧|对吧)[？?])$', '。', text)
     normalized=re.sub(r'^(?:嗯|啊|呃)[，, ]*', '', normalized)
     if complete(normalized.strip('。！？!?')):
@@ -356,6 +375,8 @@ def boundary_error(cues,pick):
             return '选段省略了主持人明确的提问前提；须从原始背景句开始，不以指代问题开场'
         break
     selected=cues[pick['start']:pick['end']+1]
+    if incomplete_communication_opening(''.join(c['text'] for c in selected)):
+        return '选段以缺少传达对象或内容的残缺传达句开场；须保留原始完整上下文，不能补写原话'
     units=sentence_units(selected)
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
