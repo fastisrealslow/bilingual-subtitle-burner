@@ -47395,7 +47395,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-24T04:38:12+00:00"
+   "publish_time": "2026-10-24T04:38:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-18fb77",
+    "run_id": 40070246174,
+    "artifact_id": 12550269324,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d33b0fc9ba852b325c4d4b429c683fa21aab194b6657a44e6aefc1c027877aec",
+     "duration_sec": 34.8,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1fgHw6fEEf"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1pNnt6KE1o）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40070246174,
+    "artifact_id": 12550269324,
+    "name": "production-reject-ly-1024-18fb77",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1pNnt6KE1o）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -123573,6 +123606,13 @@
    "video_id": "BV1jwhhz3E7P",
    "ts": 1792818084,
    "error": "整段取景预检：源 6.00s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1024-18fb77",
+   "key": "bilibili_search:BV1fgHw6fEEf",
+   "video_id": "BV1fgHw6fEEf",
+   "ts": 1792831630,
+   "error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1pNnt6KE1o）"
   }
  ],
  "reviewed_third_video_0910": {
