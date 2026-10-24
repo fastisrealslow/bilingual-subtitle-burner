@@ -48404,7 +48404,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-04-17T15:12:42+00:00"
+   "publish_time": "2023-04-17T15:12:42+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-69b5a4",
+    "run_id": 40131995301,
+    "artifact_id": 12576064166,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "06f7af80bd08894a8862f93cd4bc8a4317cc63c7c5532023adb1831e44679e40",
+     "duration_sec": 1242.36,
+     "resolution": {
+      "width": 642,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1vh4y1W7DW"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 820.08s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 266.16s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 400.01s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40131995301,
+    "artifact_id": 12576064166,
+    "name": "production-reject-ly-1024-69b5a4",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV195411w7nw",
@@ -48483,7 +48540,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -125955,6 +126013,13 @@
    "video_id": "BV1iN411k7a1",
    "ts": 1792876588,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1024-69b5a4",
+   "key": "bilibili_search:BV1vh4y1W7DW",
+   "video_id": "BV1vh4y1W7DW",
+   "ts": 1792878462,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
