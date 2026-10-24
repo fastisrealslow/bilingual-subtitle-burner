@@ -1755,7 +1755,8 @@
       "next_retry_at": 1792952246.8801017,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
-      "download_partial_bytes": 0
+      "download_partial_bytes": 0,
+      "family_status": "search_clue_not_verified"
     },
     "d8273140cb4088566825": {
       "url": "https://www.bilibili.com/video/BV1QSiXBxEEi",
@@ -2750,10 +2751,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 27,
+      "attempts": 28,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792782999.3549085,
-      "next_retry_at": 1792869399.3549085,
+      "last_attempt_at": 1792875266.328506,
+      "next_retry_at": 1792961666.328506,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -2764,10 +2765,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 27,
+      "attempts": 28,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792783013.6190703,
-      "next_retry_at": 1792869413.6190703,
+      "last_attempt_at": 1792875280.5435429,
+      "next_retry_at": 1792961680.5435429,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -7092,12 +7093,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792780312.4296494,
-      "next_retry_at": 1792866712.4296494,
+      "last_attempt_at": 1792875242.6318433,
+      "next_retry_at": 1792961642.6318433,
       "download_partial_bytes": 0
     },
     "f96db97e6f05b0475296": {
@@ -7762,7 +7763,7 @@
     "b05fafad4d1dac6b2b53": {
       "url": "https://www.bilibili.com/video/BV1Tuni6vEjN",
       "role": "mother",
-      "family": "historical_long_leads_20261010",
+      "family": "simuwang_2026_10_15",
       "priority": 5,
       "status": "pending",
       "attempts": 0,
@@ -7809,6 +7810,17 @@
       "last_attempt_at": 1792844859.699469,
       "next_retry_at": 1792866459.699469,
       "download_partial_bytes": 0
+    },
+    "8962a47ffd4e05aa02a5": {
+      "url": "https://www.bilibili.com/video/BV1Zjcne1ESc",
+      "role": "mother",
+      "family": "gelong_conversation",
+      "priority": 5,
+      "status": "pending",
+      "attempts": 0,
+      "family_status": "search_clue_not_verified",
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": false
     }
   },
   "searches": {
@@ -7834,24 +7846,18 @@
       "new_ids": []
     },
     "gelong_conversation|格隆对话林园 完整版": {
-      "status": "retry_wait",
-      "checked_at": 1792790938.4873135,
-      "next_retry_at": 1792867365.39615,
+      "status": "searched",
+      "checked_at": 1792875231.9055827,
+      "next_retry_at": 1792918431.9055827,
       "found": 4,
-      "new_ids": [],
-      "attempts": 1,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1792845765.39615
+      "new_ids": []
     },
     "gelong_conversation|格隆博士会客厅 林园": {
-      "status": "retry_wait",
-      "checked_at": 1792769445.1523302,
-      "next_retry_at": 1792855456.7643323,
+      "status": "searched",
+      "checked_at": 1792875231.9055827,
+      "next_retry_at": 1792918431.9055827,
       "found": 4,
-      "new_ids": [],
-      "attempts": 1,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1792833856.7643323
+      "new_ids": []
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
       "status": "retry_wait",
@@ -7923,8 +7929,8 @@
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
       "status": "searched",
-      "checked_at": 1792831504.3958046,
-      "next_retry_at": 1792874704.3958046,
+      "checked_at": 1792875231.9055827,
+      "next_retry_at": 1792918431.9055827,
       "found": 4,
       "new_ids": []
     },
@@ -7941,13 +7947,38 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6790738,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
-  "search_cursor": 5,
-  "updated_at": 1792871632,
-  "last_run_id": "40127141434",
+  "search_cursor": 7,
+  "updated_at": 1792875280,
+  "last_run_id": "40131631888",
   "audio_match_candidates": []
 }
