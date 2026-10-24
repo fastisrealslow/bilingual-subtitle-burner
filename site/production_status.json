@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792834055,
+  "updated_at": 1792834165,
   "inventory_updated_at": 1792834054,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 22,
-    "active_or_recovering_sources": 17,
+    "active_or_recovering_sources": 19,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -129,7 +129,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792834055,
+    "updated_at": 1792834164,
     "records": 11704,
     "video_records": 10054,
     "initial_candidates": 56,
@@ -166,13 +166,13 @@
   },
   "counts": {
     "complete": 145,
-    "failed": 1298,
+    "failed": 1296,
     "paused": 5,
     "interrupted": 8,
     "excluded": 19,
     "experiment_fallback": 16,
     "ready": 5,
-    "retry_queued": 11,
+    "retry_queued": 13,
     "validation_failed": 1,
     "running": 6
   },
@@ -22938,24 +22938,6 @@
       "run_updated_at": "2026-10-20T11:28:26Z"
     },
     {
-      "slug": "ly-1019-c5b84b",
-      "status": "failed",
-      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
-      "signature": {
-        "ts": 1792486907,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 39397681989,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39397681989",
-      "run_started_at": "2026-10-20T09:01:47Z",
-      "run_updated_at": "2026-10-20T09:29:50Z"
-    },
-    {
       "slug": "ly-story-2c3be27e79",
       "status": "failed",
       "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
@@ -23062,24 +23044,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39403135365",
       "run_started_at": "2026-10-20T09:46:29Z",
       "run_updated_at": "2026-10-20T09:53:04Z"
-    },
-    {
-      "slug": "ly-1018-efeb96",
-      "status": "failed",
-      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类",
-      "signature": {
-        "ts": 1792489597,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 39403151241,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39403151241",
-      "run_started_at": "2026-10-20T09:46:37Z",
-      "run_updated_at": "2026-10-20T10:02:47Z"
     },
     {
       "slug": "ly-story-ec899fcf90",
@@ -27438,6 +27402,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081092106",
       "run_started_at": "2026-10-24T09:13:19Z",
       "run_updated_at": "2026-10-24T09:13:22Z"
+    },
+    {
+      "slug": "ly-1018-efeb96",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792834081,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792834080,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39403151241,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39403151241",
+      "run_started_at": "2026-10-20T09:46:37Z",
+      "run_updated_at": "2026-10-20T10:02:47Z"
+    },
+    {
+      "slug": "ly-1019-c5b84b",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1792834099,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1792834098,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39397681989,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39397681989",
+      "run_started_at": "2026-10-20T09:01:47Z",
+      "run_updated_at": "2026-10-20T09:29:50Z"
     }
   ],
   "runs": {
