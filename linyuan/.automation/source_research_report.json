@@ -1,19 +1,57 @@
 {
-  "run_id": "40080470534",
+  "run_id": "40080994164",
   "processed": 3,
-  "inspected": 4,
+  "inspected": 0,
   "historical_media_verified": 198,
-  "cache_recovery_pending": 194,
-  "pending": 244,
+  "cache_recovery_pending": 198,
+  "pending": 248,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 5,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6334328,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6790738,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -2298,13 +2336,13 @@
       "role": "mother",
       "family": "hnw_course",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 11,
       "last_error": null,
       "last_attempt_at": 1792821564.909378,
       "next_retry_at": 0,
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "download_partial_bytes": 0,
       "family_status": "search_clue_not_verified",
       "evidence": {
@@ -2694,7 +2732,7 @@
       "role": "mother",
       "family": "phoenix_2026_09",
       "priority": 0,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 0,
       "last_attempt_at": 1792822674.6402545,
       "next_retry_at": 0,
@@ -2721,8 +2759,8 @@
         "production_quality": "not_evaluated"
       },
       "evidence_run_id": "40068373834",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "family_status": "search_clue_not_verified"
     },
     "5d3a52042516ead96c4c": {
@@ -5066,11 +5104,11 @@
       "role": "mother",
       "family": "yicai_2026_08",
       "priority": -1,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 1,
       "publisher_status": "verified_primary_page",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_error": null,
       "last_attempt_at": 1792822495.3538756,
       "next_retry_at": 0,
@@ -5302,12 +5340,12 @@
       "family": "zhejiang_2026_01",
       "priority": 6,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792806097.6149163,
-      "next_retry_at": 1792827697.6149163,
+      "last_attempt_at": 1792834433.9631362,
+      "next_retry_at": 1792877633.9631362,
       "download_partial_bytes": 0
     },
     "d57d380d53be2231eec9": {
@@ -5316,12 +5354,12 @@
       "family": "historical_long_leads_20261010",
       "priority": 6,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792805797.6056588,
-      "next_retry_at": 1792827397.6056588,
+      "last_attempt_at": 1792834133.9519532,
+      "next_retry_at": 1792877333.9519532,
       "download_partial_bytes": 0
     },
     "43eee114256e1756777d": {
@@ -7743,14 +7781,14 @@
       "family": "tianyu_linyuan_2025_11",
       "priority": -1,
       "status": "retry_wait",
-      "attempts": 2,
+      "attempts": 3,
       "publisher_status": "verified_primary_page",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792831805.2870305,
-      "next_retry_at": 1792833605.287447,
-      "download_partial_bytes": 1429273040,
+      "last_error": "CalledProcessError",
+      "last_attempt_at": 1792834127.8074841,
+      "next_retry_at": 1792835927.807918,
+      "download_partial_bytes": 1149854268,
       "p5w_media_adapter_version": 1
     },
     "b05fafad4d1dac6b2b53": {
@@ -7758,11 +7796,11 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 0,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_attempt_at": 1792814609.8167982,
       "next_retry_at": 0,
       "last_error": null,
@@ -7820,18 +7858,24 @@
       "new_ids": []
     },
     "gelong_conversation|格隆博士会客厅 林园": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792769445.1523302,
-      "next_retry_at": 1792812645.1523302,
+      "next_retry_at": 1792855456.7643323,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792833856.7643323
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792769445.1523302,
-      "next_retry_at": 1792812645.1523302,
+      "next_retry_at": 1792855456.7643323,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792833856.7643323
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "searched",
