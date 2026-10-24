@@ -48454,7 +48454,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-13T07:52:51+00:00"
+   "publish_time": "2023-06-13T07:52:51+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-4a7da2",
+    "run_id": 40132669191,
+    "artifact_id": 12575956242,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e530f320be73af07f331fba32aef0f8d66eeee1e9cef177944318edf2e10b180",
+     "duration_sec": 90.77,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1iN411k7a1"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40132669191,
+    "artifact_id": 12575956242,
+    "name": "production-reject-ly-1024-4a7da2",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -125919,6 +125952,13 @@
    "video_id": "BV11pDpBYENt",
    "ts": 1792875143,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.1959, 3: 0.1043, 4: 0.185, 5: 0.1345, 6: 0.1537, 7: 0.0379, 8: 0.064, 9: 0.0607, 10: 0.0601, 11: 0.1242, 12: 0.0389, 13: 0.1419, 14: 0.0784, 15: 0.0907, 16: 0.1742, 17: 0.1328, 18: 0.2727}"
+  },
+  {
+   "slug": "ly-1024-4a7da2",
+   "key": "bilibili_search:BV1iN411k7a1",
+   "video_id": "BV1iN411k7a1",
+   "ts": 1792876588,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
