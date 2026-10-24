@@ -22,6 +22,7 @@ def test_official_programme_research_uses_normal_validating_downloader(tmp_path,
     command,budget=calls[0]
     assert command[1]==str(research.BASE/'ci_fetch_generic.py') and budget==300
     assert command[command.index('--url')+1]==P5W and '--failure-report' in command
+    assert command[command.index('--budget-seconds')+1]=='270'
     assert path.is_file() and not list(tmp_path.glob('*.p5w-download/video.mp4'))
 
 

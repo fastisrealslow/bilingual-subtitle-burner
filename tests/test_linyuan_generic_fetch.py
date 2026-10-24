@@ -13,6 +13,42 @@ import ci_fetch_generic as g
 import ci_fetch_bilibili as b
 
 
+def test_timeout_kills_downloader_and_merger_process_group(monkeypatch):
+    calls=[]
+    class Process:
+        pid=4321
+        def communicate(self,timeout=None):
+            if timeout is not None:raise subprocess.TimeoutExpired('download',timeout)
+            calls.append('reaped');return None,''
+    def popen(command,**kw):
+        assert kw['start_new_session'] is True
+        return Process()
+    monkeypatch.setattr(g.subprocess,'Popen',popen)
+    monkeypatch.setattr(g.os,'killpg',lambda *args:calls.append(args))
+    with pytest.raises(TimeoutError,match='预算耗尽'):g.run_download(['download'],timeout=1)
+    assert calls==[(4321,g.signal.SIGKILL),'reaped']
+
+
+def test_download_timeout_retains_partial_and_writes_retryable_source_report(tmp_path,monkeypatch):
+    partial=tmp_path/'video.mp4.part';partial.write_bytes(b'partial checkpoint')
+    def fail(*a,**kw):
+        assert 0<kw['timeout']<=55
+        raise TimeoutError('download budget exhausted')
+    monkeypatch.setattr(g,'run_download',fail)
+    report=tmp_path/'source_quality.json'
+    with pytest.raises(TimeoutError):g.fetch('https://example.test/media',tmp_path,report,budget_sec=55)
+    r=json.loads(report.read_text())
+    assert r['retryable'] is True and r['passed'] is False and r['failure_stage']=='source-fetch'
+    assert partial.read_bytes()==b'partial checkpoint'
+
+
+def test_metadata_time_counts_against_the_download_deadline(tmp_path,monkeypatch):
+    clock=iter([100,102]);monkeypatch.setattr(g.time,'monotonic',lambda:next(clock))
+    monkeypatch.setattr(g,'run_download',lambda *a,**kw:pytest.fail('No download after budget exhaustion'))
+    with pytest.raises(TimeoutError):g.fetch('https://example.test/media',tmp_path,tmp_path/'report.json',budget_sec=1)
+    assert json.loads((tmp_path/'report.json').read_text())['retryable']
+
+
 def select(formats, selector=g.FORMAT):
     with YoutubeDL({'format': selector, 'quiet': True, 'no_warnings': True}) as ydl:
         return ydl.process_ie_result(dict(id='706', title='source', extractor='Weibo',
@@ -47,7 +83,7 @@ def test_actual_download_path_ignores_stale_jpg_and_sidecars(monkeypatch, tmp_pa
     media.write_bytes(b'mocked media; separately validated below')
     def download(*args, **kwargs):
         (tmp_path/'downloaded-path.txt').write_text(str(media)+'\n')
-    monkeypatch.setattr(g.subprocess, 'run', download)
+    monkeypatch.setattr(g, 'run_download', download)
     checked = []
     monkeypatch.setattr(g, 'validate_media', lambda path: checked.append(path))
     assert g.fetch('https://example.test/source', tmp_path, tmp_path/'report.json') == media
@@ -83,7 +119,7 @@ def test_missing_real_format_writes_retryable_report(monkeypatch, tmp_path):
     (tmp_path/'downloaded-path.txt').write_text('stale path\n')
     def fail(*args, **kwargs):
         raise subprocess.CalledProcessError(1, ['yt-dlp'])
-    monkeypatch.setattr(g.subprocess, 'run', fail)
+    monkeypatch.setattr(g, 'run_download', fail)
     report = tmp_path/'report.json'
     with pytest.raises(subprocess.CalledProcessError):
         g.fetch('https://example.test/source', tmp_path, report)
@@ -119,7 +155,7 @@ def test_extractor_support_failure_is_not_a_network_retry(monkeypatch, tmp_path,
     def fail(*args, **kwargs):
         assert kwargs['stderr'] is subprocess.PIPE and kwargs['text'] is True
         raise subprocess.CalledProcessError(1, ['yt-dlp'], stderr=stderr)
-    monkeypatch.setattr(g.subprocess, 'run', fail)
+    monkeypatch.setattr(g, 'run_download', fail)
     report = tmp_path/'report.json'
     with pytest.raises(subprocess.CalledProcessError):
         g.fetch('https://example.test/source', tmp_path, report)

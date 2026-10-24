@@ -156,7 +156,7 @@ def test_normal_downloader_uses_the_video_attachment_and_checks_the_full_duratio
     media=tmp_path/'video.mp4';media.write_bytes(b'mocked media, independent media validator patched for this transport test')
     def download(command,**kw):
         calls.append(command);(tmp_path/'downloaded-path.txt').write_text(str(media)+'\n')
-    monkeypatch.setattr(G.subprocess,'run',download)
+    monkeypatch.setattr(G,'run_download',download)
     monkeypatch.setattr(G,'validate_media',lambda _:dict(duration=duration))
     if duration!=3316.48:
         with pytest.raises(ValueError,match='全景网实际媒体时长'):G.fetch(f['page_url'],tmp_path,tmp_path/'failure.json')

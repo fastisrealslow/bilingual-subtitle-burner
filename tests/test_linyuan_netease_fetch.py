@@ -124,7 +124,7 @@ def test_production_downloads_actual_player_then_checks_media_and_duration(monke
         assert command[-3:] == ['--referer', PAGE, MEDIA]
         assert '--print-to-file' in command and g.FORMAT in command
         (tmp_path/'downloaded-path.txt').write_text(str(media)+'\n')
-    monkeypatch.setattr(g.subprocess, 'run', download)
+    monkeypatch.setattr(g, 'run_download', download)
     monkeypatch.setattr(g, 'validate_media', lambda path: dict(duration=duration))
     if succeeds:
         assert g.fetch(PAGE, tmp_path, tmp_path/'source_quality.json') == media
