@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792846476,
+  "updated_at": 1792846579,
   "inventory_updated_at": 1792846474,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 26,
-    "active_or_recovering_sources": 16,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 18,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -129,16 +129,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792846475,
+    "updated_at": 1792846578,
     "records": 11732,
     "video_records": 10074,
-    "initial_candidates": 57,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 56,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 1647,
+      "already_attempted_or_cooling": 1648,
       "no_video": 1658,
       "speaker_unconfirmed": 6937,
       "clip_title": 1166,
@@ -150,16 +150,7 @@
       "over_limit": 18,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1QxHw6UE6S",
-        "title": "林园：日本股市当年为什么破裂？",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1QxHw6UE6S",
-        "duration_sec": 118.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 26,
@@ -177,13 +168,14 @@
     "complete": 145,
     "failed": 1299,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 8,
     "excluded": 19,
     "experiment_fallback": 18,
     "ready": 6,
-    "retry_queued": 11,
+    "retry_queued": 12,
     "validation_failed": 2,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -27504,14 +27496,14 @@
     },
     {
       "slug": "ly-1024-23611c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792845660,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792847405,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -27537,6 +27529,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40095228221",
       "run_started_at": "2026-10-24T12:45:08Z",
       "run_updated_at": "2026-10-24T12:48:07Z"
+    },
+    {
+      "slug": "ly-1024-f80b60",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1792846539,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40095957437,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40095957437",
+      "run_started_at": "2026-10-24T12:55:39Z",
+      "run_updated_at": "2026-10-24T12:55:39Z"
     }
   ],
   "runs": {
@@ -39838,17 +39848,6 @@
       "run_number": 2708,
       "display_title": "中文源出片 · ly-story-6dc5b85679"
     },
-    "ly-1024-756104": {
-      "id": 40095228221,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-24T12:45:08Z",
-      "updated_at": "2026-10-24T12:48:07Z",
-      "run_started_at": "2026-10-24T12:45:08Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40095228221",
-      "run_number": 2715,
-      "display_title": "中文源出片 · ly-1024-756104"
-    },
     "ly-1024-23611c": {
       "id": 40094940418,
       "status": "completed",
@@ -39859,6 +39858,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40094940418",
       "run_number": 2714,
       "display_title": "中文源出片 · ly-1024-23611c"
+    },
+    "ly-1024-f80b60": {
+      "id": 40095957437,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-24T12:55:39Z",
+      "updated_at": "2026-10-24T12:55:39Z",
+      "run_started_at": "2026-10-24T12:55:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40095957437",
+      "run_number": 2716,
+      "display_title": "中文源出片 · ly-1024-f80b60"
+    },
+    "ly-1024-756104": {
+      "id": 40095228221,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-24T12:45:08Z",
+      "updated_at": "2026-10-24T12:48:07Z",
+      "run_started_at": "2026-10-24T12:45:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40095228221",
+      "run_number": 2715,
+      "display_title": "中文源出片 · ly-1024-756104"
     },
     "ly-1024-01ac8d": {
       "id": 40094932274,
