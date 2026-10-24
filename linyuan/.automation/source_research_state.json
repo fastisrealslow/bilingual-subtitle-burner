@@ -2678,9 +2678,9 @@
       "role": "mother",
       "family": "phoenix_2026_09",
       "priority": 0,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 0,
-      "last_attempt_at": 1789756865.1344707,
+      "last_attempt_at": 1792822674.6402545,
       "next_retry_at": 0,
       "last_error": null,
       "evidence": {
@@ -2704,9 +2704,9 @@
         "media_integrity": "passed",
         "production_quality": "not_evaluated"
       },
-      "evidence_run_id": "35381300609",
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": true,
+      "evidence_run_id": "40068373834",
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
       "family_status": "search_clue_not_verified"
     },
     "5d3a52042516ead96c4c": {
@@ -5050,13 +5050,13 @@
       "role": "mother",
       "family": "yicai_2026_08",
       "priority": -1,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 1,
       "publisher_status": "verified_primary_page",
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": true,
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
       "last_error": null,
-      "last_attempt_at": 1791611189.068502,
+      "last_attempt_at": 1792822495.3538756,
       "next_retry_at": 0,
       "download_resume_policy_version": 1,
       "evidence": {
@@ -5080,7 +5080,7 @@
         "media_integrity": "passed",
         "production_quality": "not_evaluated"
       },
-      "evidence_run_id": "38028199840"
+      "evidence_run_id": "40068373834"
     },
     "8247cb0116a417b88805": {
       "url": "https://m.weibo.cn/detail/5335007129504221",
@@ -5160,14 +5160,14 @@
       "role": "mother",
       "family": "phoenix_2026_09",
       "priority": -1,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "publisher_status": "verified_primary_page",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": true,
-      "last_attempt_at": 1791610467.376158,
-      "next_retry_at": 0,
-      "last_error": null,
+      "last_attempt_at": 1792822316.7421653,
+      "next_retry_at": 1792843916.7421653,
+      "last_error": "CalledProcessError",
       "evidence": {
         "sha256": "86061dbcc405e5ebe6b1abd9c70e28dfabd74eecf1b6361c16a9ce4054fb434b",
         "duration_sec": 106.56,
@@ -5189,7 +5189,8 @@
         "media_integrity": "passed",
         "production_quality": "not_evaluated"
       },
-      "evidence_run_id": "38027594089"
+      "evidence_run_id": "38027594089",
+      "download_partial_bytes": 0
     },
     "716cf28dfeddfb589d49": {
       "url": "https://www.bilibili.com/video/BV1TV411o7Hj",
@@ -7884,7 +7885,8 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -7893,8 +7895,8 @@
       "errors": []
     }
   },
-  "search_cursor": 13,
-  "updated_at": 1792821864,
-  "last_run_id": "40068148219",
+  "search_cursor": 1,
+  "updated_at": 1792822674,
+  "last_run_id": "40068373834",
   "audio_match_candidates": []
 }
