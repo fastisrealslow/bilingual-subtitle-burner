@@ -47061,7 +47061,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-24T09:51:15+08:00"
+   "publish_time": "2026-10-24T09:51:15+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-dedbaf",
+    "run_id": 40056400211,
+    "artifact_id": 12546301453,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f8dffb6d42ac56e242f36bd6cb9ee8ff13b6b7ab5cb8e7ef298452abcd73d606",
+     "duration_sec": 253.79,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5357481857647029"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1480，总帧数2400；身份匹配但人脸短边不足96px的帧数56"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1176/1813，总帧数3182；身份匹配但人脸短边不足96px的帧数203"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40056400211,
+    "artifact_id": 12546301453,
+    "name": "production-reject-ly-1024-dedbaf",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1480，总帧数2400；身份匹配但人脸短边不足96px的帧数56",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1XM411p7Sc",
@@ -47117,7 +47154,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈隐兴\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈隐兴'无法对应任何已知实体或行业术语，疑似将人名、地名或特定概念误转写为无意义词汇。\"}, {\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国巨'在此语境下指代不明，非通用缩写或已知公司名，疑似听写错误或实体粘连。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1h3nM68EMa",
@@ -47140,7 +47178,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-24T01:45:00+00:00"
+   "publish_time": "2026-10-24T01:45:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-92494b",
+    "run_id": 40057046054,
+    "artifact_id": 12545219371,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6320d47d7e9f695224ffb237e75b8fb7a8ec30cfc0e5f7eab057eed6289829d0",
+     "duration_sec": 100.0,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1h3nM68EMa"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/133，总帧数662；身份匹配但人脸短边不足96px的帧数38"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40057046054,
+    "artifact_id": 12545219371,
+    "name": "production-reject-ly-1024-92494b",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/133，总帧数662；身份匹配但人脸短边不足96px的帧数38",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -123290,6 +123361,20 @@
    "video_id": "BV1Bo4y1P7XV",
    "ts": 1792811664,
    "error": "整段取景预检：源 183.07s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1024-92494b",
+   "key": "bilibili_search:BV1h3nM68EMa",
+   "video_id": "BV1h3nM68EMa",
+   "ts": 1792812053,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/133，总帧数662；身份匹配但人脸短边不足96px的帧数38"
+  },
+  {
+   "slug": "ly-1024-dedbaf",
+   "key": "weibo_search:5357481857647029",
+   "video_id": "https://f.video.weibocdn.com/o0/OX3JcbnXlx08BOAxszuU01041200WQhE0E010.mp4",
+   "ts": 1792812055,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1480，总帧数2400；身份匹配但人脸短边不足96px的帧数56"
   }
  ],
  "reviewed_third_video_0910": {
