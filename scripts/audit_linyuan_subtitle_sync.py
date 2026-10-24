@@ -9,12 +9,82 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 import wave
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'linyuan'))
+import audio_preprocessing as audio_clock
+
+
+def extract_published_audio(video, output):
+    """Keep recognition windows on the same presentation clock as frames."""
+    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(video), '-map', '0:a:0',
+        *audio_clock.asr_args(audio_clock.DEFAULT), '-c:a', 'pcm_s16le', str(output)],
+        check=True)
+    with wave.open(str(output)) as wav:
+        duration = wav.getnframes() / wav.getframerate()
+    return audio_clock.clock_proof(video, duration, audio_clock.DEFAULT)
 
 
 def compact(text):
     return ''.join(c.lower() for c in text if c.isalnum())
+
+
+def match_caption_window(words, recognition, seconds):
+    """A slightly longer distant repeat does not prove a caption delay."""
+    text = compact(words)
+    candidates = []
+    for recognized in recognition:
+        acoustic = compact(recognized['text'])
+        match = SequenceMatcher(None, text, acoustic, autojunk=False).find_longest_match()
+        if match.size < 4:
+            continue
+        distance = max(recognized['start_sec'] - seconds,
+                       seconds - recognized['end_sec'], 0)
+        candidates.append(dict(length=match.size,
+                               matched_fragment=text[match.a:match.a+match.size],
+                               independent_start_sec=recognized['start_sec'],
+                               independent_end_sec=recognized['end_sec'],
+                               outside_spoken_interval_sec=round(distance, 3)))
+    strong = [m for m in candidates if m['length'] >= 6]
+    if not strong:
+        return dict(status='wording_unconfirmed')
+    best = max(strong, key=lambda m: (m['length'], -m['outside_spoken_interval_sec']))
+    # ASR can confuse homophones or split a repeated phrase across a window.
+    # Keep both witnesses when the nearby phrase is almost as long and is
+    # contained in the remote exact match. Do not guess which occurrence was
+    # spoken, normalize words, or silently declare synchronization correct.
+    # A local phrase may straddle two adjacent acoustic windows while a
+    # later repetition fits in one. Join only real contiguous windows near
+    # this frame, retaining their bounded union rather than word timestamps.
+    joined = []
+    for left, right in zip(recognition, recognition[1:]):
+        if (not left['text'] or not right['text']
+                or abs(left['end_sec'] - right['start_sec']) > .01
+                or right['end_sec'] - left['start_sec'] > 6.01):
+            continue
+        distance = max(left['start_sec'] - seconds, seconds - right['end_sec'], 0)
+        if distance > 2:
+            continue
+        acoustic = compact(left['text'] + right['text'])
+        match = SequenceMatcher(None, text, acoustic, autojunk=False).find_longest_match()
+        joined.append(dict(length=match.size,
+                           matched_fragment=text[match.a:match.a+match.size],
+                           independent_start_sec=left['start_sec'],
+                           independent_end_sec=right['end_sec'],
+                           outside_spoken_interval_sec=round(distance, 3),
+                           acoustic_windows=[dict(left), dict(right)]))
+    nearby = [m for m in candidates + joined if m['outside_spoken_interval_sec'] <= 2
+              and m['length'] >= max(4, best['length'] - 1)
+              and m['matched_fragment'] in best['matched_fragment']]
+    if best['outside_spoken_interval_sec'] > 2 and nearby:
+        return dict(status='ambiguous_repeated_fragment', remote_candidate=best,
+                    nearby_candidate=max(nearby, key=lambda m: (m['length'],
+                                          -m['outside_spoken_interval_sec'])))
+    return dict(status='exact_fragment_window_match',
+                **{k: v for k, v in best.items() if k != 'length'})
+
 
 
 def main():
@@ -29,8 +99,7 @@ def main():
     from sherpa_onnx import OfflineRecognizer
     from rapidocr_onnxruntime import RapidOCR
     audio=args.out/'published-audio.wav'
-    subprocess.run(['ffmpeg','-y','-v','error','-i',str(args.video),'-map','0:a:0',
-        '-ac','1','-ar','16000','-c:a','pcm_s16le',str(audio)],check=True)
+    clock = extract_published_audio(args.video, audio)
     with wave.open(str(audio)) as wav:
         samples=np.frombuffer(wav.readframes(wav.getnframes()),dtype=np.int16).astype(np.float32)/32768
     model=args.weights/'model.int8.onnx'
@@ -59,22 +128,11 @@ def main():
         words=''.join(r[1] for r in sorted(found or [],key=lambda r:min(p[1] for p in r[0])))
         text=compact(words)
         row=dict(frame_sec=round(float(seconds),3),caption=words)
-        matches=[]
-        for recognized in recognition:
-            acoustic=compact(recognized['text'])
-            match=SequenceMatcher(None,text,acoustic,autojunk=False).find_longest_match()
-            if match.size>=6:
-                matches.append((match.size,recognized,text[match.a:match.a+match.size]))
-        if matches:
-            _,nearest,fragment=max(matches,key=lambda m:(m[0],-abs(m[1]['start_sec']-seconds)))
-            row.update(independent_start_sec=nearest['start_sec'],
-                independent_end_sec=nearest['end_sec'],matched_fragment=fragment,
-                outside_spoken_interval_sec=round(max(nearest['start_sec']-seconds,
-                    seconds-nearest['end_sec'],0),3),status='exact_fragment_window_match')
-        else:row['status']='wording_unconfirmed'
+        row.update(match_caption_window(words, recognition, float(seconds)))
         rows.append(row)
     cap.release()
-    report=dict(version=1,video_sha256=hashlib.sha256(args.video.read_bytes()).hexdigest(),
+    report=dict(version=3,video_sha256=hashlib.sha256(args.video.read_bytes()).hexdigest(),
+        audio_clock=clock,
         model_sha256=hashlib.sha256(model.read_bytes()).hexdigest(),device='cpu',
         engine='sherpa-onnx paraformer zh 2024-03-09',recognition=recognition,samples=rows,
         duration_sec=duration,elapsed_sec=round(time.monotonic()-started,2),

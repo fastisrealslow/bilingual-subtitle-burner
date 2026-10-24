@@ -62,7 +62,11 @@ TRANSITION = re.compile(TOPIC_CHANGE.pattern+'|'+FOLLOWUP.pattern)
 # It is an ASR/truncated-source tail, not a complete ending. Remove only that
 # trailing sentence; never shorten an interior sentence or a complete phrase
 # such as “有没有价值”。
-INCOMPLETE_TAIL = re.compile(r'(?:有没有|能不能|会不会|是不是|要不要|可不可以)[。！!]*\s*$')
+INCOMPLETE_TAIL = re.compile(
+    r'(?:有没有|能不能|会不会|是不是|要不要|可不可以'
+    # A certainty modifier and copula followed by bare negation lack a predicate.
+    # Complete negatives (肯定不是方法/一定不会亏) and quoted 不 stay intact.
+    r'|(?:肯定|一定|绝对)是(?:不|没))[。！!]*\s*$')
 SPEECH_CHANGE = re.compile(
     r'(?:我|我们)(?:接下来|下面|现在).{0,12}(?:谈谈|讲讲|说说|介绍一下)'
     r'|(?:我|我们).{0,4}对(?:今天|当前|现在)的?[^。！？]{0,15}(?:市场|经济)'
@@ -131,6 +135,12 @@ HOST_BRIDGE = re.compile(
     r'|^(?:嗯[，,]?|好[，,]?|呃[，,]?|那么)*我们知道(?:现在|呢)'
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
     r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
+    # An addressed personal-history introduction can be a statement, with
+    # the actual question only in the next turn. It cannot end this answer.
+    r'|^(?:那(?:么)?|其实|[啊嗯呃，,\s])*'
+    r'(?:承接(?:着)?[^。！？!?]{0,40}[，,])?'
+    r'(?:我{1,2}|我们)(?:知道|了解|听说)(?:您|你)(?:本人)?'
+    r'(?:有|曾经|以前|之前)[^。！？!?]{0,32}(?:经历|故事|遭遇)'
     r'|'+HOST_RECAP)
 
 
@@ -356,6 +366,8 @@ def boundary_error(cues,pick):
             return '选段省略了主持人明确的提问前提；须从原始背景句开始，不以指代问题开场'
         break
     selected=cues[pick['start']:pick['end']+1]
+    if INCOMPLETE_TAIL.search(''.join(c['text'] for c in selected)):
+        return '选段以缺少谓语的疑问或否定残句结束；须保留完整原声句界，不能以标点当作完整结论'
     units=sentence_units(selected)
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
