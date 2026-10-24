@@ -47734,8 +47734,8 @@
    "publish_time": "2026-06-20T01:10:41+00:00",
    "production_failure_summary": {
     "slug": "ly-1024-cbfb33",
-    "run_id": 40087011491,
-    "artifact_id": 12558790457,
+    "run_id": 40092450217,
+    "artifact_id": 12560089185,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -47750,8 +47750,16 @@
     },
     "failures": [
      {
-      "stage": "editorial-service",
-      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
      },
      {
       "stage": "part-quality",
@@ -47769,9 +47777,17 @@
    },
    "source_check_report_id": 12558790457,
    "source_check_run_id": 40087011491,
-   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40092450217,
+    "artifact_id": 12560089185,
+    "name": "production-reject-ly-1024-cbfb33",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "video_id": "https://www.p5w.net/v/ip/typyq/202511/t20251121_6424547.htm",
@@ -125028,6 +125044,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/Sicy4Qikgx08BOyZxwRq01041200MLux0E010.mp4",
    "ts": 1792841949,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配4843/6150，总帧数6532；身份匹配但人脸短边不足96px的帧数328"
+  },
+  {
+   "slug": "ly-1024-cbfb33",
+   "key": "bilibili_search:BV1LYjC6tEGi",
+   "video_id": "BV1LYjC6tEGi",
+   "ts": 1792845871,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
