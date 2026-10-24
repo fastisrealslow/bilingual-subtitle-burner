@@ -114,7 +114,7 @@ jobs:
       - name: 有界扩充独立母片目录（不阻挡一手源与日常补库）
         timeout-minutes: 5
         continue-on-error: true
-        run: python -u seed_growth.py --target 1000 --limit 48
+        run: python -u seed_growth.py --target 1500 --limit 48
 
       - name: 恢复已核验来源证据
         uses: actions/cache/restore@v4
