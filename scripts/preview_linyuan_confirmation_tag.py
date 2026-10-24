@@ -65,14 +65,16 @@ def main():
     # Lossless encode makes decoded source pixels above the footer comparable
     # byte for byte. The original compressed audio packets are copied intact.
     vf = f'drawbox=x=0:y={height}:w={width}:h=ih-{height}:color=0x101c2b:t=fill,ass={ass_path}'
-    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', str(source), '-vf', vf,
+    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-copyts', '-i', str(source), '-vf', vf,
         '-map', '0:v:0', '-map', '0:a:0', '-c:v', 'libx264', '-threads', '2',
         '-preset', 'veryfast', '-crf', '0', '-pix_fmt', 'yuv420p', '-c:a', 'copy',
+        '-fps_mode:v', 'passthrough', '-enc_time_base:v', '-1', '-avoid_negative_ts', 'disabled',
         str(target)], check=True, timeout=600)
     def stream_hash(path, audio=False):
-        command = ['ffmpeg', '-v', 'error', '-i', str(path)]
+        command = ['ffmpeg', '-v', 'error', '-copyts', '-i', str(path)]
         command += ['-map', '0:a:0', '-c', 'copy'] if audio else [
-            '-map', '0:v:0', '-vf', f'crop={width}:{height}:0:0', '-pix_fmt', 'yuv420p']
+            '-map', '0:v:0', '-vf', f'crop={width}:{height}:0:0', '-pix_fmt', 'yuv420p',
+            '-fps_mode:v', 'passthrough', '-enc_time_base:v', '-1']
         return subprocess.check_output(command + ['-f', 'hash', '-'], text=True, timeout=300).strip()
     for audio in (False, True):
         assert stream_hash(source, audio) == stream_hash(target, audio), 'Original picture/audio changed'
