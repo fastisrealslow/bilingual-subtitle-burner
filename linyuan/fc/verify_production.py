@@ -63,6 +63,11 @@ def verify_config_health(health, root=None):
     if str(root/'linyuan') not in sys.path:
         sys.path.insert(0,str(root/'linyuan'))
     expected = hashlib.sha256((root/'linyuan/fc/index.py').read_bytes()).hexdigest()
+    import caption_readability
+    if (health.get('caption_readability_version')!=caption_readability.VERSION
+            or health.get('caption_readability_sha256')!=hashlib.sha256(
+                (root/'linyuan/caption_readability.py').read_bytes()).hexdigest()):
+        raise SystemExit('Deployed caption replay policy does not match verified checkout')
     from experiment_runtime import health as experiment_runtime_health
     from experiment_observation_dispatch import policy as observation_policy
     if (health.get('experiment_observation_clock')!=observation_policy()

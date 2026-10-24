@@ -1,5 +1,6 @@
 """New display edits must not rewrite historical subtitle evidence."""
 from copy import deepcopy
+import json
 from pathlib import Path
 import sys
 
@@ -67,3 +68,42 @@ def test_unknown_edit_policy_is_never_replayed(version):
     proof['version'] = version
     with pytest.raises(ValueError):
         C.replay_edit_proof(proof)
+
+
+def test_actual_delivered_question_tag_is_retained_without_rewriting_old_evidence():
+    import caption_lines as L
+    import presentation as V
+    fixture=json.loads((Path(__file__).parent/'fixtures/linyuan_actual_confirmation_tag.json').read_text())
+    old=fixture['proof'];before=deepcopy(old)
+    assert old['version']==C.OCT9_VERSION
+    assert C.replay_edit_proof(old)==(old['raw_text'],old['display_text'])
+    assert old['display_text'].endswith('平常心了，？')
+    cleaned,new=C.clean_entries(old['raw_entries'])
+    assert new['display_text']==old['display_text'].replace('平常心了，？','平常心了，是吧？')
+    assert new['raw_text']==old['raw_text'] and old==before
+    assert C.replay_edit_proof(new)==(new['raw_text'],new['display_text'])
+    original_atoms=[tuple(a) for e in old['raw_entries'] for a in e['caption_chars']]
+    assert all(tuple(a) in original_atoms for e in cleaned for a in e['caption_chars'])
+    layout=V.footer_layout_for(1742,756,single_line=True)
+    screens=L.one_line_screens(cleaned,layout)
+    assert all(len(e['lines'])==1 and e['font_px']==75 for e in screens)
+    assert any(e['zh'].endswith('是吧？') and e['end_sec']==pytest.approx(25.76) for e in screens)
+    forged=deepcopy(old);forged['version']=C.VERSION
+    with pytest.raises(ValueError):C.replay_edit_proof(forged)
+
+
+@pytest.mark.parametrize('text',[
+    '我们也不会动，是吧？','是吧？','这个我也当平常心了。是吧？',
+    '不是所有行业都要持有，是吧？'])
+def test_separate_confirmation_question_keeps_original_words_and_negation(text):
+    _,proof=C.clean_entries([dict(zh=text,start_sec=0,end_sec=4)])
+    assert proof['display_text']==text
+
+
+def test_real_question_predicate_and_repeated_hesitation_keep_the_previous_cleanup():
+    _,proof=C.clean_entries([dict(zh='嗯，啊，我们也不会动，是吧？',start_sec=0,end_sec=5)])
+    assert proof['display_text']=='我们也不会动，是吧？'
+    _,proof=C.clean_entries([dict(zh='那么好的企业从哪里来是吧？',start_sec=0,end_sec=4)])
+    assert proof['display_text']=='好的企业从哪里来？'
+    _,proof=C.clean_entries([dict(zh='我们继续持有，是吧，暂时不会动。',start_sec=0,end_sec=5)])
+    assert proof['display_text']=='我们继续持有，，暂时不会动。'

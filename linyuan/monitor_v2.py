@@ -1980,6 +1980,31 @@ def enforce_seed_restrictions(base=None):
     return changed
 
 
+def retain_exact_page_metadata(extra, previous, item_id):
+    """Search's aggregate duration must not overwrite an exact P1/CID.
+
+    Only catalogue identity/length is retained. Incoming rights restrictions
+    have already been merged and remain authoritative. A fresh exact page
+    response still replaces the old page normally.
+    """
+    import math
+    current=json.loads(extra or '{}');prior=json.loads(previous or '{}')
+    bvid=current.get('bvid')
+    duration=prior.get('duration')
+    if (not isinstance(bvid,str) or not re.fullmatch(r'BV[0-9A-Za-z]{10}',bvid)
+            or item_id!='bilibili_search:'+bvid or prior.get('bvid')!=bvid
+            or 'page' in current or 'cid' in current
+            or type(prior.get('page')) is not int or prior['page']!=1
+            or type(prior.get('cid')) is not int or prior['cid']<=0
+            or prior.get('metadata_status')!='known_duration'
+            or type(duration) not in (int,float) or not math.isfinite(duration) or duration<=0):
+        return extra
+    for key in ('page','cid','duration','collection_title'):
+        if key in prior:current[key]=prior[key]
+    current['metadata_status']='known_duration'
+    return json.dumps(current,ensure_ascii=False)
+
+
 def upsert_items(items):
     conn = sqlite3.connect(DB_PATH)
     now = datetime.now().isoformat()
@@ -2003,6 +2028,7 @@ def upsert_items(items):
         exists = previous is not None
 
         if exists:
+            item['extra']=retain_exact_page_metadata(item['extra'],previous[4],item['id'])
             current = (item["title"], item["url"], item["publish_time"],
                        item["author"], item["extra"])
             # 静态参考目录每次都会完整读取；内容没变时不要刷新 updated_at，

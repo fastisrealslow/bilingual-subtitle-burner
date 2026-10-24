@@ -1985,8 +1985,11 @@ def production_config():
     import audience_copy
     import title_rewrite
     import source_admission_guard
+    import caption_readability
     from experiment_runtime import health as experiment_runtime_health
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "caption_readability_version": caption_readability.VERSION,
+            "caption_readability_sha256": hashlib.sha256(Path(caption_readability.__file__).read_bytes()).hexdigest(),
             "title_policy_sha256": hashlib.sha256(Path(title_rewrite.__file__).read_bytes()).hexdigest(),
             "source_admission_guard_sha256": hashlib.sha256(Path(source_admission_guard.__file__).read_bytes()).hexdigest(),
             "source_restrictions_sha256": hashlib.sha256((source_admission_guard.BASE/'source_restrictions.json').read_bytes()).hexdigest(),
