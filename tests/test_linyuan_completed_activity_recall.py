@@ -22,6 +22,44 @@ def actual():
     return cues,K.completed_activity_proposals(cues)[0]
 
 
+def actual_activity_selection():
+    cues,pick=actual();_,schema=E.completed_activity_request(cues,pick)
+    verdict={k:v['enum'][0] for k,v in schema['properties'].items() if k!='kind'}
+    verdict['kind']='personal_story'
+    selection=E.validate_choices(cues,[pick],{'candidate_0':verdict})[0]['story_selection']
+    selection['completed_activity_recall_version']=1
+    return selection
+
+
+def test_actual_motive_objects_are_not_lost_to_pos_labels_or_abstract_purpose():
+    selection=actual_activity_selection();focus=E.title_focus(selection)
+    assert {'想法','看法'}<=set(focus['details']) and '目的' not in focus['details']
+    assert E.title_focus_error('林园：组织了多次活动，我想把看法说出来',focus) is None
+    assert E.title_focus_error('林园：组织活动，为了表达想法',focus) is None
+    assert E.title_focus_error('林园：组织活动很重要',focus)
+    assert not E.title_focus(selection|{'completed_activity_recall_version':0}).get('activity_motive_source')
+
+
+@pytest.mark.parametrize('title,cover',[
+    ('林园：见五千人只为验证想法对不对','见五千人表达想法'),
+    ('林园：组织活动，想把看法说出来','唯一目的是表达看法'),
+    ('林园：活动有目的，就是看市场认不认','活动有目的就是看市场'),
+    ('林园：组织活动，想把看法说出来','市场认可我的看法'),
+])
+def test_actual_failed_drafts_cannot_add_sole_motive_or_market_approval(title,cover):
+    assert E.title_focus_error(title,E.title_focus(actual_activity_selection()),cover=cover)
+
+
+@pytest.mark.parametrize('stage',['a_guest_answer','c_candidates','reviews'])
+def test_actual_activity_guidance_keeps_actions_counts_and_uncertainty(stage):
+    evidence=actual_activity_selection()
+    prompt=E.story_title_prompt('原有事实核对',{'properties':{stage:{}}},evidence)
+    assert evidence['event_quote'] in prompt and evidence['detail_quote'] in prompt
+    assert '见过多少人不等于组织了一场同人数的活动' in prompt
+    assert '不等于市场或别人已经认可' in prompt
+    assert '不是已批准的事实' in prompt
+
+
 @pytest.mark.parametrize('accept',[False,True])
 def test_real_primary_skip_gets_one_strict_model_review_without_forcing_acceptance(tmp_path,accept):
     cues,pick=actual();before=deepcopy(cues);calls=[]

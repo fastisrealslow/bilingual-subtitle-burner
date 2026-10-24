@@ -625,6 +625,13 @@ def story_title_prompt(prompt,schema,evidence):
         scope+=('\n本人这次买卖/退出的原话对象：'+json.dumps(focus['subjects'],ensure_ascii=False)+
             '。标题前半句必须点明实际对象，不能只写“退出了、买了、持有了”让观众猜。'
             '保留原话的不确定性和理由；不要为了补对象删除“感觉、隐约、可能”等限定。')
+    if focus.get('activity_motive_source'):
+        scope+=('\n这次事例是本人已经组织、参加或访问的活动，以及本人为什么公开表达想法。'
+            '先用自然口语交代已经做过的事，再接本人明确说出的交流动机，不写抽象的“有目的”来凑理由。'
+            '想法、看法等原词也是实际动机对象，不要因词性标注而只盯着市场、目的。'
+            '见过多少人不等于组织了一场同人数的活动；人数、活动次数与超过等范围不能互换或省略。'
+            '希望日后印证看法不等于市场或别人已经认可，也不等于确定能验证正确。'
+            '未明确唯一动机就不用只为、唯一目的；未核实讲话年份就不补具体年月。')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if holding_evidence(evidence):
         scope+=('\n本次标题以嘉宾已经发生的买卖/持仓事实为中心，保留事件原句的时间或时长与近、约等范围：'
@@ -752,6 +759,16 @@ def title_focus(selection):
     result=dict(subjects=subjects,details=details,background_terms=background,
                 **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
+    if (selection.get('completed_activity_recall_version')==1
+            and not completed_activity_event_error(selection.get('event_quote'))
+            and not completed_activity_detail_error(selection.get('detail_quote'))):
+        # Jieba labels 想法/看法 as verbs and 印证 as an abbreviation.
+        # They remain literal objects of this stated communication motive;
+        # forcing only 市场/目的 made actual drafts artificial or off-topic.
+        motive_objects=re.findall(r'想法|看法|观点|意见|建议|经验|经历',reason)
+        result['details']=list(dict.fromkeys(motive_objects+[t for t in details if t!='目的']))
+        result['activity_event_source']=[selection['event_quote']]
+        result['activity_motive_source']=[reason]
     if holding_evidence(selection):
         result['past_holding_times']=[a['raw'] for a in holding_time_anchors(selection.get('event_quote',''))]
         result['holding_recall_source']=[selection['event_quote']]
@@ -763,6 +780,15 @@ def title_focus(selection):
 def title_focus_error(title,focus,speaker='林园',cover=None):
     if not isinstance(title,str):return '故事标题不是文本'
     body=title.removeprefix(speaker+'：')
+    if focus.get('activity_motive_source'):
+        motive=''.join(focus['activity_motive_source'])
+        for copy in (body,str(cover or '')):
+            if (re.search(r'只为|唯一目的|唯一动机',copy)
+                    and not re.search(r'只为|唯一目的|唯一动机',motive)):
+                return '本人说明交流动机不等于唯一动机，不能新增只为或唯一目的'
+            if (re.search(r'印证|验证',motive) and not re.search(r'认可|认同|认不认',motive)
+                    and re.search(r'市场[^，,。！？!?]{0,5}(?:认可|认同|认不认)',copy)):
+                return '希望印证本人看法不等于市场认可或认同，不能偷换验证对象'
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
