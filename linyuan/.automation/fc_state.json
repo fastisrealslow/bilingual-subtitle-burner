@@ -46712,22 +46712,33 @@
    "publish_time": "2023-06-21T07:20:38+00:00",
    "source_check_report_id": 12102818648,
    "source_check_run_id": 39037043247,
-   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
-   "failure_stage": "quality-service",
+   "last_error": "整段取景预检：源 183.07s，原始画面不足以保留完整人脸及头顶余量",
+   "failure_stage": "editorial-or-render",
    "source_check_attempts": 4,
    "production_failure_summary": {
     "slug": "ly-1014-e112b5",
-    "run_id": 39037043247,
-    "artifact_id": 12102818648,
+    "run_id": 40056367825,
+    "artifact_id": 12545816832,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason"
+      "reason": "整段取景预检：源 183.07s，原始画面不足以保留完整人脸及头顶余量"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "79e33e25292fcc6e42142b9bc3783cf882d7a80c7363c565cdcefb178a8e0aaf",
+     "duration_sec": 482.2,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Bo4y1P7XV"
+    }
    },
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -46741,8 +46752,14 @@
      "ts": 1792810593
     }
    },
-   "source_quality_rejected": false,
-   "recovery_origin_run_id": 39037043247
+   "source_quality_rejected": true,
+   "recovery_origin_run_id": 39037043247,
+   "failure_evidence": {
+    "run_id": 40056367825,
+    "artifact_id": 12545816832,
+    "name": "production-reject-ly-1014-e112b5",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV13eJ26NE4j",
@@ -47067,7 +47084,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-03-15T03:12:58+00:00"
+   "publish_time": "2023-03-15T03:12:58+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-f1f295",
+    "run_id": 40056407245,
+    "artifact_id": 12546131827,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f845f19263b859f06c51a4684761a8ac99ebe1a9bd3c5a13078c30e24d5833b1",
+     "duration_sec": 159.64,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1XM411p7Sc"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈隐兴\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈隐兴'无法对应任何已知实体或行业术语，疑似将人名、地名或特定概念误转写为无意义词汇。\"}, {\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligibl"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40056407245,
+    "artifact_id": 12546131827,
+    "name": "production-reject-ly-1024-f1f295",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈隐兴\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈隐兴'无法对应任何已知实体或行业术语，疑似将人名、地名或特定概念误转写为无意义词汇。\"}, {\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国巨'在此语境下指代不明，非通用缩写或已知公司名，疑似听写错误或实体粘连。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1h3nM68EMa",
@@ -123226,6 +123276,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/8dGYnGoulx08BDqwlXhK010412011PFL0E010.mp4",
    "ts": 1792811499,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1024-f1f295",
+   "key": "bilibili_search:BV1XM411p7Sc",
+   "video_id": "BV1XM411p7Sc",
+   "ts": 1792811661,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈隐兴\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈隐兴'无法对应任何已知实体或行业术语，疑似将人名、地名或特定概念误转写为无意义词汇。\"}, {\"sentence_id\": 12, \"quote\": \"茅台我们的判断，因为它是陈隐兴的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国巨'在此语境下指代不明，非通用缩写或已知公司名，疑似听写错误或实体粘连。\"}]"
+  },
+  {
+   "slug": "ly-1014-e112b5",
+   "key": "bilibili_search:BV1Bo4y1P7XV",
+   "video_id": "BV1Bo4y1P7XV",
+   "ts": 1792811664,
+   "error": "整段取景预检：源 183.07s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
