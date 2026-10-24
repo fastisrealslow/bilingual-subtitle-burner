@@ -21,6 +21,15 @@ def main():
     assert metadata['duration']==3316.48 and metadata['declared_resolution']==dict(width=1920,height=1080)
     assert metadata['direct_dispatch'] and metadata['origin_role']=='official_publisher'
     assert not metadata['recording_date_verified'] and not metadata['media_quality_approved']
+    # Exercise the actual source class and its normal retry/state handling,
+    # without calling database insertion, export, dispatch or publication.
+    state={}
+    rows=M.run_source(M.P5wVideoSource,dict(seeds=[dict(url=url)]),state,None)
+    assert len(rows)==1 and rows[0]['id']=='p5w_video:20251121_6424547'
+    assert rows[0]['url']==url and state['p5w_video'].get('last_fetch')
+    result['normal_monitor']=dict(candidate_count=1,last_fetch_recorded=True,
+        database_written=False,exported=False,dispatched=False)
+    save()
     origin=resolve(url)
     assert origin['declared_duration']==metadata['duration']
     # Same official attachment/Referer and format preference as normal fetch.

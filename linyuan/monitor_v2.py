@@ -1511,6 +1511,7 @@ class P5wVideoSource(Source):
 
     def fetch(self,page):
         from p5w_source import extract
+        failures=[]
         for seed in self.seed_batch(self.config.get('seeds',[]),4,key=lambda s:s['url']):
             try:
                 info=extract(seed['url'],lambda url,referer:http_get(url,referer=referer,timeout=15))
@@ -1522,7 +1523,12 @@ class P5wVideoSource(Source):
                     title=info['title'],url=info['page_url'],author=info['author'],
                     publish_time=info['published_at'],extra=json.dumps(extra,ensure_ascii=False)))
             except Exception as exc:
+                failures.append(type(exc).__name__)
                 print(f'[{self.name}] 原站节目元数据暂不可核验：{type(exc).__name__}',file=sys.stderr)
+        if failures and not self.partial_items:
+            # Let the existing bounded source retry run. Returning [] here
+            # marked a failed request as fetched and cooled it for 30 minutes.
+            raise RuntimeError('Official programme fetch incomplete: '+','.join(failures))
         return self.partial_items
 
 

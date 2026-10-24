@@ -89,6 +89,49 @@ def test_normal_monitor_exports_one_candidate_without_claiming_stock(tmp_path,mo
     assert after['no_reprint']==1 and after['direct_dispatch'] is False
 
 
+def test_transient_monitor_failure_retries_before_recording_success(monkeypatch):
+    f=actual();calls=[];read=reader(f,calls);attempts=[];state={}
+    def get(url,referer=None,**kw):
+        attempts.append(url)
+        if len(attempts)==1:raise TimeoutError('temporary request failure')
+        return read(url,referer)
+    monkeypatch.setattr(M,'http_get',get)
+    monkeypatch.setattr(M.Source,'backoff',lambda *args:None)
+    rows=M.run_source(M.P5wVideoSource,dict(seeds=[dict(url=f['page_url'])]),state,None)
+    assert len(rows)==1 and len(attempts)==4
+    assert state['p5w_video']['last_fetch']>0
+
+
+def test_failed_monitor_requests_never_start_the_success_cooldown(monkeypatch):
+    f=actual();attempts=[];state={}
+    def get(*args,**kw):
+        attempts.append(True);raise TimeoutError('temporary request failure')
+    monkeypatch.setattr(M,'http_get',get)
+    monkeypatch.setattr(M.Source,'backoff',lambda *args:None)
+    assert M.run_source(M.P5wVideoSource,dict(seeds=[dict(url=f['page_url'])]),state,None)==[]
+    assert len(attempts)==3 and 'last_fetch' not in state['p5w_video']
+
+
+def test_partial_source_results_survive_another_seed_failure(monkeypatch):
+    f=actual();info=P.extract(f['page_url'],reader(f,[]))
+    def extract(url,read):
+        if url!=f['page_url']:raise TimeoutError('another seed unavailable')
+        return deepcopy(info)
+    monkeypatch.setattr(P,'extract',extract)
+    state={};rows=M.run_source(M.P5wVideoSource,dict(seeds=[dict(url=f['page_url']),
+        dict(url=f['page_url'].replace('6424547','6424548'))]),state,None)
+    assert len(rows)==1 and state['p5w_video']['last_fetch']>0
+
+
+def test_known_denial_is_a_catalogue_result_without_retries_or_media_requests(monkeypatch):
+    f=actual();f['page_excerpt']+='<p>未经授权禁止转载</p>';calls=[];read=reader(f,calls)
+    monkeypatch.setattr(M,'http_get',lambda u,referer=None,**kw:read(u,referer))
+    state={};rows=M.run_source(M.P5wVideoSource,dict(seeds=[dict(url=f['page_url'])]),state,None)
+    assert len(rows)==1 and len(calls)==1 and state['p5w_video']['last_fetch']>0
+    extra=json.loads(rows[0]['extra'])
+    assert extra['no_reprint']==1 and not extra['direct_dispatch']
+
+
 def test_exact_official_candidate_reaches_existing_dispatch_and_gets_only_provenance_priority(monkeypatch):
     f=actual();read=reader(f,[])
     monkeypatch.setattr(M,'http_get',lambda u,referer=None,**kw:read(u,referer))
