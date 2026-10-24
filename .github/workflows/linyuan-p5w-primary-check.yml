@@ -1,0 +1,29 @@
+name: 全景网一手长访谈正常取源核验（不下载整片不投稿）
+on:
+  push:
+    branches: [fix/p5w-primary-source-20261024]
+    paths:
+      - linyuan/p5w_source.py
+      - linyuan/check_p5w_primary_source.py
+      - .github/workflows/linyuan-p5w-primary-check.yml
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装正常元数据与取源依赖
+        run: python -m pip install -q --timeout 30 --retries 2 requests yt-dlp
+      - name: 独立读取官方页面完整清单并运行现有通用下载器的解析
+        run: python -u linyuan/check_p5w_primary_source.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p5w-primary-source-check
+          path: p5w-primary-source-check.json
+          if-no-files-found: error

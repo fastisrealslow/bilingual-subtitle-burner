@@ -57,6 +57,7 @@ VERIFIED_PRIMARY_PAGES = frozenset({
     'https://v.ifeng.com/c/8WHpW9qUT1g',
     'https://www.yicai.com/video/103329354.html',
     'https://www.yicai.com/video/102581577.html',
+    'https://www.p5w.net/v/ip/typyq/202511/t20251121_6424547.htm',
 })
 
 

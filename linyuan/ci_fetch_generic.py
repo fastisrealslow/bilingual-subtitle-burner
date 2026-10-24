@@ -64,6 +64,11 @@ def fetch(url, directory, failure_report):
     try:
         origin = None
         download_url, extra_args = url, []
+        if urlsplit(url).hostname=='www.p5w.net':
+            from p5w_source import resolve
+            origin=resolve(url)
+            download_url=origin['media_url']
+            extra_args=['--referer',url]
         from ci_fetch_ifeng import ARTICLE_HOSTS
         if urlsplit(url).hostname in ARTICLE_HOSTS:
             from ci_fetch_ifeng import fetch as fetch_ifeng
@@ -102,7 +107,8 @@ def fetch(url, directory, failure_report):
             valid = validate_media(media)
         if origin:
             if abs(valid['duration'] - origin['declared_duration']) > 3:
-                raise ValueError('网易实际媒体时长与正文完整清单不符')
+                provider='全景网' if origin.get('provider')=='p5w' else '网易'
+                raise ValueError(provider+'实际媒体时长与正文完整清单不符')
             from ci_fetch_bilibili import sha256_file
             with media.open('rb') as handle:
                 origin['sha256'] = sha256_file(handle)

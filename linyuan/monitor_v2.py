@@ -1504,6 +1504,28 @@ class YicaiVideoSource(Source):
         return items
 
 
+class P5wVideoSource(Source):
+    """First-party complete Tianyu interviews; ordinary media gates still run."""
+    name='p5w_video'
+    min_interval=1800
+
+    def fetch(self,page):
+        from p5w_source import extract
+        for seed in self.seed_batch(self.config.get('seeds',[]),4,key=lambda s:s['url']):
+            try:
+                info=extract(seed['url'],lambda url,referer:http_get(url,referer=referer,timeout=15))
+                if '林园' not in info['title'] or YicaiVideoSource.NOISE.search(info['title']):continue
+                extra={k:v for k,v in info.items() if k not in ('id','title','page_url','author','published_at')}
+                if seed.get('source_family'):extra['source_family']=seed['source_family']
+                if seed.get('same_program_lead_url'):extra['same_program_lead_url']=seed['same_program_lead_url']
+                self.partial_items.append(dict(id=self.name+':'+info['id'],source=self.name,
+                    title=info['title'],url=info['page_url'],author=info['author'],
+                    publish_time=info['published_at'],extra=json.dumps(extra,ensure_ascii=False)))
+            except Exception as exc:
+                print(f'[{self.name}] 原站节目元数据暂不可核验：{type(exc).__name__}',file=sys.stderr)
+        return self.partial_items
+
+
 class ShareholderMeetingSource(Source):
     """股东大会公告监控（巨潮资讯，证监会指定信披网站）。
 
@@ -1927,6 +1949,7 @@ SOURCES = {
     "shareholder_meeting": ShareholderMeetingSource,
     "netease_video": NeteaseVideoSource,
     "yicai_video": YicaiVideoSource,
+    "p5w_video": P5wVideoSource,
 }
 
 
@@ -2028,6 +2051,8 @@ def upsert_items(items):
         exists = previous is not None
 
         if exists:
+            if item.get('source')=='p5w_video' and json.loads(previous[4] or '{}').get('no_reprint')==1:
+                item['extra']=retain_source_restrictions(item['extra'],[previous[4]])
             item['extra']=retain_exact_page_metadata(item['extra'],previous[4],item['id'])
             current = (item["title"], item["url"], item["publish_time"],
                        item["author"], item["extra"])
