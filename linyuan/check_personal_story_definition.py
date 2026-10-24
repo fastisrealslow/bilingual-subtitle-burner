@@ -2,6 +2,7 @@
 
 This does not alter the production prompt, approve media, or register stock.
 """
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -68,7 +69,8 @@ def main():
     with tempfile.TemporaryDirectory(prefix='actual-story-definition-') as tmp:
         archive=Path(tmp)/'source.zip';fetch(artifact,archive)
         with zipfile.ZipFile(archive) as z:
-            cues=json.loads(z.read('_tmp/cues_raw.json'))
+            cue_bytes=z.read('_tmp/cues_raw.json')
+            cues=json.loads(cue_bytes)
             source=json.loads(z.read('_tmp/source_quality.json'))
             baseline=json.loads(z.read('_tmp/story_selection.json'))
             cache=json.loads(z.read('_tmp/asr_cache.json'))
@@ -77,7 +79,10 @@ def main():
     assert abs(source['duration_sec']-1499.93)<.01
     assert cache['identity']['source_sha256']==source_sha
     original=E.digest(cues)
-    assert original==baseline['transcript_sha256']==cache['cues_sha256']
+    assert original==baseline['transcript_sha256']
+    # The producer cache hashes file bytes; editorial hashes parsed JSON.
+    # Verify both contracts instead of comparing unlike serializations.
+    assert hashlib.sha256(cue_bytes).hexdigest()==cache['cues_sha256']
     assert baseline['selection_completed'] and not baseline['selected'] and not baseline['unresolved']
     candidates=baseline['candidates']
     result.update(original_artifact_id=artifact,source_sha256=source_sha,
