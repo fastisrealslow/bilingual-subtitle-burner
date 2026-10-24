@@ -517,7 +517,9 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
             chosen=validate_choices(cues,[candidates[index]],{'candidate_0':verdict})
             for item in chosen:
                 selection=item['story_selection']
-                issue=completed_activity_event_error(selection['event_quote']) or completed_activity_detail_error(selection['detail_quote'])
+                issue=(completed_activity_event_error(selection['subject_quote'])
+                    or completed_activity_event_error(selection['event_quote'])
+                    or completed_activity_detail_error(selection['detail_quote']))
                 if issue:raise ValueError(issue)
                 selection['completed_activity_recall_version']=1
             report['rejected'].remove(rejected)
@@ -837,7 +839,8 @@ def proof_error(meta):
         if (type(s['completed_activity_recall_version']) is not int or s['completed_activity_recall_version']!=1
                 or s['kind']!='personal_story'):
             return 'Invalid completed activity recall proof'
-        issue=completed_activity_event_error(s['event_quote']) or completed_activity_detail_error(s['detail_quote'])
+        issue=(completed_activity_event_error(s['subject_quote'])
+            or completed_activity_event_error(s['event_quote']) or completed_activity_detail_error(s['detail_quote']))
         if issue:return issue
     focus=title_focus(s)
     company_issue=company_subject_error(s)

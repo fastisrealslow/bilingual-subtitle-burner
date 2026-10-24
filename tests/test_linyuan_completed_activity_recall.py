@@ -68,3 +68,18 @@ def test_same_sentence_or_invented_detail_is_not_a_recall_approval(tmp_path):
     assert event not in props['detail_sentence']['enum']
     assert E.completed_activity_event_error('如果我组织了活动，我会说出来。')
     assert E.completed_activity_detail_error('我明年就想把我的想法说出来。')
+
+
+def test_model_cannot_substitute_a_question_for_the_schema_restricted_activity_subject(tmp_path):
+    cues,pick=actual()
+    question=next(s['id'] for s in E._selection_rows(cues,[pick])[0]['sentences'] if s['text']=='为什么？')
+    def call(prompt,schema):
+        if 'candidate_0' in schema['properties']:
+            props=schema['properties']['candidate_0']['properties']
+            return {'candidate_0':dict(kind='skip',**{k:v['enum'][0] for k,v in props.items() if k!='kind'})}
+        props=schema['properties']
+        return dict(kind='personal_story',subject_sentence=question,
+                    event_sentence=props['event_sentence']['enum'][0],detail_sentence=props['detail_sentence']['enum'][0])
+    report=E.choose_stories(cues,[pick],call,tmp_path/'bad-subject.json')
+    assert not report['selected'] and not report['selection_completed']
+    assert 'completed first-person activity' in report['unresolved'][0]['error']
