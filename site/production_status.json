@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792842454,
+  "updated_at": 1792842643,
   "inventory_updated_at": 1792842452,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 24,
-    "active_or_recovering_sources": 14,
+    "active_or_recovering_sources": 16,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -129,7 +129,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792842453,
+    "updated_at": 1792842643,
     "records": 11723,
     "video_records": 10066,
     "initial_candidates": 56,
@@ -166,15 +166,15 @@
   },
   "counts": {
     "complete": 145,
-    "failed": 1300,
+    "failed": 1298,
     "paused": 5,
     "interrupted": 8,
     "excluded": 19,
     "experiment_fallback": 17,
     "ready": 6,
-    "retry_queued": 13,
+    "retry_queued": 12,
     "validation_failed": 1,
-    "running": 1
+    "running": 4
   },
   "tasks": [
     {
@@ -23550,24 +23550,6 @@
       "run_updated_at": "2026-10-22T08:12:53Z"
     },
     {
-      "slug": "ly-story-a4a99c14cd",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
-      "signature": {
-        "ts": 1792654034,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39740586335,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39740586335",
-      "run_started_at": "2026-10-22T07:27:14Z",
-      "run_updated_at": "2026-10-22T07:38:33Z"
-    },
-    {
       "slug": "ly-story-3b04cd0934",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"再看欧美这个这个股市的医药股啊，我们上市的这个医药股的总市值大概只有欧美股市一个多一点，第一名的一个多一点点市值，利润也是相当差的远着呢。\", \"suspect_quote\": \"第一名的一个多一点点市值\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述模糊且逻辑不通顺。'一个多一点'指代不明，既未说明具体数值范围，也未明确是与欧美总和对比还是单家对比；'一个多一点点'属于口语冗余堆砌，导致'总市值'这一核心经济指标的含义无法精确理解，存在识别污染或口误嫌疑。\"}, {\"sentence_id\": 12, \"quote\": \"因为就是现在才是我们这个老龄化的零年，你如果相比二二十年以后，今天的消费是个零，这些药品啊都要在五六十岁才开始用。\", \"suspect_quote\": \"今天的消费是个零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述错误且含义不明。将'今天的消费'描述为'个零'（即零）在逻辑上完全不通，因为老龄化相关药品不可能当前消费量为零。这极可能是识别错误，将'从零开始'或'基数为零'误识为'消费是个零'，导致关键数据点含义混乱。\"}, {\"sentence_id\": 13, \"quote\": \"啊，我个人有一个，我有糖尿病，有高血压，大概我我五十七岁的时候，我的支出方面的开支是零，但今天我每个月的开支是两千五。\", \"suspect_quote\": \"我的支出方面的开支是零\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"关键数字表述矛盾且含义不明。前句刚提到每月开支两千五，此句却说'开支是零'，前后数值直接冲突。结合上下文（糖尿病、高血压需长期服药），此处'零'极可能是识别错误，本意应为'从零开始'或指代某种特定状态，但原文呈现为绝对数值零，造成事实层面的\"}]",
@@ -23710,24 +23692,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39751868090",
       "run_started_at": "2026-10-22T08:58:59Z",
       "run_updated_at": "2026-10-22T09:13:11Z"
-    },
-    {
-      "slug": "ly-story-6dc5b85679",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]",
-      "signature": {
-        "ts": 1792659973,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39752814670,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39752814670",
-      "run_started_at": "2026-10-22T09:06:13Z",
-      "run_updated_at": "2026-10-22T09:16:24Z"
     },
     {
       "slug": "ly-story-3fa68cb6f9",
@@ -27350,24 +27314,6 @@
       "run_updated_at": "2026-10-24T10:46:19Z"
     },
     {
-      "slug": "ly-1024-0aa3cd",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1792833185,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1792842390,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 40081077169,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081077169",
-      "run_started_at": "2026-10-24T09:13:05Z",
-      "run_updated_at": "2026-10-24T11:28:46Z"
-    },
-    {
       "slug": "ly-1018-efeb96",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“他”指代不明（前文未提具体对象），且“对诊断学啊”语序混乱，疑似将“对于诊断学”或人名误转为“他”。\"}, {\"sentence_id\": 2, \"quote\": \"我觉得最大的，你道你，比如说以前可能不查体，现在这种技术的进步，他随时个人都可以知道自己的身体状况。\", \"suspect_quote\": \"你道你\", \"kind\": \"unintelligible_term\", \"reason\": \"“你道你”为口语填充或口误，非正常表达，疑似将“比如”“例如”等词误识别。\"}, {\"sentence_id\": 3, \"quote\": \"我相信他会对医药的这个需求，自己都能看病，这个倒是有可能。\", \"suspect_quote\": \"自己都能看病\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文，“自己都能看病”语义模糊，疑似将“自行诊断”或具体医疗行为误识别为泛化表述。\"}]",
@@ -27456,6 +27402,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40087018238",
       "run_started_at": "2026-10-24T10:43:08Z",
       "run_updated_at": "2026-10-24T11:36:29Z"
+    },
+    {
+      "slug": "ly-1024-0aa3cd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792842590,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40091458869,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40091458869",
+      "run_started_at": "2026-10-24T11:49:50Z",
+      "run_updated_at": "2026-10-24T11:49:54Z"
+    },
+    {
+      "slug": "ly-story-6dc5b85679",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792842596,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 40091465573,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40091465573",
+      "run_started_at": "2026-10-24T11:49:56Z",
+      "run_updated_at": "2026-10-24T11:49:59Z"
+    },
+    {
+      "slug": "ly-story-a4a99c14cd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792842603,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 40091473372,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40091473372",
+      "run_started_at": "2026-10-24T11:50:03Z",
+      "run_updated_at": "2026-10-24T11:50:06Z"
     }
   ],
   "runs": {
@@ -37492,14 +37492,14 @@
       "display_title": "中文源出片 · ly-1021-f73d1c"
     },
     "ly-story-a4a99c14cd": {
-      "id": 39740586335,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T07:27:14Z",
-      "updated_at": "2026-10-22T07:38:33Z",
-      "run_started_at": "2026-10-22T07:27:14Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39740586335",
-      "run_number": 2395,
+      "id": 40091473372,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-24T11:50:03Z",
+      "updated_at": "2026-10-24T11:50:06Z",
+      "run_started_at": "2026-10-24T11:50:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40091473372",
+      "run_number": 2709,
       "display_title": "中文源出片 · ly-story-a4a99c14cd"
     },
     "ly-story-3442267c34": {
@@ -37624,14 +37624,14 @@
       "display_title": "中文源出片 · ly-story-3fa68cb6f9"
     },
     "ly-story-6dc5b85679": {
-      "id": 39752814670,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T09:06:13Z",
-      "updated_at": "2026-10-22T09:16:24Z",
-      "run_started_at": "2026-10-22T09:06:13Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39752814670",
-      "run_number": 2407,
+      "id": 40091465573,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-24T11:49:56Z",
+      "updated_at": "2026-10-24T11:49:59Z",
+      "run_started_at": "2026-10-24T11:49:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40091465573",
+      "run_number": 2708,
       "display_title": "中文源出片 · ly-story-6dc5b85679"
     },
     "ly-1022-3c9631": {
@@ -39747,14 +39747,14 @@
       "display_title": "中文源出片 · ly-1024-61f93e"
     },
     "ly-1024-0aa3cd": {
-      "id": 40081077169,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-24T09:13:05Z",
-      "updated_at": "2026-10-24T11:28:46Z",
-      "run_started_at": "2026-10-24T09:13:05Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40081077169",
-      "run_number": 2699,
+      "id": 40091458869,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-24T11:49:50Z",
+      "updated_at": "2026-10-24T11:49:54Z",
+      "run_started_at": "2026-10-24T11:49:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40091458869",
+      "run_number": 2707,
       "display_title": "中文源出片 · ly-1024-0aa3cd"
     },
     "ly-1024-8c4d86": {
