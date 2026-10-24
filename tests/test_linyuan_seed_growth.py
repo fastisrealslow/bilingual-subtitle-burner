@@ -122,3 +122,41 @@ def test_actual_campaign_persists_only_verified_parent_with_target_bound(tmp_pat
     assert report['added_count'] == 1 and report['accepted_mp4_count'] == 0
     assert len(json.loads((tmp_path/'bilibili_seeds.json').read_text())['seeds']) == 2
     assert (tmp_path/'.automation/seed_growth_scan.json').exists()
+
+
+@pytest.mark.parametrize('restriction', [dict(http_status=412),dict(http_status=429),dict(api_code=-412)])
+@pytest.mark.parametrize('initial_success',[False,True])
+def test_provider_restriction_pauses_requests_and_preserves_the_unchecked_tail(tmp_path, monkeypatch, restriction, initial_success):
+    import seed_growth as G
+    monkeypatch.setattr(G,'census',lambda _:dict(total=1))
+    monkeypatch.setattr(G,'existing_roots',lambda _:set())
+    monkeypatch.setattr(G.time,'sleep',lambda _:None)
+    clock=[1000]
+    monkeypatch.setattr(G.time,'time',lambda:clock[0])
+    ids=sorted(['BV1NpBFYkEKx','BV1LQVc6eEFu','BV1Nfji64E9e'])
+    leads=[dict(bvid=b,catalog_duration=1800) for b in ids]
+    monkeypatch.setattr(G,'catalog_leads',lambda _:leads)
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    requests=[]
+    def blocked(lead):
+        requests.append(lead['bvid'])
+        if initial_success and len(requests)==1:return evidence(lead['bvid'])
+        return dict(lead,status='not_verified',error='HTTPError',**restriction)
+    result=G.run(tmp_path,target=1500,limit=48,search=False,verify=blocked)
+    consumed=1+int(initial_success)
+    assert requests==ids[:consumed] and result['added_count']==int(initial_success)
+    assert result['verification_paused']['until']==4600
+    path=tmp_path/'.automation/seed_growth_scan.json'
+    scan=json.loads(path.read_text());assert scan['parents']['cursor']==consumed
+    def forbidden(*a,**kw):raise AssertionError('No provider request during persisted cooldown')
+    monkeypatch.setattr(G,'catalog_leads',forbidden)
+    assert G.run(tmp_path,target=1500,search=True,verify=forbidden)['verification_paused']['until']==4600
+    assert json.loads(path.read_text())==scan
+    clock[0]=4601;monkeypatch.setattr(G,'catalog_leads',lambda _:leads)
+    def unavailable(lead):
+        requests.append(lead['bvid'])
+        return dict(lead,status='not_verified',error='ValueError',api_code=62002)
+    resumed=G.run(tmp_path,target=1500,limit=len(ids)-consumed,search=False,verify=unavailable)
+    assert requests==ids and resumed['verification']=={'not_verified':len(ids)-consumed}
+    assert 'verification_paused' not in resumed
+    assert len(json.loads((tmp_path/'bilibili_seeds.json').read_text())['seeds'])==int(initial_success)

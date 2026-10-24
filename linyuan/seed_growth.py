@@ -107,6 +107,11 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         report['after'] = before
         return report
     state = base / '.automation/seed_growth_scan.json'
+    scan = json.loads(state.read_text()) if state.exists() else {}
+    cooldown = scan.get('verification_cooldown') or {}
+    if cooldown.get('until', 0) > time.time():
+        report.update(after=before, verification_paused=cooldown)
+        return report
     leads = {r['bvid']: r for r in catalog_leads(base / 'monitor_v2.db') if r['bvid'] not in roots}
     if search:
         for query in rotating_batch('queries', QUERIES, state, 3):
@@ -130,7 +135,21 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         if time.monotonic() >= deadline:
             report['errors'].append(dict(stage='budget', error='time_budget_reached'))
             break
-        rows.append(verify(candidate))
+        result = verify(candidate)
+        rows.append(result)
+        if (result.get('status') == 'not_verified' and
+                (result.get('http_status') in {412, 429} or result.get('api_code') == -412)):
+            # A provider restriction is not evidence against the footage. Stop
+            # this batch; the lazy cursor has advanced only for actual requests.
+            # Persist across immediate monitor refreshes, not just this process.
+            scan = json.loads(state.read_text()) if state.exists() else {}
+            cooldown = dict(until=time.time()+3600, reason='provider_restricted',
+                http_status=result.get('http_status'), api_code=result.get('api_code'))
+            scan['verification_cooldown'] = cooldown
+            from batch_delivery import write_json
+            write_json(state, scan)
+            report['verification_paused'] = cooldown
+            break
         time.sleep(.5)
     data = json.loads((base / 'bilibili_seeds.json').read_text())
     added = admit_verified(data, rows, roots, min(remaining, limit))
