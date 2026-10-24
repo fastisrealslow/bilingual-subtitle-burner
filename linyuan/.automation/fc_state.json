@@ -46767,22 +46767,33 @@
    "publish_time": "2026-10-15T14:15:03+00:00",
    "production_failure_summary": {
     "slug": "ly-1016-7e4ac4",
-    "run_id": 39035568303,
-    "artifact_id": 12102341081,
+    "run_id": 40056374849,
+    "artifact_id": 12545517851,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason"
+      "reason": "整段取景预检：源 27.76s，原始画面不足以保留完整人脸及头顶余量"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "708b6d7ddc04424a83e4bebc2cfb885e33c7c529a71e1ab1522a06171e102859",
+     "duration_sec": 175.78,
+     "resolution": {
+      "width": 1688,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV13eJ26NE4j"
+    }
    },
    "source_check_report_id": 12102341081,
    "source_check_run_id": 39035568303,
-   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
-   "failure_stage": "quality-service",
+   "last_error": "整段取景预检：源 27.76s，原始画面不足以保留完整人脸及头顶余量",
+   "failure_stage": "editorial-or-render",
    "source_check_attempts": 4,
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
@@ -46796,8 +46807,14 @@
      "ts": 1792810615
     }
    },
-   "source_quality_rejected": false,
-   "recovery_origin_run_id": 39035568303
+   "source_quality_rejected": true,
+   "recovery_origin_run_id": 39035568303,
+   "failure_evidence": {
+    "run_id": 40056374849,
+    "artifact_id": 12545517851,
+    "name": "production-reject-ly-1016-7e4ac4",
+    "retained": true
+   }
   },
   {
    "key": "bilibili_search:BV1FV411h7Wg",
@@ -123155,6 +123172,13 @@
    "video_id": "BV1oYHd6CE2S",
    "ts": 1792806417,
    "error": "整段取景预检：源 957.03s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1016-7e4ac4",
+   "key": "bilibili_search:BV13eJ26NE4j",
+   "video_id": "BV13eJ26NE4j",
+   "ts": 1792811250,
+   "error": "整段取景预检：源 27.76s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
