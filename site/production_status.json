@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792807345,
+  "updated_at": 1792807470,
   "inventory_updated_at": 1792807344,
   "continuity": {
     "daily_target": 4,
@@ -114,6 +114,14 @@
         "controls": 2,
         "fallback": 1,
         "valid_comparison": false
+      },
+      {
+        "date": "2026-10-24",
+        "published": 1,
+        "treatment": 0,
+        "controls": 1,
+        "fallback": 0,
+        "valid_comparison": false
       }
     ],
     "status": "needs_attention",
@@ -121,7 +129,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792807345,
+    "updated_at": 1792807470,
     "records": 11648,
     "video_records": 10014,
     "initial_candidates": 58,
@@ -188,8 +196,9 @@
     "interrupted": 7,
     "excluded": 19,
     "experiment_fallback": 15,
-    "ready": 7,
+    "ready": 6,
     "retry_queued": 11,
+    "validation_failed": 1,
     "running": 1
   },
   "tasks": [
@@ -25673,13 +25682,15 @@
     },
     {
       "slug": "ly-1023-bf62b5",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "validation_failed",
+      "detail": "成片复验未通过：原话反对把一级市场应该比二级贵当成常识，不能交换一级与二级后再否定",
       "signature": {
         "ts": 1792754822,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 0,
+        "processed_part_indices": [
+          1
+        ],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
