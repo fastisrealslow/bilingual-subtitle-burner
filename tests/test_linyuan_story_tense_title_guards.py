@@ -41,6 +41,7 @@ def test_synthetic_actual_actions_and_past_planning_are_not_future_only(event):
 @pytest.mark.parametrize('title',[
     '林园：见过五千人，要把对市场看法印证实',
     '林园：市场热时一级泡沫大，冷时不管什么市场都妈差',
+    '林园：年轻人放大胆子享受复利，老年人时间界定无需钱',
 ])
 def test_actual_approved_but_malformed_titles_require_a_new_draft(title):
     assert H.readability_error(title) and H.verbal_fragment(title)
