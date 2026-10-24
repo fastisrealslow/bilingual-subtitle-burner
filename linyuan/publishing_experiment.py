@@ -155,6 +155,9 @@ def selection_request(cues, candidates):
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
     plain=re.sub(r'[\s，,。！？!?；;]','',event)
+    if re.match(r'^(?:(?:但是|不过|那么|那|所以)[，,\s]*)?'
+                r'(?:(?:如果|假设|假如|要是|倘若)|(?:我|我们)(?:来|先|可以)?假设)',event):
+        return 'A governing hypothetical is not an actual personal event; do not borrow a later recollection from the same sentence'
     if re.fullmatch(r'(?:嗯|啊|呃|所以|那么)*(?:我|我们)(?:自己|个人)?'
                     r'(?:觉得|认为|感觉|估计)(?:是|应该|肯定)?'
                     r'(?:(?:没|没有|不会有)(?:什么)?问题|可以|行)(?:啊|吧|嗯)*',plain):
@@ -164,6 +167,10 @@ def personal_event_error(event):
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
     advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
+    prospective_choice=re.search(r'(?:我|我们)(?:今后|未来|以后|打算|计划|准备|想要|要|将|会){1,2}'
+        r'[^，,。！？!?]{0,6}(?:抓住|买入|卖出|投资|退出|建仓|清仓|加仓|减仓|赚钱)',event)
+    if prospective_choice and not actual_action:
+        return 'A prospective personal plan is not an actual past event or completed choice'
     if (normative_recap or advice_conclusion) and not actual_action:
         return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
     return None
