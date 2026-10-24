@@ -1,10 +1,13 @@
 """Download actual media, never a preview image or a stale glob match."""
 import argparse
 import json
+import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import sys
+import time
 from urllib.parse import urlsplit
 
 from ci_fetch_bilibili import validate_media
@@ -14,6 +17,21 @@ from ci_fetch_bilibili import validate_media
 FORMAT = ('(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)'
           '[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]')
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.mhtml'}
+
+
+def run_download(command, *, timeout, check=True, stderr=subprocess.PIPE, text=True):
+    """Stop the whole downloader/merger group before the workflow timeout."""
+    process=subprocess.Popen(command,start_new_session=True,stderr=stderr,text=text)
+    try:
+        output,error=process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        try:os.killpg(process.pid,signal.SIGKILL)
+        except ProcessLookupError:pass
+        process.communicate()
+        raise TimeoutError('下载预算耗尽，保留未完成下载供后续续传') from None
+    if check and process.returncode:
+        raise subprocess.CalledProcessError(process.returncode,command,output=output,stderr=error)
+    return subprocess.CompletedProcess(command,process.returncode,output,error)
 
 
 def normalize_small_unpaired_tail(media, max_trim=5.0, minimum_kept=120.0):
@@ -56,7 +74,9 @@ def normalize_small_unpaired_tail(media, max_trim=5.0, minimum_kept=120.0):
     return dict(original_durations=durations,trimmed_tail_sec=trim,kept_duration_sec=kept)
 
 
-def fetch(url, directory, failure_report):
+def fetch(url, directory, failure_report, *, budget_sec=3300):
+    if not 1<=budget_sec<=3600:raise ValueError('Expected a bounded download budget')
+    deadline=time.monotonic()+budget_sec
     directory = Path(directory).resolve()
     directory.mkdir(parents=True, exist_ok=True)
     manifest = directory / 'downloaded-path.txt'
@@ -83,14 +103,16 @@ def fetch(url, directory, failure_report):
             origin = resolve(url)
             download_url = origin['media_url']
             extra_args = ['--referer', url]
-        subprocess.run([
+        remaining=deadline-time.monotonic()
+        if remaining<=0:raise TimeoutError('取源元数据已耗尽下载预算，未启动媒体下载')
+        run_download([
             sys.executable, '-m', 'yt_dlp', '--no-playlist', '--continue',
             '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10',
             '--concurrent-fragments', '4', '-f', FORMAT, '--merge-output-format', 'mp4',
             '--format-sort', 'res:1080',
             '--print-to-file', 'after_move:filepath', str(manifest),
             '-o', str(directory / 'video.%(ext)s'), *extra_args, download_url,
-        ], check=True, stderr=subprocess.PIPE, text=True)
+        ], check=True, stderr=subprocess.PIPE, text=True,timeout=remaining)
         paths = manifest.read_text().splitlines()
         if len(paths) != 1:
             raise ValueError('下载器没有返回唯一的实际媒体路径')
@@ -140,8 +162,9 @@ def main():
     parser.add_argument('--directory', required=True)
     parser.add_argument('--failure-report', required=True)
     parser.add_argument('--github-output', required=True)
+    parser.add_argument('--budget-seconds',type=int,default=3300)
     args = parser.parse_args()
-    media = fetch(args.url, args.directory, args.failure_report)
+    media = fetch(args.url, args.directory, args.failure_report,budget_sec=args.budget_seconds)
     with open(args.github_output, 'a') as output:
         output.write(f'path={media}\n')
 

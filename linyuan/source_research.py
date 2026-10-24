@@ -92,6 +92,7 @@ def fetch_media(url,path,budget):
     elif host in {'original.ifeng.com','finance.ifeng.com','v.ifeng.com'}:
         command=[sys.executable,str(BASE/'ci_fetch_ifeng.py'),'--url',url,'--out',str(path)]
     elif host=='www.p5w.net':
+        if budget<=30:raise TimeoutError('Research budget leaves no safe downloader cleanup margin')
         from p5w_source import page_identity
         page_identity(url)  # Only the exact public programme page contract.
         directory=path.parent/(path.stem+'.p5w-download')
@@ -99,7 +100,7 @@ def fetch_media(url,path,budget):
         output=directory/'github-output.txt';output.unlink(missing_ok=True)
         command=[sys.executable,str(BASE/'ci_fetch_generic.py'),'--url',url,
             '--directory',str(directory),'--failure-report',str(directory/'source_quality.json'),
-            '--github-output',str(output)]
+            '--github-output',str(output),'--budget-seconds',str(max(1,budget-30))]
     else:raise ValueError('Unsupported source host')
     bounded_run(command,budget,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     if host=='www.p5w.net':
