@@ -162,7 +162,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         RECOVERY_RUN_ID: ${{ env.RUN_RECOVERY_RUN_ID }}
       run: 'python restore_production_evidence.py --run-id "$RECOVERY_RUN_ID" --work "deliver/$RUN_SLUG/_tmp"
-        --artifact-name preview-editorial-preview-40014624096
+        --artifact-name "preview-editorial-preview-$RECOVERY_RUN_ID"
 
         '
     - name: 检查原始识别证据，避免重复下载和推理
