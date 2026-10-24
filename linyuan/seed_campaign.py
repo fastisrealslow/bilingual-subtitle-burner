@@ -77,9 +77,11 @@ def catalog_candidates(db=BASE / 'monitor_v2.db'):
 def verify_seed(candidate, fetch=monitor.http_get):
     from fc import index as fc
     bvid = candidate['bvid']
+    observation={}
     try:
         payload = json.loads(fetch('https://api.bilibili.com/x/web-interface/view?bvid=' + bvid,
                                   referer='https://www.bilibili.com/', timeout=12))
+        if type(payload.get('code')) is int:observation['api_code']=payload['code']
         data = payload.get('data')
         if payload.get('code') != 0 or not isinstance(data, dict) or data.get('bvid') != bvid:
             raise ValueError('exact video metadata unavailable')
@@ -113,7 +115,8 @@ def verify_seed(candidate, fetch=monitor.http_get):
             source_role='mother_candidate' if dispatch else 'catalog_only',
             direct_dispatch=dispatch)
     except Exception as exc:
-        return dict(**candidate, status='not_verified', error=type(exc).__name__)
+        if type(getattr(exc,'code',None)) is int:observation['http_status']=exc.code
+        return dict(**candidate, status='not_verified', error=type(exc).__name__,**observation)
 
 
 def main():

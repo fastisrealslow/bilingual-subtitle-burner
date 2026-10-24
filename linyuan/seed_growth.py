@@ -140,6 +140,12 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         roles=dict(Counter(r['source_role'] for r in added)),
         new_long_parent_count=sum(any(p['duration'] >= 900 for p in r['pages']) for r in added),
         verification=dict(Counter(r['status'] for r in rows)), after=census(base))
+    failed=[r for r in rows if r['status']!='verified_metadata']
+    # Provider availability is not a media-quality rejection. Keep safe codes,
+    # never response bodies, credentials, or a failed lead's rights approval.
+    report.update(verification_errors=dict(Counter(r.get('error','unknown') for r in failed)),
+        verification_http_status=dict(Counter(str(r['http_status']) for r in failed if 'http_status' in r)),
+        verification_api_codes=dict(Counter(str(r['api_code']) for r in failed if 'api_code' in r)))
     return report
 
 
