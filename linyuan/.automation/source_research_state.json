@@ -3580,10 +3580,10 @@
       "family": "maotai_table_exchange",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 8,
+      "attempts": 9,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792757790.0650609,
-      "next_retry_at": 1792844190.0650609,
+      "last_attempt_at": 1792845161.7374454,
+      "next_retry_at": 1792931561.7374454,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -3594,10 +3594,10 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 8,
+      "attempts": 9,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792757787.5361662,
-      "next_retry_at": 1792844187.5361662,
+      "last_attempt_at": 1792845159.7102451,
+      "next_retry_at": 1792931559.7102451,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -7794,21 +7794,39 @@
         "production_quality": "not_evaluated"
       },
       "evidence_run_id": "40060316372"
+    },
+    "b5129e997e450925eeda": {
+      "url": "https://www.bilibili.com/video/BV1Th4y1M7V7",
+      "role": "mother",
+      "family": "maotai_table_exchange",
+      "priority": 5,
+      "status": "retry_wait",
+      "attempts": 1,
+      "family_status": "search_clue_not_verified",
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1792844859.699469,
+      "next_retry_at": 1792866459.699469,
+      "download_partial_bytes": 0
     }
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1792790407.1235569,
-      "next_retry_at": 1792833607.1235569,
+      "next_retry_at": 1792866158.6815438,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1792844558.6815438
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "searched",
-      "checked_at": 1792790938.4873135,
-      "next_retry_at": 1792834138.4873135,
-      "found": 0,
+      "checked_at": 1792844558.6815438,
+      "next_retry_at": 1792887758.6815438,
+      "found": 1,
       "new_ids": []
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
@@ -7931,20 +7949,13 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": false,
+      "collection_listing_complete": true,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": [
-        {
-          "stage": "collection_page",
-          "season_id": 6790738,
-          "page": 1,
-          "error": "ValueError"
-        }
-      ]
+      "errors": []
     }
   },
-  "search_cursor": 1,
-  "updated_at": 1792841965,
-  "last_run_id": "40088300883",
+  "search_cursor": 4,
+  "updated_at": 1792845161,
+  "last_run_id": "40093520404",
   "audio_match_candidates": []
 }
