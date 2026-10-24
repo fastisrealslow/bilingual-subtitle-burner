@@ -51,6 +51,19 @@
       "source_origin_url": "https://www.bilibili.com/video/BV1se411H7tj",
       "validation_status": "diagnostic_only_pending_actual_full_source_delivery",
       "recognition_rollout_note": "Source-hash pilot only. Same production PCM probes: 1.7B with existing finance-v1 vocabulary preserves 林园 and reads 地球 matching original visible subtitle; 0.6B with/without vocabulary reads 地市. No text replacement or inferred audio gold. Full source decode/alignment, automatic selection and original media QA still required before rollout."
+    },
+    "e3ad880a98789941fcbb4b9ce52b933297ace03d271ae749f654ffc25ae3c9a3": {
+      "backend": "qwen3",
+      "asr_model_id": "Qwen/Qwen3-ASR-1.7B",
+      "recognition_context_profile": "finance-v1",
+      "model_revisions": {
+        "asr": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+        "aligner": "c7cbfc2048c462b0d63a45797104fc9db3ad62b7"
+      },
+      "source_origin_url": "https://www.bilibili.com/video/BV12b421E7vz",
+      "validation_status": "diagnostic_only_pending_actual_full_source_delivery",
+      "recognition_diagnostic_comparison_run_id": 40025070800,
+      "recognition_rollout_note": "Draft read-only source-bound trial only. Actual 0.6B raw recollection says 提起风险 while original visible subtitle at 415.3s says 提醒风险. Do not replace text or call embedded captions audio gold. Decode and align the complete same original with pinned 1.7B, then independently audit and verify actual media before enabling this override in production."
     }
   },
   "model_revisions": {

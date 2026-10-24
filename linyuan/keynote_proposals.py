@@ -26,9 +26,18 @@ def digest(value):
 def opening_allowed(text):
     # Classification only; never strip or rewrite a source cue.
     plain=re.sub(r'^(?:[啊嗯呃哦][，,、\s]*|对[，,、\s]+)+','',text)
+    if temporal_action_opening(plain):return True
     return bool(len(re.sub(r'\W','',plain))>=8 and not re.match(
         r'^(?:因为|所以|但是|因此|不过|而且|然后|实际上|除此|其中|'
-        r'它|他|她|他们|这个|这些|这种|这就是|那个|那些|那是|那就|那么)',plain))
+        r'它|他|她|他们|这个|这些|这种|这就是|那个|那些|那是|那就|那么|那时候|那个时候|那次|那一天)',plain))
+
+
+def temporal_action_opening(text):
+    """A leading 那么 need not hide an explicit dated, completed own action."""
+    return bool(re.match(r'^(?:那么|那)[，,]*(?:从)?(?:去年|前年|20\d{2}年)'
+        r'[^。！？!?]{0,24}(?:到|至)(?:现在|今天|今年)',text)
+        and re.search(r'(?:我|我们)[^。！？!?]{0,40}(?:组织|举办|参加|访问)(?:了|过)',text)
+        and not re.search(r'如果|假设|假如|虚构|编个|编一个|没有(?:组织|举办|参加|访问)',text))
 
 
 def opening_error(text):
@@ -39,11 +48,47 @@ def opening_error(text):
     return None
 
 
+def reported_reply_tail(text):
+    """A complete quoted correction at an existing cue edge, not new timing."""
+    match=re.search(r'(?:^|[，,：:。])我(?:当时)?(?:说|解释|澄清|回应|回答)[：:，,]?[“「]?'
+                    r'(?:那|这)是([^，,。！？!?]{4,32})[”」]?[，,。！？!?]$',text)
+    return bool(match and not re.search(r'(?:的|这个|那个|因为|所以|如果|但是|或者|还有|就是)$',match[1]))
+
+
 def windows(cues):
     units=selection.sentence_units(cues)
+    expanded=[]
+    for unit in units:
+        expanded.append(unit)
+        # ASR punctuation may attach a reported reply to the following new
+        # topic. Keep the full original sentence, and additionally expose its
+        # existing cue edge after the quoted correction. No words or clocks
+        # are moved, and this is still only a proposal for independent review.
+        for end in range(unit['start'],unit['end']):
+            text=''.join(c['text'] for c in cues[unit['start']:end+1])
+            if (re.search(r'(?:结果|后来|随后).*(?:媒体|报道|误解|回应|反应)',text)
+                    and reported_reply_tail(text)
+                    and not re.search(r'假设|假如|虚构|编个|编一个',text)):
+                expanded.append(dict(start=unit['start'],end=end,text=text,reported_reply_end=True))
+        for start in range(unit['start']+1,unit['end']+1):
+            # A real timed cue may begin a self-contained recollection after
+            # a comma/temporal transition. Expose that original clause as an
+            # alternative, retaining the complete original unit alongside it.
+            prefix=''.join(c['text'] for c in cues[unit['start']:start])
+            text=''.join(c['text'] for c in cues[start:unit['end']+1])
+            if (not re.match(r'^我记得[^。！？!?]{0,24}(?:年前|那年|当年|曾经)',text)
+                    or not re.search(r'会议|采访|演讲|讲座|活动|饭局',text)
+                    or not re.search(r'(?:前)?[0-9一二三四五六七八九十两]+年(?:前)?[，,]\s*$',prefix)
+                    or re.search(r'假设|假如|虚构|编个|编一个',prefix+text)
+                    or re.search(r'如果(?:我|我们)?(?:当年|那年|曾经|过去)',prefix)
+                    or re.search(r'如果|假设|假如',text)):
+                continue
+            expanded.append(dict(start=start,end=unit['end'],text=text,memory_context=True))
     rows=[dict(unit,description=f"{unit['start']}-{unit['end']}|"
         f"{cues[unit['start']]['start']:.2f}-{cues[unit['end']]['end']:.2f}|{unit['text']}")
-        for unit in units]
+        for unit in expanded]
+    for row in rows:
+        if temporal_action_opening(row['text']):row['temporal_action_context']=True
     result=[];start=0
     while start<len(rows):
         end=start;size=0
@@ -62,8 +107,8 @@ def windows(cues):
 def request(rows):
     if sum(len(row['description'])+1 for row in rows)>MAX_WINDOW_CHARS:
         return None  # Never truncate or split an oversized source sentence.
-    starts=[row['start'] for row in rows if opening_allowed(row['text'])]
-    ends=[row['end'] for row in rows if not selection.unresolved_question_tail(row['text'])]
+    starts=list(dict.fromkeys(row['start'] for row in rows if opening_allowed(row['text'])))
+    ends=list(dict.fromkeys(row['end'] for row in rows if not selection.unresolved_question_tail(row['text'])))
     if not starts or not ends:return None
     item=dict(type='object',additionalProperties=False,required=['start','end'],properties={
         'start':dict(type='integer',enum=starts),'end':dict(type='integer',enum=ends)})
@@ -79,7 +124,79 @@ def request(rows):
         'start/end只选允许的原始字幕编号，不是秒数、行号或句子序号。'
         '每行格式是字幕起止编号|原声起止秒|完整原句。仅返回规定JSON。\n'
         +'\n'.join(row['description'] for row in rows))
+    if any(row.get('memory_context') for row in rows):
+        prompt+=('\n本窗口同时保留完整原句和原文独立回忆起句作为备选，没有删除条件或改字幕。'
+            '会议、采访等真实经历要保留背景、本人当时发言和后续回应；不能从“那时候问我”省掉事件背景。'
+            '在转入另一话题或一般原理之前自然结束。回忆若属于假设、虚构或否认，不当成实际经历；'
+            '仍须通读原句上下文，不能只看新增备选。没有完整经历也可不选，不为凑数量补结论。')
+    if any(row.get('reported_reply_end') for row in rows):
+        prompt+='\n报道反应和本人纠正若被逗号连到新话题，新增备选只在已有原始字幕末尾结束；仍保留完整原句供核对，不从纠正半句开场。'
+    if any(row.get('temporal_action_context') for row in rows):
+        prompt+='\n“那么”后若完整交代过去到现在的时间和本人实际组织、参加过的活动，可从该完整原句提出经历及直接动机，不必有采访者问答；后续预测仍是预测，不能把它当已经发生的事。'
     return prompt,schema
+
+
+def memory_episode_proposals(cues):
+    """Propose a literal recollection through its reported reaction and reply.
+
+    The model missed an entire recollection and proposed the host's opening
+    instead. These are timed source boundaries, never a story verdict. The
+    independent story reader, argument reader and media gates still decide.
+    """
+    units=selection.sentence_units(cues)
+    proposals=[];seen=set()
+    for rows in windows(cues):
+        for opening in rows:
+            start=opening['start']
+            if not opening.get('memory_context') or start in seen:continue
+            reaction=False
+            for unit in sorted(rows,key=lambda row:(row['start'],row['end'])):
+                if unit['start']<=opening['end']:continue
+                if cues[unit['end']]['end']-cues[start]['start']>330:break
+                text=unit['text']
+                if re.search(r'假设|假如|虚构|编个|编一个',text):break
+                if re.search(r'(?:结果|后来|随后).*(?:媒体|报道|误解|回应|反应)',text):
+                    reaction=True
+                    if not unit.get('reported_reply_end'):continue
+                if reaction and (unit.get('reported_reply_end') or
+                                 re.match(r'^我(?:当时)?(?:说|解释|澄清|回应|回答)',text)):
+                    picks,rejected=validate(cues,rows,dict(picks=[dict(start=start,end=unit['end'])]))
+                    if not rejected and picks:
+                        seen.add(start)
+                        proposals.extend({**p,'selection_method':'literal_memory_reaction_proposal_v1'} for p in picks)
+                    break
+    return proposals
+
+
+def completed_activity_proposals(cues):
+    """Keep a completed activity and its stated motive before a new episode.
+
+    A model may extend that complete account through the next hypothetical
+    contrast and stop in the middle of a recollection. Offer the existing
+    sentence edge as another proposal, retaining the model's full candidate.
+    This is never a story, argument, or media approval.
+    """
+    proposals=[];seen=set()
+    for rows in windows(cues):
+        for opening in rows:
+            start=opening['start']
+            if not opening.get('temporal_action_context') or start in seen:continue
+            previous=opening
+            for unit in rows:
+                if unit['start']<=opening['end']:continue
+                if cues[unit['end']]['end']-cues[start]['start']>330:break
+                if re.match(r'^(?:但是|不过)?如果|^假(?:设|如)|^我记得',unit['text']):
+                    text=''.join(c['text'] for c in cues[start:previous['end']+1])
+                    if (re.search(r'为什么[？?]',text)
+                            and re.search(r'那就是|因为|为了|我就想|我要',text)
+                            and not re.search(r'如果|假设|假如|虚构|编个|编一个',text)):
+                        picks,rejected=validate(cues,rows,dict(picks=[dict(start=start,end=previous['end'])]))
+                        if not rejected and picks:
+                            seen.add(start)
+                            proposals.extend({**p,'selection_method':'literal_completed_activity_proposal_v1'} for p in picks)
+                    break
+                previous=unit
+    return proposals
 
 
 def validate(cues,rows,data):
@@ -129,7 +246,7 @@ def propose(cues,source_report,call,path,*,budget_sec=1200):
                     and not row.get('error') and isinstance(row.get('response'),str)
                     and 'prompt' in row and 'schema' in row}
         except (ValueError,TypeError,KeyError):pass
-    report=dict(identity=identity,picks=[],rejected=[],unresolved=[],calls=[],
+    report=dict(identity=identity,picks=memory_episode_proposals(cues)+completed_activity_proposals(cues),rejected=[],unresolved=[],calls=[],
                 media_approved=False,selection_completed=False)
     from batch_delivery import write_json
     deadline=time.monotonic()+budget_sec

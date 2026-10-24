@@ -146,6 +146,7 @@ def selection_request(cues, candidates):
         '理论、原则、方法总结和应该怎么做的建议本身不是已经发生的个人经历；'
         'personal_story必须另有本人实际做过、没做过或明确采取某项选择的原句，不能只因为提到我们或过去经历就入选。'
         'personal_story的事件不要选比喻式劝告或“这样就行了”的建议结语；要选本人实际经历或选择的叙述原句，否则skip。'
+        '“我要抓住最后一次机会”等未来打算，以及以后看错会脸红的假设，本身不是已发生的个人故事；不能借相邻年份把它改成过去经历。'
         '细节必须提供实质性原因、经过或后续选择；“嗯、好呀、是吧”等主持人应和不是细节。'
         '没有这三项就kind=skip，其余编号填任意允许值。不输出摘录文本。\n'
         +json.dumps([dict(index=r['index'],sentences=r['sentences']) for r in rows],ensure_ascii=False))
@@ -155,6 +156,9 @@ def selection_request(cues, candidates):
 def personal_event_error(event):
     """Selection and delivery must agree on an actual event, not advice."""
     plain=re.sub(r'[\s，,。！？!?；;]','',event)
+    if re.match(r'^(?:(?:但是|不过|那么|那|所以)[，,\s]*)?'
+                r'(?:(?:如果|假设|假如|要是|倘若)|(?:我|我们)(?:来|先|可以)?假设)',event):
+        return 'A governing hypothetical is not an actual personal event; do not borrow a later recollection from the same sentence'
     if re.fullmatch(r'(?:嗯|啊|呃|所以|那么)*(?:我|我们)(?:自己|个人)?'
                     r'(?:觉得|认为|感觉|估计)(?:是|应该|肯定)?'
                     r'(?:(?:没|没有|不会有)(?:什么)?问题|可以|行)(?:啊|吧|嗯)*',plain):
@@ -164,6 +168,10 @@ def personal_event_error(event):
     normative_recap=re.search(r'(?:理论|原则|方法|总结)[^。！？!?]{0,90}(?:要|必须|应该|才能)',event)
     advice_conclusion=re.search(r'(?:就|才)(?:行|好|够|可以)了[啊吧。！!]*$',event)
     actual_action=re.search(r'(?:我|我们)[^。！？!?]{0,60}(?:买|卖|投|做|持有|参[与加])[^。！？!?]{0,6}(?:了|过)',event)
+    prospective_choice=re.search(r'(?:我|我们)(?:今后|未来|以后|打算|计划|准备|想要|要|将|会){1,2}'
+        r'[^，,。！？!?]{0,6}(?:抓住|买入|卖出|投资|退出|建仓|清仓|加仓|减仓|赚钱)',event)
+    if prospective_choice and not actual_action:
+        return 'A prospective personal plan is not an actual past event or completed choice'
     if (normative_recap or advice_conclusion) and not actual_action:
         return 'A normative method/theory recap or advice conclusion is not a concrete personal event or actual choice'
     return None
@@ -330,6 +338,50 @@ def company_holding_request(cues,pick):
     return prompt,schema
 
 
+def completed_activity_event_error(text):
+    if (not isinstance(text,str) or re.search(r'[？?]|如果|假设|假如|计划|打算|准备|未来|以后|将来|没有|从未|未曾',text)
+            or not re.search(r'从(?:去年|前年|20\d{2}年)[^。！？!?]{0,24}(?:到|至)(?:现在|今天|今年)',text)
+            or not re.search(r'(?:我|我们)[^。！？!?]{0,40}(?:组织|举办|参加|访问)(?:了|过)',text)):
+        return 'Activity recall requires an explicit dated, completed first-person activity'
+    return None
+
+
+def completed_activity_detail_error(text):
+    if (not isinstance(text,str) or re.search(r'[？?]|如果|假设|假如|计划|打算|明年|未来|将来',text)
+            or not re.search(r'(?:我|我们)[^。！？!?]{0,30}(?:就想|就是想|为了|希望把|想把)',text)
+            or not re.search(r'说出来|告诉|表达|分享|交流|沟通|传达',text)):
+        return 'Activity recall requires another original statement directly explaining the communication motive'
+    return personal_detail_error(text)
+
+
+def completed_activity_request(cues,pick):
+    """One stricter review of a completed activity with its stated motive."""
+    if pick.get('selection_method')!='literal_completed_activity_proposal_v1':return None
+    context=''.join(c['text'] for c in cues[pick['start']:pick['end']+1])
+    if not re.search(r'为什么[？?]',context):return None
+    rows=_selection_rows(cues,[pick])
+    if not rows:return None
+    units=rows[0]['sentences']
+    events=[s['id'] for s in units if 4<=len(s['text'])<=140 and not completed_activity_event_error(s['text'])]
+    details=[s['id'] for s in units if 4<=len(s['text'])<=140 and not completed_activity_detail_error(s['text'])]
+    if not events or not details:return None
+    props={**{k:dict(type='integer',enum=v) for k,v in (
+        ('subject_sentence',events),('event_sentence',events),('detail_sentence',details))},
+        'kind':dict(type='string',enum=['skip','personal_story'])}
+    schema=dict(type='object',additionalProperties=False,required=list(props),properties=props)
+    prompt=('只核对这一段原文是否讲清了一次本人已经做过的公开活动及其动机。'
+        '已经组织、举办或参加的具体活动也是亲身经历，不要求是股票买卖。'
+        'event_sentence必须是本人明确说已经实际组织、举办或参加的活动；'
+        'detail_sentence必须是另一条本人原话，直接解释为什么进行这些活动、为什么公开表达想法。'
+        '当前真实的沟通动机可以包含希望日后验证想法，但不能把未来是否应验当成已经发生的结果。'
+        '结合完整段落判断两句是否确实指同一件事。只有活动已发生且另一句直接交代该活动的动机才选personal_story；'
+        '只是计划、假设、否认、一般市场预测、相邻但无关的理由，或者动机并非嘉宾所说，一律skip。'
+        '本次只做原文事实判断，不批准字幕、标题、画面或发布；不改写，不跨段借事实。'
+        '编号均来自原文，先返回原句编号，最后返回kind；skip也可填任意允许编号。\n'
+        +json.dumps(units,ensure_ascii=False))
+    return prompt,schema
+
+
 def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200):
     """Isolate candidate errors and retry only unreviewed/invalid decisions.
 
@@ -445,6 +497,38 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
             record['error']=str(exc);report[bucket].remove(rejected)
             report['unresolved'].append(dict(index=index,error=str(exc)))
         save()
+    for rejected in list(report['rejected']):
+        if rejected.get('reason')!='no_grounded_story':continue
+        index=rejected['index'];request=completed_activity_request(cues,candidates[index])
+        if request is None:continue
+        if time.monotonic()>=deadline:
+            report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error='completed_activity_review_budget_exhausted'))
+            continue
+        prompt,schema=request
+        record=dict(indices=[index],stage='completed_activity_recall_v1',prompt=prompt,schema=schema)
+        report['calls'].append(record);save()
+        try:
+            raw=call(prompt,schema);record['response']=raw
+            verdict=json.loads(raw) if isinstance(raw,str) else raw
+            if (not isinstance(verdict,dict) or set(verdict)!=set(schema['properties'])
+                    or verdict.get('kind') not in ('skip','personal_story')):
+                raise ValueError('Invalid completed activity verdict')
+            chosen=validate_choices(cues,[candidates[index]],{'candidate_0':verdict})
+            for item in chosen:
+                selection=item['story_selection']
+                issue=(completed_activity_event_error(selection['subject_quote'])
+                    or completed_activity_event_error(selection['event_quote'])
+                    or completed_activity_detail_error(selection['detail_quote']))
+                if issue:raise ValueError(issue)
+                selection['completed_activity_recall_version']=1
+            report['rejected'].remove(rejected)
+            if chosen:report['selected'].extend(chosen)
+            else:report['rejected'].append(dict(index=index,reason='no_grounded_completed_activity'))
+        except (RuntimeError,ValueError,TypeError,KeyError,AttributeError) as exc:
+            record['error']=str(exc);report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error=str(exc)))
+        save()
     report['selection_completed']=not report['unresolved']
     report['retryable']=bool(report['unresolved'])
     # Keep positive backups: the renderer already stops at six ACCEPTED
@@ -541,6 +625,15 @@ def story_title_prompt(prompt,schema,evidence):
         scope+=('\n本人这次买卖/退出的原话对象：'+json.dumps(focus['subjects'],ensure_ascii=False)+
             '。标题前半句必须点明实际对象，不能只写“退出了、买了、持有了”让观众猜。'
             '保留原话的不确定性和理由；不要为了补对象删除“感觉、隐约、可能”等限定。')
+    if focus.get('activity_motive_source'):
+        scope+=('\n这次事例是本人已经组织、参加或访问的活动，以及本人为什么公开表达想法。'
+            '先用自然口语交代已经做过的事，再接本人明确说出的交流动机，不写抽象的“有目的”来凑理由。'
+            '想法、看法等原词也是实际动机对象，不要因词性标注而只盯着市场、目的。'
+            '见过多少人不等于组织了一场同人数的活动；人数、活动次数与超过等范围不能互换或省略。'
+            '希望日后印证看法不等于市场或别人已经认可，也不等于确定能验证正确。'
+            '说看看能不能印证，就保留尝试或期待语气；不能写成要证明自己正确。'
+            '印证和证实不能拼成印证实，不为缩短字数删除日常口语必需的的、把或对象。'
+            '未明确唯一动机就不用只为、唯一目的；未核实讲话年份就不补具体年月。')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if holding_evidence(evidence):
         scope+=('\n本次标题以嘉宾已经发生的买卖/持仓事实为中心，保留事件原句的时间或时长与近、约等范围：'
@@ -668,6 +761,16 @@ def title_focus(selection):
     result=dict(subjects=subjects,details=details,background_terms=background,
                 **{'detail_actions_'+str(i):pair for i,pair in enumerate(action_pairs[:3])},
                 source=[selection.get(k,'') for k in ('subject_quote','event_quote','detail_quote')])
+    if (selection.get('completed_activity_recall_version')==1
+            and not completed_activity_event_error(selection.get('event_quote'))
+            and not completed_activity_detail_error(selection.get('detail_quote'))):
+        # Jieba labels 想法/看法 as verbs and 印证 as an abbreviation.
+        # They remain literal objects of this stated communication motive;
+        # forcing only 市场/目的 made actual drafts artificial or off-topic.
+        motive_objects=re.findall(r'想法|看法|观点|意见|建议|经验|经历',reason)
+        result['details']=list(dict.fromkeys(motive_objects+[t for t in details if t!='目的']))
+        result['activity_event_source']=[selection['event_quote']]
+        result['activity_motive_source']=[reason]
     if holding_evidence(selection):
         result['past_holding_times']=[a['raw'] for a in holding_time_anchors(selection.get('event_quote',''))]
         result['holding_recall_source']=[selection['event_quote']]
@@ -679,6 +782,22 @@ def title_focus(selection):
 def title_focus_error(title,focus,speaker='林园',cover=None):
     if not isinstance(title,str):return '故事标题不是文本'
     body=title.removeprefix(speaker+'：')
+    if focus.get('activity_motive_source'):
+        motive=''.join(focus['activity_motive_source'])
+        for copy in (body,str(cover or '')):
+            from title_quantity_context import NUMBER,number
+            event=''.join(focus.get('activity_event_source',[]))
+            lower_counts={number(m[1]) for m in re.finditer(rf'(?:超过|多于|逾)({NUMBER})人',event)}
+            for count in re.finditer(rf'({NUMBER})(多|余)?人',copy):
+                if (number(count[1]) in lower_counts and not count[2]
+                        and not re.search(r'超过|多于|逾|不止',copy[max(0,count.start()-3):count.start()])):
+                    return '原话见过的人数超过该数，不能在标题或封面删掉超过、多人等范围'
+            if (re.search(r'只为|唯一目的|唯一动机',copy)
+                    and not re.search(r'只为|唯一目的|唯一动机',motive)):
+                return '本人说明交流动机不等于唯一动机，不能新增只为或唯一目的'
+            if (re.search(r'印证|验证',motive) and not re.search(r'认可|认同|认不认',motive)
+                    and re.search(r'市场[^，,。！？!?]{0,5}(?:认可|认同|认不认)',copy)):
+                return '希望印证本人看法不等于市场认可或认同，不能偷换验证对象'
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
     if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
@@ -750,6 +869,13 @@ def proof_error(meta):
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
     if s['kind']=='personal_story':
         issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
+        if issue:return issue
+    if 'completed_activity_recall_version' in s:
+        if (type(s['completed_activity_recall_version']) is not int or s['completed_activity_recall_version']!=1
+                or s['kind']!='personal_story'):
+            return 'Invalid completed activity recall proof'
+        issue=(completed_activity_event_error(s['subject_quote'])
+            or completed_activity_event_error(s['event_quote']) or completed_activity_detail_error(s['detail_quote']))
         if issue:return issue
     focus=title_focus(s)
     company_issue=company_subject_error(s)
