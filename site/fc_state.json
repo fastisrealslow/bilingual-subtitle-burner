@@ -47426,7 +47426,47 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-20T01:10:41+00:00"
+   "publish_time": "2026-06-20T01:10:41+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1024-cbfb33",
+    "run_id": 40081085173,
+    "artifact_id": 12555937813,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0469cc4466a1e0f1ae9417a557d8c969d7855be18299fc92ce5e296741adf28d",
+     "duration_sec": 1190.6,
+     "resolution": {
+      "width": 1920,
+      "height": 1076,
+      "short_edge": 1076
+     },
+     "source_url": "https://www.bilibili.com/video/BV1LYjC6tEGi"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "source_check_report_id": 12555937813,
+   "source_check_run_id": 40081085173,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1792837202
   },
   {
    "key": "bilibili_search:BV122zYBqEvy",
