@@ -50922,7 +50922,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1txiLB7EB8",
@@ -50968,7 +50969,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-24T21:33:06+00:00"
+   "publish_time": "2025-12-24T21:33:06+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40182401798,
+    "artifact_id": 12594931616,
+    "name": "source-reject-ly-1025-78c67e",
+    "retained": true
+   },
+   "last_error": "清理后预计短边 356 < 480",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -129973,6 +129984,13 @@
    "video_id": "BV1m9Lz6YEZk",
    "ts": 1792921664,
    "error": "整段取景预检：源 13.10s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1025-78c67e",
+   "key": "bilibili_search:BV1V8BmBQEtX",
+   "video_id": "BV1V8BmBQEtX",
+   "ts": 1792922252,
+   "error": "清理后预计短边 356 < 480"
   }
  ],
  "reviewed_third_video_0910": {
