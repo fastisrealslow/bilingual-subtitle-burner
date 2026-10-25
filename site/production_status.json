@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792936744,
+  "updated_at": 1792936836,
   "inventory_updated_at": 1792936741,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 38,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 4,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,18 +137,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792936743,
+    "updated_at": 1792936835,
     "records": 11933,
     "video_records": 10260,
-    "initial_candidates": 59,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 58,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7004,
       "no_video": 1673,
-      "already_attempted_or_cooling": 1736,
+      "already_attempted_or_cooling": 1737,
       "clip_title": 1189,
       "noise": 21,
       "unrelated": 65,
@@ -159,14 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1JS4y1B74H",
-        "title": "林园 P1 林园：谈牛市初期就是要抓主流（2020.9.7直播）",
-        "source": "bilibili_collection",
-        "author": "临园指路",
-        "url": "https://www.bilibili.com/video/BV1JS4y1B74H",
-        "duration_sec": 210.0
-      },
       {
         "key": "bilibili_search:BV15NySBuE4K",
         "title": "林园 P1 2025-10-23（7），林园：高血压导致肾衰，最后心脏发生问题。心脑血管用药和肾病用药都有投资机会，这个",
@@ -207,15 +199,16 @@
   },
   "counts": {
     "complete": 149,
-    "failed": 1388,
+    "failed": 1390,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 22,
     "experiment_fallback": 25,
     "ready": 12,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -29210,11 +29203,11 @@
     },
     {
       "slug": "ly-1025-33a0eb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/622，总帧数3109；身份匹配但人脸短边不足96px的帧数622",
       "signature": {
         "ts": 1792935503,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29264,11 +29257,11 @@
     },
     {
       "slug": "ly-1025-9f7084",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792936190,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29315,6 +29308,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199419750",
       "run_started_at": "2026-10-25T13:50:00Z",
       "run_updated_at": "2026-10-25T13:51:24Z"
+    },
+    {
+      "slug": "ly-1025-50d72d",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1792936798,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40200162196,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40200162196",
+      "run_started_at": "2026-10-25T13:59:58Z",
+      "run_updated_at": "2026-10-25T13:59:58Z"
     }
   ],
   "runs": {
@@ -42683,6 +42694,28 @@
       "run_number": 2813,
       "display_title": "中文源出片 · ly-1025-bc37d7"
     },
+    "ly-1025-9f7084": {
+      "id": 40199405818,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T13:49:49Z",
+      "updated_at": "2026-10-25T13:57:09Z",
+      "run_started_at": "2026-10-25T13:49:49Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199405818",
+      "run_number": 2817,
+      "display_title": "中文源出片 · ly-1025-9f7084"
+    },
+    "ly-1025-50d72d": {
+      "id": 40200162196,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-25T13:59:58Z",
+      "updated_at": "2026-10-25T13:59:58Z",
+      "run_started_at": "2026-10-25T13:59:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40200162196",
+      "run_number": 2820,
+      "display_title": "中文源出片 · ly-1025-50d72d"
+    },
     "ly-1025-306b81": {
       "id": 40199419750,
       "status": "in_progress",
@@ -42704,17 +42737,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199412838",
       "run_number": 2818,
       "display_title": "中文源出片 · ly-1025-f7baa1"
-    },
-    "ly-1025-9f7084": {
-      "id": 40199405818,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T13:49:49Z",
-      "updated_at": "2026-10-25T13:57:09Z",
-      "run_started_at": "2026-10-25T13:49:49Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199405818",
-      "run_number": 2817,
-      "display_title": "中文源出片 · ly-1025-9f7084"
     },
     "ly-1025-fd7e25": {
       "id": 40199132957,
