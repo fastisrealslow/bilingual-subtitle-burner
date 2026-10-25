@@ -50809,7 +50809,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-04-30T11:19:03+00:00"
+   "publish_time": "2026-04-30T11:19:03+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-57f426",
+    "run_id": 40181422555,
+    "artifact_id": 12594932860,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f4b0b90dd1b0aecdc1f0e1edb3346f38882916741dbd60868a596f9b67c4b94d",
+     "duration_sec": 327.17,
+     "resolution": {
+      "width": 1916,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1b79aBzEiU"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕逐字时间倒退或重叠"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40181422555,
+    "artifact_id": 12594932860,
+    "name": "production-reject-ly-1025-57f426",
+    "retained": true
+   },
+   "last_error": "字幕逐字时间倒退或重叠",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1kNNJ6uE6W",
@@ -130081,6 +130114,13 @@
    "video_id": "BV1V8BmBQEtX",
    "ts": 1792922252,
    "error": "清理后预计短边 356 < 480"
+  },
+  {
+   "slug": "ly-1025-57f426",
+   "key": "bilibili_search:BV1b79aBzEiU",
+   "video_id": "BV1b79aBzEiU",
+   "ts": 1792923076,
+   "error": "字幕逐字时间倒退或重叠"
   }
  ],
  "reviewed_third_video_0910": {
