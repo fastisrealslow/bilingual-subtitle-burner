@@ -2151,10 +2151,11 @@ def caption_display_interval(start, end):
 
 
 def caption_affirmation_ends(entries):
-    """A source-punctuated standalone 是/对 is a complete short reply."""
+    """Source-punctuated 是/对/也是 replies are complete, not predicate tails."""
     raw=''.join(e.get('zh','') for e in entries)
     return {len(re.sub(r'[\s，。！？；：、]','',raw[:m.end()]))
-            for m in re.finditer(r'(?:^|[，。！？；：、])(?:是|对)(?=[。！？；])',raw)}
+            for m in re.finditer(
+                r'(?:^|[，。！？；：、])(?:(?:是|对)(?=[。！？；])|也是(?=[。！；]))',raw)}
 
 
 def apply_semantic_groups(entries, texts, capacity, font_px=None, min_font_px=38):

@@ -3917,6 +3917,8 @@ def _recover_changed_production_rule(st, candidate, run):
             ('linyuan/caption_lines.py','linyuan/presentation.py','linyuan/produce_cn.py')),
            ('caption-shared-end-clock-v1',('字幕逐字时间倒退或重叠',),
             ('linyuan/caption_lines.py','linyuan/caption_readability.py')),
+           ('caption-standalone-reply-v1',('超长意群局部复分失败',),
+            ('linyuan/produce_cn.py',)),
            ('visual-preflight-v2',('持续黑色填充边','来源角标无法避开','真人动态区仍有原素材字幕',
                                   '原画无法通过真人画面清理门禁'),
             ('linyuan/produce_cn.py','linyuan/source_geometry.py'))]
@@ -3957,6 +3959,11 @@ def _recover_changed_production_rule(st, candidate, run):
     changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
+        if case[0]=='caption-standalone-reply-v1':
+            patch=str(file.get('patch') or '')
+            return ('def caption_affirmation_ends(' in patch
+                and any(line.startswith('+') and '也是(?=' in line
+                        for line in patch.splitlines()))
         if case[0]=='scene-cover-frame-text-v1':
             from publishing_experiment import TREATMENT
             summary_bound=(isinstance(summary,dict) and summary.get('slug')==candidate['slug']
