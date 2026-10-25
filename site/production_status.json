@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792919492,
+  "updated_at": 1792919674,
   "inventory_updated_at": 1792919490,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 30,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 47,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 46,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,17 +137,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792919491,
+    "updated_at": 1792919673,
     "records": 11914,
     "video_records": 10245,
-    "initial_candidates": 102,
-    "duration_eligible_records": 47,
-    "candidate_count": 47,
-    "known_duration_candidates": 47,
+    "initial_candidates": 101,
+    "duration_eligible_records": 46,
+    "candidate_count": 46,
+    "known_duration_candidates": 46,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1669,
-      "already_attempted_or_cooling": 1689,
+      "already_attempted_or_cooling": 1690,
       "speaker_unconfirmed": 6993,
       "clip_title": 1189,
       "noise": 21,
@@ -159,14 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1svTX6yE6H",
-        "title": "林园 P1 林园：把风险放在第一位",
-        "source": "bilibili_collection",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1svTX6yE6H",
-        "duration_sec": 338.0
-      },
       {
         "key": "bilibili_search:BV1m9Lz6YEZk",
         "title": "林园 P1 lv_0_20260511205226",
@@ -551,15 +543,15 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1347,
+    "failed": 1348,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 19,
     "ready": 8,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -28528,11 +28520,11 @@
     },
     {
       "slug": "ly-1025-265634",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅限于确认个人使用经历，并未形成针对资本市场回报要求等后续话题的独立完整论述或判断，缺乏作为独立成片所需的核心观点内容。；原文问题：[]",
       "signature": {
         "ts": 1792916260,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28723,6 +28715,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179457544",
       "run_started_at": "2026-10-25T09:09:07Z",
       "run_updated_at": "2026-10-25T09:09:11Z"
+    },
+    {
+      "slug": "ly-1025-9a2b7d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792919632,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40179779978,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179779978",
+      "run_started_at": "2026-10-25T09:13:52Z",
+      "run_updated_at": "2026-10-25T09:13:55Z"
     }
   ],
   "runs": {
@@ -41519,6 +41529,28 @@
       "run_number": 2761,
       "display_title": "中文源出片 · ly-1025-4ab143"
     },
+    "ly-1025-265634": {
+      "id": 40176043886,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T08:17:40Z",
+      "updated_at": "2026-10-25T09:10:16Z",
+      "run_started_at": "2026-10-25T08:17:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40176043886",
+      "run_number": 2753,
+      "display_title": "中文源出片 · ly-1025-265634"
+    },
+    "ly-1025-9a2b7d": {
+      "id": 40179779978,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T09:13:52Z",
+      "updated_at": "2026-10-25T09:13:55Z",
+      "run_started_at": "2026-10-25T09:13:52Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179779978",
+      "run_number": 2765,
+      "display_title": "中文源出片 · ly-1025-9a2b7d"
+    },
     "ly-1025-7515d1": {
       "id": 40179457544,
       "status": "in_progress",
@@ -41562,17 +41594,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40178805985",
       "run_number": 2758,
       "display_title": "中文源出片 · ly-1025-a3c83d"
-    },
-    "ly-1025-265634": {
-      "id": 40176043886,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T08:17:40Z",
-      "updated_at": "2026-10-25T09:10:16Z",
-      "run_started_at": "2026-10-25T08:17:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40176043886",
-      "run_number": 2753,
-      "display_title": "中文源出片 · ly-1025-265634"
     },
     "ly-1025-b6710d": {
       "id": 40174272300,
