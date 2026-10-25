@@ -51303,7 +51303,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-21T23:55:11+00:00"
+   "publish_time": "2026-05-21T23:55:11+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-827e45",
+    "run_id": 40184969523,
+    "artifact_id": 12596143262,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "69202a7fab64addcfb2a9b3e5ec1a5f25cbb54951e23c8df88d4c06a5aa9b14c",
+     "duration_sec": 368.58,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1GRLe6tEv7"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1469，总帧数7341；身份匹配但人脸短边不足96px的帧数1469"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/291，总帧数1451；身份匹配但人脸短边不足96px的帧数291"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40184969523,
+    "artifact_id": 12596143262,
+    "name": "production-reject-ly-1025-827e45",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1469，总帧数7341；身份匹配但人脸短边不足96px的帧数1469",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1aTVS6ZEFC",
@@ -51326,7 +51363,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-31T11:05:07+00:00"
+   "publish_time": "2026-05-31T11:05:07+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-78dacf",
+    "run_id": 40184978535,
+    "artifact_id": 12595973515,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1502dab6b263c494879d4441889775e36917ab5620b856971fb80874019e6762",
+     "duration_sec": 175.83,
+     "resolution": {
+      "width": 1920,
+      "height": 816,
+      "short_edge": 816
+     },
+     "source_url": "https://www.bilibili.com/video/BV1aTVS6ZEFC"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40184978535,
+    "artifact_id": 12595973515,
+    "name": "production-reject-ly-1025-78dacf",
+    "retained": true
+   },
+   "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5341489979983495",
@@ -130509,6 +130579,20 @@
    "video_id": "BV1d94y1r7AR",
    "ts": 1792925028,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1025-78dacf",
+   "key": "bilibili_search:BV1aTVS6ZEFC",
+   "video_id": "BV1aTVS6ZEFC",
+   "ts": 1792925477,
+   "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+  },
+  {
+   "slug": "ly-1025-827e45",
+   "key": "bilibili_search:BV1GRLe6tEv7",
+   "video_id": "BV1GRLe6tEv7",
+   "ts": 1792925477,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1469，总帧数7341；身份匹配但人脸短边不足96px的帧数1469"
   }
  ],
  "reviewed_third_video_0910": {
