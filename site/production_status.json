@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792935542,
-  "inventory_updated_at": 1792935404,
+  "updated_at": 1792935816,
+  "inventory_updated_at": 1792935814,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 38,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -137,7 +137,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792935542,
+    "updated_at": 1792935816,
     "records": 11933,
     "video_records": 10260,
     "initial_candidates": 64,
@@ -249,14 +249,13 @@
     "complete": 149,
     "failed": 1384,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 7,
     "excluded": 22,
     "experiment_fallback": 25,
     "ready": 12,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5,
-    "queued": 1
+    "running": 4
   },
   "tasks": [
     {
@@ -29125,8 +29124,8 @@
     },
     {
       "slug": "ly-1025-b0d3e6",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792934561,
         "failed": null,
@@ -29139,7 +29138,7 @@
       "run_id": 40197329095,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40197329095",
       "run_started_at": "2026-10-25T13:22:41Z",
-      "run_updated_at": "2026-10-25T13:22:45Z"
+      "run_updated_at": "2026-10-25T13:43:04Z"
     },
     {
       "slug": "ly-1025-1f9c9e",
@@ -29197,8 +29196,8 @@
     },
     {
       "slug": "ly-1025-a4cee4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792934954,
         "failed": null,
@@ -29211,7 +29210,7 @@
       "run_id": 40197823339,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40197823339",
       "run_started_at": "2026-10-25T13:29:14Z",
-      "run_updated_at": "2026-10-25T13:30:28Z"
+      "run_updated_at": "2026-10-25T13:41:31Z"
     },
     {
       "slug": "ly-1025-8cef1a",
@@ -29251,8 +29250,8 @@
     },
     {
       "slug": "ly-1025-33a0eb",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "running",
+      "detail": "正在出片",
       "signature": {
         "ts": 1792935503,
         "failed": null,
@@ -29265,7 +29264,7 @@
       "run_id": 40198526423,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40198526423",
       "run_started_at": "2026-10-25T13:38:23Z",
-      "run_updated_at": "2026-10-25T13:38:23Z"
+      "run_updated_at": "2026-10-25T13:39:13Z"
     }
   ],
   "runs": {
@@ -42581,10 +42580,10 @@
     },
     "ly-1025-33a0eb": {
       "id": 40198526423,
-      "status": "queued",
+      "status": "in_progress",
       "conclusion": null,
       "created_at": "2026-10-25T13:38:23Z",
-      "updated_at": "2026-10-25T13:38:23Z",
+      "updated_at": "2026-10-25T13:39:13Z",
       "run_started_at": "2026-10-25T13:38:23Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40198526423",
       "run_number": 2814,
@@ -42614,10 +42613,10 @@
     },
     "ly-1025-a4cee4": {
       "id": 40197823339,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-25T13:29:14Z",
-      "updated_at": "2026-10-25T13:30:28Z",
+      "updated_at": "2026-10-25T13:41:31Z",
       "run_started_at": "2026-10-25T13:29:14Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40197823339",
       "run_number": 2811,
@@ -42625,10 +42624,10 @@
     },
     "ly-1025-b0d3e6": {
       "id": 40197329095,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-25T13:22:41Z",
-      "updated_at": "2026-10-25T13:22:45Z",
+      "updated_at": "2026-10-25T13:43:04Z",
       "run_started_at": "2026-10-25T13:22:41Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40197329095",
       "run_number": 2807,
