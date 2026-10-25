@@ -887,8 +887,15 @@ def receipt(meta, now=None, makeup_slot=None):
     plan=assignment(now,makeup_slot)
     if not plan:return None
     actual=actual_profile(meta)
+    size=meta.get('resolution') or {}
+    width,height=size.get('width'),size.get('height')
+    layout=('landscape' if width>height else 'portrait') if (
+        type(width) is int and type(height) is int and min(width,height)>0 and width!=height) else None
     return {**plan,'actual':actual,'compliant':actual==plan['planned'],
             'reason':None if actual==plan['planned'] else 'qualified_stock_fallback',
+            'layout':layout,
+            'layout_fallback':('native_treatment_for_evening' if actual==TREATMENT
+                               and plan['slot_number']==4 and layout=='landscape' else None),
             'content_type':meta.get('content_type'),
             'source_duration_sec':(meta.get('experiment_proof') or {}).get('source_duration_sec'),
             'selection_kind':((meta.get('experiment_proof') or {}).get('selection') or {}).get('kind')}

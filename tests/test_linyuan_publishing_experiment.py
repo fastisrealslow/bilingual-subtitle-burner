@@ -57,6 +57,63 @@ def test_sunday_full_interview_moves_to_control_third_slot_only_during_trial():
     assert F.content_fits_slot(full,{},stamp('2026-11-22T21:00:00'))
 
 
+def test_evening_accepts_proven_native_story_without_admitting_wide_controls():
+    wide,_,_=treatment()
+    before=deepcopy(wide)
+    evening=stamp('2026-10-25T21:00:00')
+    assert F.content_fits_slot(wide,{},evening)
+    assert not F.content_fits_slot(wide,{},stamp('2026-10-25T10:00:00'))
+    assert not F.content_fits_slot(wide,{},stamp('2026-10-25T16:00:00'))
+    assert not F.content_fits_slot(wide,{},stamp('2026-11-22T21:00:00'))
+    assert not F.content_fits_slot({**wide,'editorial_profile':E.BASELINE},{},evening)
+    assert not F.content_fits_slot({**wide,'cover_person_image_verified':False},{},evening)
+    assert not F.content_fits_slot({**wide,'content_type':'full_interview'},{},evening)
+    assert not F.content_fits_slot({**wide,'render_mode':'audio_card'},{},evening)
+    assert wide==before
+    r=E.receipt(wide,evening)
+    assert r['actual']==E.TREATMENT and r['compliant']
+    assert r['layout']=='landscape' and r['layout_fallback']=='native_treatment_for_evening'
+    assert E.receipt(wide,stamp('2026-10-25T14:00:00'))['layout_fallback'] is None
+    # Late catch-up records the original evening slot and the actual shape.
+    assert E.receipt(wide,stamp('2026-10-26T09:00:00'),'2026-10-25 21')['layout_fallback']
+
+
+def test_evening_prefers_portrait_treatment_then_native_treatment_before_control():
+    wide,_,_=treatment()
+    portrait={**deepcopy(wide),'resolution':dict(width=720,height=1280)}
+    control={**deepcopy(portrait),'editorial_profile':E.BASELINE}
+    parts=[{**meta,'index':i,'status':'verified'} for i,meta in enumerate((control,wide,portrait))]
+    records=[dict(slug='story',artifact_id=123,parts=parts)]
+    entry=dict(slug='story',published_parts=0)
+    evening=stamp('2026-10-25T21:00:00')
+    assert F.inventory_part_index(entry,123,records,{},evening)==2
+    F.mark_part_processed(entry,2)
+    assert F.inventory_part_index(entry,123,records,{},evening)==1
+    F.mark_part_processed(entry,1)
+    assert F.inventory_part_index(entry,123,records,{},evening)==0
+    assert E.actual_profile(parts[0])==E.BASELINE
+
+
+def test_one_native_story_is_one_available_file_across_two_treatment_slots(monkeypatch):
+    wide,_,_=treatment()
+    now=stamp('2026-10-25T21:05:00')
+    monkeypatch.setattr(F.time,'time',lambda:now)
+    # Media eligibility is already tested independently; this exercises the
+    # slot matcher and must not turn one inspected file into two publications.
+    monkeypatch.setattr(F,'inventory_publication_error',lambda *a:None)
+    entry=dict(slug='native',source_url='https://source',ts=now-3600)
+    part={**wide,'index':0,'status':'verified','sha256':wide['fingerprints']['sha256']}
+    state=dict(dispatched=[entry],published={},daily_publish=dict(
+        date='2026-10-25',count=2,published_hours=[10,16]))
+    inventory=dict(quality_gate_version=F.QUALITY_GATE_VERSION,
+        editorial_policy_version=F.editorial.VERSION,updated_at=now,
+        artifacts=[dict(slug='native',artifact_id=123,parts=[part])])
+    before=deepcopy(state)
+    result=F.source_inventory(state,inventory)
+    assert result['publishable_now']==1 and result['verified_landscape']==1
+    assert result['verified_portrait']==0 and state==before
+
+
 @pytest.mark.parametrize('day,hour,done',[
     ('2026-10-18',16,[10,14]),('2026-10-18',21,[10,14,16]),
     ('2026-11-22',21,[10,14,16])])
