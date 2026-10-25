@@ -51799,7 +51799,8 @@
    },
    "last_error": "整段取景预检：源 5.37s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1gKrSBoEjf",
@@ -51889,7 +51890,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5331134538059254",
@@ -51935,7 +51937,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-01-25T12:09:28+00:00"
+   "publish_time": "2026-01-25T12:09:28+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40191083468,
+    "artifact_id": 12598116704,
+    "name": "source-reject-ly-1025-498d6c",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 300 < 480（400x300），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -131045,6 +131057,13 @@
    "video_id": "BV1sgfnBVEc9",
    "ts": 1792929457,
    "error": "整段取景预检：源 5.37s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1025-498d6c",
+   "key": "bilibili_search:BV1o5z4BNEMj",
+   "video_id": "BV1o5z4BNEMj",
+   "ts": 1792929781,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 300 < 480（400x300），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
