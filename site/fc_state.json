@@ -51067,7 +51067,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1M3411V7yi",
@@ -51127,7 +51128,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1wt4y147T9",
@@ -51196,7 +51198,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-27T12:07:54+00:00"
+   "publish_time": "2026-07-27T12:07:54+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-82eb71",
+    "run_id": 40184012527,
+    "artifact_id": 12595174558,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f371b6a5bc70b56f4ad6d6038fb16fc6d3de7b218e8d0cc6d88b1472b92499c1",
+     "duration_sec": 118.07,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1RZ3w6hEZT"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV12new6KE7C）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40184012527,
+    "artifact_id": 12595174558,
+    "name": "production-reject-ly-1025-82eb71",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV12new6KE7C）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1n94y1W7US",
@@ -130252,6 +130287,13 @@
    "video_id": "BV1KkAFzvENw",
    "ts": 1792923283,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1025-82eb71",
+   "key": "bilibili_search:BV1RZ3w6hEZT",
+   "video_id": "BV1RZ3w6hEZT",
+   "ts": 1792923908,
+   "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV12new6KE7C）"
   }
  ],
  "reviewed_third_video_0910": {
