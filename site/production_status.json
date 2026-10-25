@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792897057,
+  "updated_at": 1792897133,
   "inventory_updated_at": 1792897055,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 29,
-    "active_or_recovering_sources": 11,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 12,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,17 +137,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792897056,
+    "updated_at": 1792897133,
     "records": 11791,
     "video_records": 10126,
-    "initial_candidates": 56,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 55,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 1660,
       "no_video": 1665,
-      "already_attempted_or_cooling": 1659,
       "speaker_unconfirmed": 6977,
       "clip_title": 1163,
       "noise": 21,
@@ -158,16 +158,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5357840912352012",
-        "title": "林园：现在投AI，风险100%，一定的。http://t.cn/AXWGvGhS ​​​",
-        "source": "weibo_search",
-        "author": "模型预测",
-        "url": "https://m.weibo.cn/detail/5357840912352012",
-        "duration_sec": 626.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 29,
@@ -190,7 +181,8 @@
     "experiment_fallback": 19,
     "ready": 8,
     "retry_queued": 11,
-    "validation_failed": 2
+    "validation_failed": 2,
+    "running": 1
   },
   "tasks": [
     {
@@ -27724,6 +27716,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40143507398",
       "run_started_at": "2026-10-24T23:37:38Z",
       "run_updated_at": "2026-10-24T23:53:17Z"
+    },
+    {
+      "slug": "ly-1025-7ec84d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792897095,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40156455853,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40156455853",
+      "run_started_at": "2026-10-25T02:58:15Z",
+      "run_updated_at": "2026-10-25T02:58:19Z"
     }
   ],
   "runs": {
@@ -40200,6 +40210,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40143507398",
       "run_number": 2728,
       "display_title": "中文源出片 · ly-1024-4e2006"
+    },
+    "ly-1025-7ec84d": {
+      "id": 40156455853,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T02:58:15Z",
+      "updated_at": "2026-10-25T02:58:19Z",
+      "run_started_at": "2026-10-25T02:58:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40156455853",
+      "run_number": 2729,
+      "display_title": "中文源出片 · ly-1025-7ec84d"
     }
   }
 }
