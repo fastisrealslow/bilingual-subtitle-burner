@@ -52471,7 +52471,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1FRBoB4EZj",
@@ -52494,7 +52495,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-26T02:12:22+00:00"
+   "publish_time": "2025-12-26T02:12:22+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-06da9a",
+    "run_id": 40196983444,
+    "artifact_id": 12600334668,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ecf1a73e0948cbcd95f21763a5978cff9023a9c1e6e5c6bf2a0bb84287b5b8ae",
+     "duration_sec": 609.83,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1FRBoB4EZj"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40196983444,
+    "artifact_id": 12600334668,
+    "name": "production-reject-ly-1025-06da9a",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Sm1MBHEnD",
@@ -52550,7 +52588,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1wg411F78q",
@@ -52573,7 +52612,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-10-01T13:34:19+00:00"
+   "publish_time": "2021-10-01T13:34:19+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-9e4743",
+    "run_id": 40197348171,
+    "artifact_id": 12600459190,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ba51220cd41fdeba4212e0ee962ff9126d0040694a7d4ab11c9572f35dae0f59",
+     "duration_sec": 64.7,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1wg411F78q"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40197348171,
+    "artifact_id": 12600459190,
+    "name": "production-reject-ly-1025-9e4743",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1od4y1m7tj",
@@ -52596,7 +52668,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-07-31T00:36:42+00:00"
+   "publish_time": "2022-07-31T00:36:42+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40197813293,
+    "artifact_id": 12600788537,
+    "name": "source-reject-ly-1025-e807ee",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[12]，scan_different=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]，confidence=0.797，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1064, 3: 0.11, 4: 0.1003, 5: 0.2655, 6: 0.073, 7: 0.2071, 8: 0.1635, 9: 0.0658, 10: 0.1413, 11: 0.1458, 12: 0.3944, 13: 0.3054, 14: 0.1136, 15: 0.1956, 16: 0.1915, 17: 0.12}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1XDYn6eE6y",
@@ -132323,6 +132405,27 @@
    "key": "bilibili_search:BV1pi4y1F7gc",
    "video_id": "BV1pi4y1F7gc",
    "ts": 1792934912,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1025-e807ee",
+   "key": "bilibili_search:BV1od4y1m7tj",
+   "video_id": "BV1od4y1m7tj",
+   "ts": 1792935456,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[12]，scan_different=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]，confidence=0.797，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1064, 3: 0.11, 4: 0.1003, 5: 0.2655, 6: 0.073, 7: 0.2071, 8: 0.1635, 9: 0.0658, 10: 0.1413, 11: 0.1458, 12: 0.3944, 13: 0.3054, 14: 0.1136, 15: 0.1956, 16: 0.1915, 17: 0.12}"
+  },
+  {
+   "slug": "ly-1025-9e4743",
+   "key": "bilibili_search:BV1wg411F78q",
+   "video_id": "BV1wg411F78q",
+   "ts": 1792935457,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1025-06da9a",
+   "key": "bilibili_search:BV1FRBoB4EZj",
+   "video_id": "BV1FRBoB4EZj",
+   "ts": 1792935458,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
