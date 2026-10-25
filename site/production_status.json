@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1792914862,
-  "inventory_updated_at": 1792914766,
+  "updated_at": 1792915630,
+  "inventory_updated_at": 1792915629,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 29,
-    "active_or_recovering_sources": 17,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 59,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -137,7 +137,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792914861,
+    "updated_at": 1792915630,
     "records": 11914,
     "video_records": 10245,
     "initial_candidates": 114,
@@ -643,19 +643,19 @@
     "landscape_target": 2,
     "daily_mix_usable": 29,
     "target_reserve": 12,
-    "publishable_now": 0
+    "publishable_now": 1
   },
   "counts": {
     "complete": 147,
-    "failed": 1325,
+    "failed": 1338,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 20,
     "experiment_fallback": 21,
     "ready": 7,
-    "retry_queued": 11,
     "validation_failed": 2,
-    "running": 6
+    "retry_queued": 1,
+    "running": 5
   },
   "tasks": [
     {
@@ -24284,11 +24284,11 @@
     },
     {
       "slug": "ly-1022-ea7b5c",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792667355,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -24770,11 +24770,11 @@
     },
     {
       "slug": "ly-1022-7fa358",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792688992,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -25328,11 +25328,11 @@
     },
     {
       "slug": "ly-1009-2f94e6",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
       "signature": {
         "ts": 1792719677,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792719676,
@@ -26338,11 +26338,11 @@
     },
     {
       "slug": "ly-1014-3bf504",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792793389,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792793388,
@@ -26356,11 +26356,11 @@
     },
     {
       "slug": "ly-1015-519da5",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792793396,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792793395,
@@ -26374,11 +26374,11 @@
     },
     {
       "slug": "ly-1015-1b9782",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792793402,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792793401,
@@ -26392,11 +26392,11 @@
     },
     {
       "slug": "ly-1015-812071",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792793410,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792793409,
@@ -26464,11 +26464,11 @@
     },
     {
       "slug": "ly-1015-731991",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792793716,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792793715,
@@ -26590,11 +26590,11 @@
     },
     {
       "slug": "ly-1013-7069ee",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792794915,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792794914,
@@ -26680,11 +26680,11 @@
     },
     {
       "slug": "ly-1011-492b34",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792795050,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792795049,
@@ -26698,11 +26698,11 @@
     },
     {
       "slug": "ly-1011-d7feda",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792795056,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792795055,
@@ -26716,11 +26716,11 @@
     },
     {
       "slug": "ly-1012-fc974f",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792795182,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": 1792795181,
@@ -27688,11 +27688,11 @@
     },
     {
       "slug": "ly-1024-1305d1",
-      "status": "interrupted",
-      "detail": "运行已结束：cancelled",
+      "status": "failed",
+      "detail": "素材验收未通过",
       "signature": {
         "ts": 1792817266,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28390,8 +28390,8 @@
     },
     {
       "slug": "ly-1025-2f8164",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792910162,
         "failed": null,
@@ -28404,7 +28404,7 @@
       "run_id": 40169663007,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40169663007",
       "run_started_at": "2026-10-25T06:36:02Z",
-      "run_updated_at": "2026-10-25T06:36:12Z"
+      "run_updated_at": "2026-10-25T08:05:32Z"
     },
     {
       "slug": "ly-1025-329207",
@@ -41313,10 +41313,10 @@
     },
     "ly-1025-2f8164": {
       "id": 40169663007,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-25T06:36:02Z",
-      "updated_at": "2026-10-25T06:36:12Z",
+      "updated_at": "2026-10-25T08:05:32Z",
       "run_started_at": "2026-10-25T06:36:02Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40169663007",
       "run_number": 2740,
