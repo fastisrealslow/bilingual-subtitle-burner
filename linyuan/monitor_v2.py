@@ -251,9 +251,13 @@ class BilibiliSearchSource(Source):
             pages = max(1, min(int(self.config.get("pages", 1)), 10))
         except (TypeError, ValueError):
             pages = 1
+        start_page = int(self.config.get('start_page', 1))
+        if not 1 <= start_page <= 49:
+            raise ValueError('Bilibili search start_page must be between 1 and 49')
+        stop_page = min(51, start_page + pages)
         out = []
         seen = set()
-        for page_no in range(1, pages + 1):
+        for page_no in range(start_page, stop_page):
             url = ("https://api.bilibili.com/x/web-interface/wbi/search/type"
                    f"?search_type=video&keyword={kw}&page={page_no}")
             data = json.loads(http_get(url, referer="https://www.bilibili.com/"))
@@ -278,7 +282,7 @@ class BilibiliSearchSource(Source):
                     "duration": duration_seconds(v.get("duration")),
                     "pubdate": v.get("pubdate"),
                 })
-            if page_no < pages:
+            if page_no + 1 < stop_page:
                 time.sleep(1)
         return out
 
@@ -423,6 +427,38 @@ class BilibiliCollectionSource(Source):
         seeds = list(self.config.get('seeds', []))
         if self.config.get('seeds_file'):
             seeds.extend(json.loads(Path(__file__).with_name(self.config['seeds_file']).read_text())['seeds'])
+        from verified_seed_snapshot import items as verified_snapshot_items
+        known_ids = set()
+        snapshot_cache_available = True
+        if DB_PATH.exists():
+            try:
+                with sqlite3.connect(DB_PATH.resolve().as_uri()+'?mode=ro',uri=True) as conn:
+                    known_ids = {r[0] for r in conn.execute('SELECT id FROM items')}
+            except (sqlite3.DatabaseError, OSError):
+                # This optional shortcut cannot infer that old restrictions
+                # are absent when their catalogue cannot be read.
+                snapshot_cache_available = False
+                print('[bilibili_collection] 旧台账不可读，停用快照捷径，保留实时查源',file=sys.stderr)
+        denied_roots = {s.get('bvid') for s in seeds if s.get('no_reprint')==1
+            or s.get('direct_dispatch') is False or s.get('source_role') in {'reference','catalog_only'}}
+        cached_roots = set()
+        # A fresh exact observation has already paid the metadata lookup cost.
+        # Materialize missing catalogue pages before the multi-day round robin,
+        # long mothers first. This adds no requests or media approval and keeps
+        # the normal six-worker admission limit and every actual source gate.
+        ordered = sorted(seeds,key=lambda s:-max(
+            (duration_seconds(p.get('duration')) for p in s.get('pages') or [] if isinstance(p,dict)),default=0))
+        for seed in ordered if snapshot_cache_available else []:
+            if seed.get('bvid') in denied_roots:
+                continue
+            cached = [r for r in verified_snapshot_items(seed) if r['id'] not in known_ids]
+            if not cached:
+                continue
+            items.extend(cached)
+            known_ids.update(r['id'] for r in cached)
+            cached_roots.add(seed['bvid'])
+            if len(cached_roots)>=24:
+                break
         if self.config.get('expand_overlimit_parents') is True:
             # Parent totals above 90 minutes can contain ordinary 20–30 minute
             # native pages. Inspect their live view metadata inside the SAME
@@ -435,6 +471,8 @@ class BilibiliCollectionSource(Source):
                 print(f'[bilibili_collection] 合集线索不可用，保留原种子轮换: {type(exc).__name__}',file=sys.stderr)
         for seed in self.collection_seed_batch(seeds):
             bvid = seed["bvid"]
+            if bvid in cached_roots:
+                continue
             try:
                 try:
                     data = json.loads(http_get(
@@ -873,6 +911,13 @@ class WeiboSearchSource(Source):
         return items
 
 
+def weibo_research_seed_ids(base=None):
+    base=Path(base) if base is not None else Path(__file__).resolve().parent
+    path=base/'weibo_seeds.json'
+    values=json.loads(path.read_text()).get('research_only_mids',[]) if path.exists() else []
+    return {str(mid) for mid in values if re.fullmatch(r'\d{10,25}',str(mid))}
+
+
 class WeiboVideoSource(WeiboSearchSource):
     """Refresh exact publicly discovered video pages, independently of search.
 
@@ -884,6 +929,7 @@ class WeiboVideoSource(WeiboSearchSource):
     def fetch(self, page):
         from urllib.parse import urlsplit
         urls=list(self.config.get('urls',[]))
+        research=weibo_research_seed_ids() | {str(mid) for mid in self.config.get('research_only_mids',[])}
         seeds=self.config.get('seeds_file')
         if seeds:
             urls.extend(json.loads(Path(__file__).with_name(seeds).read_text())['urls'])
@@ -898,6 +944,17 @@ class WeiboVideoSource(WeiboSearchSource):
         if not ids:return []
         rq,xsrf=self._visitor_session()
         statuses=[]
+        def video_rows():
+            rows=[]
+            for row in self._items(statuses):
+                extra=json.loads(row['extra'])
+                if not extra['has_video']:continue
+                if str(extra.get('mid')) in research:
+                    extra.update(source_role='catalog_only',direct_dispatch=False,
+                                 metadata_status='verified_seed_metadata')
+                    row={**row,'extra':json.dumps(extra,ensure_ascii=False)}
+                rows.append(row)
+            return rows
         for mid in self.seed_batch(ids, 12):
             try:
                 payload=json.loads(rq('https://weibo.com/ajax/statuses/show?id='+mid,
@@ -912,11 +969,10 @@ class WeiboVideoSource(WeiboSearchSource):
                         r'虎林园|园林|林园酒店|华林园|林园景区|林园小区|林园饭店',text)):
                     continue
                 statuses.append(data)
-                self.partial_items = [row for row in self._items(statuses)
-                                      if json.loads(row['extra'])['has_video']]
+                self.partial_items = video_rows()
             except Exception as exc:
                 print(f'[{self.name}] {mid} 暂不可取：{type(exc).__name__}',file=sys.stderr)
-        return [row for row in self._items(statuses) if json.loads(row['extra'])['has_video']]
+        return video_rows()
 
 
 class TencentLiveSource(Source):
@@ -1990,16 +2046,18 @@ def enforce_seed_restrictions(base=None):
     """Apply verified seed denials to cached P1/Pn before any feed export."""
     base = Path(base) if base is not None else Path(__file__).resolve().parent
     path = base / 'bilibili_seeds.json'
-    if not path.exists():
-        return 0
-    seeds = {s['bvid']: s for s in json.loads(path.read_text())['seeds']
+    seeds = {s['bvid']: s for s in (json.loads(path.read_text())['seeds'] if path.exists() else [])
              if s.get('no_reprint') == 1 or s.get('direct_dispatch') is False
              or s.get('content_date_hint')}
+    research=weibo_research_seed_ids(base)
+    if not seeds and not research:return 0
     changed = 0
     with sqlite3.connect(DB_PATH) as conn:
         for identity, encoded in conn.execute('SELECT id, extra FROM items').fetchall():
             extra = json.loads(encoded or '{}')
             seed = seeds.get(extra.get('bvid'))
+            if identity.startswith('weibo_search:') and identity.partition(':')[2] in research:
+                seed=dict(source_role='catalog_only',direct_dispatch=False)
             if not seed:
                 continue
             merged = retain_source_restrictions(encoded, [json.dumps(dict(seed,
@@ -2059,6 +2117,8 @@ def upsert_items(items):
         exists = previous is not None
 
         if exists:
+            if item['id'].startswith('weibo_search:'):
+                item['extra']=retain_source_restrictions(item['extra'],[previous[4]])
             if item.get('source')=='p5w_video' and json.loads(previous[4] or '{}').get('no_reprint')==1:
                 item['extra']=retain_source_restrictions(item['extra'],[previous[4]])
             item['extra']=retain_exact_page_metadata(item['extra'],previous[4],item['id'])
@@ -2156,6 +2216,7 @@ def export_dashboard_data():
     conn.close()
 
     items = []
+    weibo_research=weibo_research_seed_ids()
     for row in rows:
         extra = {}
         try:
@@ -2167,6 +2228,9 @@ def export_dashboard_data():
         title=row['title']
         if row['source'].startswith('weibo'):
             title=weibo_discovery_title(title)
+            if str(extra.get('mid') or row['id'].partition(':')[2]) in weibo_research:
+                extra.update(source_role='catalog_only',direct_dispatch=False,
+                             metadata_status='verified_seed_metadata')
             if title!=row['title']:
                 extra['discovery_raw_title']=row['title']
                 extra['title_annotation_cleanup_version']=1
