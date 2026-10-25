@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792939898,
-  "inventory_updated_at": 1792939791,
+  "updated_at": 1792943348,
+  "inventory_updated_at": 1792943346,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 40,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,19 +137,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792939898,
-    "records": 11933,
-    "video_records": 10260,
-    "initial_candidates": 55,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1792943348,
+    "records": 11943,
+    "video_records": 10270,
+    "initial_candidates": 56,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 7007,
+      "clip_title": 1190,
+      "speaker_unconfirmed": 7020,
       "no_video": 1673,
-      "already_attempted_or_cooling": 1737,
-      "clip_title": 1189,
+      "already_attempted_or_cooling": 1732,
       "noise": 21,
       "unrelated": 65,
       "ai_content": 36,
@@ -158,7 +158,16 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV133nM68EA9",
+        "title": "林园怎么给企业估值？林园：估值贵还是便宜我们是知道的，第二个是股民不敢打开他自己账户了，就不多了，就是说市场跌得差不多了",
+        "source": "reference_origin_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV133nM68EA9",
+        "duration_sec": 29.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 40,
@@ -176,13 +185,13 @@
     "complete": 149,
     "failed": 1393,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 6,
     "excluded": 22,
     "experiment_fallback": 25,
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -29339,8 +29348,8 @@
     },
     {
       "slug": "ly-story-2a8f12b578",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1792939658,
         "failed": false,
@@ -29353,7 +29362,7 @@
       "run_id": 40203897957,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40203897957",
       "run_started_at": "2026-10-25T14:47:38Z",
-      "run_updated_at": "2026-10-25T14:47:42Z"
+      "run_updated_at": "2026-10-25T15:47:45Z"
     }
   ],
   "runs": {
@@ -42801,10 +42810,10 @@
     },
     "ly-story-2a8f12b578": {
       "id": 40203897957,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-25T14:47:38Z",
-      "updated_at": "2026-10-25T14:47:42Z",
+      "updated_at": "2026-10-25T15:47:45Z",
       "run_started_at": "2026-10-25T14:47:38Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40203897957",
       "run_number": 2825,
