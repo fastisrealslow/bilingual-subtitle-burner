@@ -32,6 +32,62 @@ def clean(text):
     return re.sub(r'[^\u4e00-\u9fff0-9%％.]', '', str(text))
 
 
+PERCENT = re.compile(rf'百分之({NUMBER}(?:点{NUMBER})?)|([0-9]+(?:\.[0-9]+)?)[%％]')
+
+
+def percentage_mentions(text):
+    """Retain clause positions while comparing spoken and written numbers."""
+    from decimal import Decimal
+    text = str(text or '')
+    rows = []
+    for match in PERCENT.finditer(text):
+        raw = match[1] or match[2]
+        if '点' in raw:
+            whole, fraction = raw.split('点')
+            digits = dict(zip('零〇一二两三四五六七八九', '001223456789'))
+            parsed = number(whole)
+            if parsed is None or not all(c in digits or c.isdecimal() for c in fraction):
+                continue
+            raw = str(parsed) + '.' + ''.join(digits.get(c, c) for c in fraction)
+        elif not match[2]:
+            parsed = number(raw)
+            if parsed is None:
+                continue
+            raw = str(parsed)
+        rows.append((Decimal(raw), match))
+    return rows
+
+
+def tentative_percentage(text, match):
+    # A hedge from another sentence, comma clause, contrasting judgment or
+    # quoted opinion cannot qualify this percentage. A question mark alone
+    # is not an estimate. Never rewrite the number or infer missing context.
+    prefix = re.split(r'[。！？!?；;，,：:“”「」]|但是|不过|然而|但',
+                      text[:match.start()])[-1][-40:]
+    return any(not re.search(r'(?:不|没|没有|并非|不是|不能|不再|别|不要)(?:会|能|去)?$',
+                             prefix[:hedge.start()])
+               for hedge in re.finditer(r'可能|也许|或许|估计|预计|大概', prefix))
+
+
+def percentage_hedge_error(title, cover, source):
+    """Do not promote an explicitly tentative percentage into a fact.
+
+    Only percentages whose every source occurrence is qualified activate the
+    check. Repeated values with a definite/ambiguous context still need normal
+    semantic review; borrowing one occurrence would assign false certainty.
+    """
+    source = str(source or '')
+    contexts = {}
+    for value, match in percentage_mentions(source):
+        contexts.setdefault(value, []).append(tentative_percentage(source, match))
+    for copy in (str(title or ''), str(cover or '')):
+        for value, match in percentage_mentions(copy):
+            rows = contexts.get(value, [])
+            if rows and all(rows) and not tentative_percentage(copy, match):
+                return '百分比是原话的可能或估计；标题与封面各自保留该比例的判断语气，不能改成确定事实'
+    return None
+
+
 def population_contexts(source):
     text = clean(source)
     result = []

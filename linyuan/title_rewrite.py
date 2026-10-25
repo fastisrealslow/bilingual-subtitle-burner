@@ -1072,6 +1072,9 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    from title_quantity_context import percentage_hedge_error
+    percentage_issue = percentage_hedge_error(title, cover, transcript)
+    if percentage_issue:return percentage_issue
     market_issue=market_order_scope_error(title,cover,transcript)
     if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
