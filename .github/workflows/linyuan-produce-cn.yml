@@ -425,6 +425,9 @@ jobs:
 
       - name: 出片
         id: render
+        # Stop this step before the whole 4h job expires, so accepted
+        # checkpoints still have time for full media validation and delivery.
+        timeout-minutes: 150
         env:
           # 字幕识别与清理只在本地 CPU 运行，禁止 API 改写转写结果
           ASR_CPU_THREADS: '2'
@@ -471,7 +474,7 @@ jobs:
             --source-platform "${{ env.RUN_SOURCE_PLATFORM }}" \
             --source-report "deliver/${{ env.RUN_SLUG }}/_tmp/source_quality.json" \
             --split-highlights \
-            ${{ inputs.repair_bvid == '' && inputs.reviewed_parts == '' && inputs.selected_parts == '' && !inputs.include_full && (inputs.target_parts == '' || inputs.target_parts == '0') && '--max-outputs 2' || '' }} \
+            ${{ inputs.repair_bvid == '' && inputs.reviewed_parts == '' && inputs.selected_parts == '' && (inputs.target_parts == '' || inputs.target_parts == '0') && '--max-outputs 2' || '' }} \
             --require-live-video \
             --only-reviewed-parts "$REVIEWED_PARTS" \
             --only-selected-parts "$SELECTED_PARTS" \
@@ -567,7 +570,14 @@ jobs:
           path: linyuan/.mother_asr/${{ env.MOTHER_ASR_KEY }}
           key: mother-asr-${{ env.MOTHER_ASR_KEY }}
 
+      - name: 读取逐片验收检查点（后续失败不丢失已验收文件）
+        id: delivery_checkpoint
+        if: always() && steps.source_gate.outcome == 'success' && steps.render.outcome != 'skipped'
+        run: python delivery_checkpoint.py --directory "deliver/${{ env.RUN_SLUG }}" --slug "${{ env.RUN_SLUG }}"
+
       - name: 整理归档（slug 命名，留存可分析产物）
+        id: archive_accepted
+        if: always() && steps.delivery_checkpoint.outputs.accepted == 'true'
         run: |
           set -euo pipefail
           cd "deliver/${{ env.RUN_SLUG }}"
@@ -576,9 +586,12 @@ jobs:
           ls -la _accepted/
 
       - name: 原文件逐项复验并生成无重复视频的发布包
+        id: compact_delivery
+        if: always() && steps.archive_accepted.outcome == 'success'
         run: python compact_delivery.py --directory "deliver/${{ env.RUN_SLUG }}" --slug "${{ env.RUN_SLUG }}"
 
       - name: 上传成片到 Artifact
+        if: always() && steps.compact_delivery.outcome == 'success'
         # Publish only original manifest-required files, not duplicate slug
         # video aliases or previews. The full review/debug artifacts and the
         # optional Release mirror remain available separately.
@@ -591,6 +604,7 @@ jobs:
           if-no-files-found: error
 
       - name: 留存精简包哈希复验证据
+        if: always() && steps.compact_delivery.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: publish-bundle-proof-${{ env.RUN_SLUG }}
