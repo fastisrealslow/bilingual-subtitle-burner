@@ -48678,7 +48678,52 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-02-15T04:48:32+00:00"
+   "publish_time": "2026-02-15T04:48:32+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-be215e",
+    "run_id": 40157355384,
+    "artifact_id": 12586273072,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7ee395489886c1ef61b7940b04785c5fd5a3095abcbf021a151074ac8d95e11e",
+     "duration_sec": 2996.44,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1AhZsBHEX3"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"刚才我们说的一些增加循环的，比如说我们这个呃呃，治疗这个新的临床观察的首选药是硝酸甘油。\", \"suspect_quote\": \"增加循环的\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，无法确认具体含义。\"}, {\"sentence_id\": 7, \"quote\": \"那我们现在看的这个硝酸甘油啊，一年的这个中国的消费量、销售金额，这前几年啊，像最近像甘油素是涨了多少倍？\", \"suspect_quote\": \"甘油素\", \"kind\": \"unintelligibl"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"是投投资股票，什么有？\", \"suspect_quote\": \"是投投资股票，什么有？\", \"kind\": \"unintelligible_term\", \"reason\": \"“投投资”疑似识别污染，应为“第一道门槛”或类似表述；“什么有”语义不明，无法确认是否为有效内容。\"}, {\"sentence_id\": 4, \"quote\": \"大老师。\", \"suspect_quote\": \"大老师。\", \"kind\": \"unintelligible_term\", \"reason\": \"“大老师”疑似识别污染，结合上下文应为对嘉宾的"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾在整段发言中始终处于回应状态，未提出独立判断：对‘辅助类药细化’仅以反问‘哪一些能细化’回避；对‘康美医药重仓’使用‘万一...要敢于投’的假设句式，未确认或否定该策略，属于论述被切断或未形成结论。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"我什么数都，因为我这个人二十多岁，我都是钱的，我最有钱的。\", \"suspect_quote\": \"二十多岁\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“二十多岁”语义模糊，无法确定具体年龄范围；且上下文逻辑混乱（“我都是钱的”疑似识别污染），需核对原音确认是否为“二十多岁时”或类似表达。\"}, {\"sentence_id\": 6, \"quote\": \"我什么数都，因为我这个人二十多岁，我都是钱的，我最有钱的。\", \"suspect_quote\": \"我都是钱的\","
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40157355384,
+    "artifact_id": 12586273072,
+    "name": "production-reject-ly-1025-be215e",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"刚才我们说的一些增加循环的，比如说我们这个呃呃，治疗这个新的临床观察的首选药是硝酸甘油。\", \"suspect_quote\": \"增加循环的\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，无法确认具体含义。\"}, {\"sentence_id\": 7, \"quote\": \"那我们现在看的这个硝酸甘油啊，一年的这个中国的消费量、销售金额，这前几年啊，像最近像甘油素是涨了多少倍？\", \"suspect_quote\": \"甘油素\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“硝酸甘油”误识别为不存在的实体或名称，存在专名错写。\"}, {\"sentence_id\": 13, \"quote\": \"用下医院这个，这个家属包括医医这个病人本身，又没给我用药了，他觉得你没给他治。\", \"suspect_quote\": \"医医\", \"kind\": \"unintelligible_term\", \"reason\": \"重复字导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 25, \"quote\": \"康美药还是白还是中国的白马过来的康美的吧。\", \"suspect_quote\": \"白还是中国的白马过来的康美的吧\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱，存在大量口语填充和识别错误，无法确定实际含义。\"}, {\"sentence_id\": 42, \"quote\": \"是抗美事件发生了以后，我才知道它是个丑陋的企业。\", \"suspect_quote\": \"抗美事件\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}, {\"sentence_id\": 43, \"quote\": \"以前在歌舞厅，反正就是唱歌，又是抗美。\", \"suspect_quote\": \"又是抗美\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5357851197312231",
@@ -48738,7 +48783,8 @@
    },
    "last_error": "整段取景预检：源 147.83s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -126780,6 +126826,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/cxMM1HQ6lx08BQdn7P8401041200RC1h0E010.mp4",
    "ts": 1792899200,
    "error": "整段取景预检：源 147.83s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1025-be215e",
+   "key": "bilibili_search:BV1AhZsBHEX3",
+   "video_id": "BV1AhZsBHEX3",
+   "ts": 1792902643,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"刚才我们说的一些增加循环的，比如说我们这个呃呃，治疗这个新的临床观察的首选药是硝酸甘油。\", \"suspect_quote\": \"增加循环的\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，无法确认具体含义。\"}, {\"sentence_id\": 7, \"quote\": \"那我们现在看的这个硝酸甘油啊，一年的这个中国的消费量、销售金额，这前几年啊，像最近像甘油素是涨了多少倍？\", \"suspect_quote\": \"甘油素\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“硝酸甘油”误识别为不存在的实体或名称，存在专名错写。\"}, {\"sentence_id\": 13, \"quote\": \"用下医院这个，这个家属包括医医这个病人本身，又没给我用药了，他觉得你没给他治。\", \"suspect_quote\": \"医医\", \"kind\": \"unintelligible_term\", \"reason\": \"重复字导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 25, \"quote\": \"康美药还是白还是中国的白马过来的康美的吧。\", \"suspect_quote\": \"白还是中国的白马过来的康美的吧\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱，存在大量口语填充和识别错误，无法确定实际含义。\"}, {\"sentence_id\": 42, \"quote\": \"是抗美事件发生了以后，我才知道它是个丑陋的企业。\", \"suspect_quote\": \"抗美事件\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}, {\"sentence_id\": 43, \"quote\": \"以前在歌舞厅，反正就是唱歌，又是抗美。\", \"suspect_quote\": \"又是抗美\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
