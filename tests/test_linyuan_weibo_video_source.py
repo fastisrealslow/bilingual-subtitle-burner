@@ -38,6 +38,37 @@ def test_actual_api_title_author_media_are_used(monkeypatch):
     assert calls==['https://weibo.com/ajax/statuses/show?id='+MID]
 
 
+def test_verified_research_seed_cannot_become_a_production_candidate(monkeypatch,tmp_path):
+    monkeypatch.setattr(m.WeiboVideoSource,'_visitor_session',lambda _:(
+        lambda *a,**kw:json.dumps(status()),'token'))
+    rows=m.WeiboVideoSource(dict(urls=[f'https://m.weibo.cn/detail/{MID}'],
+        research_only_mids=[MID]),{}).fetch(None)
+    extra=json.loads(rows[0]['extra'])
+    assert extra['direct_dispatch'] is False and extra['source_role']=='catalog_only'
+    from fc import index as fc
+    assert fc.pick(rows,dict(dispatched=[],rejected=[],published={}),10)==[]
+    monkeypatch.setattr(m,'DB_PATH',tmp_path/'catalog.db');m.init_db()
+    m.upsert_items(rows)
+    # A subsequent search or stronger title must not silently release the hold.
+    plain={**rows[0],'extra':json.dumps(dict(mid=MID,has_video=True,duration=600))}
+    m.upsert_items([plain])
+    with m.sqlite3.connect(m.DB_PATH) as conn:
+        saved=json.loads(conn.execute('select extra from items').fetchone()[0])
+    assert saved['direct_dispatch'] is False
+
+
+def test_research_seed_hold_applies_to_existing_weibo_ledger_before_export(monkeypatch,tmp_path):
+    monkeypatch.setattr(m,'DB_PATH',tmp_path/'catalog.db');m.init_db()
+    m.upsert_items([dict(id='weibo_search:'+MID,source='weibo_search',title='林园谈投资',
+        url='https://m.weibo.cn/detail/'+MID,author='实际发布者',publish_time='',
+        extra=json.dumps(dict(mid=MID,has_video=True,duration=600)))])
+    (tmp_path/'weibo_seeds.json').write_text(json.dumps(dict(urls=[],research_only_mids=[MID])))
+    assert m.enforce_seed_restrictions(tmp_path)==1
+    with m.sqlite3.connect(m.DB_PATH) as conn:
+        saved=json.loads(conn.execute('select extra from items').fetchone()[0])
+    assert saved['source_role']=='catalog_only' and saved['direct_dispatch'] is False
+
+
 def test_actual_financial_topic_marker_does_not_make_interview_noise(monkeypatch):
     raw='2026.08.07林园专访：为何依旧坚守消费和医药？#圣叹财经[超话]#'
     rows,_=fetch(monkeypatch,status(text=raw))
