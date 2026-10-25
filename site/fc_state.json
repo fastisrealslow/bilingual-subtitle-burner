@@ -49098,7 +49098,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1RZ4y1p7YP",
@@ -49339,7 +49340,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1taWc6CELQ）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5341539501082301",
@@ -49362,7 +49364,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-10T10:02:01+08:00"
+   "publish_time": "2026-09-10T10:02:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-c214f5",
+    "run_id": 40165269159,
+    "artifact_id": 12590238323,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d4db5114a538405825f82ca9b0abc38b24a6b271a24dff884c69634f6cac682d",
+     "duration_sec": 5178.61,
+     "resolution": {
+      "width": 1920,
+      "height": 1078,
+      "short_edge": 1078
+     },
+     "source_url": "https://m.weibo.cn/detail/5341539501082301"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3985.47s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4559.50s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 84%（BV1PcHp6tE4k）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40165269159,
+    "artifact_id": 12590238323,
+    "name": "production-reject-ly-1025-c214f5",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5341489979983495",
@@ -127945,6 +127996,13 @@
    "key": "bilibili_search:BV1ugoUBFEe3",
    "video_id": "BV1ugoUBFEe3",
    "ts": 1792911624,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1025-c214f5",
+   "key": "weibo_search:5341539501082301",
+   "video_id": "https://f.video.weibocdn.com/o0/77W5PgJPlx08AFpHOTXy0104120ROdd80E0j0.mp4",
+   "ts": 1792912922,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
