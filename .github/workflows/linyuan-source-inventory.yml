@@ -126,6 +126,9 @@ jobs:
               out.write(f"时长未分类：{c['completed_duration_unknown']}；运行中/未决：{c['active_or_unresolved']}。\n\n")
               if bounds['lower'] is not None:
                   out.write(f"保守下限：{bounds['lower']:.2%}；达标：{r['target_achieved']}。\n")
+              milestone=r.get('near_term_milestone')
+              if milestone:
+                  out.write(f"阶段目标：{milestone['target_rate']:.0%}；还需成功长源：{milestone['remaining_successful_mothers']}；阶段达标：{milestone['achieved']}。\n")
               out.write('只计算已有真实成片核验/发布凭据；不降低门禁，不把新增候选当成出片。\n')
           PY
       - uses: actions/upload-artifact@v4

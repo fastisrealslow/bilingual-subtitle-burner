@@ -244,7 +244,7 @@ def apply_frozen_goal(report, goal):
         raise ValueError('Invalid conservative attempted cohort')
     comparison=Fraction(verified_successes,cohort_size) if cohort_size else None
     required = math.ceil(target * cohort_size) if cohort_size and feasible else None
-    return dict(report, target_rate=float(target), target_multiplier=multiplier, target_is_feasible=feasible,
+    result = dict(report, target_rate=float(target), target_multiplier=multiplier, target_is_feasible=feasible,
         frozen_goal=dict(baseline_as_of=goal['baseline_as_of'], baseline_fraction=baseline,
             target_mode=mode, multiplier=multiplier,
             target_fraction=dict(numerator=target.numerator, denominator=target.denominator)),
@@ -254,6 +254,21 @@ def apply_frozen_goal(report, goal):
         pending_classifications_known=pending_classifications_known,
         target_achieved=bool(feasible and comparison is not None and comparison>=target),
         goal_comparison_basis='All attempted known-long and possibly-long sources remain in the denominator, including running retries; only independent verified clips count. Completed-only rate is descriptive, not target proof.')
+    milestone=goal.get('near_term_milestone')
+    if milestone is not None:
+        requested=milestone['target_fraction'];n,d=requested['numerator'],requested['denominator']
+        if (type(n) is not int or type(d) is not int or not 0<n<=d or d<=0
+                or Fraction(n,d)>target):
+            raise ValueError('Invalid near-term milestone fraction')
+        interim=Fraction(n,d)
+        needed=math.ceil(interim*cohort_size) if cohort_size else None
+        result['near_term_milestone']=dict(requested_on=milestone.get('requested_on'),
+            target_rate=float(interim),target_fraction=dict(numerator=n,denominator=d),
+            required_successful_mothers_at_current_cohort_size=needed,
+            remaining_successful_mothers=max(0,needed-verified_successes) if needed is not None else None,
+            achieved=bool(comparison is not None and comparison>=interim),
+            comparison_fraction=dict(numerator=verified_successes,denominator=cohort_size))
+    return result
 
 
 def main():
