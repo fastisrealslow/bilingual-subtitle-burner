@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792918054,
+  "updated_at": 1792918248,
   "inventory_updated_at": 1792918051,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 30,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 54,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 53,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,17 +137,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792918053,
+    "updated_at": 1792918247,
     "records": 11914,
     "video_records": 10245,
-    "initial_candidates": 109,
-    "duration_eligible_records": 54,
-    "candidate_count": 54,
-    "known_duration_candidates": 54,
+    "initial_candidates": 108,
+    "duration_eligible_records": 53,
+    "candidate_count": 53,
+    "known_duration_candidates": 53,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1669,
-      "already_attempted_or_cooling": 1682,
+      "already_attempted_or_cooling": 1683,
       "speaker_unconfirmed": 6993,
       "clip_title": 1189,
       "noise": 21,
@@ -159,14 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1kr4y147of",
-        "title": "林园 P1 林园：未来无论牛市熊市，医药都是主线。",
-        "source": "bilibili_collection",
-        "author": "走走走拍拍拍",
-        "url": "https://www.bilibili.com/video/BV1kr4y147of",
-        "duration_sec": 406.0
-      },
       {
         "key": "bilibili_search:BV1n34y1j79c",
         "title": "林园 P1 林园：如何挑选垄断企业，要注意这两个唯一性的区分",
@@ -607,15 +599,15 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1341,
+    "failed": 1342,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 19,
     "ready": 8,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 5
+    "retry_queued": 2,
+    "running": 6
   },
   "tasks": [
     {
@@ -28602,11 +28594,11 @@
     },
     {
       "slug": "ly-1025-847c25",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792917456,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28638,14 +28630,14 @@
     },
     {
       "slug": "ly-1025-4ab143",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1792917921,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1792919067,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -28653,6 +28645,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40177881022",
       "run_started_at": "2026-10-25T08:45:21Z",
       "run_updated_at": "2026-10-25T08:47:15Z"
+    },
+    {
+      "slug": "ly-1025-6fea04",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792918207,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40178194339,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40178194339",
+      "run_started_at": "2026-10-25T08:50:07Z",
+      "run_updated_at": "2026-10-25T08:50:11Z"
     }
   ],
   "runs": {
@@ -41382,6 +41392,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40177881022",
       "run_number": 2756,
       "display_title": "中文源出片 · ly-1025-4ab143"
+    },
+    "ly-1025-6fea04": {
+      "id": 40178194339,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T08:50:07Z",
+      "updated_at": "2026-10-25T08:50:11Z",
+      "run_started_at": "2026-10-25T08:50:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40178194339",
+      "run_number": 2757,
+      "display_title": "中文源出片 · ly-1025-6fea04"
     },
     "ly-1025-9bae4e": {
       "id": 40177871656,
