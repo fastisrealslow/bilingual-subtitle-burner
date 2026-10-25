@@ -102,3 +102,20 @@ def test_new_exact_long_seed_reaches_catalogue_before_its_round_robin_turn(tmp_p
     extra=json.loads(rows[0]['extra'])
     assert not extra['media_verified'] and not extra['editorial_approved']
     assert source.scan_state['bilibili_collection']['cursor']==1
+
+
+def test_unreadable_old_catalogue_disables_shortcut_but_keeps_live_restrictions(tmp_path,monkeypatch):
+    monkeypatch.setattr(V.time,'time',lambda:NOW)
+    database=tmp_path/'broken.db';database.write_text('not a database')
+    monkeypatch.setattr(M,'DB_PATH',database)
+    calls=[]
+    def fetch(url,**kw):
+        calls.append(url)
+        return json.dumps(dict(code=0,data=dict(bvid=BVID,title='林园访谈',
+            owner=dict(name='当前作者'),rights=dict(no_reprint=1),
+            pages=[dict(page=1,cid=9876,duration=1800,part='实时第一集')])))
+    monkeypatch.setattr(M,'http_get',fetch)
+    rows=M.BilibiliCollectionSource(dict(seeds=[seed()]),{}).fetch(None)
+    assert len(calls)==1 and len(rows)==1
+    extra=json.loads(rows[0]['extra'])
+    assert extra['cid']==9876 and extra['no_reprint']==1 and extra['direct_dispatch'] is False

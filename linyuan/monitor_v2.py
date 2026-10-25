@@ -429,9 +429,16 @@ class BilibiliCollectionSource(Source):
             seeds.extend(json.loads(Path(__file__).with_name(self.config['seeds_file']).read_text())['seeds'])
         from verified_seed_snapshot import items as verified_snapshot_items
         known_ids = set()
+        snapshot_cache_available = True
         if DB_PATH.exists():
-            with sqlite3.connect(DB_PATH.resolve().as_uri()+'?mode=ro',uri=True) as conn:
-                known_ids = {r[0] for r in conn.execute('SELECT id FROM items')}
+            try:
+                with sqlite3.connect(DB_PATH.resolve().as_uri()+'?mode=ro',uri=True) as conn:
+                    known_ids = {r[0] for r in conn.execute('SELECT id FROM items')}
+            except (sqlite3.DatabaseError, OSError):
+                # This optional shortcut cannot infer that old restrictions
+                # are absent when their catalogue cannot be read.
+                snapshot_cache_available = False
+                print('[bilibili_collection] 旧台账不可读，停用快照捷径，保留实时查源',file=sys.stderr)
         denied_roots = {s.get('bvid') for s in seeds if s.get('no_reprint')==1
             or s.get('direct_dispatch') is False or s.get('source_role') in {'reference','catalog_only'}}
         cached_roots = set()
@@ -441,7 +448,7 @@ class BilibiliCollectionSource(Source):
         # the normal six-worker admission limit and every actual source gate.
         ordered = sorted(seeds,key=lambda s:-max(
             (duration_seconds(p.get('duration')) for p in s.get('pages') or [] if isinstance(p,dict)),default=0))
-        for seed in ordered:
+        for seed in ordered if snapshot_cache_available else []:
             if seed.get('bvid') in denied_roots:
                 continue
             cached = [r for r in verified_snapshot_items(seed) if r['id'] not in known_ids]
