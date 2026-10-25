@@ -463,10 +463,12 @@ class BilibiliCollectionSource(Source):
                 # verified seed snapshot, nor turn a research-only seed live.
                 denied = no_reprint == 1 or seed.get('no_reprint') == 1
                 dispatch = bool(author) and not denied and seed.get('direct_dispatch') is not False
-                for part in data.get("pages") or []:
+                from source_catalogue_duration import eligible_duration
+                source_pages = data.get("pages") or []
+                for part in source_pages:
                     number = int(part["page"])
                     duration = duration_seconds(part.get("duration"))
-                    if not 120 <= duration <= 5400:
+                    if not eligible_duration(duration, len(source_pages)):
                         continue
                     suffix = f":p{number}" if number > 1 else ""
                     url = f"https://www.bilibili.com/video/{bvid}" + (f"?p={number}" if number > 1 else "")

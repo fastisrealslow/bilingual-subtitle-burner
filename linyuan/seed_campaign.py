@@ -8,6 +8,7 @@ import re
 import sqlite3
 
 import monitor_v2 as monitor
+from source_catalogue_duration import eligible_duration
 
 BASE = Path(__file__).resolve().parent
 BVID = re.compile(r'^BV[0-9A-Za-z]{10}$')
@@ -60,7 +61,7 @@ def catalog_candidates(db=BASE / 'monitor_v2.db'):
                 continue
             if row['author'] in {'', '园园滚雪球', '园来滚雪球', '账号已注销', '已注销'}:
                 continue
-            if not 120 <= monitor.duration_seconds(extra.get('duration')) <= 5400:
+            if not eligible_duration(monitor.duration_seconds(extra.get('duration'))):
                 continue
             title = row['title'] or ''
             if not fc.item_has_target_speaker(row, extra) or fc.NOISE.search(title) or NO_MEDIA.search(title):
@@ -93,10 +94,11 @@ def verify_seed(candidate, fetch=monitor.http_get):
         if (author in {'', '园园滚雪球', '园来滚雪球', '账号已注销', '已注销'}
                 or (data.get('owner') or {}).get('mid') in {1700344493, 275211725}):
             raise ValueError('unknown, reference-only or self publisher')
+        source_pages = data.get('pages') or []
         pages = [dict(page=int(p['page']), cid=int(p['cid']),
                       duration=monitor.duration_seconds(p.get('duration')), title=p.get('part', ''))
-                 for p in data.get('pages') or []
-                 if 120 <= monitor.duration_seconds(p.get('duration')) <= 5400
+                 for p in source_pages
+                 if eligible_duration(monitor.duration_seconds(p.get('duration')), len(source_pages))
                  and not NO_MEDIA.search(p.get('part') or '')]
         if not pages or any(p['page'] < 1 or p['cid'] < 1 for p in pages):
             raise ValueError('no eligible real video pages')

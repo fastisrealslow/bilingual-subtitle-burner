@@ -2,6 +2,8 @@
 import json
 import re
 
+from source_catalogue_duration import eligible_duration
+
 
 def episode_items(data, duration_seconds, publish_time):
     items, seen = [], set()
@@ -18,10 +20,11 @@ def episode_items(data, duration_seconds, publish_time):
             if re.search(r'园林|虎林园|林园群|林园酒店|纯音频|录音版|张海辉', title):
                 continue
             no_reprint = (arc.get('rights') or {}).get('no_reprint')
-            for page in episode.get('pages') or [episode.get('page') or {}]:
+            source_pages = episode.get('pages') or [episode.get('page') or {}]
+            for page in source_pages:
                 duration = duration_seconds(page.get('duration'))
                 number, cid = page.get('page'), page.get('cid')
-                if not 120 <= duration <= 5400 or type(number) is not int or number < 1 or not cid:
+                if not eligible_duration(duration, len(source_pages)) or type(number) is not int or number < 1 or not cid:
                     continue
                 key = f'bilibili_search:{bvid}' + (f':p{number}' if number > 1 else '')
                 if key in seen:

@@ -9,6 +9,7 @@ import time
 import monitor_v2 as monitor
 from seed_campaign import BASE, BVID, NO_MEDIA, census, verify_seed
 from seed_scan import rotating_batch
+from source_catalogue_duration import eligible_duration
 
 QUERIES = ('林园 完整访谈', '林园 演讲', '林园 第一财经', '林园 腾讯财经',
            '林园 私募排排网', '林园 北大', '林园 春瑜会客厅', '林园 红周刊',
@@ -46,7 +47,7 @@ def catalog_leads(db):
                     or extra.get('source_role') == 'reference'):
                 continue
             duration = monitor.duration_seconds(extra.get('duration'))
-            if not 120 <= duration <= 5400:
+            if not eligible_duration(duration):
                 continue
             lead = dict(bvid=bvid, discovery='historical_catalog_revalidated',
                 catalog_title=row['title'], catalog_author=row['author'], catalog_duration=duration)
@@ -124,7 +125,7 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
                     if (BVID.fullmatch(bvid) and bvid not in roots
                             and '林园' in row.get('title', '') and not NO_MEDIA.search(row['title'])
                             and row.get('up') not in {'', '园园滚雪球', '园来滚雪球'}
-                            and 120 <= monitor.duration_seconds(row.get('duration')) <= 5400):
+                            and eligible_duration(monitor.duration_seconds(row.get('duration')))):
                         leads[bvid] = dict(bvid=bvid, discovery='normal_public_search',
                             catalog_title=row['title'], catalog_duration=row['duration'])
             except Exception as exc:
