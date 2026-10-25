@@ -50229,7 +50229,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅限于确认个人使用经历，并未形成针对资本市场回报要求等后续话题的独立完整论述或判断，缺乏作为独立成片所需的核心观点内容。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV14hKG6wETP",
@@ -50570,7 +50571,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-12-12T10:30:00+00:00"
+   "publish_time": "2022-12-12T10:30:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-61a4b6",
+    "run_id": 40179451724,
+    "artifact_id": 12594260904,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "bf619892b7432326f6810c093ce918a309eb303abdb67348a0e2c59dcec15e50",
+     "duration_sec": 155.67,
+     "resolution": {
+      "width": 858,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1ke411P7AQ"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40179451724,
+    "artifact_id": 12594260904,
+    "name": "production-reject-ly-1025-61a4b6",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Ky4y1v75c",
@@ -129579,6 +129613,13 @@
    "video_id": "BV1vzmeB6E9u",
    "ts": 1792919594,
    "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅限于确认个人使用经历，并未形成针对资本市场回报要求等后续话题的独立完整论述或判断，缺乏作为独立成片所需的核心观点内容。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1025-61a4b6",
+   "key": "bilibili_search:BV1ke411P7AQ",
+   "video_id": "BV1ke411P7AQ",
+   "ts": 1792920112,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
