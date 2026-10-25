@@ -52130,7 +52130,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-25T14:11:59+08:00"
+   "publish_time": "2026-09-25T14:11:59+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-d64269",
+    "run_id": 40193434649,
+    "artifact_id": 12599726032,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a3cd38190c118eab63bb7c5fd7a50d12d827f98d01b6b44e91e873c048fa905e",
+     "duration_sec": 777.53,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5347038224977498"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40193434649,
+    "artifact_id": 12599726032,
+    "name": "production-reject-ly-1025-d64269",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1pFEw6dER1",
@@ -52243,7 +52280,8 @@
    },
    "last_error": "整段取景预检：源 38.47s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1iC4y1H7JN",
@@ -131421,6 +131459,13 @@
    "video_id": "BV1PHTk6yEFv",
    "ts": 1792933126,
    "error": "整段取景预检：源 38.47s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1025-d64269",
+   "key": "weibo_search:5347038224977498",
+   "video_id": "https://f.video.weibocdn.com/u0/aKpxfVeugx08B4CByKO401041202NWMX0E010.mp4",
+   "ts": 1792933242,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98"
   }
  ],
  "reviewed_third_video_0910": {
