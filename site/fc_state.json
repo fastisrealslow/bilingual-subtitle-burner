@@ -52852,7 +52852,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/622，总帧数3109；身份匹配但人脸短边不足96px的帧数622",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1EiBdBSE5u",
@@ -52875,7 +52876,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-25T20:28:41+00:00"
+   "publish_time": "2025-12-25T20:28:41+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-557480",
+    "run_id": 40199125363,
+    "artifact_id": 12601202290,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "538018b05ab86264054bc090cb529870bcd9a5e4b9da644a33366b790a472a5c",
+     "duration_sec": 192.93,
+     "resolution": {
+      "width": 480,
+      "height": 640,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1EiBdBSE5u"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/481，总帧数2400；身份匹配但人脸短边不足96px的帧数321"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：回答在最后一句被截断（'要和市场斗耐心'），未完整表达关于股价创新高与市场耐心的具体逻辑或结论，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/299，总帧数1490；身份匹配但人脸短边不足96px的帧数188"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40199125363,
+    "artifact_id": 12601202290,
+    "name": "production-reject-ly-1025-557480",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/481，总帧数2400；身份匹配但人脸短边不足96px的帧数321",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1iV69ByEWL",
@@ -52898,7 +52940,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-11T06:05:32+00:00"
+   "publish_time": "2026-01-11T06:05:32+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-fd7e25",
+    "run_id": 40199132957,
+    "artifact_id": 12601538128,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7736d80b9b2de1594bdc77b92cc66c1fd0843e38ad8512188ef10315fb283bf2",
+     "duration_sec": 95.77,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1iV69ByEWL"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我不是什么能源，我倒不是。\", \"suspect_quote\": \"我不是什么能源\", \"kind\": \"unintelligible_term\", \"reason\": \"将嘉宾林园的名字误识别为“能源”，属于严重的专名错写，且该词在上下文中语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"就这种，我不不对汽车行业没有。\", \"suspect_quote\": \"我不不对汽车行业没有\", \"kind\": \"unintelligible_term\", \"reason\": \"连读出现“不不对”及“没有”，导致"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40199132957,
+    "artifact_id": 12601538128,
+    "name": "production-reject-ly-1025-fd7e25",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我不是什么能源，我倒不是。\", \"suspect_quote\": \"我不是什么能源\", \"kind\": \"unintelligible_term\", \"reason\": \"将嘉宾林园的名字误识别为“能源”，属于严重的专名错写，且该词在上下文中语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"就这种，我不不对汽车行业没有。\", \"suspect_quote\": \"我不不对汽车行业没有\", \"kind\": \"unintelligible_term\", \"reason\": \"连读出现“不不对”及“没有”，导致否定逻辑混乱，无法确定实际动作或观点。\"}, {\"sentence_id\": 15, \"quote\": \"嗯，好，所以这个我会发现您其实刚才您说您不调研，但是我会发现您很看重某个行业的市场需求，市场空间有多大。\", \"suspect_quote\": \"您其实刚才您说您不调研\", \"kind\": \"unintelligible_term\", \"reason\": \"将“不调研”识别为实际动作，但结合上下文语境（嘉宾强调观察能力），此处极可能为否定词误读或填充词错误，导致含义不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1bKiNBnEau",
@@ -52978,7 +53053,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2022-05-29T12:49:00+00:00"
+   "publish_time": "2022-05-29T12:49:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-f7baa1",
+    "run_id": 40199412838,
+    "artifact_id": 12601997445,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a610da5f944584369d78da5634bb1174c035d207d5619129b63753ac25efdb20",
+     "duration_sec": 445.24,
+     "resolution": {
+      "width": 720,
+      "height": 1284,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1su41167FS"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40199412838,
+    "artifact_id": 12601997445,
+    "name": "production-reject-ly-1025-f7baa1",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Ug41197Yb",
@@ -132908,6 +133016,27 @@
    "video_id": "BV1FZv4BwENY",
    "ts": 1792936769,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/622，总帧数3109；身份匹配但人脸短边不足96px的帧数622"
+  },
+  {
+   "slug": "ly-1025-f7baa1",
+   "key": "bilibili_search:BV1su41167FS",
+   "video_id": "BV1su41167FS",
+   "ts": 1792937314,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1025-fd7e25",
+   "key": "bilibili_search:BV1iV69ByEWL",
+   "video_id": "BV1iV69ByEWL",
+   "ts": 1792937316,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我不是什么能源，我倒不是。\", \"suspect_quote\": \"我不是什么能源\", \"kind\": \"unintelligible_term\", \"reason\": \"将嘉宾林园的名字误识别为“能源”，属于严重的专名错写，且该词在上下文中语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"就这种，我不不对汽车行业没有。\", \"suspect_quote\": \"我不不对汽车行业没有\", \"kind\": \"unintelligible_term\", \"reason\": \"连读出现“不不对”及“没有”，导致否定逻辑混乱，无法确定实际动作或观点。\"}, {\"sentence_id\": 15, \"quote\": \"嗯，好，所以这个我会发现您其实刚才您说您不调研，但是我会发现您很看重某个行业的市场需求，市场空间有多大。\", \"suspect_quote\": \"您其实刚才您说您不调研\", \"kind\": \"unintelligible_term\", \"reason\": \"将“不调研”识别为实际动作，但结合上下文语境（嘉宾强调观察能力），此处极可能为否定词误读或填充词错误，导致含义不明。\"}]"
+  },
+  {
+   "slug": "ly-1025-557480",
+   "key": "bilibili_search:BV1EiBdBSE5u",
+   "video_id": "BV1EiBdBSE5u",
+   "ts": 1792937316,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/481，总帧数2400；身份匹配但人脸短边不足96px的帧数321"
   }
  ],
  "reviewed_third_video_0910": {
