@@ -52073,7 +52073,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-25T15:48:53+08:00"
+   "publish_time": "2026-10-25T15:48:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-2b5b8a",
+    "run_id": 40193043318,
+    "artifact_id": 12598926732,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8893cfc8b0d2baf34cd9a6ce574b69124d7cb48e91dde8c12b412d1f5c59d98f",
+     "duration_sec": 41.13,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5357934248986563"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 69%（BV1TBbV6dE5c）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40193043318,
+    "artifact_id": 12598926732,
+    "name": "production-reject-ly-1025-2b5b8a",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 69%（BV1TBbV6dE5c）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5347038224977498",
@@ -131227,6 +131260,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/ElmxdL64lx08BQDH2RCg010412009ojN0E010.mp4",
    "ts": 1792931093,
    "error": "与已发布内容文字指纹重复：转写片段重合 68%（BV1AqJQ6BEeu）"
+  },
+  {
+   "slug": "ly-1025-2b5b8a",
+   "key": "weibo_search:5357934248986563",
+   "video_id": "https://f.video.weibocdn.com/o0/oklQ9x4Rlx08BQzFE1yM010412008Zlt0E010.mp4",
+   "ts": 1792931627,
+   "error": "与已发布内容文字指纹重复：转写片段重合 69%（BV1TBbV6dE5c）"
   }
  ],
  "reviewed_third_video_0910": {
