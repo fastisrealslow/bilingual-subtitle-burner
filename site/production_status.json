@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792918902,
+  "updated_at": 1792918998,
   "inventory_updated_at": 1792918900,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 30,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 52,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 50,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,17 +137,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792918901,
+    "updated_at": 1792918997,
     "records": 11914,
     "video_records": 10245,
-    "initial_candidates": 107,
-    "duration_eligible_records": 52,
-    "candidate_count": 52,
-    "known_duration_candidates": 52,
+    "initial_candidates": 105,
+    "duration_eligible_records": 50,
+    "candidate_count": 50,
+    "known_duration_candidates": 50,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1669,
-      "already_attempted_or_cooling": 1684,
+      "already_attempted_or_cooling": 1686,
       "speaker_unconfirmed": 6993,
       "clip_title": 1189,
       "noise": 21,
@@ -159,30 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1RZ3w6hEZT",
-        "title": "林园 P1 林园：大股东减持或质押的公司就不要去搞啦 #财经#经济#价值投资#林园#",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1RZ3w6hEZT",
-        "duration_sec": 119.0
-      },
-      {
-        "key": "bilibili_search:BV1qkUgB5Ehy",
-        "title": "林园 P1 林园：新消费大概率热闹不了多久，并非垄断生意，竞争还是比较激烈的，潮玩IP的护城河没有白酒的宽。茅台酒有可能",
-        "source": "bilibili_collection",
-        "author": "我真的是大川啊",
-        "url": "https://www.bilibili.com/video/BV1qkUgB5Ehy",
-        "duration_sec": 247.0
-      },
-      {
-        "key": "bilibili_search:BV1Tc41137tB:p3",
-        "title": "林园 P3 比尔盖茨最新.mp4",
-        "source": "bilibili_collection",
-        "author": "懂事长策略",
-        "url": "https://www.bilibili.com/video/BV1Tc41137tB?p=3",
-        "duration_sec": 165.0
-      },
       {
         "key": "bilibili_search:BV1ke411P7AQ",
         "title": "林园 P1 林园：可转债买入逻辑",
@@ -286,6 +262,14 @@
         "author": "唐晶晶的价值观",
         "url": "https://www.bilibili.com/video/BV1GRLe6tEv7",
         "duration_sec": 369.0
+      },
+      {
+        "key": "bilibili_search:BV1RZ3w6hEZT",
+        "title": "林园 P1 林园：大股东减持或质押的公司就不要去搞啦 #财经#经济#价值投资#林园#",
+        "source": "bilibili_collection",
+        "author": "价值投资和科技股",
+        "url": "https://www.bilibili.com/video/BV1RZ3w6hEZT",
+        "duration_sec": 119.0
       },
       {
         "key": "bilibili_search:BV1n94y1W7US",
@@ -591,15 +575,15 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1342,
+    "failed": 1344,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 19,
     "ready": 8,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -28460,11 +28444,11 @@
     },
     {
       "slug": "ly-1025-71aeee",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1792914199,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28604,11 +28588,11 @@
     },
     {
       "slug": "ly-1025-9bae4e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配426/625，总帧数994；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1792917914,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28673,6 +28657,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40178805985",
       "run_started_at": "2026-10-25T08:59:33Z",
       "run_updated_at": "2026-10-25T08:59:37Z"
+    },
+    {
+      "slug": "ly-1025-908dd0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792918954,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40179019843,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179019843",
+      "run_started_at": "2026-10-25T09:02:34Z",
+      "run_updated_at": "2026-10-25T09:02:38Z"
+    },
+    {
+      "slug": "ly-1025-088485",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792918961,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40179026685,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179026685",
+      "run_started_at": "2026-10-25T09:02:40Z",
+      "run_updated_at": "2026-10-25T09:02:44Z"
     }
   ],
   "runs": {
@@ -41425,6 +41445,39 @@
       "run_number": 2747,
       "display_title": "中文源出片 · ly-1025-71aeee"
     },
+    "ly-1025-9bae4e": {
+      "id": 40177871656,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T08:45:13Z",
+      "updated_at": "2026-10-25T09:00:50Z",
+      "run_started_at": "2026-10-25T08:45:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40177871656",
+      "run_number": 2755,
+      "display_title": "中文源出片 · ly-1025-9bae4e"
+    },
+    "ly-1025-088485": {
+      "id": 40179026685,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T09:02:40Z",
+      "updated_at": "2026-10-25T09:02:44Z",
+      "run_started_at": "2026-10-25T09:02:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179026685",
+      "run_number": 2760,
+      "display_title": "中文源出片 · ly-1025-088485"
+    },
+    "ly-1025-908dd0": {
+      "id": 40179019843,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T09:02:34Z",
+      "updated_at": "2026-10-25T09:02:38Z",
+      "run_started_at": "2026-10-25T09:02:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179019843",
+      "run_number": 2759,
+      "display_title": "中文源出片 · ly-1025-908dd0"
+    },
     "ly-1025-a3c83d": {
       "id": 40178805985,
       "status": "in_progress",
@@ -41446,17 +41499,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40178194339",
       "run_number": 2757,
       "display_title": "中文源出片 · ly-1025-6fea04"
-    },
-    "ly-1025-9bae4e": {
-      "id": 40177871656,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T08:45:13Z",
-      "updated_at": "2026-10-25T09:00:50Z",
-      "run_started_at": "2026-10-25T08:45:13Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40177871656",
-      "run_number": 2755,
-      "display_title": "中文源出片 · ly-1025-9bae4e"
     },
     "ly-1025-265634": {
       "id": 40176043886,
