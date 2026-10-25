@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792920595,
+  "updated_at": 1792920708,
   "inventory_updated_at": 1792920593,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 30,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 46,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 45,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,17 +137,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792920594,
+    "updated_at": 1792920708,
     "records": 11914,
     "video_records": 10245,
-    "initial_candidates": 101,
-    "duration_eligible_records": 46,
-    "candidate_count": 46,
-    "known_duration_candidates": 46,
+    "initial_candidates": 100,
+    "duration_eligible_records": 45,
+    "candidate_count": 45,
+    "known_duration_candidates": 45,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1669,
-      "already_attempted_or_cooling": 1690,
+      "already_attempted_or_cooling": 1691,
       "speaker_unconfirmed": 6993,
       "clip_title": 1189,
       "noise": 21,
@@ -159,14 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1m9Lz6YEZk",
-        "title": "林园 P1 lv_0_20260511205226",
-        "source": "bilibili_collection",
-        "author": "复利财务自由",
-        "url": "https://www.bilibili.com/video/BV1m9Lz6YEZk",
-        "duration_sec": 306.0
-      },
       {
         "key": "bilibili_search:BV1b79aBzEiU",
         "title": "林园 P1 lv_0_20260427104423",
@@ -190,14 +182,6 @@
         "author": "可转债谭大虾",
         "url": "https://www.bilibili.com/video/BV1yR4y1C7vm",
         "duration_sec": 66.0
-      },
-      {
-        "key": "bilibili_search:BV1pi4y1F7gc",
-        "title": "林园 P1 大佬林园：熊末牛初只敢买可转债，不敢买股票",
-        "source": "bilibili_collection",
-        "author": "旺财学堂",
-        "url": "https://www.bilibili.com/video/BV1pi4y1F7gc",
-        "duration_sec": 83.0
       },
       {
         "key": "bilibili_search:BV1KkAFzvENw",
@@ -350,6 +334,14 @@
         "author": "私募排排网",
         "url": "https://www.bilibili.com/video/BV1pFEw6dER1",
         "duration_sec": 109.0
+      },
+      {
+        "key": "bilibili_search:BV1pi4y1F7gc",
+        "title": "林园 P1 大佬林园：熊末牛初只敢买可转债，不敢买股票",
+        "source": "bilibili_collection",
+        "author": "旺财学堂",
+        "url": "https://www.bilibili.com/video/BV1pi4y1F7gc",
+        "duration_sec": 83.0
       },
       {
         "key": "bilibili_search:BV1FRBoB4EZj",
@@ -543,15 +535,15 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1349,
+    "failed": 1350,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 19,
     "ready": 8,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -28682,11 +28674,11 @@
     },
     {
       "slug": "ly-1025-7515d1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
       "signature": {
         "ts": 1792919347,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28733,6 +28725,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40180378881",
       "run_started_at": "2026-10-25T09:22:32Z",
       "run_updated_at": "2026-10-25T09:22:35Z"
+    },
+    {
+      "slug": "ly-1025-d07181",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792920668,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40180974112,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40180974112",
+      "run_started_at": "2026-10-25T09:31:08Z",
+      "run_updated_at": "2026-10-25T09:31:12Z"
     }
   ],
   "runs": {
@@ -41540,6 +41550,28 @@
       "run_number": 2763,
       "display_title": "中文源出片 · ly-1025-61a4b6"
     },
+    "ly-1025-7515d1": {
+      "id": 40179457544,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T09:09:07Z",
+      "updated_at": "2026-10-25T09:28:00Z",
+      "run_started_at": "2026-10-25T09:09:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179457544",
+      "run_number": 2764,
+      "display_title": "中文源出片 · ly-1025-7515d1"
+    },
+    "ly-1025-d07181": {
+      "id": 40180974112,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T09:31:08Z",
+      "updated_at": "2026-10-25T09:31:12Z",
+      "run_started_at": "2026-10-25T09:31:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40180974112",
+      "run_number": 2767,
+      "display_title": "中文源出片 · ly-1025-d07181"
+    },
     "ly-1025-9e6ced": {
       "id": 40180378881,
       "status": "in_progress",
@@ -41561,17 +41593,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179779978",
       "run_number": 2765,
       "display_title": "中文源出片 · ly-1025-9a2b7d"
-    },
-    "ly-1025-7515d1": {
-      "id": 40179457544,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T09:09:07Z",
-      "updated_at": "2026-10-25T09:28:00Z",
-      "run_started_at": "2026-10-25T09:09:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40179457544",
-      "run_number": 2764,
-      "display_title": "中文源出片 · ly-1025-7515d1"
     },
     "ly-1025-179a13": {
       "id": 40179255434,
