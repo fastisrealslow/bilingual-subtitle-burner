@@ -52532,7 +52532,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Sm1MBHEnD",
@@ -52555,7 +52556,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-31T09:40:50+00:00"
+   "publish_time": "2025-10-31T09:40:50+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-b0d3e6",
+    "run_id": 40197329095,
+    "artifact_id": 12601065388,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "2e4503e0f73712f088d0d320a1fff05fba2b6b7f59172e85ec7ea9faeeb92e32",
+     "duration_sec": 191.29,
+     "resolution": {
+      "width": 610,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Sm1MBHEnD"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配579/877，总帧数1486；身份匹配但人脸短边不足96px的帧数73"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配853/1333，总帧数2395；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配320/452，总帧数656；身份匹配但人脸短边不足96px的帧数74"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少针对主持人提问（句子 0、1）的直接回应句，现有内容仅为背景叙述，未形成完整观点表达。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40197329095,
+    "artifact_id": 12601065388,
+    "name": "production-reject-ly-1025-b0d3e6",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配579/877，总帧数1486；身份匹配但人脸短边不足96px的帧数73",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1LUASeNE1o",
@@ -52645,7 +52691,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1od4y1m7tj",
@@ -52678,7 +52725,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[12]，scan_different=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]，confidence=0.797，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1064, 3: 0.11, 4: 0.1003, 5: 0.2655, 6: 0.073, 7: 0.2071, 8: 0.1635, 9: 0.0658, 10: 0.1413, 11: 0.1458, 12: 0.3944, 13: 0.3054, 14: 0.1136, 15: 0.1956, 16: 0.1915, 17: 0.12}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1XDYn6eE6y",
@@ -52701,7 +52749,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-21T23:07:00+00:00"
+   "publish_time": "2026-10-21T23:07:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-a4cee4",
+    "run_id": 40197823339,
+    "artifact_id": 12601395348,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "67a690f227d8406bb3eeef6e0d5ebf389143ca46297883d7ee04ff34aa260670",
+     "duration_sec": 333.32,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1XDYn6eE6y"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40197823339,
+    "artifact_id": 12601395348,
+    "name": "production-reject-ly-1025-a4cee4",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Xrbc6NEnQ",
@@ -132496,6 +132577,20 @@
    "video_id": "BV1FRBoB4EZj",
    "ts": 1792935458,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1025-a4cee4",
+   "key": "bilibili_search:BV1XDYn6eE6y",
+   "video_id": "BV1XDYn6eE6y",
+   "ts": 1792935933,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1025-b0d3e6",
+   "key": "bilibili_search:BV1Sm1MBHEnD",
+   "video_id": "BV1Sm1MBHEnD",
+   "ts": 1792935936,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配579/877，总帧数1486；身份匹配但人脸短边不足96px的帧数73"
   }
  ],
  "reviewed_third_video_0910": {
