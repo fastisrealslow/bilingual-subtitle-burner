@@ -49850,7 +49850,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 88%（BV1dWhX6xEQt）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1VCoUBqE2m",
@@ -50044,7 +50045,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-20T22:49:51+00:00"
+   "publish_time": "2026-07-20T22:49:51+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-2e3921",
+    "run_id": 40176036773,
+    "artifact_id": 12592536734,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "eac3b8991ddd723a5a0dfaed31b9bd1b1f90cdd420944628ce9caf9e9e04cf6a",
+     "duration_sec": 607.23,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1nMKx6sEdZ"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40176036773,
+    "artifact_id": 12592536734,
+    "name": "production-reject-ly-1025-2e3921",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1vzmeB6E9u",
@@ -128974,6 +129012,13 @@
    "video_id": "BV18U4y1s7Y9",
    "ts": 1792916225,
    "error": "与已发布内容文字指纹重复：转写片段重合 88%（BV1dWhX6xEQt）"
+  },
+  {
+   "slug": "ly-1025-2e3921",
+   "key": "bilibili_search:BV1nMKx6sEdZ",
+   "video_id": "BV1nMKx6sEdZ",
+   "ts": 1792917421,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
