@@ -48831,7 +48831,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-12T02:29:20+00:00"
+   "publish_time": "2026-06-12T02:29:20+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-e77e9e",
+    "run_id": 40163853564,
+    "artifact_id": 12587114775,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f76e7441ce072856a9b6ee778e92dd9bddda0fc41f15830d65c98848b688a035",
+     "duration_sec": 147.17,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1tcEk67ERM"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 53%（BV1JRp96yE1n）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：句 0 是主持人提问，句 1 语义混乱且无明确判断，句 2-4 仅描述企业特性而非针对‘新管理层期许’的独立观点或结论。；原文问题：[[\"就成成立成功董事长。\", \"文本‘就成成立成功董事长’存在严重语音识别错误，语义不通且无法还原为合理观点，影响理解。\"]]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 68%（BV1C8pe6FEa3）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40163853564,
+    "artifact_id": 12587114775,
+    "name": "production-reject-ly-1025-e77e9e",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 53%（BV1JRp96yE1n）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1bgcjzyEKW",
@@ -126903,6 +126944,13 @@
    "video_id": "BV1AhZsBHEX3",
    "ts": 1792902643,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"刚才我们说的一些增加循环的，比如说我们这个呃呃，治疗这个新的临床观察的首选药是硝酸甘油。\", \"suspect_quote\": \"增加循环的\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，无法确认具体含义。\"}, {\"sentence_id\": 7, \"quote\": \"那我们现在看的这个硝酸甘油啊，一年的这个中国的消费量、销售金额，这前几年啊，像最近像甘油素是涨了多少倍？\", \"suspect_quote\": \"甘油素\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“硝酸甘油”误识别为不存在的实体或名称，存在专名错写。\"}, {\"sentence_id\": 13, \"quote\": \"用下医院这个，这个家属包括医医这个病人本身，又没给我用药了，他觉得你没给他治。\", \"suspect_quote\": \"医医\", \"kind\": \"unintelligible_term\", \"reason\": \"重复字导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 25, \"quote\": \"康美药还是白还是中国的白马过来的康美的吧。\", \"suspect_quote\": \"白还是中国的白马过来的康美的吧\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱，存在大量口语填充和识别错误，无法确定实际含义。\"}, {\"sentence_id\": 42, \"quote\": \"是抗美事件发生了以后，我才知道它是个丑陋的企业。\", \"suspect_quote\": \"抗美事件\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}, {\"sentence_id\": 43, \"quote\": \"以前在歌舞厅，反正就是唱歌，又是抗美。\", \"suspect_quote\": \"又是抗美\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}]"
+  },
+  {
+   "slug": "ly-1025-e77e9e",
+   "key": "bilibili_search:BV1tcEk67ERM",
+   "video_id": "BV1tcEk67ERM",
+   "ts": 1792905378,
+   "error": "与已发布内容文字指纹重复：转写片段重合 53%（BV1JRp96yE1n）"
   }
  ],
  "reviewed_third_video_0910": {
