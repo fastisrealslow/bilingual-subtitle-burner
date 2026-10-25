@@ -71,3 +71,23 @@ def test_recovery_needs_the_actual_caption_fix_and_keeps_counters(monkeypatch):
     entry['failed']=True
     assert not F._recover_changed_production_rule(state,entry,run)
 
+
+def test_caption_failure_remains_recoverable_beyond_the_latest_thirty_runs(monkeypatch):
+    entry=dict(slug='older-caption',failed=True,ts=1,source_url='https://example.test/source',
+        last_error='字幕分屏未完成：超长意群局部复分失败（37字，硬上限30字）',
+        source_check_attempts=3)
+    state=dict(dispatched=[entry],published={})
+    run=dict(id=123,display_title='中文源出片 · older-caption',head_sha='old',
+        conclusion='failure',updated_at='2026-10-25T12:00:00Z')
+    def api(method,path):
+        if '/runs?' in path:return dict(workflow_runs=[run])
+        if path.startswith('/compare/'):
+            return dict(files=[dict(filename='linyuan/produce_cn.py',
+                patch='@@ def caption_affirmation_ends(entries):\n+pattern="也是(?=[。！；])"')])
+        return {}
+    monkeypatch.setattr(F,'gh',api)
+    monkeypatch.setattr(F,'save_state',lambda *a:None)
+    monkeypatch.setattr(F,'log_event',lambda *a:None)
+    assert F._recover_rule_backlog(state,{entry['slug']:entry})==1
+    assert entry['source_check_attempts']==3 and entry['source_check_run_id']==123
+
