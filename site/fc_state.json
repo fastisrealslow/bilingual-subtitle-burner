@@ -53283,7 +53283,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-10-20T07:18:00+00:00"
+   "publish_time": "2026-10-20T07:18:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-409773",
+    "run_id": 40202974615,
+    "artifact_id": 12603032039,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "abb3ad45d8c428186d9190db727f8e57a8d4dd50d73b77cc368ad5ed44c60076",
+     "duration_sec": 95.36,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1rdnF64Ehs"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40202974615,
+    "artifact_id": 12603032039,
+    "name": "production-reject-ly-1025-409773",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1xcu26hEx1",
@@ -133205,6 +133238,13 @@
    "video_id": "BV15NySBuE4K",
    "ts": 1792938903,
    "error": "整段取景预检：源 76.87s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1025-409773",
+   "key": "bilibili_search:BV1rdnF64Ehs",
+   "video_id": "BV1rdnF64Ehs",
+   "ts": 1792939626,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
