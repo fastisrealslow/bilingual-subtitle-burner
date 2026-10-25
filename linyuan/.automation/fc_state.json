@@ -49556,7 +49556,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1JoZWByEeX",
@@ -49642,7 +49643,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Ta411977B",
@@ -49702,7 +49704,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV18U4y1s7Y9",
@@ -49794,7 +49797,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-07T05:22:33+00:00"
+   "publish_time": "2026-06-07T05:22:33+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40173846843,
+    "artifact_id": 12591685919,
+    "name": "source-reject-ly-1025-2eeadb",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -128288,6 +128301,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/jiGrmya5lx08AiyH5mti01041205eTZr0E020.mp4",
    "ts": 1792914160,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1025-2eeadb",
+   "key": "bilibili_search:BV1iVEs6LEVf",
+   "video_id": "BV1iVEs6LEVf",
+   "ts": 1792914358,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
