@@ -241,3 +241,22 @@ def test_absolute_target_must_be_an_exact_valid_positive_fraction(n,d):
         target_mode='absolute_rate',target_fraction=dict(numerator=n,denominator=d))
     with pytest.raises(ValueError,match='absolute target'):
         apply_frozen_goal(report,goal)
+
+
+@pytest.mark.parametrize('successes,milestone_met,target_met',[
+    (29,False,False),(30,True,False),(45,True,True),
+])
+def test_synthetic_thirty_percent_milestone_does_not_replace_forty_five_target(successes,milestone_met,target_met):
+    report=summarize(*fixture())
+    report['cohort'].update(attempted_known_long=100,attempted_duration_unknown=0,
+        successful_attempted_known_long=successes)
+    goal=dict(metric=report['metric'],window_days=7,long_threshold_seconds=900,
+        baseline_fraction=dict(numerator=10,denominator=89),baseline_as_of='2026-10-13',
+        target_mode='absolute_rate',target_fraction=dict(numerator=45,denominator=100),
+        near_term_milestone=dict(requested_on='2026-10-25',target_fraction=dict(numerator=30,denominator=100)))
+    result=apply_frozen_goal(report,goal)
+    assert result['target_rate']==.45 and result['target_achieved']==target_met
+    milestone=result['near_term_milestone']
+    assert milestone['achieved']==milestone_met and milestone['required_successful_mothers_at_current_cohort_size']==30
+    assert milestone['comparison_fraction']==dict(numerator=successes,denominator=100)
+    assert milestone['remaining_successful_mothers']==max(0,30-successes)
