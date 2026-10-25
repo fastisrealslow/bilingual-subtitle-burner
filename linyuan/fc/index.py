@@ -2423,6 +2423,23 @@ def retry_supply_needed(entry, landscape_admissions, experiment_needs):
             and experiment_needs.get('landscape',0)>0)
 
 
+def pending_rule_recovery(entry):
+    """One actual code repair may run even when the ordinary shelf is full."""
+    marker=entry.get('rule_recovery_pending') or {}
+    rule=marker.get('rule')
+    if (rule!='caption-standalone-reply-v1' or entry.get('failed')
+            or entry.get('source_quality_rejected') or not entry.get('source_url')
+            or not entry.get('source_check_retry_after')
+            or time.time()<float(entry['source_check_retry_after'])
+            or marker.get('run_id')!=entry.get('source_check_run_id')):
+        return False
+    proof=(entry.get('automatic_rule_recoveries') or {}).get(rule) or {}
+    if (not marker.get('queued_at') or marker['queued_at']!=proof.get('ts')
+            or marker.get('run_id')!=proof.get('run_id')):return False
+    from source_admission_guard import restriction
+    return not restriction(entry['source_url'],[])
+
+
 def request_inventory_refresh(st):
     """Request the existing verifier once; a missing index is not empty stock."""
     if time.time()-float(st.get('inventory_refresh_requested_at') or 0)<=15*60:
@@ -2471,7 +2488,8 @@ def _dispatch_admitted(event=None, context=None):
     exp_needs=experiment.production_deficits(inventory,st,[],time.time())
     deficits={layout:max(deficits[layout],exp_needs[layout]) for layout in deficits}
     landscape_needed=deficits['landscape']
-    recent_probe = not any(deficits.values())
+    repair_pending=any(pending_rule_recovery(e) for e in _latest_dispatches(st))
+    recent_probe = not any(deficits.values()) and not repair_pending
     if recent_probe and st.get('recent_context_probe_date') == today:
         return {'dispatched':0,'reserve_full':1,'recent_context_probe_done':1,**inventory}
     active_runs=[run for status in ('in_progress','queued') for run in
@@ -2480,18 +2498,21 @@ def _dispatch_admitted(event=None, context=None):
     exp_needs=experiment.production_deficits(inventory,st,active_runs,time.time())
     normal_deficits=reserve_deficits(inventory)
     effective_deficits={layout:max(normal_deficits[layout],exp_needs[layout]) for layout in deficits}
-    if not recent_probe and not any(effective_deficits.values()):
+    if not recent_probe and not any(effective_deficits.values()) and not repair_pending:
         return {'dispatched':0,'experiment_waiting_for_active_sources':1,**inventory}
     landscape_admissions=landscape_admission_deficit(inventory,st,active_runs)
     if active>=MAX_ACTIVE_SOURCES:
         return {'dispatched':0,'active_sources':active,**inventory}
-    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else sum(effective_deficits.values()))
+    target=min(target,MAX_ACTIVE_SOURCES-active,1 if recent_probe else
+               max(sum(effective_deficits.values()),int(repair_pending)))
     # Admission uses actual active runs, never historical pending placeholders.
     items_raw = gh("GET", f"/contents/{DATA_JSON}?ref=main", raw=True)
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
     admission = {}
     cands = pick(items, st, MAX_ATTEMPTS, audit=admission)
+    if repair_pending and not any(effective_deficits.values()):
+        cands=[]  # The extra opportunity is for the proven repair only.
     if any(exp_needs.values()):
         cands.sort(key=lambda c:not experiment.long_candidate(c))
     if recent_probe:
@@ -2547,18 +2568,21 @@ def _dispatch_admitted(event=None, context=None):
         log.warning('原始转写再利用队列暂不可读：%s',type(exc).__name__)
     # A unavailable checker is not evidence of a bad mother. Retry its exact
     # candidate with backoff, bounded by the same six-running-source limit.
-    for entry in sorted(_latest_dispatches(st),key=lambda e:float(e.get('source_check_retry_after') or 0)):
+    repaired=0
+    for entry in sorted(_latest_dispatches(st),key=lambda e:(not pending_rule_recovery(e),
+                        float(e.get('source_check_retry_after') or 0))):
         if recent_probe: break
         if success>=target:break
         retry_at=entry.get('source_check_retry_after')
         if not retry_at or time.time()<float(retry_at) or entry.get('failed'):continue
+        priority_repair=pending_rule_recovery(entry) and repaired<1
         retry_layout=experiment_retry_layout(entry,st,exp_needs,active_runs)
         planned_entry={**entry,'output_layout':retry_layout}
         if (story_reuse and inventory.get('daily_mix_usable',0)>=MAX_PUBLISH_PER_DAY
                 and not (entry.get('editorial_profile')==experiment.TREATMENT
-                         and exp_needs.get(retry_layout,0)>0)):
+                         and exp_needs.get(retry_layout,0)>0) and not priority_repair):
             continue
-        if not retry_supply_needed(planned_entry,landscape_admissions,exp_needs):continue
+        if not retry_supply_needed(planned_entry,landscape_admissions,exp_needs) and not priority_repair:continue
         source=entry.get('asset_url') or entry.get('source_url')
         if not source:continue
         gh('POST',f'/actions/workflows/{WF_PRODUCE}/dispatches',{
@@ -2578,6 +2602,9 @@ def _dispatch_admitted(event=None, context=None):
             entry['output_layout']=retry_layout
         entry['source_check_attempts']=int(entry.get('source_check_attempts') or 0)+1
         entry.pop('source_check_retry_after',None)
+        if priority_repair:
+            entry.pop('rule_recovery_pending',None)
+            repaired+=1
         entry['ts']=int(time.time())
         save_state(st)
         success+=1
@@ -4073,6 +4100,9 @@ def _recover_changed_production_rule(st, candidate, run):
         history.setdefault('transcript-valid-negatives-v4',dict(history[version]))
     candidate.update(failed=False,source_quality_rejected=False,source_check_exhausted=False,
         source_check_retry_after=int(time.time())-1,recovery_origin_run_id=run['id'],ts=int(time.time()))
+    if version=='caption-standalone-reply-v1':
+        candidate['rule_recovery_pending']=dict(rule=version,run_id=run['id'],
+            queued_at=history[version]['ts'])
     # Download-only failures have no ASR. Other recoveries restore the original
     # evidence; the restore helper validates source identity before reuse.
     if version.startswith('download-'):candidate.pop('source_check_run_id',None)
