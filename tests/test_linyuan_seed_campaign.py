@@ -29,7 +29,7 @@ def test_live_metadata_must_match_id_author_and_real_page_duration():
 
 @pytest.mark.parametrize('updates', [dict(bvid='BV1wrong0000'), dict(title='动物园林园新闻'),
     dict(owner=dict(name='园园滚雪球')), dict(owner=dict(name='')),
-    dict(title='林园会议录音版'), dict(pages=[dict(page=1, cid=100, duration=119)]),
+    dict(title='林园会议录音版'), dict(pages=[dict(page=1, cid=100, duration=19)]),
     dict(pages=[dict(page=1, cid=100, duration=5401)])])
 def test_unverified_or_unusable_leads_do_not_become_seed_evidence(updates):
     assert verify_seed(dict(bvid=BVID), lambda *a, **kw: metadata(**updates))['status'] == 'not_verified'
