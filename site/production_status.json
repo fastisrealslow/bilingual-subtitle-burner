@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792929380,
+  "updated_at": 1792929542,
   "inventory_updated_at": 1792929379,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 36,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 27,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 26,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,18 +137,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792929380,
+    "updated_at": 1792929541,
     "records": 11933,
     "video_records": 10260,
-    "initial_candidates": 82,
-    "duration_eligible_records": 27,
-    "candidate_count": 27,
-    "known_duration_candidates": 27,
+    "initial_candidates": 81,
+    "duration_eligible_records": 26,
+    "candidate_count": 26,
+    "known_duration_candidates": 26,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7004,
       "no_video": 1673,
-      "already_attempted_or_cooling": 1713,
+      "already_attempted_or_cooling": 1714,
       "clip_title": 1189,
       "noise": 21,
       "unrelated": 65,
@@ -320,14 +320,6 @@
         "duration_sec": 115.0
       },
       {
-        "key": "bilibili_search:BV1o5z4BNEMj",
-        "title": "林园经典采访-2007.07.12-凤凰卫视《社会能见度》",
-        "source": "bilibili_search",
-        "author": "巴菲特思想研究院",
-        "url": "https://www.bilibili.com/video/BV1o5z4BNEMj",
-        "duration_sec": 1788.0
-      },
-      {
         "key": "bilibili_search:BV1su41167FS",
         "title": "林园 P1 林园：牛市的几个时间点（2020.7.7直播）",
         "source": "bilibili_collection",
@@ -391,15 +383,15 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1369,
+    "failed": 1371,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 23,
     "ready": 11,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -28980,11 +28972,11 @@
     },
     {
       "slug": "ly-1025-cf453b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 5.37s，原始画面不足以保留完整人脸及头顶余量",
       "signature": {
         "ts": 1792928567,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29016,11 +29008,11 @@
     },
     {
       "slug": "ly-1025-a62ad1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1792928779,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29049,6 +29041,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40190772999",
       "run_started_at": "2026-10-25T11:53:45Z",
       "run_updated_at": "2026-10-25T11:53:49Z"
+    },
+    {
+      "slug": "ly-1025-498d6c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792929500,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40191083468,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40191083468",
+      "run_started_at": "2026-10-25T11:58:20Z",
+      "run_updated_at": "2026-10-25T11:58:23Z"
     }
   ],
   "runs": {
@@ -42153,17 +42163,6 @@
       "run_number": 2791,
       "display_title": "中文源出片 · ly-1025-cf453b"
     },
-    "ly-1025-ca8338": {
-      "id": 40190772999,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-25T11:53:45Z",
-      "updated_at": "2026-10-25T11:53:49Z",
-      "run_started_at": "2026-10-25T11:53:45Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40190772999",
-      "run_number": 2794,
-      "display_title": "中文源出片 · ly-1025-ca8338"
-    },
     "ly-1025-a62ad1": {
       "id": 40190259077,
       "status": "completed",
@@ -42174,6 +42173,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40190259077",
       "run_number": 2793,
       "display_title": "中文源出片 · ly-1025-a62ad1"
+    },
+    "ly-1025-498d6c": {
+      "id": 40191083468,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T11:58:20Z",
+      "updated_at": "2026-10-25T11:58:23Z",
+      "run_started_at": "2026-10-25T11:58:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40191083468",
+      "run_number": 2795,
+      "display_title": "中文源出片 · ly-1025-498d6c"
+    },
+    "ly-1025-ca8338": {
+      "id": 40190772999,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T11:53:45Z",
+      "updated_at": "2026-10-25T11:53:49Z",
+      "run_started_at": "2026-10-25T11:53:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40190772999",
+      "run_number": 2794,
+      "display_title": "中文源出片 · ly-1025-ca8338"
     },
     "ly-1025-b852e6": {
       "id": 40189651410,
