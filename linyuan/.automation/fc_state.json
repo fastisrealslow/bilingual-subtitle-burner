@@ -51208,7 +51208,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1RZ3w6hEZT",
@@ -51321,7 +51322,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1d94y1r7AR",
@@ -51344,7 +51346,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-08-10T09:51:55+00:00"
+   "publish_time": "2023-08-10T09:51:55+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-6861e9",
+    "run_id": 40184729144,
+    "artifact_id": 12596197208,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "137c93ad253ac2e837b88f6bf95e8ca5ee06a807b8047b89ef8659f2bc1284b7",
+     "duration_sec": 77.4,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1d94y1r7AR"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40184729144,
+    "artifact_id": 12596197208,
+    "name": "production-reject-ly-1025-6861e9",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1GRLe6tEv7",
@@ -130444,6 +130479,13 @@
    "video_id": "BV13r4y1b76V",
    "ts": 1792924119,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1025-6861e9",
+   "key": "bilibili_search:BV1d94y1r7AR",
+   "video_id": "BV1d94y1r7AR",
+   "ts": 1792925028,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
