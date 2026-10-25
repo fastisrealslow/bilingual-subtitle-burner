@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792930449,
+  "updated_at": 1792930585,
   "inventory_updated_at": 1792930447,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 36,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 25,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 24,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,18 +137,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792930448,
+    "updated_at": 1792930584,
     "records": 11933,
     "video_records": 10260,
-    "initial_candidates": 80,
-    "duration_eligible_records": 25,
-    "candidate_count": 25,
-    "known_duration_candidates": 25,
+    "initial_candidates": 79,
+    "duration_eligible_records": 24,
+    "candidate_count": 24,
+    "known_duration_candidates": 24,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7004,
       "no_video": 1673,
-      "already_attempted_or_cooling": 1715,
+      "already_attempted_or_cooling": 1716,
       "clip_title": 1189,
       "noise": 21,
       "unrelated": 65,
@@ -159,14 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5357947953874056",
-        "title": "林园：靠运气是不能成功的 http://t.cn/AXjIeEnx ​​​",
-        "source": "weibo_search",
-        "author": "夏正阳1990",
-        "url": "https://m.weibo.cn/detail/5357947953874056",
-        "duration_sec": 70.0
-      },
       {
         "key": "weibo_search:5357934248986563",
         "title": "市场环境又回到比大小的年代？林园回忆早年与机构总监的争论，对方按盘子大小定股票好坏，他当场反驳这是天大的笑话。违背常识炒",
@@ -375,15 +367,15 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1372,
+    "failed": 1373,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 23,
     "ready": 11,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -29054,11 +29046,11 @@
     },
     {
       "slug": "ly-1025-f1ed1a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 76%（BV1TBbV6dE5c）",
       "signature": {
         "ts": 1792929824,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29069,6 +29061,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40191478743",
       "run_started_at": "2026-10-25T12:03:44Z",
       "run_updated_at": "2026-10-25T12:12:49Z"
+    },
+    {
+      "slug": "ly-1025-aca251",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792930545,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40192334223,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40192334223",
+      "run_started_at": "2026-10-25T12:15:44Z",
+      "run_updated_at": "2026-10-25T12:15:55Z"
     }
   ],
   "runs": {
@@ -42205,6 +42215,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40191478743",
       "run_number": 2796,
       "display_title": "中文源出片 · ly-1025-f1ed1a"
+    },
+    "ly-1025-aca251": {
+      "id": 40192334223,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T12:15:44Z",
+      "updated_at": "2026-10-25T12:15:55Z",
+      "run_started_at": "2026-10-25T12:15:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40192334223",
+      "run_number": 2797,
+      "display_title": "中文源出片 · ly-1025-aca251"
     },
     "ly-1025-ca8338": {
       "id": 40190772999,
