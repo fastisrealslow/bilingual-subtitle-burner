@@ -51414,108 +51414,6 @@
    "automatic_rule_recoveries": {}
   },
   {
-   "key": "weibo_search:5341489979983495",
-   "video_id": "https://f.video.weibocdn.com/o0/bL2BssDclx08AuzzJac00104120iimHs0E070.mp4",
-   "required_presentation_version": 2,
-   "production_rules_version": 2026090604,
-   "weekly_full_week": "",
-   "output_layout": "landscape",
-   "editorial_profile": "field-story-v1",
-   "slug": "ly-1025-9e6ced",
-   "ts": 1792925069,
-   "source_url": "https://m.weibo.cn/detail/5341489979983495",
-   "asset_url": "https://m.weibo.cn/detail/5341489979983495",
-   "title": "林园谈投资",
-   "delay_hours": 0,
-   "source": "weibo_search",
-   "author": "日月良福成",
-   "speech_date_context": {
-    "date": null,
-    "verified": false,
-    "basis": "unknown"
-   },
-   "publish_time": "2026-09-10T06:45:14+08:00",
-   "production_failure_summary": {
-    "slug": "ly-1025-9e6ced",
-    "run_id": 40186010091,
-    "artifact_id": 12596482489,
-    "accepted": 0,
-    "source_context": {
-     "passed": true,
-     "source_sha256": "c3716946a2594c878298772c08bd0f103455bee81532edd789fdb1b853b41fcc",
-     "duration_sec": 2883.69,
-     "resolution": {
-      "width": 1920,
-      "height": 1080,
-      "short_edge": 1080
-     },
-     "source_url": "https://m.weibo.cn/detail/5341489979983495"
-    },
-    "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：超长意群局部复分失败（37字，硬上限30字）。请重新按原文输出全部字幕。"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "成片动态窗口目标人物不足5/6帧：3/6"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"我们基于这个思路，我们怎么能把这些投资者套进来、骗进来？\", \"suspect_quote\": \"套进来、骗进来\", \"kind\": \"unintelligible_term\", \"reason\": \"将‘套’识别为‘骗’，导致语义从中性描述变为负面指控，存在严重识别污染。\"}]"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "成片动态窗口目标人物不足5/6帧：3/6"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "成片动态窗口目标人物不足5/6帧：3/6"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段在嘉宾未给出实质性观点前即结束，属于典型的‘有问无答’结构，无法构成独立成片的完整表达。；原文问题：[]"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对主持人的问题做出回应，片段在主持人陈述完‘这个问题可能是投资者最最关心的问题’后戛然而止，缺乏必要的论述内容，无法构成独立成片的完整表达。；原文问题：[]"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     }
-    ]
-   },
-   "source_check_report_id": 12596482489,
-   "source_check_run_id": 40186010091,
-   "last_error": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：超长意群局部复分失败（37字，硬上限30字）。请重新按原文输出全部字幕。",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2,
-   "failed": true,
-   "source_check_exhausted": true,
-   "automatic_rule_recoveries": {}
-  },
-  {
    "key": "bilibili_search:BV1C1ySYhEpq",
    "video_id": "BV1C1ySYhEpq",
    "required_presentation_version": 2,
@@ -53056,7 +52954,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1su41167FS",
@@ -53126,6 +53025,122 @@
     "basis": "source_metadata_unverified"
    },
    "publish_time": "2022-06-12T11:51:01+00:00"
+  },
+  {
+   "key": "weibo_search:5341489979983495",
+   "video_id": "https://f.video.weibocdn.com/o0/bL2BssDclx08AuzzJac00104120iimHs0E070.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "landscape",
+   "editorial_profile": "field-story-v1",
+   "slug": "ly-1025-9e6ced",
+   "ts": 1792937283,
+   "source_url": "https://m.weibo.cn/detail/5341489979983495",
+   "asset_url": "https://m.weibo.cn/detail/5341489979983495",
+   "title": "林园谈投资",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "日月良福成",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2026-09-10T06:45:14+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-9e6ced",
+    "run_id": 40186010091,
+    "artifact_id": 12596482489,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c3716946a2594c878298772c08bd0f103455bee81532edd789fdb1b853b41fcc",
+     "duration_sec": 2883.69,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5341489979983495"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：超长意群局部复分失败（37字，硬上限30字）。请重新按原文输出全部字幕。"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片动态窗口目标人物不足5/6帧：3/6"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 12, \"quote\": \"我们基于这个思路，我们怎么能把这些投资者套进来、骗进来？\", \"suspect_quote\": \"套进来、骗进来\", \"kind\": \"unintelligible_term\", \"reason\": \"将‘套’识别为‘骗’，导致语义从中性描述变为负面指控，存在严重识别污染。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片动态窗口目标人物不足5/6帧：3/6"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片动态窗口目标人物不足5/6帧：3/6"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段在嘉宾未给出实质性观点前即结束，属于典型的‘有问无答’结构，无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对主持人的问题做出回应，片段在主持人陈述完‘这个问题可能是投资者最最关心的问题’后戛然而止，缺乏必要的论述内容，无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "source_check_report_id": 12596482489,
+   "source_check_run_id": 40186010091,
+   "last_error": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：超长意群局部复分失败（37字，硬上限30字）。请重新按原文输出全部字幕。",
+   "failure_stage": "quality-service",
+   "source_check_attempts": 2,
+   "failed": false,
+   "source_check_exhausted": false,
+   "automatic_rule_recoveries": {
+    "caption-standalone-reply-v1": {
+     "run_id": 40186010091,
+     "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：超长意群局部复分失败（37字，硬上限30字）。请重新按原文输出全部字幕。",
+     "ts": 1792937283
+    }
+   },
+   "source_quality_rejected": false,
+   "source_check_retry_after": 1792937282,
+   "recovery_origin_run_id": 40186010091,
+   "rule_recovery_pending": {
+    "rule": "caption-standalone-reply-v1",
+    "run_id": 40186010091,
+    "queued_at": 1792937283
+   }
   }
  ],
  "makeup_receipts": {
