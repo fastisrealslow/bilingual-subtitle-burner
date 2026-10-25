@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1792912895,
+  "updated_at": 1792912994,
   "inventory_updated_at": 1792912893,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 29,
-    "active_or_recovering_sources": 16,
-    "waiting_candidates": 67,
+    "active_or_recovering_sources": 17,
+    "waiting_candidates": 66,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -137,17 +137,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792912894,
+    "updated_at": 1792912993,
     "records": 11914,
     "video_records": 10245,
-    "initial_candidates": 122,
-    "duration_eligible_records": 67,
-    "candidate_count": 67,
-    "known_duration_candidates": 67,
+    "initial_candidates": 121,
+    "duration_eligible_records": 66,
+    "candidate_count": 66,
+    "known_duration_candidates": 66,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1669,
-      "already_attempted_or_cooling": 1669,
+      "already_attempted_or_cooling": 1670,
       "speaker_unconfirmed": 6993,
       "clip_title": 1189,
       "noise": 21,
@@ -159,14 +159,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1Ta411977B",
-        "title": "林园 P1 投资大佬林园访谈《为何对医药情有独钟？》",
-        "source": "bilibili_collection",
-        "author": "涵哥论市",
-        "url": "https://www.bilibili.com/video/BV1Ta411977B",
-        "duration_sec": 582.0
-      },
       {
         "key": "bilibili_search:BV18U4y1s7Y9",
         "title": "林园 P1 第八十一位投资者林园：十几年我就在茅台待着 投资就是找垄断型公司",
@@ -711,15 +703,15 @@
   },
   "counts": {
     "complete": 147,
-    "failed": 1318,
+    "failed": 1319,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 8,
     "excluded": 20,
     "experiment_fallback": 20,
     "ready": 7,
     "retry_queued": 11,
     "validation_failed": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -28418,11 +28410,11 @@
     },
     {
       "slug": "ly-1025-c214f5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1792905717,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28523,6 +28515,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40171186034",
       "run_started_at": "2026-10-25T07:00:53Z",
       "run_updated_at": "2026-10-25T07:00:57Z"
+    },
+    {
+      "slug": "ly-1025-4aeaaf",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1792912953,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40172527925,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40172527925",
+      "run_started_at": "2026-10-25T07:22:33Z",
+      "run_updated_at": "2026-10-25T07:22:36Z"
     }
   ],
   "runs": {
@@ -41099,6 +41109,28 @@
       "run_number": 2735,
       "display_title": "中文源出片 · ly-1025-0ad5d7"
     },
+    "ly-1025-c214f5": {
+      "id": 40165269159,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T05:21:57Z",
+      "updated_at": "2026-10-25T07:19:32Z",
+      "run_started_at": "2026-10-25T05:21:57Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40165269159",
+      "run_number": 2738,
+      "display_title": "中文源出片 · ly-1025-c214f5"
+    },
+    "ly-1025-4aeaaf": {
+      "id": 40172527925,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-25T07:22:33Z",
+      "updated_at": "2026-10-25T07:22:36Z",
+      "run_started_at": "2026-10-25T07:22:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40172527925",
+      "run_number": 2744,
+      "display_title": "中文源出片 · ly-1025-4aeaaf"
+    },
     "ly-1025-9cc2ea": {
       "id": 40171186034,
       "status": "in_progress",
@@ -41153,17 +41185,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40168087299",
       "run_number": 2739,
       "display_title": "中文源出片 · ly-1025-9e6ced"
-    },
-    "ly-1025-c214f5": {
-      "id": 40165269159,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T05:21:57Z",
-      "updated_at": "2026-10-25T07:19:32Z",
-      "run_started_at": "2026-10-25T05:21:57Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40165269159",
-      "run_number": 2738,
-      "display_title": "中文源出片 · ly-1025-c214f5"
     }
   }
 }
