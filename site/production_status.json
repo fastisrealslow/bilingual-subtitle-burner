@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792933279,
+  "updated_at": 1792933423,
   "inventory_updated_at": 1792933276,
   "continuity": {
     "daily_target": 4,
@@ -61,11 +61,11 @@
     "active": true,
     "verified_treatment": {
       "portrait": 0,
-      "landscape": 1
+      "landscape": 0
     },
     "consecutive_fallbacks": 0,
-    "actual_treatment_published": 3,
-    "valid_comparison_days": 0,
+    "actual_treatment_published": 4,
+    "valid_comparison_days": 1,
     "daily": [
       {
         "date": "2026-10-18",
@@ -125,19 +125,19 @@
       },
       {
         "date": "2026-10-25",
-        "published": 3,
-        "treatment": 1,
+        "published": 4,
+        "treatment": 2,
         "controls": 2,
         "fallback": 0,
-        "valid_comparison": false
+        "valid_comparison": true
       }
     ],
     "status": "needs_attention",
-    "alert": "insufficient_treatment_by_layout"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792933278,
+    "updated_at": 1792933422,
     "records": 11933,
     "video_records": 10260,
     "initial_candidates": 75,
@@ -334,13 +334,13 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 148,
-    "failed": 1377,
+    "complete": 149,
+    "failed": 1378,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 23,
-    "ready": 13,
+    "ready": 12,
     "validation_failed": 2,
     "retry_queued": 1,
     "running": 3
@@ -28834,13 +28834,13 @@
     },
     {
       "slug": "ly-1025-a16d29",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1792926040,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -29068,11 +29068,11 @@
     },
     {
       "slug": "ly-1025-d64269",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配108/311，总帧数1013；身份匹配但人脸短边不足96px的帧数98",
       "signature": {
         "ts": 1792931449,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
