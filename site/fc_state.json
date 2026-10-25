@@ -50252,7 +50252,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-14T00:46:30+00:00"
+   "publish_time": "2025-12-14T00:46:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-265634",
+    "run_id": 40176043886,
+    "artifact_id": 12593341723,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "bb19fc828a5c1d9b8e643fa6b6c68d19d547ff6195f4fc6b576b438f2216a15e",
+     "duration_sec": 678.23,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1vzmeB6E9u"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅限于确认个人使用经历，并未形成针对资本市场回报要求等后续话题的独立完整论述或判断，缺乏作为独立成片所需的核心观点内容。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配755/962，总帧数1030；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配499/720，总帧数1102；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1008/1286，总帧数1388；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/136，总帧数678；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/155，总帧数770；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 26, \"quote\": \"林总，咱们今天也来到了咱们这个国药堂哈。\", \"suspect_quote\": \"国药堂\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'国药堂'疑似将'国药集团'或具体场馆名称误识，无法确认实体。\"}, {\"sentence_id\": 23, \"quote\": \"我们今天说片仔癀，它上市的时候，就我记得市值，我们开始关注的话，就二十二十亿到二十五亿，有时候能达到二十七八亿，总市值是吧？\", \"suspect_quote\": \"二十二十亿到二十五亿\", \"kind\": \""
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40176043886,
+    "artifact_id": 12593341723,
+    "name": "production-reject-ly-1025-265634",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅限于确认个人使用经历，并未形成针对资本市场回报要求等后续话题的独立完整论述或判断，缺乏作为独立成片所需的核心观点内容。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV14hKG6wETP",
@@ -50517,7 +50578,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 8, 13, 14, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.0507, 3: 0.128, 8: 0.1274, 13: -0.0178, 14: 0.1003, 18: -0.0672}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1tUEY6WEqm",
@@ -129571,6 +129633,13 @@
    "video_id": "BV1Tc41137tB:p3",
    "ts": 1792919312,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 8, 13, 14, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.0507, 3: 0.128, 8: 0.1274, 13: -0.0178, 14: 0.1003, 18: -0.0672}"
+  },
+  {
+   "slug": "ly-1025-265634",
+   "key": "bilibili_search:BV1vzmeB6E9u",
+   "video_id": "BV1vzmeB6E9u",
+   "ts": 1792919594,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅限于确认个人使用经历，并未形成针对资本市场回报要求等后续话题的独立完整论述或判断，缺乏作为独立成片所需的核心观点内容。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
