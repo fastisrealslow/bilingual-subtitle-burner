@@ -50426,7 +50426,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1n34y1j79c",
@@ -50482,7 +50483,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 452 < 480（854x452），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Tc41137tB:p3",
@@ -50505,7 +50507,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-04T14:12:35+00:00"
+   "publish_time": "2023-06-04T14:12:35+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40179026685,
+    "artifact_id": 12592409843,
+    "name": "source-reject-ly-1025-088485",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 8, 13, 14, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.0507, 3: 0.128, 8: 0.1274, 13: -0.0178, 14: 0.1003, 18: -0.0672}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1tUEY6WEqm",
@@ -129506,6 +129518,13 @@
    "video_id": "BV1kr4y147of",
    "ts": 1792919128,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1025-088485",
+   "key": "bilibili_search:BV1Tc41137tB:p3",
+   "video_id": "BV1Tc41137tB:p3",
+   "ts": 1792919312,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 8, 13, 14, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.0507, 3: 0.128, 8: 0.1274, 13: -0.0178, 14: 0.1003, 18: -0.0672}"
   }
  ],
  "reviewed_third_video_0910": {
