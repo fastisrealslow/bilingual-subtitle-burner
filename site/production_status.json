@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792902616,
+  "updated_at": 1792902708,
   "inventory_updated_at": 1792902614,
   "continuity": {
     "daily_target": 4,
@@ -137,7 +137,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792902615,
+    "updated_at": 1792902708,
     "records": 11801,
     "video_records": 10134,
     "initial_candidates": 55,
@@ -174,9 +174,9 @@
   },
   "counts": {
     "complete": 146,
-    "failed": 1312,
+    "failed": 1313,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 8,
     "excluded": 20,
     "experiment_fallback": 19,
     "ready": 8,
@@ -27736,11 +27736,11 @@
     },
     {
       "slug": "ly-1025-be215e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"刚才我们说的一些增加循环的，比如说我们这个呃呃，治疗这个新的临床观察的首选药是硝酸甘油。\", \"suspect_quote\": \"增加循环的\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，无法确认具体含义。\"}, {\"sentence_id\": 7, \"quote\": \"那我们现在看的这个硝酸甘油啊，一年的这个中国的消费量、销售金额，这前几年啊，像最近像甘油素是涨了多少倍？\", \"suspect_quote\": \"甘油素\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“硝酸甘油”误识别为不存在的实体或名称，存在专名错写。\"}, {\"sentence_id\": 13, \"quote\": \"用下医院这个，这个家属包括医医这个病人本身，又没给我用药了，他觉得你没给他治。\", \"suspect_quote\": \"医医\", \"kind\": \"unintelligible_term\", \"reason\": \"重复字导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 25, \"quote\": \"康美药还是白还是中国的白马过来的康美的吧。\", \"suspect_quote\": \"白还是中国的白马过来的康美的吧\", \"kind\": \"unintelligible_term\", \"reason\": \"句子结构混乱，存在大量口语填充和识别错误，无法确定实际含义。\"}, {\"sentence_id\": 42, \"quote\": \"是抗美事件发生了以后，我才知道它是个丑陋的企业。\", \"suspect_quote\": \"抗美事件\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}, {\"sentence_id\": 43, \"quote\": \"以前在歌舞厅，反正就是唱歌，又是抗美。\", \"suspect_quote\": \"又是抗美\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“康美”误识别为“抗美”，存在专名错写。\"}]",
       "signature": {
         "ts": 1792897947,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
