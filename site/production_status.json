@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1792925453,
+  "updated_at": 1792925536,
   "inventory_updated_at": 1792925451,
   "continuity": {
     "daily_target": 4,
@@ -137,7 +137,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1792925452,
+    "updated_at": 1792925536,
     "records": 11914,
     "video_records": 10245,
     "initial_candidates": 85,
@@ -415,9 +415,9 @@
   },
   "counts": {
     "complete": 148,
-    "failed": 1363,
+    "failed": 1365,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 21,
     "experiment_fallback": 19,
     "ready": 11,
@@ -28824,11 +28824,11 @@
     },
     {
       "slug": "ly-1025-827e45",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1469，总帧数7341；身份匹配但人脸短边不足96px的帧数1469",
       "signature": {
         "ts": 1792924157,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -28842,11 +28842,11 @@
     },
     {
       "slug": "ly-1025-78dacf",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
       "signature": {
         "ts": 1792924165,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41887,6 +41887,17 @@
       "run_number": 2782,
       "display_title": "中文源出片 · ly-1025-78dacf"
     },
+    "ly-1025-827e45": {
+      "id": 40184969523,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T10:29:17Z",
+      "updated_at": "2026-10-25T10:49:50Z",
+      "run_started_at": "2026-10-25T10:29:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40184969523",
+      "run_number": 2781,
+      "display_title": "中文源出片 · ly-1025-827e45"
+    },
     "ly-1025-7bcc26": {
       "id": 40186301531,
       "status": "in_progress",
@@ -41908,17 +41919,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40186010091",
       "run_number": 2783,
       "display_title": "中文源出片 · ly-1025-9e6ced"
-    },
-    "ly-1025-827e45": {
-      "id": 40184969523,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T10:29:17Z",
-      "updated_at": "2026-10-25T10:49:50Z",
-      "run_started_at": "2026-10-25T10:29:17Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40184969523",
-      "run_number": 2781,
-      "display_title": "中文源出片 · ly-1025-827e45"
     },
     "ly-1025-bfaaee": {
       "id": 40182158814,
