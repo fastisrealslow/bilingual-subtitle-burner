@@ -49467,7 +49467,84 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-15T11:27:20+08:00"
+   "publish_time": "2026-09-15T11:27:20+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-2f8164",
+    "run_id": 40169663007,
+    "artifact_id": 12591663254,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8422baf3f9d97185b8743c7aa009828015a20f3a2e4101e00a9159ebb5268c1f",
+     "duration_sec": 1885.65,
+     "resolution": {
+      "width": 1024,
+      "height": 576,
+      "short_edge": 576
+     },
+     "source_url": "https://m.weibo.cn/detail/5343372912888889"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中嘉宾未对任何具体标的（如某只股票）做出明确的买入、卖出或持有判断。虽然提到了‘位置合适’与‘亏了’等表述，但缺乏针对特定投资动作的结论性观点，且开头为反问句，结尾为泛化陈述，无法构成独立成片所需的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1223.20s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 96%（BV1CKHV6wEWV）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 244.60s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40169663007,
+    "artifact_id": 12591663254,
+    "name": "production-reject-ly-1025-2f8164",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5338833026813600",
@@ -128421,6 +128498,13 @@
    "video_id": "BV1VCoUBqE2m",
    "ts": 1792914567,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 4, 7, 8, 15, 16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1133, 2: 0.175, 4: 0.0408, 7: -0.2086, 8: -0.0206, 15: 0.1171, 16: 0.1011}"
+  },
+  {
+   "slug": "ly-1025-2f8164",
+   "key": "weibo_search:5343372912888889",
+   "video_id": "https://f.video.weibocdn.com/o0/r5XkXxOblx08AK2bkhYI01041205ccJr0E020.mp4",
+   "ts": 1792915807,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
