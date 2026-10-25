@@ -6,6 +6,32 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 from daily_publication_audit import BEIJING,daily_receipts,opening_stock_check
 
 
+def test_normal_inventory_and_one_real_trial_cannot_cover_two_trial_slots():
+    from daily_publication_audit import experiment_stock_check
+    now=datetime(2026,10,25,9,30,tzinfo=BEIJING)
+    stock=dict(verified_live=29,inventory_fresh=True,
+               experiment_ready=dict(landscape=1,portrait=0),in_flight_placeholders=6)
+    report=experiment_stock_check(stock,now)
+    assert report['required_distinct_drafts']==2 and report['verified_distinct_drafts']==1
+    assert not report['passed']
+    stock['experiment_ready']['landscape']=2
+    assert experiment_stock_check(stock,now)['passed']  # native wide T can fill 21
+    assert not experiment_stock_check({**stock,'inventory_fresh':False},now)['passed']
+    stock['experiment_ready']=dict(landscape=0,portrait=2)
+    assert not experiment_stock_check(stock,now)['passed']  # 14 needs native wide
+
+
+def test_evening_draft_is_checked_early_and_expired_or_unknown_stock_cannot_pass():
+    from daily_publication_audit import experiment_stock_check
+    now=datetime(2026,10,25,14,20,tzinfo=BEIJING)
+    stock=dict(inventory_fresh=True,experiment_ready=dict(landscape=1,portrait=0))
+    report=experiment_stock_check(stock,now)
+    assert report['passed'] and report['remaining_slots']==['2026-10-25 21']
+    assert not experiment_stock_check(dict(verified_live=29),now)['passed']
+    assert experiment_stock_check(stock,now.replace(hour=21)) is None
+    assert experiment_stock_check(stock,now.replace(month=11,day=20)) is None
+
+
 def trial_state(actuals):
     import publishing_experiment as E
     rows=[]

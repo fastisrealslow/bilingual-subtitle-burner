@@ -86,6 +86,29 @@ def opening_stock_check(receipts, stock, now):
                             and wide>=wide_needed and portrait>=portrait_needed))
 
 
+def experiment_stock_check(stock, now):
+    """Check actual inspected drafts before today's remaining trial slots.
+
+    A running job or an ordinary clip cannot fill a trial. The inventory has
+    already deduplicated file hashes and excluded used/expired evidence.
+    """
+    import publishing_experiment as E
+    now=now.astimezone(BEIJING);day=now.date().isoformat()
+    remaining=[hour for hour in (14,21) if hour>now.hour
+               and E.assignment(now.timestamp(),f'{day} {hour:02d}')]
+    if not remaining:return None
+    ready=stock.get('experiment_ready') or {}
+    wide=int(ready.get('landscape') or 0)
+    portrait=int(ready.get('portrait') or 0)
+    required_wide=int(14 in remaining)
+    return dict(remaining_slots=[f'{day} {hour:02d}' for hour in remaining],
+        required_distinct_drafts=len(remaining),verified_distinct_drafts=wide+portrait,
+        required_landscape=required_wide,verified_landscape=wide,verified_portrait=portrait,
+        inventory_fresh=stock.get('inventory_fresh') is True,
+        passed=(stock.get('inventory_fresh') is True and wide>=required_wide
+                and wide+portrait>=len(remaining)))
+
+
 def main():
     from register_selection_recovery import read_state
     from bili_archive_status import archive_status
@@ -106,8 +129,15 @@ def main():
     report['experiment']=experiment_receipts(state,now)
     report['passed']=(report['receipt_check_passed'] and report['public_check_passed']
                       and report['experiment']['passed'])
+    stock=None
+    if now.hour<HOURS[0] or (report['experiment']['active'] and now.hour<21):
+        stock=source_inventory(state)
+    if report['experiment']['active']:
+        report['experiment_drafts']=experiment_stock_check(stock or {},now)
+        if report['experiment_drafts']:
+            report['passed']=report['passed'] and report['experiment_drafts']['passed']
     if now.hour<HOURS[0]:
-        report['opening_stock']=opening_stock_check(report,source_inventory(state),now)
+        report['opening_stock']=opening_stock_check(report,stock,now)
         report['passed']=report['passed'] and report['opening_stock']['passed']
     Path('daily-publication-audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     summary=(f"{report['date']}：到当前应有 {report['expected_by_now']} 条；"
@@ -118,6 +148,12 @@ def main():
         summary+=(f" 实验片实际发布 {trial['treatment_published']} 条；"
                   f"缺失时段 {trial['missing_slots']}；分组未达标 {trial['noncompliant_slots']}。")
         print(json.dumps(trial,ensure_ascii=False),flush=True)
+    if report.get('experiment_drafts'):
+        drafts=report['experiment_drafts']
+        summary+=(f" 待发实验稿需 {drafts['required_distinct_drafts']} 条独立成片，"
+                  f"实际验收 {drafts['verified_distinct_drafts']} 条；"
+                  f"库存新鲜：{drafts['inventory_fresh']}。")
+        print(json.dumps(drafts,ensure_ascii=False),flush=True)
     if report.get('opening_stock'):
         opening=report['opening_stock']
         summary+=(f" 开播前库存需 {opening['required_live']} 条，已验收 {opening['verified_live']} 条；"

@@ -11,6 +11,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: write
 concurrency:
   group: linyuan-daily-publication-audit
   cancel-in-progress: false
@@ -33,6 +34,15 @@ jobs:
         run: |
           pip install -q -r linyuan/fc/runtime-requirements.txt
           python linyuan/daily_publication_audit.py
+      - name: 实验稿不足时请求一次正常库存核验与补源
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f daily-publication-audit.json || exit 0
+          needed=$(python -c 'import json; r=json.load(open("daily-publication-audit.json")); d=r.get("experiment_drafts"); print("yes" if d and not d["passed"] else "no")')
+          if [ "$needed" = yes ]; then
+            gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
