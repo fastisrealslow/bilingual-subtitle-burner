@@ -53316,7 +53316,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/OKaBttEzlx08BFuYRDC801041208nSXV0E030.mp4",
@@ -53404,29 +53405,132 @@
    "recovery_origin_run_id": 39781987409,
    "production_failure_summary": {
     "slug": "ly-story-2a8f12b578",
-    "run_id": 39781987409,
-    "artifact_id": 12427953160,
+    "run_id": 40203897957,
+    "artifact_id": 12604982443,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这"
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配60/747，总帧数3430；身份匹配但人脸短边不足96px的帧数671"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 46%（BV1MztC6CEFf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/688，总帧数3437；身份匹配但人脸短边不足96px的帧数688"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1014，总帧数5066；身份匹配但人脸短边不足96px的帧数1014"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV184pb6oEQu）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1fHn167EUf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/661，总帧数3300；身份匹配但人脸短边不足96px的帧数661"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配6/1437，总帧数7150；身份匹配但人脸短边不足96px的帧数1404"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 50%（BV1m1b76iEpQ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：reasoning_present；完整性理由：主持人提问（句 0）询问在何种情况下会重新评估或卖出；嘉宾回答仅包含句 1“现在就没想着死，不会卖出，终身持有，不会卖出啊。”，明确否定了提问中预设的“出现某些情况会卖出”的可能性。该回答构成了完整的独立观点：即当前策略是终身持有，不考虑卖出。后续句子（2-12）为时间提示、总结请求及对年轻人的寄语，属于串场或新话题，不属于对该投资判断的论述部分。因此，仅保留句 1 即可构成完整表达，无需包含提问句或其他无关内容。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1P9pv6YEvD）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回避直接回答‘是否投资新消费’，仅用模糊表述（如‘关注的不多’）和外部案例（段永平减持、迪士尼）支撑，未形成可独立成片的明确观点；结尾无总结性判断，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 98%（BV1Zia96FEuE）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/201，总帧数1001；身份匹配但人脸短边不足96px的帧数201"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少对核心问题的明确回答，属于未完成的论述被切断；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配6/1199，总帧数5962；身份匹配但人脸短边不足96px的帧数1147"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/219，总帧数1092；身份匹配但人脸短边不足96px的帧数219"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/267，总帧数1330；身份匹配但人脸短边不足96px的帧数234"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/507，总帧数2534；身份匹配但人脸短边不足96px的帧数507"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配10/274，总帧数1318；身份匹配但人脸短边不足96px的帧数255"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配37/887，总帧数4248；身份匹配但人脸短边不足96px的帧数850"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/714，总帧数3566；身份匹配但人脸短边不足96px的帧数714"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/665，总帧数3324；身份匹配但人脸短边不足96px的帧数657"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "fc15a5926f081759af1bfbf91c412d42bef9e37c5ba7e74d240723065310121d",
+     "duration_sec": 3462.7,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1xcu26hEx1"
+    }
    },
    "source_check_report_id": 12417829577,
    "source_check_run_id": 39781987409,
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"那就是我也不知道他们的感受，我我也没觉得，你没觉得熬。\", \"suspect_quote\": \"我我也没觉得\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我也'应为口语重复或口吃（如'我，我也'），但连续两个'我'连用且无停顿标记，导致语义模糊。需确认是否为'我，我也'的误识，还是真实表达'我/我也'的混乱指代。\"}, {\"sentence_id\": 15, \"quote\": \"因为分红啊，以以A股来为例，它过去很少分红，分的比例不大，现在国家鼓励分红，分都分出来，这也能体现出你这一个企业如果它是要去再投资，他就没钱给你分红，所以这个对当下这个，更是我把它看得很重，啊。\", \"suspect_quote\": \"以以A股来为例\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'以以'应为口语重复（如'以，以'）或口吃，但连续两个'以'连用导致语义不通。需确认是否为'以 A 股为例'的误识，还是真实表达'以/以'的混乱指代。\"}, {\"sentence_id\": 18, \"quote\": \"如果一个企业，我们长期观察它，如果确实是好企业的话，他会百分之一百，甚至百分之一百，都。\", \"suspect_quote\": \"百分之一百，甚至百分之一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字重复且逻辑矛盾：'百分之一百，甚至百分之一百'中第二个'百分之一百'与前文完全相同，'甚至'暗示递进但数值未变，疑似识别错误导致数字冗余或口误未被纠正。需确认是否为'百分之九十九，甚至百分之一百'的误识。\"}, {\"sentence_id\": 19, \"quote\": \"比如说我今天赚赚一万，今年赚了一万块钱，我我拿出一万一来分红，那一千块钱我怎么来的？\", \"suspect_quote\": \"我我拿出一万一来分红\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'我我'应为口语重复（如'我，我'）或口吃，但连续两个'我'连用导致语义模糊。需确认是否为'我，我'的误识，还是真实表达'我/我'的混乱指代。\"}, {\"sentence_id\": 20, \"quote\": \"我就贷款也要给股东归分。\", \"suspect_quote\": \"给股东归分\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写专有名词或术语：'归分'在金融语境中非常规，应为'分红'或'分配'的误识。需确认是否为'分红'的语音识别错误（如'归'与'红'发音相近导致的误识）。\"}]",
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配60/747，总帧数3430；身份匹配但人脸短边不足96px的帧数671",
    "failure_stage": "editorial-or-render",
    "source_check_attempts": 2,
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39781987409,
-    "artifact_id": 12427953160,
+    "run_id": 40203897957,
+    "artifact_id": 12604982443,
     "name": "production-reject-ly-story-2a8f12b578",
     "retained": true
    },
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 39781987409,
