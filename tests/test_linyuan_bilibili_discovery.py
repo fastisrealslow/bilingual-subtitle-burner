@@ -48,6 +48,24 @@ def test_actual_duration_and_date_survive_search(monkeypatch):
     assert monitor_v2.duration_seconds('unknown') == 0
 
 
+def test_deeper_search_uses_the_same_bounded_number_of_public_requests(monkeypatch):
+    from urllib.parse import parse_qs,urlsplit
+    pages=[]
+    def get(url,**kw):
+        pages.append(int(parse_qs(urlsplit(url).query)['page'][0]))
+        return json.dumps(dict(code=0,data=dict(result=[])))
+    monkeypatch.setattr(monitor_v2,'http_get',get)
+    monkeypatch.setattr(monitor_v2.time,'sleep',lambda _:None)
+    assert monitor_v2.BilibiliSearchSource(dict(pages=2,start_page=3),{})._fetch_via_api('林园')==[]
+    assert pages==[3,4]
+    pages.clear()
+    monitor_v2.BilibiliSearchSource(dict(pages=10,start_page=49),{})._fetch_via_api('林园')
+    assert pages==[49,50]
+    with pytest.raises(ValueError):
+        monitor_v2.BilibiliSearchSource(dict(pages=2,start_page=0),{})._fetch_via_api('林园')
+    assert pages==[49,50]
+
+
 def test_collection_pages_keep_distinct_cids_and_filter_shorts(monkeypatch):
     monkeypatch.setattr(monitor_v2, 'http_get', lambda *a, **kw: json.dumps(dict(code=0, data=dict(
         owner=dict(name='原活动上传者'), title='林园访谈合集', pubdate=1700000000,

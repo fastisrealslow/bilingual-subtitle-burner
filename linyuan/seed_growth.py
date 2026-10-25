@@ -3,6 +3,7 @@ import argparse
 from collections import Counter
 import json
 from pathlib import Path
+import re
 import sqlite3
 import time
 
@@ -16,7 +17,17 @@ QUERIES = ('林园 完整访谈', '林园 演讲', '林园 第一财经', '林�
            '林园 央视', '林园 雪球嘉年华', '林园 财联社', '林园 凤凰论坛',
            '林园 早年 经历 完整访谈', '林园 创业 经历 访谈',
            '林园 第一笔钱 买房 访谈', '林园 茅台 可口可乐 投资 访谈',
-           '林园 实地调研 访谈', '林园 看走眼 亏损 访谈')
+           '林园 实地调研 访谈', '林园 看走眼 亏损 访谈',
+           '林园 投资', '林园 医药', '林园 消费', '林园 可转债',
+           '林园 茅台', '林园 片仔癀', '林园 达仁堂', '林园 同仁堂',
+           '林园 白酒', '林园 苹果 腾讯', '林园 分红', '林园 垄断',
+           '林园 现金流', '林园 股东大会', '林园 牛市', '林园 熊市',
+           '林园 首席说', '林园 大道财经', '林园 证券时间',
+           '林园 中国经营者', '林园 财富非常道', '林园 资本人物',
+           '林园 投资者说', '林园 商业人生', '林园 微观世界',
+           '林园 会见财经界', '林园 华南农大', '林园 雪球 2017',
+           '林园 新浪财经 2020', '林园 2026', '林园 2025',
+           '林园 2024', '林园 2019', '林园 投资经历')
 
 
 def existing_roots(base):
@@ -75,13 +86,24 @@ def admit_verified(seed_data, rows, existing, limit):
         if fc.NOISE.search(entry['title']) or fc.AI_NOISE.search(entry['title']):
             continue
         evidence = fc.title_has_target_speaker(entry['title'])
-        dispatch = row.get('no_reprint') != 1 and evidence
+        from source_admission_guard import restriction
+        hold = restriction(entry.get('url') or 'https://www.bilibili.com/video/'+bvid, [])
+        # A matching date/title is a lead, not audio identity proof or reuse
+        # permission. Keep possible copies of the restricted 15 Oct roadshow
+        # in the catalogue until origin/permission checks resolve them.
+        programme_hint = (re.search(r'2026[-./年]?10[-./月]?15',entry['title'])
+            or str(row.get('published_at') or '').startswith('2026-10')
+            and re.search(r'10[./月]15',entry['title']))
+        if programme_hint:
+            hold = hold or 'restricted_20261015_programme_match_pending'
+        dispatch = row.get('no_reprint') != 1 and evidence and not hold
         entry.update(media_verified=False, editorial_approved=False,
             target_speaker_title_evidence=evidence,
             source_role='mother_candidate' if dispatch else 'catalog_only',
             direct_dispatch=dispatch)
+        if hold:
+            entry['reuse_hold_reason'] = hold
         # A title date is only an uploader clue. Do not infer filming from upload.
-        import re
         match = re.search(r'(?<!\d)(20\d{2})[-./年](\d{1,2})[-./月](\d{1,2})(?:日)?(?!\d)', entry['title'])
         if match:
             from datetime import date
@@ -94,6 +116,36 @@ def admit_verified(seed_data, rows, existing, limit):
         existing.add(bvid)
         added.append(entry)
     return added
+
+
+def pending_leads(path):
+    """Unverified discovery work survives a batch; it never enters census."""
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text())
+    if data.get('version') != 1 or not isinstance(data.get('leads'), list):
+        raise ValueError('Invalid pending seed discovery queue')
+    return {r['bvid']: r for r in data['leads'] if isinstance(r, dict)
+            and BVID.fullmatch(str(r.get('bvid', '')))
+            and eligible_duration(monitor.duration_seconds(r.get('catalog_duration')))}
+
+
+def save_pending_leads(path, leads):
+    from batch_delivery import write_json
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_json(path, dict(version=1, counting_policy='unverified_not_seed_or_stock',
+                         leads=list(leads.values())))
+
+
+def pause_provider(state, observation):
+    from batch_delivery import write_json
+    scan = json.loads(state.read_text()) if state.exists() else {}
+    cooldown = dict(until=time.time()+3600,reason='provider_restricted',
+        http_status=observation.get('http_status'),api_code=observation.get('api_code'))
+    scan['verification_cooldown'] = cooldown
+    state.parent.mkdir(parents=True,exist_ok=True)
+    write_json(state,scan)
+    return cooldown
 
 
 def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
@@ -113,24 +165,56 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
     if cooldown.get('until', 0) > time.time():
         report.update(after=before, verification_paused=cooldown)
         return report
-    leads = {r['bvid']: r for r in catalog_leads(base / 'monitor_v2.db') if r['bvid'] not in roots}
+    pending_path = base / '.automation/seed_growth_leads.json'
+    pending = {key: row for key, row in pending_leads(pending_path).items() if key not in roots}
+    for row in catalog_leads(base / 'monitor_v2.db'):
+        if row['bvid'] not in roots:
+            pending[row['bvid']] = {**row, **pending.get(row['bvid'], {})}
     if search:
-        for query in rotating_batch('queries', QUERIES, state, 3):
+        search_scan = json.loads(state.read_text()) if state.exists() else {}
+        for query in rotating_batch('queries', QUERIES, state, 3, state=search_scan):
             if time.monotonic() >= deadline:
                 report['errors'].append(dict(stage='budget', error='time_budget_reached'))
                 break
             try:
-                for row in monitor.BilibiliSearchSource({'pages': 2}, {})._fetch_via_api(query):
+                depths = search_scan.setdefault('query_page_cursors', {})
+                first_page = depths.get(query, 1)
+                if type(first_page) is not int or not 1 <= first_page <= 19:
+                    raise ValueError('Invalid bounded search-page cursor')
+                depths[query] = first_page + 2 if first_page < 19 else 1
+                from batch_delivery import write_json
+                write_json(state, search_scan)
+                report.setdefault('search_pages', {})[query] = [first_page, first_page+1]
+                for row in monitor.BilibiliSearchSource({'pages': 2, 'start_page': first_page}, {})._fetch_via_api(query):
                     bvid = row.get('bvid', '')
                     if (BVID.fullmatch(bvid) and bvid not in roots
                             and '林园' in row.get('title', '') and not NO_MEDIA.search(row['title'])
                             and row.get('up') not in {'', '园园滚雪球', '园来滚雪球'}
                             and eligible_duration(monitor.duration_seconds(row.get('duration')))):
-                        leads[bvid] = dict(bvid=bvid, discovery='normal_public_search',
-                            catalog_title=row['title'], catalog_duration=row['duration'])
+                        pending[bvid] = {**pending.get(bvid, {}), **dict(
+                            bvid=bvid, discovery='normal_public_search',
+                            catalog_title=row['title'], catalog_author=row['up'],
+                            catalog_duration=row['duration'])}
             except Exception as exc:
-                report['errors'].append(dict(stage='search', error=type(exc).__name__))
-    candidates = sorted(leads.values(), key=lambda r: (-r['catalog_duration'], r['bvid']))
+                observation = {}
+                if getattr(exc,'code',None) in {403,412,429}:
+                    observation['http_status'] = exc.code
+                api_code = re.search(r'\bcode=(-?\d+)\b',str(exc))
+                if api_code and int(api_code[1]) == -412:
+                    observation['api_code'] = -412
+                report['errors'].append(dict(stage='search',error=type(exc).__name__,**observation))
+                if observation:
+                    report['verification_paused'] = pause_provider(state,observation)
+                    break
+    # Save ALL discoveries before the bounded verifier starts. Previously the
+    # unselected tail of each search disappeared when the process exited.
+    save_pending_leads(pending_path, pending)
+    if report.get('verification_paused'):
+        report.update(after=census(base),pending_lead_count=len(pending))
+        return report
+    candidates = sorted((r for r in pending.values()
+                         if float(r.get('verification_retry_after') or 0) <= time.time()),
+                        key=lambda r: (-r['catalog_duration'], r['bvid']))
     rows = []
     for candidate in rotating_batch('parents', candidates, state, min(64, max(1, limit)), key=lambda r: r['bvid']):
         if time.monotonic() >= deadline:
@@ -139,18 +223,18 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         result = verify(candidate)
         rows.append(result)
         if (result.get('status') == 'not_verified' and
-                (result.get('http_status') in {412, 429} or result.get('api_code') == -412)):
+                (result.get('http_status') in {403, 412, 429} or result.get('api_code') == -412)):
             # A provider restriction is not evidence against the footage. Stop
             # this batch; the lazy cursor has advanced only for actual requests.
             # Persist across immediate monitor refreshes, not just this process.
-            scan = json.loads(state.read_text()) if state.exists() else {}
-            cooldown = dict(until=time.time()+3600, reason='provider_restricted',
-                http_status=result.get('http_status'), api_code=result.get('api_code'))
-            scan['verification_cooldown'] = cooldown
-            from batch_delivery import write_json
-            write_json(state, scan)
-            report['verification_paused'] = cooldown
+            report['verification_paused'] = pause_provider(state,result)
             break
+        if result.get('status') == 'not_verified':
+            # A failed exact lookup is not a seed. Retain it for a later
+            # metadata refresh without querying the same dead lead each batch.
+            stable = (result.get('api_code') in {-404, 62002, 62012}
+                      or result.get('api_code') == 0 and result.get('error') == 'ValueError')
+            pending[candidate['bvid']]['verification_retry_after'] = time.time() + (86400 if stable else 1800)
         time.sleep(.5)
     data = json.loads((base / 'bilibili_seeds.json').read_text())
     added = admit_verified(data, rows, roots, min(remaining, limit))
@@ -159,7 +243,13 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         from datetime import datetime, timezone
         data['updated_at'] = datetime.now(timezone.utc).strftime('%Y-%m-%d')
         write_json(base / 'bilibili_seeds.json', data)
+    # Commit seeds first: an interruption must not remove a verified lead
+    # before its actual catalogue record has been saved. Root dedup repairs a
+    # repeated queue entry safely on the next run.
+    pending = {key: row for key, row in pending.items() if key not in roots}
+    save_pending_leads(pending_path, pending)
     report.update(added_count=len(added), added_bvids=[r['bvid'] for r in added],
+        pending_lead_count=len(pending),
         roles=dict(Counter(r['source_role'] for r in added)),
         new_long_parent_count=sum(any(p['duration'] >= 900 for p in r['pages']) for r in added),
         verification=dict(Counter(r['status'] for r in rows)), after=census(base))

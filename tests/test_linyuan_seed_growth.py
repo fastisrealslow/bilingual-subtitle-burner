@@ -42,6 +42,16 @@ def test_known_denial_and_weak_identity_are_not_dispatchable():
     assert len(added) == 2 and all(r['direct_dispatch'] is False for r in added)
 
 
+def test_possible_restricted_programme_copy_is_a_hold_not_an_origin_match():
+    row=evidence();row.update(title='2026.10.15林园专访',published_at='2026-10-20T00:00:00+00:00')
+    added=admit_verified(dict(seeds=[]),[row],set(),1)[0]
+    assert added['direct_dispatch'] is False and added['source_role']=='catalog_only'
+    assert added['reuse_hold_reason']=='restricted_20261015_programme_match_pending'
+    assert added['no_reprint']==0 and added['media_verified'] is False
+    old=evidence();old.update(title='10.15林园访谈',published_at='2024-10-15T00:00:00+00:00')
+    assert admit_verified(dict(seeds=[]),[old],set(),1)[0]['direct_dispatch'] is True
+
+
 def test_restriction_survives_another_route_or_page_without_changing_claims(tmp_path, monkeypatch):
     monkeypatch.setattr(monitor, 'DB_PATH', tmp_path/'catalog.db'); monitor.init_db()
     bvid = 'BV1NpBFYkEKx'
@@ -124,7 +134,99 @@ def test_actual_campaign_persists_only_verified_parent_with_target_bound(tmp_pat
     assert (tmp_path/'.automation/seed_growth_scan.json').exists()
 
 
-@pytest.mark.parametrize('restriction', [dict(http_status=412),dict(http_status=429),dict(api_code=-412)])
+def test_unverified_search_tail_survives_the_batch_and_is_not_seed_stock(tmp_path,monkeypatch):
+    import seed_growth as G
+    for name,key in [('douyin','urls'),('weibo','urls'),('haokan','vids'),('netease','vcodes'),('yicai','ids')]:
+        (tmp_path/(name+'_seeds.json')).write_text(json.dumps({key:[]}))
+    (tmp_path/'up_videos.json').write_text('{}')
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    (tmp_path/'monitor_v2_config.json').write_text(json.dumps([dict(
+        type='bilibili_collection',seeds_file='bilibili_seeds.json')]))
+    monkeypatch.setattr(G,'catalog_leads',lambda _:[])
+    monkeypatch.setattr(G.time,'sleep',lambda _:None)
+    ids=sorted(['BV1NpBFYkEKx','BV1LQVc6eEFu','BV1Nfji64E9e'])
+    monkeypatch.setattr(monitor.BilibiliSearchSource,'_fetch_via_api',lambda *a:[dict(
+        bvid=b,title='林园完整访谈',duration=1800,up='实际作者') for b in ids])
+    requests=[]
+    def verify(lead):
+        requests.append(lead['bvid']);return evidence(lead['bvid'])
+    first=G.run(tmp_path,target=2000,limit=1,search=True,verify=verify)
+    queue=json.loads((tmp_path/'.automation/seed_growth_leads.json').read_text())
+    assert first['after']['total']==1 and first['pending_lead_count']==2
+    assert len(queue['leads'])==2 and first['accepted_mp4_count']==0
+    # No new search, no database copy: only the durable unverified queue can
+    # provide these next exact lookups. Census changes after verification only.
+    second=G.run(tmp_path,target=2000,limit=2,search=False,verify=verify)
+    assert second['after']['total']==3 and set(requests)==set(ids) and len(requests)==3
+    assert json.loads((tmp_path/'.automation/seed_growth_leads.json').read_text())['leads']==[]
+    assert second['production_dispatch'] is False
+
+
+def test_failed_lookup_is_deferred_without_hiding_it_or_resetting_cursors(tmp_path,monkeypatch):
+    import seed_growth as G
+    monkeypatch.setattr(G,'census',lambda _:dict(total=0))
+    monkeypatch.setattr(G,'existing_roots',lambda _:set())
+    monkeypatch.setattr(G,'catalog_leads',lambda _:[dict(bvid='BV1NpBFYkEKx',catalog_duration=1800)])
+    monkeypatch.setattr(G.time,'sleep',lambda _:None)
+    clock=[1000];monkeypatch.setattr(G.time,'time',lambda:clock[0])
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    calls=[]
+    def unavailable(lead):
+        calls.append(lead['bvid']);return dict(lead,status='not_verified',error='ValueError',api_code=-404)
+    first=G.run(tmp_path,target=2000,search=False,verify=unavailable)
+    queue=json.loads((tmp_path/'.automation/seed_growth_leads.json').read_text())
+    assert first['added_count']==0 and queue['leads'][0]['verification_retry_after']==87400
+    scan=json.loads((tmp_path/'.automation/seed_growth_scan.json').read_text())
+    G.run(tmp_path,target=2000,search=False,verify=unavailable)
+    assert len(calls)==1 and json.loads((tmp_path/'.automation/seed_growth_scan.json').read_text())==scan
+    clock[0]=87401;G.run(tmp_path,target=2000,search=False,verify=unavailable)
+    assert len(calls)==2 and json.loads((tmp_path/'bilibili_seeds.json').read_text())['seeds']==[]
+
+
+def test_search_depth_rotates_without_more_requests_or_resetting_other_progress(tmp_path,monkeypatch):
+    import seed_growth as G
+    monkeypatch.setattr(G,'census',lambda _:dict(total=0))
+    monkeypatch.setattr(G,'existing_roots',lambda _:set())
+    monkeypatch.setattr(G,'catalog_leads',lambda _:[])
+    monkeypatch.setattr(G,'QUERIES',('林园访谈','林园演讲','林园经历'))
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    path=tmp_path/'.automation/seed_growth_scan.json';path.parent.mkdir()
+    path.write_text(json.dumps(dict(parents=dict(cursor=7,seed_count=13))))
+    calls=[]
+    def search(self,q):
+        calls.append((q,self.config['pages'],self.config['start_page']));return []
+    monkeypatch.setattr(monitor.BilibiliSearchSource,'_fetch_via_api',search)
+    for _ in range(2):G.run(tmp_path,target=2000,limit=48)
+    assert len(calls)==6 and {pages for _,pages,_ in calls}=={2}
+    assert [start for _,_,start in calls]==[1,1,1,3,3,3]
+    saved=json.loads(path.read_text())
+    assert saved['parents']==dict(cursor=7,seed_count=13)
+    assert set(saved['query_page_cursors'].values())=={5}
+
+
+@pytest.mark.parametrize('code',[403,412,429,-412])
+def test_search_provider_restriction_stops_before_more_queries_or_exact_lookups(tmp_path,monkeypatch,code):
+    from urllib.error import HTTPError
+    import seed_growth as G
+    monkeypatch.setattr(G,'census',lambda _:dict(total=0))
+    monkeypatch.setattr(G,'existing_roots',lambda _:set())
+    monkeypatch.setattr(G,'catalog_leads',lambda _:[dict(bvid='BV1NpBFYkEKx',catalog_duration=1800)])
+    monkeypatch.setattr(G.time,'time',lambda:1000)
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    calls=[]
+    def blocked(self,q):
+        calls.append(q)
+        if code==-412:raise RuntimeError('B站 API page=1 code=-412')
+        raise HTTPError('https://api.bilibili.com/',code,'restricted',{},None)
+    monkeypatch.setattr(monitor.BilibiliSearchSource,'_fetch_via_api',blocked)
+    def forbidden(*a):raise AssertionError('Do not change endpoint after provider restriction')
+    report=G.run(tmp_path,target=2000,verify=forbidden)
+    assert len(calls)==1 and report['verification_paused']['until']==4600
+    assert report['pending_lead_count']==1 and report['added_count']==0
+    assert json.loads((tmp_path/'bilibili_seeds.json').read_text())['seeds']==[]
+
+
+@pytest.mark.parametrize('restriction', [dict(http_status=403),dict(http_status=412),dict(http_status=429),dict(api_code=-412)])
 @pytest.mark.parametrize('initial_success',[False,True])
 def test_provider_restriction_pauses_requests_and_preserves_the_unchecked_tail(tmp_path, monkeypatch, restriction, initial_success):
     import seed_growth as G

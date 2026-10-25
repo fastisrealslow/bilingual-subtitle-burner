@@ -251,9 +251,13 @@ class BilibiliSearchSource(Source):
             pages = max(1, min(int(self.config.get("pages", 1)), 10))
         except (TypeError, ValueError):
             pages = 1
+        start_page = int(self.config.get('start_page', 1))
+        if not 1 <= start_page <= 49:
+            raise ValueError('Bilibili search start_page must be between 1 and 49')
+        stop_page = min(51, start_page + pages)
         out = []
         seen = set()
-        for page_no in range(1, pages + 1):
+        for page_no in range(start_page, stop_page):
             url = ("https://api.bilibili.com/x/web-interface/wbi/search/type"
                    f"?search_type=video&keyword={kw}&page={page_no}")
             data = json.loads(http_get(url, referer="https://www.bilibili.com/"))
@@ -278,7 +282,7 @@ class BilibiliSearchSource(Source):
                     "duration": duration_seconds(v.get("duration")),
                     "pubdate": v.get("pubdate"),
                 })
-            if page_no < pages:
+            if page_no + 1 < stop_page:
                 time.sleep(1)
         return out
 
@@ -423,6 +427,31 @@ class BilibiliCollectionSource(Source):
         seeds = list(self.config.get('seeds', []))
         if self.config.get('seeds_file'):
             seeds.extend(json.loads(Path(__file__).with_name(self.config['seeds_file']).read_text())['seeds'])
+        from verified_seed_snapshot import items as verified_snapshot_items
+        known_ids = set()
+        if DB_PATH.exists():
+            with sqlite3.connect(DB_PATH.resolve().as_uri()+'?mode=ro',uri=True) as conn:
+                known_ids = {r[0] for r in conn.execute('SELECT id FROM items')}
+        denied_roots = {s.get('bvid') for s in seeds if s.get('no_reprint')==1
+            or s.get('direct_dispatch') is False or s.get('source_role') in {'reference','catalog_only'}}
+        cached_roots = set()
+        # A fresh exact observation has already paid the metadata lookup cost.
+        # Materialize missing catalogue pages before the multi-day round robin,
+        # long mothers first. This adds no requests or media approval and keeps
+        # the normal six-worker admission limit and every actual source gate.
+        ordered = sorted(seeds,key=lambda s:-max(
+            (duration_seconds(p.get('duration')) for p in s.get('pages') or [] if isinstance(p,dict)),default=0))
+        for seed in ordered:
+            if seed.get('bvid') in denied_roots:
+                continue
+            cached = [r for r in verified_snapshot_items(seed) if r['id'] not in known_ids]
+            if not cached:
+                continue
+            items.extend(cached)
+            known_ids.update(r['id'] for r in cached)
+            cached_roots.add(seed['bvid'])
+            if len(cached_roots)>=24:
+                break
         if self.config.get('expand_overlimit_parents') is True:
             # Parent totals above 90 minutes can contain ordinary 20–30 minute
             # native pages. Inspect their live view metadata inside the SAME
@@ -435,6 +464,8 @@ class BilibiliCollectionSource(Source):
                 print(f'[bilibili_collection] 合集线索不可用，保留原种子轮换: {type(exc).__name__}',file=sys.stderr)
         for seed in self.collection_seed_batch(seeds):
             bvid = seed["bvid"]
+            if bvid in cached_roots:
+                continue
             try:
                 try:
                     data = json.loads(http_get(
