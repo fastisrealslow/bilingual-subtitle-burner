@@ -52917,7 +52917,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/481，总帧数2400；身份匹配但人脸短边不足96px的帧数321",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1iV69ByEWL",
@@ -52973,7 +52974,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我不是什么能源，我倒不是。\", \"suspect_quote\": \"我不是什么能源\", \"kind\": \"unintelligible_term\", \"reason\": \"将嘉宾林园的名字误识别为“能源”，属于严重的专名错写，且该词在上下文中语义不通。\"}, {\"sentence_id\": 6, \"quote\": \"就这种，我不不对汽车行业没有。\", \"suspect_quote\": \"我不不对汽车行业没有\", \"kind\": \"unintelligible_term\", \"reason\": \"连读出现“不不对”及“没有”，导致否定逻辑混乱，无法确定实际动作或观点。\"}, {\"sentence_id\": 15, \"quote\": \"嗯，好，所以这个我会发现您其实刚才您说您不调研，但是我会发现您很看重某个行业的市场需求，市场空间有多大。\", \"suspect_quote\": \"您其实刚才您说您不调研\", \"kind\": \"unintelligible_term\", \"reason\": \"将“不调研”识别为实际动作，但结合上下文语境（嘉宾强调观察能力），此处极可能为否定词误读或填充词错误，导致含义不明。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1bKiNBnEau",
@@ -53086,7 +53088,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Ug41197Yb",
@@ -53265,7 +53268,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-29T10:40:17+00:00"
+   "publish_time": "2025-10-29T10:40:17+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-29ca75",
+    "run_id": 40200888341,
+    "artifact_id": 12602246183,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "37d2d38b2c0557d08947af88727da852686434e2e1cdeeaed06542684dfaebbb",
+     "duration_sec": 114.8,
+     "resolution": {
+      "width": 842,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV15NySBuE4K"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 76.87s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40200888341,
+    "artifact_id": 12602246183,
+    "name": "production-reject-ly-1025-29ca75",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 76.87s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1WJeezTEgM",
@@ -53288,7 +53324,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-23T03:50:55+00:00"
+   "publish_time": "2025-08-23T03:50:55+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1025-603b42",
+    "run_id": 40200896799,
+    "artifact_id": 12602302711,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "fef62baba2eff960128bb8b5cf0ad0bb5b04926ee9cbc5ab044f506924c48214",
+     "duration_sec": 252.75,
+     "resolution": {
+      "width": 1078,
+      "height": 628,
+      "short_edge": 628
+     },
+     "source_url": "https://www.bilibili.com/video/BV1WJeezTEgM"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40200896799,
+    "artifact_id": 12602302711,
+    "name": "production-reject-ly-1025-603b42",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -133077,6 +133146,20 @@
    "video_id": "BV1EiBdBSE5u",
    "ts": 1792937316,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/481，总帧数2400；身份匹配但人脸短边不足96px的帧数321"
+  },
+  {
+   "slug": "ly-1025-603b42",
+   "key": "bilibili_search:BV1WJeezTEgM",
+   "video_id": "BV1WJeezTEgM",
+   "ts": 1792938902,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1025-29ca75",
+   "key": "bilibili_search:BV15NySBuE4K",
+   "video_id": "BV15NySBuE4K",
+   "ts": 1792938903,
+   "error": "整段取景预检：源 76.87s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
