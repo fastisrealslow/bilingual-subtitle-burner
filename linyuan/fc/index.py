@@ -475,6 +475,8 @@ def is_landscape(meta):
 
 
 def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
+    if meta.get('render_mode') == 'audio_card':
+        return False
     local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
     # Keep the weekly full interview in a control slot during this experiment;
     # otherwise Sunday's 21:00 full interview permanently occupies treatment #4.
@@ -488,8 +490,22 @@ def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
         return not is_landscape(meta) and meta.get('render_mode') != 'audio_card'
     if full_slot or full:
         return full == full_slot
-    # Reserve all landscape clips for the added daily slot, including catch-up.
+    # A verified native story can fill the evening treatment slot without
+    # recropping it or passing a baseline off as the experiment. Portrait
+    # treatment remains preferred by the publisher's layout ranking below.
+    plan = experiment.assignment(time.time() if now is None else now)
+    if (plan and plan['slot_number'] == 4
+            and experiment.actual_profile(meta) == experiment.TREATMENT
+            and meta.get('render_mode') != 'audio_card'):
+        return True
+    # Other landscape clips remain reserved for the added daily slot.
     return is_landscape(meta) == (local.tm_hour == LANDSCAPE_HOUR)
+
+
+def slot_layout_rank(meta, now=None):
+    """Prefer the established slot layout among equally qualified profiles."""
+    local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
+    return int(is_landscape(meta) != (local.tm_hour == LANDSCAPE_HOUR))
 
 
 def weekly_full_request(candidate, st, now=None):
@@ -2925,6 +2941,7 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fa
                       and (publication_state is None
                            or not inventory_publication_error(p,entry,publication_state))),
                      key=lambda p:(experiment.rank(p,experiment.assignment(now)) if now is not None else 0,
+                                   slot_layout_rank(p,now) if now is not None else 0,
                                    int(p['index'])))
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
@@ -4802,7 +4819,9 @@ def publish_handler(event=None, context=None):
                     and int(p['index']) not in processed_part_indices(entry)
                     and not inventory_publication_error(p,entry,st)
                     and content_fits_slot(p,entry,publication_slot_time(makeup_slot) if makeup_slot else now)]
-            return min((experiment.rank(p,publication_plan) for p in usable),default=2)
+            slot_time=publication_slot_time(makeup_slot) if makeup_slot else now
+            return min(((experiment.rank(p,publication_plan),slot_layout_rank(p,slot_time))
+                        for p in usable),default=(2,0))
         pending.sort(key=pending_rank)
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
