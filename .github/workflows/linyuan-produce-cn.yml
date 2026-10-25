@@ -425,6 +425,9 @@ jobs:
 
       - name: 出片
         id: render
+        # Stop this step before the whole 4h job expires, so accepted
+        # checkpoints still have time for full media validation and delivery.
+        timeout-minutes: 150
         env:
           # 字幕识别与清理只在本地 CPU 运行，禁止 API 改写转写结果
           ASR_CPU_THREADS: '2'

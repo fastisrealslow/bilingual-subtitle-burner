@@ -275,6 +275,7 @@ jobs:
           }}
     - name: 出片
       id: render
+      timeout-minutes: 150
       env:
         ASR_CPU_THREADS: '2'
         CUDA_VISIBLE_DEVICES: ''

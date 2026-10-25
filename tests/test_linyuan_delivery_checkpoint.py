@@ -51,6 +51,7 @@ def test_missing_or_zero_checkpoint_cannot_upload_stale_outputs(tmp_path):
 def test_interrupted_upload_still_requires_compact_full_validation():
     workflow=yaml.safe_load((ROOT/'.github/workflows/linyuan-produce-cn.yml').read_text())
     steps={s.get('id'):s for s in workflow['jobs']['produce']['steps'] if s.get('id')}
+    assert steps['render']['timeout-minutes'] <= workflow['jobs']['produce']['timeout-minutes']-60
     assert 'always()' in steps['delivery_checkpoint']['if']
     assert "steps.source_gate.outcome == 'success'" in steps['delivery_checkpoint']['if']
     assert "steps.delivery_checkpoint.outputs.accepted == 'true'" in steps['archive_accepted']['if']
