@@ -45,6 +45,13 @@ def readability_error(text):
     are screening rules, not a prediction of CTR or a semantic certificate.
     """
     text=body(text).strip('。！？!?')
+    # A transitive verb followed by an attributive adjective still needs its
+    # noun. Do not mistake “产生强势” for “保持强势”, or truncate a longer
+    # noun phrase such as “产生强势公司” at a title/cover clause boundary.
+    if re.search(r'(?:产生|培育|培养|筛选|挑选|找到|寻找)'
+                 r'(?:一(?:些|批|类|种|个))?(?:更|最|很|非常|真正)?'
+                 r'(?:优秀|优质|强势|卓越)(?:的)?(?=[，,。；;：:！？!?]|$)',text):
+        return '标题或封面的及物动作缺少名词宾语，不能把修饰语截成完整对象'
     if re.search(r'印证实|都妈差|时间界定无需钱',text):
         return '标题包含已核实不自然的拼词或转写片段，须换选清楚原句，不猜改原词'
     if re.search(r'嗯|呃|额[，,]|(?:^|[，,])啊(?:[，,]|$)',text):
