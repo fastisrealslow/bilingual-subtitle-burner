@@ -1,13 +1,14 @@
 {
-  "run_id": "40278773709",
+  "run_id": "40288496488",
   "processed": 3,
-  "inspected": 2,
-  "historical_media_verified": 205,
+  "inspected": 3,
+  "historical_media_verified": 206,
   "cache_recovery_pending": 203,
-  "pending": 248,
+  "pending": 247,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -1788,15 +1789,37 @@
       "role": "mother",
       "family": "gelong_conversation",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 13,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1792865846.8801017,
-      "next_retry_at": 1792952246.8801017,
-      "fingerprint_cache_available": false,
+      "last_error": null,
+      "last_attempt_at": 1793001592.902326,
+      "next_retry_at": 0,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
-      "family_status": "search_clue_not_verified"
+      "family_status": "search_clue_not_verified",
+      "evidence": {
+        "sha256": "b37f3d933922945f4169f7c4f5458ac0de1407f28d700f0e3aabe1e9237f65da",
+        "duration_sec": 2975.133313,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1487.57
+          }
+        ],
+        "audio_fingerprint_count": 24008,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "40288496488"
     },
     "d8273140cb4088566825": {
       "url": "https://www.bilibili.com/video/BV1QSiXBxEEi",
@@ -4818,12 +4841,12 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 9,
+      "attempts": 10,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792865546.8680723,
-      "next_retry_at": 1792951946.8680723,
+      "last_attempt_at": 1793001328.3018308,
+      "next_retry_at": 1793087728.3018308,
       "download_partial_bytes": 0
     },
     "3b89002d051fbefd126f": {
@@ -5812,13 +5835,13 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 8,
+      "attempts": 9,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1792865858.6338513,
-      "next_retry_at": 1792952258.6338513,
+      "last_attempt_at": 1793001602.016985,
+      "next_retry_at": 1793088002.016985,
       "download_partial_bytes": 0
     },
     "a95be35ed9c89b3c08f8": {
@@ -8021,21 +8044,24 @@
       "new_ids": []
     },
     "investor_call|林园 投资者连线 完整版": {
-      "status": "searched",
-      "checked_at": 1792928416.8010278,
-      "next_retry_at": 1792971616.8010278,
-      "found": 4,
-      "new_ids": []
-    },
-    "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
       "status": "retry_wait",
       "checked_at": 1792928416.8010278,
-      "next_retry_at": 1792998838.1666398,
+      "next_retry_at": 1793022913.8364122,
       "found": 4,
       "new_ids": [],
       "attempts": 1,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1792977238.1666398
+      "last_attempt_at": 1793001313.8364122
+    },
+    "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
+      "status": "retry_wait",
+      "checked_at": 1792928416.8010278,
+      "next_retry_at": 1793044513.8364122,
+      "found": 4,
+      "new_ids": [],
+      "attempts": 2,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793001313.8364122
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
