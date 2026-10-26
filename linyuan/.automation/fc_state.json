@@ -53812,7 +53812,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-19T00:57:45+00:00"
+   "publish_time": "2026-05-19T00:57:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1026-99be9a",
+    "run_id": 40274112567,
+    "artifact_id": 12630285937,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b22445fb05444688a0795ad3716e5996ecaa293260ce1c802243506909328c2f",
+     "duration_sec": 179.67,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV14eLK6ME5d"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40274112567,
+    "artifact_id": 12630285937,
+    "name": "production-reject-ly-1026-99be9a",
+    "retained": true
+   },
+   "last_error": "真人动态区检出持续黑边/错误取景",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1ZQL76sEZk",
@@ -53845,7 +53878,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[4, 16]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.78，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1458, 2: 0.1131, 3: 0.2048, 4: 0.3768, 5: 0.1466, 6: 0.3002, 7: 0.1666, 8: 0.1476, 9: 0.3525, 10: 0.1858, 11: 0.1289, 12: 0.1189, 13: 0.3053, 14: 0.2291, 15: 0.1982, 16: 0.3893, 17: 0.21, 18: 0.2246}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -134079,6 +134113,13 @@
    "video_id": "BV1ZQL76sEZk",
    "ts": 1792992628,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[4, 16]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.78，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1458, 2: 0.1131, 3: 0.2048, 4: 0.3768, 5: 0.1466, 6: 0.3002, 7: 0.1666, 8: 0.1476, 9: 0.3525, 10: 0.1858, 11: 0.1289, 12: 0.1189, 13: 0.3053, 14: 0.2291, 15: 0.1982, 16: 0.3893, 17: 0.21, 18: 0.2246}"
+  },
+  {
+   "slug": "ly-1026-99be9a",
+   "key": "bilibili_search:BV14eLK6ME5d",
+   "video_id": "BV14eLK6ME5d",
+   "ts": 1792993351,
+   "error": "真人动态区检出持续黑边/错误取景"
   }
  ],
  "reviewed_third_video_0910": {
