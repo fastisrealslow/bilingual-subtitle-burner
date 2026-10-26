@@ -54129,7 +54129,88 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-01-13T02:29:48+00:00"
+   "publish_time": "2024-01-13T02:29:48+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1026-ff9035",
+    "run_id": 40343640641,
+    "artifact_id": 12664178242,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6fd11d47129652109ee9a55552a7c44f027bc4157ce01801712ddd1bfcdd5fe0",
+     "duration_sec": 1619.0,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1mV41197Zy"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV13QHA6DEar）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1114/1592，总帧数2386；身份匹配但人脸短边不足96px的帧数255"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 82%（BV1YAn46mEgJ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 82%（BV1MEe46yE8F）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 82%（BV1cHeE66Euf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/133，总帧数655；身份匹配但人脸短边不足96px的帧数64"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Aan96CEyB）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配67/566，总帧数2491；身份匹配但人脸短边不足96px的帧数379"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配238/420，总帧数905；身份匹配但人脸短边不足96px的帧数182"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话在句 10 后转入产品收益话题（句 11-13），导致关于‘投资是艺术’的论述被切断，未完整展开‘知识支持艺术’的逻辑闭环，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1393.17s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1kSYk6yEx7）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40343640641,
+    "artifact_id": 12664178242,
+    "name": "production-reject-ly-1026-ff9035",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 83%（BV13QHA6DEar）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1x6421g7jW",
@@ -135585,6 +135666,13 @@
    "video_id": "BV1hm421K79Y",
    "ts": 1793014858,
    "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
+  },
+  {
+   "slug": "ly-1026-ff9035",
+   "key": "bilibili_search:BV1mV41197Zy",
+   "video_id": "BV1mV41197Zy",
+   "ts": 1793029922,
+   "error": "与已发布内容文字指纹重复：转写片段重合 83%（BV13QHA6DEar）"
   }
  ],
  "reviewed_third_video_0910": {
