@@ -10,7 +10,7 @@ SOURCES = (
     'fc/index.py', 'stage_context.py', 'title_rewrite.py', 'artifact_range.py', 'audience_copy.py',
     'title_quantity_context.py', 'title_market_impression.py',
     'speaker_attribution.py', 'headline_policy.py', 'editorial_policy.py',
-    'caption_readability.py', 'caption_lines.py', 'caption_lines_legacy.py',
+    'caption_readability.py', 'caption_lines.py', 'caption_lines_legacy.py', 'caption_quantities.py',
     'caption_boundary_quality.py', 'presentation.py', 'live_motion.py',
     'source_geometry.py', 'source_profile_feasibility.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
     'source_admission_guard.py', 'publishing_experiment.py', 'experiment_runtime.py',
