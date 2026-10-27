@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1793102173,
-  "inventory_updated_at": 1793101944,
+  "updated_at": 1793111312,
+  "inventory_updated_at": 1793111309,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 33,
+    "verified_daily_stock": 32,
     "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
-    "status": "covered",
+    "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 33,
+      "verified_stock_snapshot": 32,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
-      "reserve_shortfall": 0,
+      "reserve_shortfall": 1,
       "dates": [
         "2026-10-27",
         "2026-10-28",
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 10,
+        "portrait": 9,
         "landscape": 23
       },
       "full_schedule_days": 3,
-      "required_week_shortfall": 11,
+      "required_week_shortfall": 12,
       "required_week_shortfall_by_layout": {
-        "portrait": 11,
+        "portrait": 12,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -50,7 +50,7 @@
         "landscape": 2
       },
       "reserve_shortfall_by_layout": {
-        "portrait": 0,
+        "portrait": 1,
         "landscape": 0
       }
     }
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 3,
+    "consecutive_fallbacks": 4,
     "actual_treatment_published": 4,
     "valid_comparison_days": 1,
     "daily": [
@@ -141,10 +141,10 @@
       },
       {
         "date": "2026-10-27",
-        "published": 3,
+        "published": 4,
         "treatment": 0,
         "controls": 2,
-        "fallback": 1,
+        "fallback": 2,
         "valid_comparison": false
       }
     ],
@@ -153,7 +153,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793102172,
+    "updated_at": 1793111311,
     "records": 12281,
     "video_records": 10582,
     "initial_candidates": 55,
@@ -177,14 +177,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 33,
+    "verified_live": 32,
     "verified_audio_card": 0,
     "verified_landscape": 23,
-    "verified_portrait": 10,
+    "verified_portrait": 9,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 33,
+    "daily_mix_usable": 32,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -28419,12 +28419,12 @@
     {
       "slug": "ly-1025-035ba6",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1792922800,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
