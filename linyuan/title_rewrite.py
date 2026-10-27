@@ -1097,7 +1097,7 @@ def personal_experience_scope_error(title, cover, transcript):
     for copy in (title, cover):
         # The speaker prefix attributes speech, but does not preserve the
         # distinction between a personal observation and a universal claim.
-        body = re.sub(r'^[^：:]+[：:]', '', str(copy or ''))
+        body = str(copy or '')
         for sentence in re.split(r'[。！？!?；;\n]', body):
             clauses = re.split(r'[，,]', sentence)
             for i, clause in enumerate(clauses):

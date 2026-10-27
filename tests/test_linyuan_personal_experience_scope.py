@@ -41,6 +41,8 @@ def test_other_effects_and_speakers_keep_the_same_scope(source, bad):
 
 @pytest.mark.parametrize('copy', [
     '我试过片仔癀，感觉有安神作用',
+    '我试过：片仔癀有安神作用',
+    '据我体验：片仔癀有安神作用',
     '据我体验，片仔癀有安神作用',
     '片仔癀的安神效果是我自己的感受',
     '我觉得片仔癀能安神',
