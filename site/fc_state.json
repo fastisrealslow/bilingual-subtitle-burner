@@ -54414,7 +54414,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-09T05:37:21+00:00"
+   "publish_time": "2026-10-09T05:37:21+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1027-4dbf76",
+    "run_id": 40423683587,
+    "artifact_id": 12698958002,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b0025381b5f3b839cdeec302312d982d82d6a5b2ab2561dbf0713a8c8d39cb5d",
+     "duration_sec": 55.68,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Ktps66Ejx"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40423683587,
+    "artifact_id": 12698958002,
+    "name": "production-reject-ly-1027-4dbf76",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VB8TS99H5",
@@ -135937,6 +135970,13 @@
    "video_id": "BV14L411477X",
    "ts": 1793048965,
    "error": "整段取景预检：源 8.53s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1027-4dbf76",
+   "key": "bilibili_search:BV1Ktps66Ejx",
+   "video_id": "BV1Ktps66Ejx",
+   "ts": 1793060151,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
