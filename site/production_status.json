@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793078433,
+  "updated_at": 1793078580,
   "inventory_updated_at": 1793078432,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 35,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -153,18 +153,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793078433,
+    "updated_at": 1793078579,
     "records": 12215,
     "video_records": 10516,
-    "initial_candidates": 56,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 55,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1699,
       "speaker_unconfirmed": 7242,
-      "already_attempted_or_cooling": 1721,
+      "already_attempted_or_cooling": 1722,
       "clip_title": 1205,
       "noise": 21,
       "unrelated": 65,
@@ -174,16 +174,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1jhnf6UESv",
-        "title": "林园：相信十年后收入更高，不增长也就十二三年回本 2023 #白酒投资 #茅台 #五粮液 #泸州老窖 #洋河  #片仔癀",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1jhnf6UESv",
-        "duration_sec": 70.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 35,
@@ -201,13 +192,13 @@
     "complete": 152,
     "failed": 1411,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 8,
     "excluded": 23,
     "experiment_fallback": 22,
     "ready": 13,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -29652,8 +29643,8 @@
     },
     {
       "slug": "ly-1027-360f2e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793077930,
         "failed": null,
@@ -29666,12 +29657,12 @@
       "run_id": 40453962754,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40453962754",
       "run_started_at": "2026-10-27T05:12:10Z",
-      "run_updated_at": "2026-10-27T05:12:14Z"
+      "run_updated_at": "2026-10-27T05:21:11Z"
     },
     {
       "slug": "ly-1027-a938e2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793077938,
         "failed": null,
@@ -29684,7 +29675,25 @@
       "run_id": 40453974052,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40453974052",
       "run_started_at": "2026-10-27T05:12:17Z",
-      "run_updated_at": "2026-10-27T05:12:21Z"
+      "run_updated_at": "2026-10-27T05:22:20Z"
+    },
+    {
+      "slug": "ly-1027-c41b94",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793078539,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40454936832,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40454936832",
+      "run_started_at": "2026-10-27T05:22:19Z",
+      "run_updated_at": "2026-10-27T05:22:22Z"
     }
   ],
   "runs": {
@@ -43328,12 +43337,23 @@
       "run_number": 2845,
       "display_title": "中文源出片 · ly-1022-e3ae52"
     },
-    "ly-1027-a938e2": {
-      "id": 40453974052,
+    "ly-1027-c41b94": {
+      "id": 40454936832,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-27T05:22:19Z",
+      "updated_at": "2026-10-27T05:22:22Z",
+      "run_started_at": "2026-10-27T05:22:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40454936832",
+      "run_number": 2848,
+      "display_title": "中文源出片 · ly-1027-c41b94"
+    },
+    "ly-1027-a938e2": {
+      "id": 40453974052,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-27T05:12:17Z",
-      "updated_at": "2026-10-27T05:12:21Z",
+      "updated_at": "2026-10-27T05:22:20Z",
       "run_started_at": "2026-10-27T05:12:17Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40453974052",
       "run_number": 2847,
@@ -43341,10 +43361,10 @@
     },
     "ly-1027-360f2e": {
       "id": 40453962754,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-27T05:12:10Z",
-      "updated_at": "2026-10-27T05:12:14Z",
+      "updated_at": "2026-10-27T05:21:11Z",
       "run_started_at": "2026-10-27T05:12:10Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40453962754",
       "run_number": 2846,
