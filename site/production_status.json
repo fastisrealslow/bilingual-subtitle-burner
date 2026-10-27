@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793119488,
+  "updated_at": 1793119695,
   "inventory_updated_at": 1793119486,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 32,
-    "active_or_recovering_sources": 1,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -153,7 +153,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793119487,
+    "updated_at": 1793119694,
     "records": 12298,
     "video_records": 10596,
     "initial_candidates": 55,
@@ -190,14 +190,15 @@
   },
   "counts": {
     "complete": 154,
-    "failed": 1418,
+    "failed": 1417,
     "paused": 5,
     "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 22,
     "ready": 11,
     "validation_failed": 2,
-    "retry_queued": 1
+    "retry_queued": 1,
+    "running": 1
   },
   "tasks": [
     {
@@ -23987,24 +23988,6 @@
       "run_updated_at": "2026-10-22T16:53:00Z"
     },
     {
-      "slug": "ly-story-18b29fe207",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那像这种像此前的一种小票行情的时候，那林元总啊，您是耐怎么会能耐得住这个寂寞呢？\", \"suspect_quote\": \"那林元总啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“林元”疑似为人名识别错误，结合上下文嘉宾名为“林园”，此处应为“林园”。\"}]",
-      "signature": {
-        "ts": 1792682275,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39803498243,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803498243",
-      "run_started_at": "2026-10-22T15:17:54Z",
-      "run_updated_at": "2026-10-22T15:41:35Z"
-    },
-    {
       "slug": "ly-story-d97101ba6e",
       "status": "complete",
       "detail": "本批次已处理完毕",
@@ -29765,6 +29748,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40523270213",
       "run_started_at": "2026-10-27T14:39:50Z",
       "run_updated_at": "2026-10-27T15:05:47Z"
+    },
+    {
+      "slug": "ly-story-18b29fe207",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793119653,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 40544372100,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40544372100",
+      "run_started_at": "2026-10-27T16:47:33Z",
+      "run_updated_at": "2026-10-27T16:47:37Z"
     }
   ],
   "runs": {
@@ -40065,14 +40066,14 @@
       "display_title": "中文源出片 · ly-story-ac3cffe923"
     },
     "ly-story-18b29fe207": {
-      "id": 39803498243,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T15:17:54Z",
-      "updated_at": "2026-10-22T15:41:35Z",
-      "run_started_at": "2026-10-22T15:17:54Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39803498243",
-      "run_number": 2451,
+      "id": 40544372100,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-27T16:47:33Z",
+      "updated_at": "2026-10-27T16:47:37Z",
+      "run_started_at": "2026-10-27T16:47:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40544372100",
+      "run_number": 2854,
       "display_title": "中文源出片 · ly-story-18b29fe207"
     },
     "ly-story-612e427be1": {
