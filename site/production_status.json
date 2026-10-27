@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1793121004,
-  "inventory_updated_at": 1793120889,
+  "updated_at": 1793129472,
+  "inventory_updated_at": 1793129470,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 32,
-    "active_or_recovering_sources": 2,
+    "verified_daily_stock": 33,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
-    "status": "at_risk",
+    "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 32,
+      "verified_stock_snapshot": 33,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
-      "reserve_shortfall": 1,
+      "reserve_shortfall": 0,
       "dates": [
         "2026-10-28",
         "2026-10-29",
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 9,
-        "landscape": 23
+        "portrait": 11,
+        "landscape": 22
       },
       "full_schedule_days": 3,
-      "required_week_shortfall": 12,
+      "required_week_shortfall": 10,
       "required_week_shortfall_by_layout": {
-        "portrait": 12,
+        "portrait": 10,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -50,7 +50,7 @@
         "landscape": 2
       },
       "reserve_shortfall_by_layout": {
-        "portrait": 1,
+        "portrait": 0,
         "landscape": 0
       }
     }
@@ -153,7 +153,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793121004,
+    "updated_at": 1793129471,
     "records": 12313,
     "video_records": 10610,
     "initial_candidates": 55,
@@ -177,14 +177,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 32,
+    "verified_live": 33,
     "verified_audio_card": 0,
-    "verified_landscape": 23,
-    "verified_portrait": 9,
+    "verified_landscape": 22,
+    "verified_portrait": 11,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 32,
+    "daily_mix_usable": 33,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -194,11 +194,10 @@
     "paused": 5,
     "interrupted": 6,
     "excluded": 23,
-    "experiment_fallback": 22,
+    "experiment_fallback": 23,
     "ready": 11,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -29751,8 +29750,8 @@
     },
     {
       "slug": "ly-story-18b29fe207",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793119653,
         "failed": false,
@@ -29765,7 +29764,7 @@
       "run_id": 40544372100,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40544372100",
       "run_started_at": "2026-10-27T16:47:33Z",
-      "run_updated_at": "2026-10-27T16:47:37Z"
+      "run_updated_at": "2026-10-27T19:29:15Z"
     }
   ],
   "runs": {
@@ -43477,10 +43476,10 @@
     },
     "ly-story-18b29fe207": {
       "id": 40544372100,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-27T16:47:33Z",
-      "updated_at": "2026-10-27T16:47:37Z",
+      "updated_at": "2026-10-27T19:29:15Z",
       "run_started_at": "2026-10-27T16:47:33Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40544372100",
       "run_number": 2854,
