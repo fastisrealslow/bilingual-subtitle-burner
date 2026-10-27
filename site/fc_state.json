@@ -54548,7 +54548,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-09-10T16:41:01+00:00"
+   "publish_time": "2024-09-10T16:41:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1027-360f2e",
+    "run_id": 40453962754,
+    "artifact_id": 12711163589,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9e37516bee8263f6fb4e639078ae816f4aac3892635a01f0d735de3f6e9592de",
+     "duration_sec": 56.5,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1hE4aeNEWd"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40453962754,
+    "artifact_id": 12711163589,
+    "name": "production-reject-ly-1027-360f2e",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1MNab6LEGR",
@@ -54571,7 +54604,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-04T03:27:00+00:00"
+   "publish_time": "2026-10-04T03:27:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1027-a938e2",
+    "run_id": 40453974052,
+    "artifact_id": 12712202206,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "af5dd1f14372ed9ea8166c8d0e88076864e121e192a288fc04b31fc165198e79",
+     "duration_sec": 44.5,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1MNab6LEGR"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.09651898734177215, 0.7957446808510639, 0.22151898734177214, 0.8851063829787233)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40453974052,
+    "artifact_id": 12712202206,
+    "name": "production-reject-ly-1027-a938e2",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.09651898734177215, 0.7957446808510639, 0.22151898734177214, 0.8851063829787233)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1jhnf6UESv",
@@ -136454,6 +136520,20 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2610/22/3riqopvqqup/SD/3riqopvqqup-mobile.mp4",
    "ts": 1793060765,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1027-a938e2",
+   "key": "bilibili_search:BV1MNab6LEGR",
+   "video_id": "BV1MNab6LEGR",
+   "ts": 1793078721,
+   "error": "真人动态区仍有稳定来源角标：[(0.09651898734177215, 0.7957446808510639, 0.22151898734177214, 0.8851063829787233)]"
+  },
+  {
+   "slug": "ly-1027-360f2e",
+   "key": "bilibili_search:BV1hE4aeNEWd",
+   "video_id": "BV1hE4aeNEWd",
+   "ts": 1793078722,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
