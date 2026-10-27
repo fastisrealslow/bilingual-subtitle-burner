@@ -54539,8 +54539,8 @@
    "publish_time": "2023-02-06T11:25:29+00:00",
    "source_check_report_id": 12437746427,
    "source_check_run_id": 39788243092,
-   "last_error": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: Issue must identify an actual source sentence and reason",
-   "failure_stage": "quality-service",
+   "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
+   "failure_stage": "source-quality",
    "source_check_attempts": 3,
    "production_failure_summary": {
     "slug": "ly-1021-dd5639",
@@ -54686,7 +54686,7 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "source_check_exhausted": false,
    "automatic_rule_recoveries": {
     "transcript-valid-negatives-v4": {
@@ -54700,8 +54700,14 @@
      "ts": 1793079253
     }
    },
-   "source_quality_rejected": false,
-   "recovery_origin_run_id": 39788243092
+   "source_quality_rejected": true,
+   "recovery_origin_run_id": 39788243092,
+   "failure_evidence": {
+    "run_id": 40456147175,
+    "artifact_id": 12712621119,
+    "name": "source-reject-ly-1021-dd5639",
+    "retained": true
+   }
   }
  ],
  "makeup_receipts": {
@@ -136582,6 +136588,13 @@
    "video_id": "BV1jhnf6UESv",
    "ts": 1793078988,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1021-dd5639",
+   "key": "bilibili_search:BV1Vv4y1b7v6",
+   "video_id": "BV1Vv4y1b7v6",
+   "ts": 1793079554,
+   "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
   }
  ],
  "reviewed_third_video_0910": {
