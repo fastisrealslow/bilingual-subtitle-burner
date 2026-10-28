@@ -54707,7 +54707,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/809，总帧数4042；身份匹配但人脸短边不足96px的帧数786",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/pT2LOAezlx08AU6VKuBy0104120a92zR0E040.mp4",
@@ -54784,29 +54785,56 @@
    "recovery_origin_run_id": 39814451609,
    "production_failure_summary": {
     "slug": "ly-story-5162cfe28f",
-    "run_id": 39814451609,
-    "artifact_id": 12443625820,
+    "run_id": 40772896394,
+    "artifact_id": 12855151723,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"梅艳老师好啊，我是二零二零年的时候听了你那个嘴巴经济，就是视频我就看说为什么嘴巴精，是你嘴巴长得大吗？\", \"suspect_quote\": \"嘴巴经济\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境中无明确定义，疑似将“消费”、“经济”等词汇误识别为专有名词，且与后文“为什么嘴巴精”的追问逻辑不通，属于典型的语音转文字错误（可能原意为“消费经济”或特定比喻被截断）。”}, {\"}]"
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸"
      },
      {
       "stage": "part-quality",
-      "reason": "整段取景预检：源 4192.00s，原始画面不足以保留完整人脸及头顶余量"
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3985.47s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4559.50s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 84%（BV1PcHp6tE4k）"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d4db5114a538405825f82ca9b0abc38b24a6b271a24dff884c69634f6cac682d",
+     "duration_sec": 5178.61,
+     "resolution": {
+      "width": 1920,
+      "height": 1078,
+      "short_edge": 1078
+     },
+     "source_url": "https://m.weibo.cn/detail/5341700069265742"
+    }
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39814451609,
-    "artifact_id": 12443625820,
+    "run_id": 40772896394,
+    "artifact_id": 12855151723,
     "name": "production-reject-ly-story-5162cfe28f",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"梅艳老师好啊，我是二零二零年的时候听了你那个嘴巴经济，就是视频我就看说为什么嘴巴精，是你嘴巴长得大吗？\", \"suspect_quote\": \"嘴巴经济\", \"kind\": \"unintelligible_term\", \"reason\": \"该词组在金融或商业语境中无明确定义，疑似将“消费”、“经济”等词汇误识别为专有名词，且与后文“为什么嘴巴精”的追问逻辑不通，属于典型的语音转文字错误（可能原意为“消费经济”或特定比喻被截断）。”}, {\"}]",
-   "source_quality_rejected": false,
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
