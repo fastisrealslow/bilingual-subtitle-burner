@@ -54658,7 +54658,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-12-26T03:16:43+00:00"
+   "publish_time": "2022-12-26T03:16:43+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1028-ae7f82",
+    "run_id": 40770979891,
+    "artifact_id": 12855551023,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "38aad982b052197b7c15f620d9ecad445610b433d1d679d505031ec57313ee55",
+     "duration_sec": 1087.0,
+     "resolution": {
+      "width": 672,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1RA411D7Jv"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/809，总帧数4042；身份匹配但人脸短边不足96px的帧数786"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/212，总帧数1058；身份匹配但人脸短边不足96px的帧数212"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未形成完整的独立观点陈述。开头为问候与教学引入，中间涉及对基金管理费的回避、基金预约购买的说明，最后以向主持人提问关于'牛市初期'的判断作为结束，但该判断是向他人（李总）提出的疑问或观察，而非嘉宾自身完成的论证闭环。且结尾句'说目前是处于处于这个牛市初期'存在口吃重复（'处于处于'），虽不影响理解但属于口语瑕疵；更重要的是，整段话缺乏一个明确的、由嘉宾主导的结论性判断（如'现在应该买入某类资产'或'当前市场估值合理'等）。因此，无法构成独立成片的完整表达。；原文问题：[[\"那李总，我我问个问题啊，就是我看啊，我们就是你这个近期包括今年又在分析，说目前是处于处于"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/397，总帧数1982；身份匹配但人脸短边不足96px的帧数397"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40770979891,
+    "artifact_id": 12855551023,
+    "name": "production-reject-ly-1028-ae7f82",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/809，总帧数4042；身份匹配但人脸短边不足96px的帧数786",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "http://f.video.weibocdn.com/o0/vQq8yb9Ylx08BcDierUA0104120cOhBS0E050.mp4",
@@ -139361,6 +139406,13 @@
    "video_id": "BV1rjNzzkEJo",
    "ts": 1793206183,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1028-ae7f82",
+   "key": "bilibili_search:BV1RA411D7Jv",
+   "video_id": "BV1RA411D7Jv",
+   "ts": 1793224876,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/809，总帧数4042；身份匹配但人脸短边不足96px的帧数786"
   }
  ],
  "reviewed_third_video_0910": {
