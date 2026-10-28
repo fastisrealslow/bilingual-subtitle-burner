@@ -24,7 +24,7 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 时间概率必须说明什么事件可能发生，不能仅删除不明点位，留下“十二个月可能性大”。
 “不是A，而是B”须保留实际对象B；不能前半句仍把A当看好对象，后半句加上B就算修正。
 讨论投资相关产品时，标题和封面均保留产品对象；不能把看好某类产品缩成看好疾病，也不能改成诊疗建议。
-描述风险、供需或资产保存周期，不能推导成给观众的买卖指令。“建多了会出问题”不等于“别投资”；本人“我不买”不等于建议观众“别买”。标题和封面若写别买、不要投、赶紧买、必须卖等指令，原话须确实作出同方向、同操作的明确建议；不能用“推导出的建议”通过独立审核。"""
+描述风险、供需或资产保存周期，不能推导成给观众的买卖指令。“建多了会出问题”不等于“别投资”；本人“我不买”不等于建议观众“别买”。标题和封面若写别买、不要投、赶紧买、必须卖等指令，原话须确实作出同方向、同操作的明确建议；不能用“推导出的建议”通过独立审核。行情向某行业或市值范围蔓延的描述，也不能改成要求观众往该方向跑或不要跑的指令；投资对象、操作方向和语气须有原话支持。"""
 
 
 def compact(text):
@@ -1384,19 +1384,33 @@ def unsupported_trade_directive_error(title,cover,transcript):
     positive=r'必须(?:要)?|务必(?:要)?|一定要|赶紧|马上|快|建议|应该|应当'
     pattern=re.compile(r'(?P<prefix>'+negative+'|'+positive+r')'
         r'(?:(?:轻易|再|去|继续|随便|盲目)){0,3}(?P<action>'+actions+r')')
+    rotation=re.compile(r'(?P<prefix>'+negative+'|'+positive+r')'
+        r'(?:(?:轻易|再|去|继续|随便|盲目)){0,3}(?:往|向|朝)'
+        r'(?P<target>[\u4e00-\u9fffA-Za-z0-9]{1,24}?)(?:去)?'
+        r'(?P<action>跑|转|挤|扎堆|涌)')
     aliases={'投资':'投','买入':'买','卖出':'卖'}
     def commands(text):
         result={}
-        for match in pattern.finditer(str(text or '')):
+        text=str(text or '')
+        matches=[(m,False) for m in pattern.finditer(text)]
+        matches.extend((m,True) for m in rotation.finditer(text))
+        for match,is_rotation in matches:
+            if is_rotation and not re.search(
+                    r'股|行业|板块|赛道|市值|证券|资产|债券|基金|房产|房地产',match['target']):
+                continue
             # Preserve the speaker's own stated choice/obligation as such.
             # It cannot supply evidence for an instruction to the viewer.
-            before=str(text)[:match.start()]
+            before=text[:match.start()]
             if (re.search(r'(?:我|我们)(?:自己)?$',before)
                     and match['prefix'] not in ('建议','不建议')):continue
             prefix=match['prefix'];negative_action=bool(re.fullmatch(negative,prefix))
             strength=(1 if prefix in ('建议','应该','应当','不建议','不宜') else
                       3 if prefix.startswith('千万') or prefix in ('赶紧','马上','快') else 2)
             key=(negative_action,aliases.get(match['action'],match['action']))
+            if is_rotation:
+                # A command about another destination cannot support this one.
+                target=re.sub(r'(?:里面|里|上|中)$','',match['target'])
+                key=(negative_action,'rotation:'+match['action'],target)
             result[key]=max(result.get(key,0),strength)
         return result
     supported=commands(transcript)
