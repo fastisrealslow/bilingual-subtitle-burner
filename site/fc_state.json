@@ -55223,16 +55223,16 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39810810349,
-    "artifact_id": 12440747468,
-    "name": "production-reject-ly-story-76a421d637",
+    "run_id": 40781600845,
+    "artifact_id": 12856973376,
+    "name": "source-reject-ly-story-76a421d637",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 29, \"quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"suspect_quote\": \"我说现在牛市初期，我大概率事件百分之六十啊。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义：'百分之六十'作为概率描述在口语中虽常见，但结合上下文'大概率事件'，需确认此处是否为精确数值还是模糊指代；若为精确数据则无问题，但若原意是'六成左右'而识别成固定'百分之六十'，则构成数字污染。\"}]",
-   "source_quality_rejected": false,
-   "failure_stage": "editorial-or-render",
+   "last_error": "实时官方元数据已明确禁止转载；历史成片、原始识别缓存及诊断试产均不得绕过准入进入发布库存",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 39810810349,
