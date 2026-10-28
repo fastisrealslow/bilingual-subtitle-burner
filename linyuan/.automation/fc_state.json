@@ -55059,25 +55059,60 @@
    "recovery_origin_run_id": 39813128512,
    "production_failure_summary": {
     "slug": "ly-story-cd0cc1dffe",
-    "run_id": 39813128512,
-    "artifact_id": 12441378062,
+    "run_id": 40776736524,
+    "artifact_id": 12856952827,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林岩”属于专名错写，需核实原音。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"呃申请\", \"kind\": \"unintelligible_term\", \"reason\": "
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4002.27s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那我想问一下那个林老师：如果一个经历了，就是我们呃几十年的呃实证，以及是我们老老祖宗传下来的道家辟谷，加上温谷的话，您愿意尝试吗？\", \"suspect_quote\": \"温谷\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“温补”或特定术语误识别为无意义的“温谷”，且与上下文“道家辟谷”搭配不合逻辑，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"透析以后的病人啊，你的那个透析病，为这我都把几个医院我都经常去，我去他他会去仔细转转。\", \"susp"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林岩”属于专名错写，需核实原音。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"呃申请\", \"kind\": \"unintelligible_term\", \"reason\": "
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "62f9244784d8e20af3148f6ccdc866239ffa0c84c2828a2793838ba5f6deb2f4",
+     "duration_sec": 5101.29,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5348893709828529"
+    }
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39813128512,
-    "artifact_id": 12441378062,
+    "run_id": 40776736524,
+    "artifact_id": 12856952827,
     "name": "production-reject-ly-story-cd0cc1dffe",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"那林岩导师\", \"kind\": \"unintelligible_term\", \"reason\": \"同上句，再次出现将嘉宾“林园”错识为“林岩”的情况。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就\", \"kind\": \"unintelligible_term\", \"reason\": \"句子逻辑混乱，疑似识别错误导致语义不通。“所以你就”后文缺失或连接不当，结合上下文推测原意可能是“所以你们就把跟我讲的...”，但当前文本中“他有个体会不一样”与前后文衔接生硬，且“干巴巴的讲啊”后的转折关系不明，存在明显的断句或词汇识别疑\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技，AR 这个股票基金”表述极其不通顺。结合林园的投资风格（通常关注消费、医药等），此处极可能是将“人工智能”、“农业”或其他具体行业名称误识别为\"}, {\"sentence_id\": 19, \"quote\": \"现在我们上面一直提心智生产力，那么我也在挖掘，因为我是退役军人，那么我也在挖掘如何让我们大多数的退役军人让他们创造，给他们创造更多的岗位。\", \"suspect_quote\": \"那么我也在挖掘，因为我是退役军人，那么我也在挖掘\", \"kind\": \"unintelligible_term\", \"reason\": \"句子中“那么我也在挖掘”重复出现，且第一次出现时缺乏宾语（挖掘什么？），第二次出现时同样语意不明。这极可能是语音识别将“我在想”、“我在做”或具体项目名称误识为“挖掘”，或者漏掉了关键动词/名词，导致语义残缺。\"}, {\"sentence_id\": 26, \"quote\": \"那么我的问题就是不好意思啊，让大大家听多了。\", \"suspect_quote\": \"让大大家听多了\", \"kind\": \"unintelligible_term\", \"reason\": \"明显的重复字错误。“大大家”应为“大家”。这是典型的语音识别中因语速快或发音含糊导致的同音/近音字重复错误。\"}]",
-   "source_quality_rejected": false,
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林岩”属于专名错写，需核实原音。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"呃申请\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充词“呃”与动词“申请”粘连，需核实原音以确认是否为口误或重复。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"干巴巴的讲啊\", \"kind\": \"unintelligible_term\", \"reason\": \"口语表达松散，需核实原音确认是否为“干货”或其他词汇的误听。\"}, {\"sentence_id\": 4, \"quote\": \"好，我们现场互动起来，来举手，我们这位，韩，来，话筒递给韩总，韩总啊。\", \"suspect_quote\": \"韩总\", \"kind\": \"unintelligible_term\", \"reason\": \"仅识别出姓氏“韩”，未识别全名，需核实原音确认完整称呼。\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技”与\", \"reported_suspect_quote\": \"AR 这个股票基金\", \"quote_binding\": \"unique_contiguous_cjk_latin_layout_space\"}]",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
