@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793227089,
+  "updated_at": 1793227189,
   "inventory_updated_at": 1793227088,
   "continuity": {
     "daily_target": 4,
@@ -161,7 +161,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793227089,
+    "updated_at": 1793227188,
     "records": 12379,
     "video_records": 10656,
     "initial_candidates": 55,
@@ -198,15 +198,15 @@
   },
   "counts": {
     "complete": 156,
-    "failed": 1412,
+    "failed": 1413,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 24,
     "ready": 10,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 3
+    "retry_queued": 1,
+    "running": 4
   },
   "tasks": [
     {
@@ -29742,30 +29742,12 @@
       "run_updated_at": "2026-10-28T22:04:23Z"
     },
     {
-      "slug": "ly-story-76a421d637",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793224853,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793224852,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39810810349,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39810810349",
-      "run_started_at": "2026-10-22T16:04:42Z",
-      "run_updated_at": "2026-10-22T16:17:28Z"
-    },
-    {
       "slug": "ly-story-cd0cc1dffe",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林岩”属于专名错写，需核实原音。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"呃申请\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充词“呃”与动词“申请”粘连，需核实原音以确认是否为口误或重复。\"}, {\"sentence_id\": 3, \"quote\": \"来，我这干巴巴的讲啊，他有个体会不一样，所以你就你们就把跟我讲的就是体会不一样的，你说出来，我都能给你解答。\", \"suspect_quote\": \"干巴巴的讲啊\", \"kind\": \"unintelligible_term\", \"reason\": \"口语表达松散，需核实原音确认是否为“干货”或其他词汇的误听。\"}, {\"sentence_id\": 4, \"quote\": \"好，我们现场互动起来，来举手，我们这位，韩，来，话筒递给韩总，韩总啊。\", \"suspect_quote\": \"韩总\", \"kind\": \"unintelligible_term\", \"reason\": \"仅识别出姓氏“韩”，未识别全名，需核实原音确认完整称呼。\"}, {\"sentence_id\": 8, \"quote\": \"因为以往老师讲的全部都是高科技，AR这个股票基金。\", \"suspect_quote\": \"AR这个股票基金\", \"kind\": \"unintelligible_term\", \"reason\": \"“高科技”与\", \"reported_suspect_quote\": \"AR 这个股票基金\", \"quote_binding\": \"unique_contiguous_cjk_latin_layout_space\"}]",
       "signature": {
         "ts": 1793224911,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29812,6 +29794,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40777332294",
       "run_started_at": "2026-10-28T22:06:15Z",
       "run_updated_at": "2026-10-28T22:06:19Z"
+    },
+    {
+      "slug": "ly-story-76a421d637",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793227149,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 40781600845,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40781600845",
+      "run_started_at": "2026-10-28T22:39:09Z",
+      "run_updated_at": "2026-10-28T22:39:13Z"
     }
   ],
   "runs": {
@@ -40134,14 +40134,14 @@
       "display_title": "中文源出片 · ly-1022-7d051c"
     },
     "ly-story-76a421d637": {
-      "id": 39810810349,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-22T16:04:42Z",
-      "updated_at": "2026-10-22T16:17:28Z",
-      "run_started_at": "2026-10-22T16:04:42Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39810810349",
-      "run_number": 2460,
+      "id": 40781600845,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-28T22:39:09Z",
+      "updated_at": "2026-10-28T22:39:13Z",
+      "run_started_at": "2026-10-28T22:39:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40781600845",
+      "run_number": 2864,
       "display_title": "中文源出片 · ly-story-76a421d637"
     },
     "ly-story-d97101ba6e": {
@@ -43510,6 +43510,17 @@
       "run_number": 2860,
       "display_title": "中文源出片 · ly-story-646c23d1a9"
     },
+    "ly-story-cd0cc1dffe": {
+      "id": 40776736524,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-28T22:01:51Z",
+      "updated_at": "2026-10-28T22:36:36Z",
+      "run_started_at": "2026-10-28T22:01:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40776736524",
+      "run_number": 2861,
+      "display_title": "中文源出片 · ly-story-cd0cc1dffe"
+    },
     "ly-story-ca2b411807": {
       "id": 40777332294,
       "status": "in_progress",
@@ -43531,17 +43542,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40776750149",
       "run_number": 2862,
       "display_title": "中文源出片 · ly-story-e09b850697"
-    },
-    "ly-story-cd0cc1dffe": {
-      "id": 40776736524,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-28T22:01:51Z",
-      "updated_at": "2026-10-28T22:36:36Z",
-      "run_started_at": "2026-10-28T22:01:51Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40776736524",
-      "run_number": 2861,
-      "display_title": "中文源出片 · ly-story-cd0cc1dffe"
     },
     "ly-story-13c07fb2f2": {
       "id": 40772928603,
