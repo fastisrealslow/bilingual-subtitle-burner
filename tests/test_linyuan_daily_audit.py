@@ -28,7 +28,9 @@ def test_evening_draft_is_checked_early_and_expired_or_unknown_stock_cannot_pass
     report=experiment_stock_check(stock,now)
     assert report['passed'] and report['remaining_slots']==['2026-10-25 21']
     assert not experiment_stock_check(dict(verified_live=29),now)['passed']
-    assert experiment_stock_check(stock,now.replace(hour=21)) is None
+    tomorrow=experiment_stock_check(stock,now.replace(hour=21))
+    assert tomorrow['remaining_slots']==['2026-10-26 14','2026-10-26 21']
+    assert not tomorrow['passed']  # One remaining file cannot cover tomorrow's two slots.
     assert experiment_stock_check(stock,now.replace(month=11,day=20)) is None
 
 

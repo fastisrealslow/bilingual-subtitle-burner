@@ -502,8 +502,8 @@ def operational_status(state, ready, now=None):
     total=sum(ready.values()) if fresh else None
     alert=('unknown_stock' if not fresh else 'consecutive_fallbacks' if streak>=2 else
            'no_verified_treatment' if total==0 else
-           'insufficient_treatment_by_layout' if any(int(ready.get(layout) or 0)<2
-               for layout in ('portrait','landscape')) else None)
+           'insufficient_treatment_by_layout' if int(ready.get('landscape') or 0)<2
+               or total<4 else None)
     return dict(experiment_id=EXPERIMENT_ID,selection_revision=SELECTION_REVISION,
         active=preparing(now),verified_treatment=ready,consecutive_fallbacks=streak,
         actual_treatment_published=sum(r.get('compliant') and r.get('actual')==TREATMENT for r in planned),
@@ -871,7 +871,11 @@ def long_candidate(candidate):
 def production_deficits(inventory,state,active_runs,now=None):
     if not preparing(now) or 'experiment_ready' not in inventory:return dict(portrait=0,landscape=0)
     ready=inventory.get('experiment_ready') or {}
-    needs={layout:max(0,2-int(ready.get(layout) or 0)) for layout in ('portrait','landscape')}
+    wide=int(ready.get('landscape') or 0);portrait=int(ready.get('portrait') or 0)
+    # Two days of real T: afternoon needs native wide; evening already accepts
+    # native wide as well as portrait. Do not force a crop just to fill a label.
+    needs=dict(landscape=max(0,2-wide))
+    needs['portrait']=max(0,4-wide-portrait-needs['landscape'])
     latest={e.get('slug'):e for e in state.get('dispatched') or []}
     seen=set()
     for run in active_runs:
@@ -879,8 +883,14 @@ def production_deficits(inventory,state,active_runs,now=None):
         entry=latest.get(slug) or {};layout=entry.get('output_layout')
         if (run.get('status') in ('queued','in_progress') and slug not in seen
                 and entry.get('editorial_profile')==TREATMENT and layout in needs):
-            needs[layout]=max(0,needs[layout]-1);seen.add(slug)
+            consume_production_need(needs,layout);seen.add(slug)
     return needs
+
+
+def consume_production_need(needs,layout):
+    if layout=='landscape' and not needs.get('landscape'):
+        layout='portrait'  # Flexible evening draft; still actual native-wide T.
+    if layout in needs:needs[layout]=max(0,needs[layout]-1)
 
 
 def receipt(meta, now=None, makeup_slot=None):

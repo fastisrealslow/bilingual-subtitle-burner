@@ -6,6 +6,7 @@ on:
     paths: [.github/workflows/linyuan-daily-publication-audit.yml, linyuan/daily_publication_audit.py]
   schedule:
     - cron: '30 1 * * *' # 09:30 Beijing: inspect ready stock before the first slot.
+    - cron: '0 5,12 * * *' # 13:00 / 20:00 Beijing: before the two treatment slots.
     - cron: '20 2,6,8,13 * * *'
     - cron: '50 15 * * *'
   workflow_dispatch:
@@ -39,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f daily-publication-audit.json || exit 0
-          needed=$(python -c 'import json; r=json.load(open("daily-publication-audit.json")); d=r.get("experiment_drafts"); print("yes" if d and not d["passed"] else "no")')
+          needed=$(PYTHONPATH=linyuan python -c 'import json; from daily_publication_audit import experiment_recovery_needed; r=json.load(open("daily-publication-audit.json")); print("yes" if experiment_recovery_needed(r) else "no")')
           if [ "$needed" = yes ]; then
             gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
           fi

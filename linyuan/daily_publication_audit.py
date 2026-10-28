@@ -96,6 +96,10 @@ def experiment_stock_check(stock, now):
     now=now.astimezone(BEIJING);day=now.date().isoformat()
     remaining=[hour for hour in (14,21) if hour>now.hour
                and E.assignment(now.timestamp(),f'{day} {hour:02d}')]
+    if not remaining and now.hour>=21:
+        day=(now.date()+timedelta(days=1)).isoformat()
+        remaining=[hour for hour in (14,21)
+                   if E.assignment(now.timestamp(),f'{day} {hour:02d}')]
     if not remaining:return None
     ready=stock.get('experiment_ready') or {}
     wide=int(ready.get('landscape') or 0)
@@ -107,6 +111,14 @@ def experiment_stock_check(stock, now):
         inventory_fresh=stock.get('inventory_fresh') is True,
         passed=(stock.get('inventory_fresh') is True and wide>=required_wide
                 and wide+portrait>=len(remaining)))
+
+
+def experiment_recovery_needed(report):
+    if not (report.get('experiment') or {}).get('active'):return False
+    drafts=report.get('experiment_drafts') or {}
+    executed=report['experiment']
+    return bool(executed.get('missing_slots') or executed.get('noncompliant_slots')
+                or drafts and not drafts.get('passed'))
 
 
 def main():
@@ -130,7 +142,7 @@ def main():
     report['passed']=(report['receipt_check_passed'] and report['public_check_passed']
                       and report['experiment']['passed'])
     stock=None
-    if now.hour<HOURS[0] or (report['experiment']['active'] and now.hour<21):
+    if now.hour<HOURS[0] or report['experiment']['active']:
         stock=source_inventory(state)
     if report['experiment']['active']:
         report['experiment_drafts']=experiment_stock_check(stock or {},now)

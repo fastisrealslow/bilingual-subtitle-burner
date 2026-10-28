@@ -307,7 +307,8 @@ AI_NOISE = re.compile(r"问了下|问一下|元宝|豆包|DeepSeek|deepseek|文�
 # 改为按内容判断——「完整原片」（完整访谈/发言/直播/实录，哪怕自媒体转发）收，
 # 「剪辑二创」（金句/观点/碎片/标题党）拒。
 FULL_TITLE_PAT = re.compile(
-    r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访")
+    r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访|"
+    r"投资者交流|圆桌会议|讲座|全集")
 CLIP_TITLE_PAT = re.compile(
     r"金句|十大观点|秘诀|股神|曝光|惊人|精华|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
@@ -2448,12 +2449,19 @@ def request_inventory_refresh(st):
         gh('POST','/actions/workflows/linyuan-source-inventory.yml/dispatches',{'ref':'main'})
         st['inventory_refresh_requested_at']=int(time.time())
         save_state(st)
-        log_event('inventory_refresh','成片库存证据不可用，已请求自动复核',
-                  '不按零库存扩产；实验投稿等待复核后由原档位补发布')
+        log_event('inventory_refresh','已请求成片库存自动复核',
+                  '只检查实际文件；供片缺口由原调度补齐，不改变发布档位或门禁')
         return True
     except Exception as exc:
         log.warning('库存复核请求暂不可用：%s',type(exc).__name__)
         return False
+
+
+def refresh_after_experiment_publication(st, receipt):
+    """Consumption/fallback must wake replenishment without waiting for cron."""
+    if (not receipt or receipt.get('experiment_id')!=experiment.EXPERIMENT_ID
+            or receipt.get('planned')!=experiment.TREATMENT):return False
+    return request_inventory_refresh(st)
 
 
 def _dispatch_admitted(event=None, context=None):
@@ -2496,6 +2504,7 @@ def _dispatch_admitted(event=None, context=None):
         gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
     active=len(active_runs)
     exp_needs=experiment.production_deficits(inventory,st,active_runs,time.time())
+    initial_experiment_needs=dict(exp_needs)
     normal_deficits=reserve_deficits(inventory)
     effective_deficits={layout:max(normal_deficits[layout],exp_needs[layout]) for layout in deficits}
     if not recent_probe and not any(effective_deficits.values()) and not repair_pending:
@@ -2611,7 +2620,7 @@ def _dispatch_admitted(event=None, context=None):
         if entry.get('output_layout')=='landscape':landscape_admissions=max(0,landscape_admissions-1)
         if entry.get('editorial_profile')==experiment.TREATMENT:
             layout=entry.get('output_layout')
-            if layout in exp_needs:exp_needs[layout]=max(0,exp_needs[layout]-1)
+            experiment.consume_production_need(exp_needs,layout)
         log_event('dispatch_ok', f"已恢复 {entry['slug']} 的当前版本出片",
                   entry.get('failure_stage', 'quality-service'))
     # The ledger may have no NEW admitted long mothers. Reuse verified raw
@@ -2637,9 +2646,11 @@ def _dispatch_admitted(event=None, context=None):
                     experiment_mother_sha256=parent.get('source_sha256'),
                     experiment_parent_slug=parent['slug'],recovery_origin_run_id=record['run_id'],
                     **({'experiment_proven_recall':parent['experiment_proven_recall']}
-                       if parent.get('experiment_proven_recall') else {})))
+                       if parent.get('experiment_proven_recall') else {}),
+                    **({'experiment_replenishment_basis':parent['experiment_replenishment_basis']}
+                       if parent.get('experiment_replenishment_basis') else {})))
             save_state(st)
-            success+=1;exp_needs[layout]=max(0,exp_needs[layout]-1)
+            success+=1;experiment.consume_production_need(exp_needs,layout)
             log_event('dispatch_ok',f'已调度故事实验 {slug}',f'复用已核验母片 {parent["slug"]}，原库存保留')
     # Only truly unmeasured, normally admitted sources may explore the story
     # route when the ledger has no known long mothers. This is a request, not
@@ -2746,7 +2757,7 @@ def _dispatch_admitted(event=None, context=None):
                 save_state(st)
             if output_layout=='landscape':landscape_admissions=max(0,landscape_admissions-1)
             if editorial_profile==experiment.TREATMENT:
-                exp_needs[output_layout]=max(0,exp_needs[output_layout]-1)
+                experiment.consume_production_need(exp_needs,output_layout)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
         except Exception as e:
@@ -2768,7 +2779,19 @@ def _dispatch_admitted(event=None, context=None):
         log_event('supply_empty', '本轮未补入生产任务',
                   f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"
                   f"库存新鲜={inventory['inventory_fresh']}")
-    return {"dispatched": success, "attempted": len(cands)}
+    result={"dispatched": success, "attempted": len(cands)}
+    if experiment.preparing() and 'experiment_ready' in inventory:
+        ready=inventory['experiment_ready']
+        active_treatment=any(r.get('status') in {'queued','in_progress'} and any(
+            e.get('editorial_profile')==experiment.TREATMENT
+            and e['slug']==str(r.get('display_title') or '').split(' · ')[-1]
+            for e in _latest_dispatches(st)) for r in active_runs)
+        started_treatment=any(exp_needs[k]<initial_experiment_needs[k] for k in exp_needs)
+        enough=int(ready.get('landscape') or 0)>=2 and sum(ready.values())>=4
+        result['experiment_supply']=dict(verified_drafts=dict(ready),
+            remaining_production_opportunities=dict(exp_needs),
+            status='ready' if enough else 'replenishing' if active_treatment or started_treatment else 'stalled')
+    return result
 
 
 def experiment_duration_probe_allowed(candidate, state, active_runs, needs, *,
@@ -3048,13 +3071,18 @@ def experiment_reuse_plan(candidates, state, needs):
                 # A bounded repair must reproduce its actual validated format,
                 # not consume its one attempt guessing at the opposite gap.
                 if repair and layout not in proven_layouts:continue
-                if remaining.get(layout,0)>0:
+                demand=layout
+                if (layout=='landscape' and not remaining.get(layout,0)
+                        and remaining.get('portrait',0)>0 and observed=={'landscape'}):
+                    demand='portrait'
+                if remaining.get(demand,0)>0:
                     confidence=0 if layout in observed else 1 if not observed else 2
-                    options.append(((confidence,-remaining[layout],i,order),i,layout))
+                    if demand!=layout:confidence=.5  # Prefer native portrait first, never force a crop.
+                    options.append(((confidence,-remaining[demand],i,order),i,layout,demand))
         if not options:break
-        _,index,layout=min(options)
+        _,index,layout,demand=min(options)
         parent,record=pending.pop(index)
-        plan.append((parent,record,layout));remaining[layout]-=1
+        plan.append((parent,record,layout));remaining[demand]-=1
     return plan
 
 
@@ -3118,7 +3146,83 @@ def experiment_reuse_slug(parent):
          experiment.SELECTION_REVISION]
     repair=parent.get('experiment_proven_recall')
     if repair:key.append(repair['id'])
+    replenishment=parent.get('experiment_replenishment_basis')
+    if replenishment:key.append(replenishment['publication_digest'])
     return 'ly-story-'+experiment.digest(key)[:10]
+
+
+def experiment_replenishment_candidates(state, inventory, items, active_runs=()):
+    """One new automatic selection after a real T publication, never a retry loop.
+
+    Only a newly consumed, source/file-bound treatment changes the budget.
+    Ordinary fallbacks and failed jobs cannot earn another attempt. Every new
+    job reselects against current publication history and all original gates.
+    """
+    from source_admission_guard import restriction
+    latest={e['slug']:e for e in _latest_dispatches(state)}
+    records={r.get('slug'):r for r in inventory.get('artifacts',[])}
+    running={str(r.get('display_title') or '').split(' · ')[-1] for r in active_runs
+             if r.get('status') in {'queued','in_progress'}}
+    publications=state.get('published') or {}
+    mothers={}
+    for slug,info in publications.items():
+        entry=latest.get(slug) or {}
+        for part in info.get('parts') or []:
+            proof=part.get('publishing_experiment') or {}
+            sha=part.get('source_sha256');file_sha=(part.get('fingerprints') or {}).get('sha256')
+            if (part.get('status')!='published' or not part.get('bvid')
+                    or proof.get('experiment_id')!=experiment.EXPERIMENT_ID
+                    or proof.get('version')!=experiment.VERSION
+                    or proof.get('planned')!=experiment.TREATMENT
+                    or proof.get('actual')!=experiment.TREATMENT or proof.get('compliant') is not True
+                    or proof.get('selection_kind') not in {'personal_story','company_case'}
+                    or not experiment.long_candidate(dict(extra=dict(duration=proof.get('source_duration_sec'))))
+                    or not part.get('source_segments')
+                    or not re.fullmatch('[a-f0-9]{64}',str(sha or ''))
+                    or not re.fullmatch('[a-f0-9]{64}',str(file_sha or ''))):continue
+            root=latest.get(entry.get('experiment_parent_slug')) or entry
+            url=root.get('source_url')
+            ranges=editorial.intervals(part.get('source_segments'))
+            if (not url or url!=entry.get('source_url') or root.get('failed')
+                    or root.get('source_sha256') not in (None,sha)
+                    or not ranges or sum(b-a for a,b in ranges)<20
+                    or max(b for a,b in ranges)>float(proof['source_duration_sec'])):continue
+            group=mothers.setdefault(sha,dict(parent=root,url=url,parts=[]))
+            group['parts'].append(dict(bvid=part['bvid'],file_sha256=file_sha,
+                source_segments=part['source_segments']))
+    for sha,group in mothers.items():
+        parent=group['parent'];url=group['url']
+        if parent['slug'] in REVIEW_PAUSED_SLUGS or restriction(url,[]):continue
+        related=[e for e in latest.values() if e.get('source_url')==url
+                 or e.get('experiment_mother_sha256')==sha]
+        if any(e['slug'] in running or e.get('uploading')
+               or not e.get('failed') and e.get('source_check_retry_after') for e in related):continue
+        # Unknown old outcomes stay closed until inventory or a public receipt
+        # proves completion. A missing file is never an exhausted delivery.
+        if any(e.get('experiment_parent_slug') and not e.get('failed')
+               and e['slug'] not in records
+               and not any(p.get('status')=='published' and p.get('bvid') for p in
+                   (publications.get(e['slug']) or {}).get('parts',[])) for e in related):continue
+        if any(inventory_record_current(records[e['slug']]) and any(
+                p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
+                and int(p.get('index',-1)) not in processed_part_indices(e)
+                and not inventory_publication_error(p,e,state)
+                for p in records[e['slug']].get('parts',[]))
+               for e in related if e['slug'] in records):continue
+        basis=dict(source_sha256=sha,publication_digest=experiment.digest(
+            sorted({p['file_sha256'] for p in group['parts']})))
+        if any(e.get('experiment_replenishment_basis')==basis for e in related):continue
+        matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
+        if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS
+                and not ((i.get('extra') or {}).get('no_reprint')==1
+                    or (i.get('extra') or {}).get('source_role') in {'reference','catalog_only'}
+                    or (i.get('extra') or {}).get('direct_dispatch') is False)
+                for i in matches if isinstance(i.get('extra'),dict)):continue
+        record=records.get(parent['slug']) or {}
+        yield {**parent,'source_sha256':sha,'experiment_replenishment_basis':basis},dict(
+            run_id=record.get('run_id') or parent.get('recovery_origin_run_id') or parent.get('source_check_run_id'),
+            historical_mother=True,provenance='consumed_verified_treatment',
+            source_geometry_hints=same_mother_scene_geometry(inventory,sha))
 
 
 def proven_company_recall_candidates(state, inventory, items, active_runs=()):
@@ -3209,6 +3313,11 @@ def experiment_reuse_candidates(state, inventory, items, active_runs=()):
     from source_admission_guard import restriction
     proven=list(proven_company_recall_candidates(state,inventory,items,active_runs))
     yield from proven
+    proven_sources={e.get('source_url') for e,_ in proven}
+    proven_hashes={e.get('source_sha256') for e,_ in proven}
+    replenished=[(e,r) for e,r in experiment_replenishment_candidates(state,inventory,items,active_runs)
+                 if e.get('source_url') not in proven_sources and e.get('source_sha256') not in proven_hashes]
+    yield from replenished
     latest={e['slug']:e for e in _latest_dispatches(state)}
     # One fresh attempt per mother for the fixed selector. Old fallback jobs
     # are not evidence this revision ran. Never cancel them or relabel output.
@@ -3229,6 +3338,8 @@ def experiment_reuse_candidates(state, inventory, items, active_runs=()):
     used_hashes={e.get('experiment_mother_sha256') for e in active_or_current.values() if e.get('experiment_mother_sha256')}
     used_sources.update(e['source_url'] for e,_ in proven)
     used_hashes.update(e['source_sha256'] for e,_ in proven)
+    used_sources.update(e['source_url'] for e,_ in replenished)
+    used_hashes.update(e['source_sha256'] for e,_ in replenished)
     # Older experiment dispatches omitted the hash, although their parent
     # artifact retained it. Reconstruct it read-only before admitting mirrors.
     for record in inventory.get('artifacts',[]):
@@ -5343,6 +5454,7 @@ def publish_handler(event=None, context=None):
             except Exception as ae:
                 log.warning(f"删除 artifact 失败: {ae}")
         save_state(st)
+        refresh_after_experiment_publication(st,experiment_receipt)
         if experiment_receipt and not experiment_receipt['compliant']:
             log_event('experiment_fallback','实验分组使用合格库存补位，单独统计',
                       json.dumps(experiment_receipt,ensure_ascii=False))

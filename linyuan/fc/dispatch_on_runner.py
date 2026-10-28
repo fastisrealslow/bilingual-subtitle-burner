@@ -7,6 +7,10 @@ import time
 import index as fc
 
 
+class ExperimentSupplyStalled(RuntimeError):
+    pass
+
+
 def retire_hourly_timer(client, function, models, runtime):
     """Disable only dispatch, after proving the publication timer is intact."""
     def read():
@@ -73,6 +77,8 @@ def main():
                 'status': task.status if task else 'Unknown', 'result': task_result(task)}
             if not task or task.status != 'Succeeded':
                 raise RuntimeError('Domestic transfer unresolved; retain task ID and hourly timer')
+        if (result.get('experiment_supply') or {}).get('status')=='stalled':
+            raise ExperimentSupplyStalled('实验库存不足且没有实验补产任务：日更正常不代表实验正常；见真实库存与调度回执')
         # No FC invocation is used to disable/read back these control-plane timers.
         # Run admission successfully first, so a broken runner cannot strand supply.
         receipt['timers'] = retire_timer()
@@ -80,7 +86,10 @@ def main():
         return receipt
     except Exception as exc:
         message = str(exc).lower()
-        if 'current user is in debt' in message or 'account in debt' in message:
+        if isinstance(exc,ExperimentSupplyStalled):
+            receipt['failure']={'category':'experiment_supply_stalled','material_rejected':False,
+                'reason':str(exc)}
+        elif 'current user is in debt' in message or 'account in debt' in message:
             receipt['failure'] = {
                 'category': 'cloud_account_billing', 'provider': 'aliyun_fc',
                 'retryable_without_external_change': False,

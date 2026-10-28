@@ -53,7 +53,7 @@ def test_verified_same_mother_format_precedes_unknown_or_incompatible_hint():
     candidates=[(w,dict(parts=[part('c'*64,1280,720)])),(u,{}),
                 (p,dict(parts=[part('a'*64,720,1280)]))]
     plan=fc.experiment_reuse_plan(candidates,{},dict(portrait=2,landscape=0))
-    assert [(p['slug'],l) for p,r,l in plan]==[('portrait','portrait'),('unknown','portrait')]
+    assert [(p['slug'],l) for p,r,l in plan]==[('portrait','portrait'),('wide','landscape')]
 
 
 def test_invalid_static_unverified_or_full_geometry_gives_no_preference():
