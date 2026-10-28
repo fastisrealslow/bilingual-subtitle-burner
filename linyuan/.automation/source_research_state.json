@@ -4258,10 +4258,10 @@
       "family": "unresolved",
       "priority": 4,
       "status": "retry_wait",
-      "attempts": 26,
+      "attempts": 27,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793119420.2512457,
-      "next_retry_at": 1793205820.2512457,
+      "last_attempt_at": 1793213927.2961123,
+      "next_retry_at": 1793300327.2961123,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -5701,13 +5701,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 10,
+      "attempts": 11,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1793043094.4571192,
-      "next_retry_at": 1793129494.4571192,
+      "last_attempt_at": 1793214227.3062453,
+      "next_retry_at": 1793300627.3062453,
       "download_partial_bytes": 0
     },
     "448a83154c9d7b3900cd": {
@@ -5914,13 +5914,13 @@
       "family": "zhejiang_2026_01",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 9,
+      "attempts": 10,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1793048320.6904545,
-      "next_retry_at": 1793134720.6904545,
+      "last_error": "CalledProcessError",
+      "last_attempt_at": 1793214350.6689703,
+      "next_retry_at": 1793300750.6689703,
       "download_partial_bytes": 0
     },
     "5112d5ab9c905449087d": {
@@ -8191,11 +8191,14 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793168667.8565729,
-      "next_retry_at": 1793211867.8565729,
+      "next_retry_at": 1793235456.5724576,
       "found": 1,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793213856.5724576
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "searched",
@@ -8291,11 +8294,14 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793168667.8565729,
-      "next_retry_at": 1793211867.8565729,
+      "next_retry_at": 1793235456.5724576,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793213856.5724576
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
@@ -8306,7 +8312,8 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -8315,8 +8322,8 @@
       "errors": []
     }
   },
-  "search_cursor": 2,
-  "updated_at": 1793204460,
-  "last_run_id": "40722274619",
+  "search_cursor": 4,
+  "updated_at": 1793214351,
+  "last_run_id": "40749508693",
   "audio_match_candidates": []
 }
