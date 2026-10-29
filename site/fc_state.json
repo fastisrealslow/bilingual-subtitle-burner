@@ -56587,7 +56587,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1RCn76bE4M）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5191457038140367",
@@ -56610,7 +56611,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-07-23T06:27:53+08:00"
+   "publish_time": "2025-07-23T06:27:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-4d55d7",
+    "run_id": 40914505031,
+    "artifact_id": 12919333313,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6b2c32415c31eff090aeb14d3ddd277f4292ea443ca7b43d309eaad2e70ba574",
+     "duration_sec": 2967.63,
+     "resolution": {
+      "width": 624,
+      "height": 1104,
+      "short_edge": 624
+     },
+     "source_url": "https://m.weibo.cn/detail/5191457038140367"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1507，总帧数7532；身份匹配但人脸短边不足96px的帧数1507"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/389，总帧数1942；身份匹配但人脸短边不足96px的帧数389"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40914505031,
+    "artifact_id": 12919333313,
+    "name": "production-reject-ly-1029-4d55d7",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1507，总帧数7532；身份匹配但人脸短边不足96px的帧数1507",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5190556785050626",
@@ -56746,7 +56784,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5266569762704120",
@@ -142596,6 +142635,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/W5gGGySvlx08uJ6nqrHi01041206DFgS0E030.mp4",
    "ts": 1793295883,
    "error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1RCn76bE4M）"
+  },
+  {
+   "slug": "ly-1029-4d55d7",
+   "key": "weibo_search:5191457038140367",
+   "video_id": "https://f.video.weibocdn.com/o0/JUiq1HBxlx08pXT04os001041205UcrC0E030.mp4",
+   "ts": 1793296438,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1507，总帧数7532；身份匹配但人脸短边不足96px的帧数1507"
   }
  ],
  "reviewed_third_video_0910": {
