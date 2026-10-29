@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793249370,
+  "updated_at": 1793249525,
   "inventory_updated_at": 1793249368,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 35,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 12,
     "waiting_candidates": 5,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -169,7 +169,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793249369,
+    "updated_at": 1793249525,
     "records": 12418,
     "video_records": 10688,
     "initial_candidates": 61,
@@ -247,14 +247,14 @@
   },
   "counts": {
     "complete": 157,
-    "failed": 1417,
+    "failed": 1412,
     "paused": 5,
     "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 29,
     "ready": 9,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 6,
     "running": 6
   },
   "tasks": [
@@ -24153,60 +24153,6 @@
       "run_updated_at": "2026-10-22T17:23:45Z"
     },
     {
-      "slug": "ly-1022-87336c",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 16, \"quote\": \"中成药这个实际上也也在创新，啊，很多这个古老的房子，我们它的创新主要是古老的一些方子，它有新的用途。\", \"suspect_quote\": \"很多这个古老的房子，我们它的创新主要是古老的一些\", \"kind\": \"unintelligible_term\", \"reason\": \"“古老的房子”在中药语境下语义不通，疑似将“方子”或“配方”误识别为“房子”，属于无法解释的具体词语错误。\"}, {\"sentence_id\": 23, \"quote\": \"这句话。\", \"suspect_quote\": \"这句话\", \"kind\": \"unintelligible_term\", \"reason\": \"单独出现“这句话”且无前文指代对象，在对话流中含义不明，疑似截断或识别错误。\"}, {\"sentence_id\": 34, \"quote\": \"实际上按照比如说十年前，它还是每年的复合增长都一些重要的公司都快超过百分之七，甚至百双位数增长。\", \"suspect_quote\": \"甚至百双位数增长\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“百双位数”表述矛盾且无法解释：若指“百分之十到百分之九十九”，应表述为“两位数”；若指“百分之百以上”，则“百”与“双位”冲突。此处数字含义不明，疑似识别污染。\"}]",
-      "signature": {
-        "ts": 1792690323,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 39823539787,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39823539787",
-      "run_started_at": "2026-10-22T17:32:02Z",
-      "run_updated_at": "2026-10-22T17:47:26Z"
-    },
-    {
-      "slug": "ly-story-9ccd46299a",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
-      "signature": {
-        "ts": 1792693897,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39832181727,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39832181727",
-      "run_started_at": "2026-10-22T18:31:36Z",
-      "run_updated_at": "2026-10-22T18:45:09Z"
-    },
-    {
-      "slug": "ly-story-99ddef2e4b",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]",
-      "signature": {
-        "ts": 1792695227,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39835364910,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39835364910",
-      "run_started_at": "2026-10-22T18:53:46Z",
-      "run_updated_at": "2026-10-22T19:01:27Z"
-    },
-    {
       "slug": "ly-story-608bf63cec",
       "status": "failed",
       "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
@@ -24223,42 +24169,6 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39838012662",
       "run_started_at": "2026-10-22T19:12:09Z",
       "run_updated_at": "2026-10-22T20:03:05Z"
-    },
-    {
-      "slug": "ly-story-fb8a34b6b5",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义且逻辑不通顺：‘几块钱’为模糊概数，‘五六块钱’虽具体但与前文连接词缺失导致语义断裂（是‘就是五六块’还是‘也就是五六块’？），在口语中可能因口吃或停顿造成识别错误，需确认原意是否为‘大概五六块钱’。\"}]",
-      "signature": {
-        "ts": 1792697222,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39840153216,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39840153216",
-      "run_started_at": "2026-10-22T19:27:02Z",
-      "run_updated_at": "2026-10-22T19:44:51Z"
-    },
-    {
-      "slug": "ly-story-25aa8c6a50",
-      "status": "failed",
-      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
-      "signature": {
-        "ts": 1792701678,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": null
-      },
-      "history_count": 1,
-      "run_id": 39851000559,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39851000559",
-      "run_started_at": "2026-10-22T20:41:17Z",
-      "run_updated_at": "2026-10-22T20:57:12Z"
     },
     {
       "slug": "ly-1022-5e8bdf",
@@ -30059,6 +29969,96 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40819018514",
       "run_started_at": "2026-10-29T04:40:00Z",
       "run_updated_at": "2026-10-29T04:42:37Z"
+    },
+    {
+      "slug": "ly-story-25aa8c6a50",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1793249406,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1793249405,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39851000559,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39851000559",
+      "run_started_at": "2026-10-22T20:41:17Z",
+      "run_updated_at": "2026-10-22T20:57:12Z"
+    },
+    {
+      "slug": "ly-story-fb8a34b6b5",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1793249417,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1793249416,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39840153216,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39840153216",
+      "run_started_at": "2026-10-22T19:27:02Z",
+      "run_updated_at": "2026-10-22T19:44:51Z"
+    },
+    {
+      "slug": "ly-story-99ddef2e4b",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1793249425,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1793249424,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39835364910,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39835364910",
+      "run_started_at": "2026-10-22T18:53:46Z",
+      "run_updated_at": "2026-10-22T19:01:27Z"
+    },
+    {
+      "slug": "ly-story-9ccd46299a",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1793249435,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1793249434,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 39832181727,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39832181727",
+      "run_started_at": "2026-10-22T18:31:36Z",
+      "run_updated_at": "2026-10-22T18:45:09Z"
+    },
+    {
+      "slug": "ly-1022-87336c",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1793249446,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1793249445,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 39823539787,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/39823539787",
+      "run_started_at": "2026-10-22T17:32:02Z",
+      "run_updated_at": "2026-10-22T17:47:26Z"
     }
   ],
   "runs": {
