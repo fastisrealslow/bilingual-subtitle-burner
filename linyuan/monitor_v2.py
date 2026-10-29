@@ -826,36 +826,57 @@ class WeiboSearchSource(Source):
             return False
         return True
 
+    def query_pages(self):
+        """Keep recent coverage and rotate archives inside the same page budget."""
+        keyword=self.config['keyword']
+        pages=max(1,min(10,int(self.config.get('pages',6))))
+        archives=list(dict.fromkeys(q.strip() for q in self.config.get('archive_keywords',[])
+                                    if isinstance(q,str) and q.strip() and q.strip()!=keyword))
+        if not archives or pages<2:
+            yield keyword,range(1,pages+1)
+            return
+        recent=(pages+1)//2
+        yield keyword,range(1,recent+1)
+        from seed_scan import rotating_batch
+        for query in rotating_batch('weibo_archive_queries',archives,self.config.get('_seed_scan_path'),
+                                    1,state=self.scan_state):
+            cursors=self.scan_state.setdefault('weibo_archive_pages',{})
+            first=cursors.get(query,1)
+            if type(first) is not int or not 1<=first<=19:
+                raise ValueError('Invalid bounded archive page cursor')
+            end=min(21,first+pages-recent)
+            cursors[query]=end if end<=19 else 1
+            path=self.config.get('_seed_scan_path')
+            if path:
+                from batch_delivery import write_json
+                write_json(Path(path),self.scan_state)
+            yield query,range(first,end)
+
     def fetch(self, page):
         import urllib.parse
         keyword = self.config["keyword"]
         rq, xsrf = self._visitor_session()
-        headers = {
-            "Accept": "application/json, text/plain, */*",
-            "Referer": f"https://s.weibo.com/weibo?q={urllib.parse.quote(keyword)}",
-            "X-Requested-With": "XMLHttpRequest",
-            "X-XSRF-TOKEN": xsrf,
-        }
-
-        # 2026-09-01 实测：微博搜索可翻到第 8 页且每页都是新内容（378 条唯一），
-        # 原来写死只抓 2 页 = 丢掉 75% 候选。改为可配置，默认 6 页。
-        pages = int(self.config.get("pages", 6))
         statuses = []
-        for pg in range(1, pages + 1):
-            url = ("https://weibo.com/ajax/statuses/search"
-                   f"?q={urllib.parse.quote(keyword)}&page={pg}")
-            try:
-                data = json.loads(rq(url, headers))
-            except Exception as e:
-                if pg == 1:
-                    raise
-                print(f"[{self.name}] 第{pg}页失败: {e}", file=sys.stderr)
-                break
-            batch = data.get("statuses") or []
-            if not batch:
-                break
-            statuses.extend(batch)
-
+        for query,page_numbers in self.query_pages():
+            headers = {"Accept":"application/json, text/plain, */*",
+                "Referer":f"https://s.weibo.com/weibo?q={urllib.parse.quote(query)}",
+                "X-Requested-With":"XMLHttpRequest","X-XSRF-TOKEN":xsrf}
+            for pg in page_numbers:
+                url=('https://weibo.com/ajax/statuses/search'
+                     f'?q={urllib.parse.quote(query)}&page={pg}')
+                try:
+                    data=json.loads(rq(url,headers))
+                except Exception as exc:
+                    if not statuses:raise
+                    # Keep already-observed recent rows, but stop this provider
+                    # on an outage rather than try more queries/endpoints.
+                    print(f'[{self.name}] 检索未完成，保留已取元数据：{type(exc).__name__}',file=sys.stderr)
+                    self.partial_items=self._items(statuses)
+                    return self.partial_items
+                batch=data.get('statuses') or []
+                if not batch:break
+                statuses.extend(batch)
+                self.partial_items=self._items(statuses)
         return self._items(statuses)
 
     def _items(self, statuses):
