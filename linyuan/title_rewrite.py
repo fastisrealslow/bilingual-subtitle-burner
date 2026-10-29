@@ -17,6 +17,7 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
 “我要赚够一万倍”是本人目标，不能改写为公司“能赚到一万倍”；标题和封面各自保留目标或意愿，不把愿望当已经验证的回报。
+必要条件的“只有某对象才能增长”不能改成行动的“只赚该对象的钱”；逐句核对唯一性限定的是条件还是本人做法，不能从相邻句搬用“只”。
 “十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
 标题和封面须各自说清对象，不写未解释的“这个点、此点、这三种病”。原文没有点位数值就不补数值，可改写为原文明确的预测边界。
 压缩时保留真正被评价的对象：“某公司的现金流很好”评价的是现金流，不能写成“某公司是很好的现金流”；不能把对象的属性变成对象本身。
@@ -778,6 +779,42 @@ def quantity_range_error(title, cover, source):
     return None
 
 
+def exclusive_earnings_scope_error(title, cover, transcript):
+    """A necessary growth condition is not an exclusive earning strategy.
+
+    Bind the object across the source's stated aim and necessary condition.
+    An unrelated occurrence of 只/只有 cannot license moving exclusivity onto
+    the speaker's action. This is a narrow text guard, not semantic approval.
+    """
+    object_chars = r'[\u4e00-\u9fffA-Za-z0-9]{1,16}?'
+    earning = re.compile(rf'(?:只|仅|唯独)(?:赚|挣)(?:取|到)?({object_chars})(?:的)?钱')
+
+    def affirmative_objects(text):
+        objects = set()
+        for match in earning.finditer(text):
+            # 不只/并非只 are not exclusive claims. A question alone does
+            # not remove an exclusive premise (为什么只赚...).
+            if re.search(r'(?:不|非|不要|不能|不应|不是|并非)$',
+                         text[max(0, match.start()-4):match.start()]):
+                continue
+            objects.add(match.group(1).removesuffix('的'))
+        return objects
+
+    source = compact(transcript)
+    conditions = set(re.findall(
+        rf'(?:只有|唯有|仅有)({object_chars})(?:才|方)(?:能|会|可以)?(?:涨|上涨|增长|翻|赚|挣)',
+        source))
+    supported = affirmative_objects(source)
+    for copy in (title, cover):
+        for obj in affirmative_objects(compact(copy)) - supported:
+            if obj not in conditions:
+                continue
+            aim = rf'(?:要|想|希望|需要)(?:去)?(?:赚|挣)(?:到)?{re.escape(obj)}(?:的)?钱'
+            if re.search(aim, source):
+                return '原话只把该对象作为涨幅或收益的必要条件，并说要赚这类钱；标题和封面不能改成只赚这类钱的唯一策略'
+    return None
+
+
 def earnings_intent_error(title, cover, transcript):
     """Do not turn an explicit numerical earnings goal into a return claim.
 
@@ -1104,6 +1141,9 @@ def forecast_copy_error(title, cover, transcript):
     intent_issue = earnings_intent_error(title, cover, transcript)
     if intent_issue:
         return intent_issue
+    exclusive_issue = exclusive_earnings_scope_error(title, cover, transcript)
+    if exclusive_issue:
+        return exclusive_issue
     hypothetical_issue = hypothetical_exclusivity_error(title, cover, transcript)
     if hypothetical_issue:
         return hypothetical_issue
