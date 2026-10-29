@@ -55729,16 +55729,16 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39851000559,
-    "artifact_id": 12458996080,
-    "name": "production-reject-ly-story-25aa8c6a50",
+    "run_id": 40822066421,
+    "artifact_id": 12874709763,
+    "name": "source-reject-ly-story-25aa8c6a50",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"长虹那个时候就相当于现在的，我们说芯片公司，那个时候它的风头很强，一大堆长虹、康佳、TCTC二是后来的，是吧？\", \"suspect_quote\": \"TCTC\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“TCL\"}, {\"sentence_id\": 9, \"quote\": \"有一次新闻联播播出来，四川长虹一种新的模式，跟那个叫郑州百文，不知道现在这公司还在不在，那是不是也是个明星合作？\", \"suspect_quote\": \"郑州百文\", \"kind\": \"unintelligible_term\", \"reason\": \"该名称在公开商业史中无对应知名实体，疑似识别错误（可能为“郑州百货大楼”或类似名称的误识）\"}]",
-   "source_quality_rejected": false,
-   "failure_stage": "editorial-or-render",
+   "last_error": "实时官方元数据已明确禁止转载；历史成片、原始识别缓存及诊断试产均不得绕过准入进入发布库存",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
      "run_id": 39851000559,
