@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793312669,
+  "updated_at": 1793312782,
   "inventory_updated_at": 1793312666,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 41,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 9,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 8,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793312668,
+    "updated_at": 1793312781,
     "records": 12893,
     "video_records": 10886,
-    "initial_candidates": 65,
-    "duration_eligible_records": 9,
-    "candidate_count": 9,
-    "known_duration_candidates": 9,
+    "initial_candidates": 64,
+    "duration_eligible_records": 8,
+    "candidate_count": 8,
+    "known_duration_candidates": 8,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2007,
-      "already_attempted_or_cooling": 1770,
+      "already_attempted_or_cooling": 1771,
       "speaker_unconfirmed": 7492,
       "clip_title": 1228,
       "unrelated": 67,
@@ -206,14 +206,6 @@
         "author": "昕礽果复利增长",
         "url": "https://m.weibo.cn/detail/5304201116649530",
         "duration_sec": 1038.0
-      },
-      {
-        "key": "weibo_search:4590023351736683",
-        "title": "【#林园回忆8000元入市一年翻32倍#】1989年，林园在深圳以八千元入市，成为当时中国的第一代股民，到现如今传言已超",
-        "source": "weibo_search",
-        "author": "一级视场",
-        "url": "https://m.weibo.cn/detail/4590023351736683",
-        "duration_sec": 161.0
       },
       {
         "key": "bilibili_search:BV1SvTm6uEkW",
@@ -279,15 +271,16 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1442,
+    "failed": 1443,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 36,
     "ready": 11,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -30688,11 +30681,11 @@
     },
     {
       "slug": "ly-1029-93e532",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：嘉宾明确表示“没有特意去研究”，因此其后续关于“环境污染很大”的陈述是基于他人转述而非自身判断，导致无法形成独立的观点表达。结尾句“所以我们就没参与啊，没参与”是行动结果，而非对光伏能源属性的完整评价或结论性判断，且缺乏对“污染大”这一说法的独立验证或反驳，使得整段话在逻辑上不构成完整的观点陈述。；原文问题：[]",
       "signature": {
         "ts": 1793310609,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30757,6 +30750,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40965102928",
       "run_started_at": "2026-10-29T22:20:25Z",
       "run_updated_at": "2026-10-29T22:21:19Z"
+    },
+    {
+      "slug": "ly-1029-0a6617",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793312741,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40965784392,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40965784392",
+      "run_started_at": "2026-10-29T22:25:41Z",
+      "run_updated_at": "2026-10-29T22:25:41Z"
     }
   ],
   "runs": {
@@ -44961,6 +44972,28 @@
       "run_number": 2923,
       "display_title": "中文源出片 · ly-1029-b4737a"
     },
+    "ly-1029-93e532": {
+      "id": 40961074027,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-29T21:50:09Z",
+      "updated_at": "2026-10-29T22:22:35Z",
+      "run_started_at": "2026-10-29T21:50:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40961074027",
+      "run_number": 2929,
+      "display_title": "中文源出片 · ly-1029-93e532"
+    },
+    "ly-1029-0a6617": {
+      "id": 40965784392,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-29T22:25:41Z",
+      "updated_at": "2026-10-29T22:25:41Z",
+      "run_started_at": "2026-10-29T22:25:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40965784392",
+      "run_number": 2933,
+      "display_title": "中文源出片 · ly-1029-0a6617"
+    },
     "ly-1029-709520": {
       "id": 40965102928,
       "status": "in_progress",
@@ -44993,17 +45026,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40961093366",
       "run_number": 2930,
       "display_title": "中文源出片 · ly-1029-d373eb"
-    },
-    "ly-1029-93e532": {
-      "id": 40961074027,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-29T21:50:09Z",
-      "updated_at": "2026-10-29T22:22:35Z",
-      "run_started_at": "2026-10-29T21:50:09Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40961074027",
-      "run_number": 2929,
-      "display_title": "中文源出片 · ly-1029-93e532"
     },
     "ly-1029-5e1f2c": {
       "id": 40958878990,
