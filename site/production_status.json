@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793296404,
+  "updated_at": 1793296508,
   "inventory_updated_at": 1793296400,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 38,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -169,7 +169,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793296403,
+    "updated_at": 1793296507,
     "records": 12621,
     "video_records": 10790,
     "initial_candidates": 56,
@@ -206,7 +206,7 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1431,
+    "failed": 1432,
     "paused": 5,
     "interrupted": 7,
     "excluded": 23,
@@ -214,7 +214,7 @@
     "ready": 10,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -30273,11 +30273,11 @@
     },
     {
       "slug": "ly-1029-4d55d7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1507，总帧数7532；身份匹配但人脸短边不足96px的帧数1507",
       "signature": {
         "ts": 1793292259,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30291,8 +30291,8 @@
     },
     {
       "slug": "ly-1029-ffa5ec",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793292268,
         "failed": null,
@@ -30305,7 +30305,7 @@
       "run_id": 40914529444,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914529444",
       "run_started_at": "2026-10-29T16:44:27Z",
-      "run_updated_at": "2026-10-29T16:48:22Z"
+      "run_updated_at": "2026-10-29T17:53:55Z"
     },
     {
       "slug": "ly-1029-7d1833",
@@ -44510,10 +44510,10 @@
     },
     "ly-1029-ffa5ec": {
       "id": 40914529444,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-29T16:44:27Z",
-      "updated_at": "2026-10-29T16:48:22Z",
+      "updated_at": "2026-10-29T17:53:55Z",
       "run_started_at": "2026-10-29T16:44:27Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914529444",
       "run_number": 2909,
