@@ -55297,7 +55297,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 320 < 480（640x320），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1FN4y1d7Mz",
@@ -55320,7 +55321,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-08-18T09:26:24+00:00"
+   "publish_time": "2023-08-18T09:26:24+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-79b2d7",
+    "run_id": 40793913234,
+    "artifact_id": 12863955559,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "390ef932388e58c02d58fb9e532b268062dbbb6930c1f03c80e6a6b383370651",
+     "duration_sec": 58.03,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1FN4y1d7Mz"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40793913234,
+    "artifact_id": 12863955559,
+    "name": "production-reject-ly-1029-79b2d7",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -139561,6 +139595,13 @@
    "video_id": "BV1rUXAYHEzv",
    "ts": 1793233771,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 320 < 480（640x320），画质不达标"
+  },
+  {
+   "slug": "ly-1029-79b2d7",
+   "key": "bilibili_search:BV1FN4y1d7Mz",
+   "video_id": "BV1FN4y1d7Mz",
+   "ts": 1793234381,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
