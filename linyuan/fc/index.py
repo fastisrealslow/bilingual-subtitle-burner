@@ -3072,7 +3072,7 @@ def experiment_reuse_plan(candidates, state, needs):
                 # not consume its one attempt guessing at the opposite gap.
                 if repair and layout not in proven_layouts:continue
                 demand=layout
-                if (layout=='landscape' and not remaining.get(layout,0)
+                if (not repair and layout=='landscape' and not remaining.get(layout,0)
                         and remaining.get('portrait',0)>0 and observed=={'landscape'}):
                     demand='portrait'
                 if remaining.get(demand,0)>0:

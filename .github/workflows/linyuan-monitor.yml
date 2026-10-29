@@ -87,11 +87,11 @@ jobs:
             bash ci_install_media_tools.sh
           fi
           verify_monitor_tools
-          python -m pip install --disable-pip-version-check --retries 2 --timeout 30 -q pytest yt-dlp requests pyyaml
+          python -m pip install --disable-pip-version-check --retries 2 --timeout 30 -q pytest yt-dlp requests pyyaml -r fc/runtime-requirements.txt
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py tests/test_linyuan_p5w_source.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_seed_replenishment.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py tests/test_linyuan_p5w_source.py
 
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5
@@ -116,7 +116,7 @@ jobs:
       - name: 有界扩充独立母片目录（不阻挡一手源与日常补库）
         timeout-minutes: 5
         continue-on-error: true
-        run: python -u seed_growth.py --target 2000 --limit 48
+        run: python -u seed_growth.py --target 2000 --limit 48 --replenish-long
 
       - name: 恢复已核验来源证据
         uses: actions/cache/restore@v4
