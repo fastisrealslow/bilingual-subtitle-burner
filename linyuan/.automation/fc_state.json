@@ -55897,7 +55897,80 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2022-11-09T13:50:12+00:00"
+   "publish_time": "2022-11-09T13:50:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-149207",
+    "run_id": 40830594202,
+    "artifact_id": 12884740194,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b0281114ea35bee3dbd638953cdc9d46ece1b0ea922bbba7b55c2bc8d1e45bed",
+     "duration_sec": 4853.13,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1jv4y1S7N3"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 61%（BV1YbY96fE9t）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/598，总帧数2988；身份匹配但人脸短边不足96px的帧数598"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/454，总帧数2268；身份匹配但人脸短边不足96px的帧数454"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配21/364，总帧数1711；身份匹配但人脸短边不足96px的帧数343"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配20/457，总帧数2184；身份匹配但人脸短边不足96px的帧数435"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾虽有初步判断（'我今天说了的都是最好的，我没说的都是不好'），但后续内容（笑声、'做傻子'比喻）属于情绪化表达而非有效论证，且未展开任何实质性理由或例子来支撑该判断，导致观点缺乏必要论述支撑，构成‘必要论述被切断’。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 88%（BV1YbY96fE9t）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/320，总帧数1598；身份匹配但人脸短边不足96px的帧数320"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/480，总帧数2395；身份匹配但人脸短边不足96px的帧数480"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/233，总帧数1164；身份匹配但人脸短边不足96px的帧数233"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40830594202,
+    "artifact_id": 12884740194,
+    "name": "production-reject-ly-1029-149207",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 61%（BV1YbY96fE9t）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1AWHY6pEJE",
@@ -141433,6 +141506,13 @@
    "video_id": "BV1C9CxBWEvL",
    "ts": 1793259637,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1029-149207",
+   "key": "bilibili_search:BV1jv4y1S7N3",
+   "video_id": "BV1jv4y1S7N3",
+   "ts": 1793263668,
+   "error": "与已发布内容文字指纹重复：转写片段重合 61%（BV1YbY96fE9t）"
   }
  ],
  "reviewed_third_video_0910": {
