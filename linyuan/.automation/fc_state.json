@@ -57179,7 +57179,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未针对主持人提出的‘有哪些财务问题特别关心’这一核心提问给出明确观点或判断，仅以口语重复和反问回应，随后解释做法但未形成完整表达，属于必要论述被切断。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4957807391017573",
@@ -57202,7 +57203,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-10-17T12:27:36+08:00"
+   "publish_time": "2023-10-17T12:27:36+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-19238c",
+    "run_id": 40957051435,
+    "artifact_id": 12934815919,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7e62b59de6b9dd9607802bffc3fab097334f7ab75e94a34e40f3f6a17916a0c2",
+     "duration_sec": 21.85,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4957807391017573"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40957051435,
+    "artifact_id": 12934815919,
+    "name": "production-reject-ly-1029-19238c",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5296673606862802",
@@ -143030,6 +143064,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/Fq4OpKI0lx08uMbhlNew010412038eCY0E020.mp4",
    "ts": 1793308839,
    "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未针对主持人提出的‘有哪些财务问题特别关心’这一核心提问给出明确观点或判断，仅以口语重复和反问回应，随后解释做法但未形成完整表达，属于必要论述被切断。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1029-19238c",
+   "key": "weibo_search:4957807391017573",
+   "video_id": "https://f.video.weibocdn.com/o0/T2Yx8mGalx089rsSpKEw010412006f690E010.mp4",
+   "ts": 1793309611,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
