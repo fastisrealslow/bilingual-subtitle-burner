@@ -211,7 +211,8 @@ class BilibiliSearchSource(Source):
     # （二创号名字千奇百怪），改成白名单只吃机构，一手素材靠微博/股东大会等源。
     # 「完整原片」识别：不认作者、认内容形态（选片层会再判断一次，这里先粗筛减少噪音）
     FULL_TITLE_PAT = re.compile(
-        r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访")
+        r"完整|全纪录|全记录|访谈|实录|直播|演讲|全程|发言|现场|对话|采访|股东会|路演|专访|"
+        r"投资者交流|圆桌会议|讲座|全集")
     CLIP_TITLE_PAT = re.compile(
         r"金句|十大观点|秘诀|股神|曝光|惊人|精华|速看|语录|震撼|必看|揭秘|真相|名场面|划重点|一分钟|三分钟|解读|盘点|总结|五大|几条|个方法|条铁律")
 
@@ -2042,6 +2043,51 @@ def retain_source_restrictions(extra, prior_extras):
     return json.dumps(current, ensure_ascii=False)
 
 
+def refresh_title_admission(base):
+    """Reclassify only an exact, documented title-gate miss; never a denial.
+
+    No media approval or production state is imported. Default catalogue holds
+    without this old-seed identity proof remain closed across all source routes.
+    """
+    from verified_seed_snapshot import verified_title_admission_recheck
+    path=base/'bilibili_seeds.json'
+    seeds=json.loads(path.read_text()).get('seeds',[]) if path.exists() else []
+    plans={s['bvid']:(s,verified_title_admission_recheck(s)) for s in seeds if s.get('title_admission_recheck')}
+    plans={k:v for k,v in plans.items() if v[1]}
+    if not plans:return 0
+    changed=0
+    with sqlite3.connect(DB_PATH) as conn:
+        rows=conn.execute('SELECT id,source,author,extra FROM items').fetchall()
+        groups={b:[] for b in plans}
+        for identity,source,author,encoded in rows:
+            extra=json.loads(encoded or '{}')
+            if extra.get('bvid') in groups:groups[extra['bvid']].append((identity,source,author,extra))
+        for bvid,old_rows in groups.items():
+            seed,fresh=plans[bvid]
+            exact={r['id']:json.loads(r['extra']) for r in fresh}
+            safe=True
+            for identity,source,author,extra in old_rows:
+                new=exact.get(identity)
+                if (not new or source not in {'bilibili_search','bilibili_collection','bilibili_series'}
+                        or author!=seed['observed_author'] or extra.get('no_reprint')==1
+                        or extra.get('source_role')=='reference'
+                        or extra.get('reuse_hold_reason') or extra.get('exclusion_reason')
+                        or extra.get('metadata_status')!='known_duration'
+                        or any(extra.get(k)!=new.get(k) for k in ('bvid','cid','duration'))
+                        or extra.get('collection_title') not in (None,'',seed['title'])):
+                    safe=False;break
+            if not safe:continue
+            for identity,source,author,extra in old_rows:
+                if extra.get('source_role')!='catalog_only' or extra.get('direct_dispatch') is not False:continue
+                updated={**extra,**exact[identity],
+                    'title_admission_recheck':dict(previous_seed_sha256=seed['title_admission_recheck']['previous_seed_sha256'],
+                                                metadata_checked_at=seed['checked_at'])}
+                conn.execute('UPDATE items SET extra=?,updated_at=? WHERE id=?',
+                    (json.dumps(updated,ensure_ascii=False),datetime.now().isoformat(),identity))
+                changed+=1
+    return changed
+
+
 def enforce_seed_restrictions(base=None):
     """Apply verified seed denials to cached P1/Pn before any feed export."""
     base = Path(base) if base is not None else Path(__file__).resolve().parent
@@ -2050,8 +2096,8 @@ def enforce_seed_restrictions(base=None):
              if s.get('no_reprint') == 1 or s.get('direct_dispatch') is False
              or s.get('content_date_hint')}
     research=weibo_research_seed_ids(base)
-    if not seeds and not research:return 0
-    changed = 0
+    changed=refresh_title_admission(base)
+    if not seeds and not research:return changed
     with sqlite3.connect(DB_PATH) as conn:
         for identity, encoded in conn.execute('SELECT id, extra FROM items').fetchall():
             extra = json.loads(encoded or '{}')

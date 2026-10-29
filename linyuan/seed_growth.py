@@ -27,7 +27,8 @@ QUERIES = ('林园 完整访谈', '林园 演讲', '林园 第一财经', '林�
            '林园 投资者说', '林园 商业人生', '林园 微观世界',
            '林园 会见财经界', '林园 华南农大', '林园 雪球 2017',
            '林园 新浪财经 2020', '林园 2026', '林园 2025',
-           '林园 2024', '林园 2019', '林园 投资经历')
+           '林园 2024', '林园 2019', '林园 投资经历',
+           '林园 投资者交流', '林园 圆桌会议', '林园 投资讲座', '林园 申万宏源 全集')
 
 
 def existing_roots(base):
@@ -148,7 +149,30 @@ def pause_provider(state, observation):
     return cooldown
 
 
-def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
+def long_replenishment_budget(base):
+    """Catalogue target is a floor; a proven T shortage gets a bounded refill."""
+    from datetime import datetime, timezone, timedelta
+    from fc import index as fc
+    try:
+        state=json.loads((base/'.automation/fc_state.json').read_text())
+        inventory=json.loads((base/'.automation/source_inventory.json').read_text())
+        stock=fc.source_inventory(state,inventory)
+        admission=inventory['source_admission']
+        seeds=json.loads((base/'bilibili_seeds.json').read_text())['seeds']
+    except (OSError,ValueError,KeyError,TypeError):return 0
+    if not stock['inventory_fresh'] or not fc.experiment.preparing():return 0
+    ready=stock.get('experiment_ready') or {}
+    if int(ready.get('landscape') or 0)>=2 and sum(ready.values())>=4:return 0
+    if not isinstance(admission.get('candidates'),list):return 0
+    available=sum(fc.experiment.long_candidate(dict(extra=dict(duration=row.get('duration_sec'))))
+                  for row in admission['candidates'])
+    if available>=6:return 0
+    day=datetime.fromtimestamp(time.time(),timezone(timedelta(hours=8))).date().isoformat()
+    added=sum(e.get('long_replenishment_added_on')==day for e in seeds)
+    return min(4,max(0,8-added))
+
+
+def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed,replenish_long=False):
     deadline = time.monotonic() + 210
     before = census(base)
     roots = existing_roots(base)
@@ -156,6 +180,11 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
     report = dict(baseline=before, target=target, accepted_mp4_count=0,
                   rights_approved_count=0, production_dispatch=False, added_count=0,
                   errors=[], counting_policy='unique_parent_id_not_parts_or_stock')
+    replenishing=remaining==0 and replenish_long
+    if replenishing:
+        remaining=long_replenishment_budget(base)
+        limit=min(limit,12)
+        report.update(long_replenishment=True,target_is_minimum=True,replenishment_budget=remaining)
     if remaining == 0:
         report['after'] = before
         return report
@@ -213,7 +242,8 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
         report.update(after=census(base),pending_lead_count=len(pending))
         return report
     candidates = sorted((r for r in pending.values()
-                         if float(r.get('verification_retry_after') or 0) <= time.time()),
+                         if float(r.get('verification_retry_after') or 0) <= time.time()
+                         and (not replenishing or 1200<=float(r.get('catalog_duration') or 0)<=5400)),
                         key=lambda r: (-r['catalog_duration'], r['bvid']))
     rows = []
     for candidate in rotating_batch('parents', candidates, state, min(64, max(1, limit)), key=lambda r: r['bvid']):
@@ -237,7 +267,26 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed):
             pending[candidate['bvid']]['verification_retry_after'] = time.time() + (86400 if stable else 1800)
         time.sleep(.5)
     data = json.loads((base / 'bilibili_seeds.json').read_text())
-    added = admit_verified(data, rows, roots, min(remaining, limit))
+    if replenishing:
+        # Reuse the same identity/no-reprint/programme-hold checks, then keep
+        # only dispatchable long metadata. Rejected research leads do not grow
+        # the catalogue beyond its target or count toward actual clip stock.
+        staging=dict(seeds=[])
+        proposals=admit_verified(staging,rows,set(roots),len(rows))
+        eligible=[e for e in proposals if e.get('direct_dispatch') is True
+               and type(e.get('no_reprint')) is int and e['no_reprint']==0
+               and any(1200<=p['duration']<=5400 for p in e.get('pages',[]))]
+        added=eligible[:min(remaining,limit)]
+        eligible_ids={e['bvid'] for e in eligible}
+        from datetime import datetime, timezone, timedelta
+        day=datetime.fromtimestamp(time.time(),timezone(timedelta(hours=8))).date().isoformat()
+        for entry in added:entry['long_replenishment_added_on']=day
+        data['seeds'].extend(added);roots.update(e['bvid'] for e in added)
+        for row in rows:
+            if row.get('status')=='verified_metadata' and row['bvid'] not in roots|eligible_ids:
+                pending[row['bvid']]['verification_retry_after']=time.time()+86400
+    else:
+        added = admit_verified(data, rows, roots, min(remaining, limit))
     from batch_delivery import write_json
     if added:
         from datetime import datetime, timezone
@@ -266,11 +315,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--target', type=int, default=1000)
     parser.add_argument('--limit', type=int, default=48)
+    parser.add_argument('--replenish-long',action='store_true',
+        help='After the catalogue target, replenish proven long-source shortages within a daily cap')
     parser.add_argument('--output', type=Path, default=BASE / '.automation/seed_growth_report.json')
     args = parser.parse_args()
     if not 1 <= args.limit <= 64 or not 1 <= args.target <= 2000:
         parser.error('bounded target/limit required')
-    report = run(target=args.target, limit=args.limit)
+    report = run(target=args.target, limit=args.limit,replenish_long=args.replenish_long)
     from batch_delivery import write_json
     args.output.parent.mkdir(parents=True, exist_ok=True)
     write_json(args.output, report)

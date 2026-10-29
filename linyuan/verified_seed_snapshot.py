@@ -10,6 +10,26 @@ from source_admission_guard import restriction
 MAX_AGE_SECONDS = 6 * 3600
 
 
+def verified_title_admission_recheck(seed,now=None):
+    """Bind a title-only classification change to unchanged, fresh API identity."""
+    import hashlib
+    proof=seed.get('title_admission_recheck') or {}
+    before=proof.get('previous_seed') or {}
+    encoded=json.dumps(before,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+    if (proof.get('version')!=1
+            or hashlib.sha256(encoded.encode()).hexdigest()!=proof.get('previous_seed_sha256')
+            or before.get('metadata_provenance')!='bilibili_view_exact_id_author_pages'
+            or before.get('target_speaker_title_evidence') is not False
+            or before.get('source_role')!='catalog_only' or before.get('direct_dispatch') is not False
+            or type(before.get('no_reprint')) is not int or before['no_reprint']!=0
+            or before.get('reuse_hold_reason') or before.get('diagnostic_only')
+            or before.get('media_verified') is not False or before.get('editorial_approved') is not False
+            or any(before.get(k)!=seed.get(k) for k in ('bvid','title','observed_author','owner_mid','pages','no_reprint'))
+            or not re.search(r'投资者交流|圆桌会议|讲座|全集',seed.get('title') or '')):
+        return []
+    return items(seed,now)
+
+
 def items(seed, now=None):
     now = time.time() if now is None else now
     bvid = seed.get('bvid')
