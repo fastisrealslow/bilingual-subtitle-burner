@@ -55341,25 +55341,36 @@
    "publish_time": "2026-10-22T12:33:35+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-c4b3b6",
-    "run_id": 39820258419,
-    "artifact_id": 12446240134,
+    "run_id": 40810653156,
+    "artifact_id": 12870014248,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]"
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1ijJY6uEfr）"
      }
-    ]
+    ],
+    "source_context": {
+     "passed": true,
+     "source_sha256": "433e24deaaad5fcf10a902a26e62869c06e4300f926f478a04e2b1e890c5d1d4",
+     "duration_sec": 102.26,
+     "resolution": {
+      "width": 1920,
+      "height": 1066,
+      "short_edge": 1066
+     },
+     "source_url": "https://www.bilibili.com/video/BV1W5np69ENP"
+    }
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 39820258419,
-    "artifact_id": 12446240134,
+    "run_id": 40810653156,
+    "artifact_id": 12870014248,
     "name": "production-reject-ly-1022-c4b3b6",
     "retained": true
    },
-   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一两年还沉浸了很多时候，呃，因为有有一个什么呃风波。\", \"suspect_quote\": \"八七年开始是吧，有股市，八九年就一一两年，而这一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别疑点：'八七年'与'八九年'之间出现'就一一两年'，其中'一一两年'不符合常规年份表述逻辑（应为'一两年'或具体年份），疑似将'一'重复识别或误读为'一一'，导致时间跨度含义不明。\"}]",
-   "source_quality_rejected": false,
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1ijJY6uEfr）",
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "transcript-review-model-v3": {
