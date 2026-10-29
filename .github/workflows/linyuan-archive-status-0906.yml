@@ -14,17 +14,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 仅查询10月24日四个指定BV，不上传、不更改可见性
+      - name: 仅查询10月29日四个指定BV，不上传、不更改可见性
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: >-
           python linyuan/bili_archive_status.py
-          --bvid BV1jcHA6dEyg --bvid BV13QHA6DEar
-          --bvid BV1VyHA6xEd9 --bvid BV1tcHK6pEZq
+          --bvid BV1nesd69Ens --bvid BV1zFsZ6dEuP
+          --bvid BV12kso6TEgx --bvid BV1Zuxw6NESW
           --out archive-status.json
       - uses: actions/upload-artifact@v4
         with:
-          name: linyuan-archive-status-20261024
+          name: linyuan-archive-status-20261029
           path: archive-status.json
           if-no-files-found: error
           retention-days: 30
