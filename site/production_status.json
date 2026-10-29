@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793243941,
+  "updated_at": 1793244123,
   "inventory_updated_at": 1793243938,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 35,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,19 +169,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793243940,
+    "updated_at": 1793244122,
     "records": 12410,
     "video_records": 10680,
-    "initial_candidates": 57,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 55,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1730,
       "clip_title": 1215,
       "speaker_unconfirmed": 7371,
-      "already_attempted_or_cooling": 1734,
+      "already_attempted_or_cooling": 1736,
       "unrelated": 67,
       "noise": 21,
       "reference_only": 179,
@@ -190,24 +190,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1fvLu6PE1H",
-        "title": "林园 P1 林园讲解自己的投资观点 股市最大的风险是你没有参与，股市实际上是一种时间的积累",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1fvLu6PE1H",
-        "duration_sec": 149.0
-      },
-      {
-        "key": "bilibili_search:BV1dDVc6PECy",
-        "title": "林园 P1 林园的智慧就一个字 “熬”2025.12.24 林园敢于慢下来才是顶级智慧，赚快钱的人很多，但活得久的人很少",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1dDVc6PECy",
-        "duration_sec": 146.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 35,
@@ -223,15 +206,15 @@
   },
   "counts": {
     "complete": 157,
-    "failed": 1413,
+    "failed": 1414,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 29,
     "ready": 9,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -29894,11 +29877,11 @@
     },
     {
       "slug": "ly-1022-c4b3b6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 91%（BV1ijJY6uEfr）",
       "signature": {
         "ts": 1793243442,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -29927,6 +29910,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40810666104",
       "run_started_at": "2026-10-29T03:10:50Z",
       "run_updated_at": "2026-10-29T03:10:58Z"
+    },
+    {
+      "slug": "ly-1029-dc0297",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793244081,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40811656500,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40811656500",
+      "run_started_at": "2026-10-29T03:21:21Z",
+      "run_updated_at": "2026-10-29T03:21:47Z"
     }
   ],
   "runs": {
@@ -43680,17 +43681,6 @@
       "run_number": 2868,
       "display_title": "中文源出片 · ly-story-0ba35e70dd"
     },
-    "ly-1029-d0c7ac": {
-      "id": 40810666104,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-29T03:10:50Z",
-      "updated_at": "2026-10-29T03:10:58Z",
-      "run_started_at": "2026-10-29T03:10:50Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40810666104",
-      "run_number": 2872,
-      "display_title": "中文源出片 · ly-1029-d0c7ac"
-    },
     "ly-1022-c4b3b6": {
       "id": 40810653156,
       "status": "completed",
@@ -43701,6 +43691,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40810653156",
       "run_number": 2871,
       "display_title": "中文源出片 · ly-1022-c4b3b6"
+    },
+    "ly-1029-dc0297": {
+      "id": 40811656500,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T03:21:21Z",
+      "updated_at": "2026-10-29T03:21:47Z",
+      "run_started_at": "2026-10-29T03:21:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40811656500",
+      "run_number": 2874,
+      "display_title": "中文源出片 · ly-1029-dc0297"
+    },
+    "ly-1029-d0c7ac": {
+      "id": 40810666104,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T03:10:50Z",
+      "updated_at": "2026-10-29T03:10:58Z",
+      "run_started_at": "2026-10-29T03:10:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40810666104",
+      "run_number": 2872,
+      "display_title": "中文源出片 · ly-1029-d0c7ac"
     },
     "ly-story-aa35da617a": {
       "id": 40810637964,
