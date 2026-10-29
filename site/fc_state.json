@@ -57110,7 +57110,76 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-23T19:16:17+08:00"
+   "publish_time": "2026-01-23T19:16:17+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-02fc50",
+    "run_id": 40951833603,
+    "artifact_id": 12934196181,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1d95289c09e2d344044e09e479c2bf35534a7e5b65b3cca2d7c7874d208b1987",
+     "duration_sec": 748.33,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5258329783533675"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未针对主持人提出的‘有哪些财务问题特别关心’这一核心提问给出明确观点或判断，仅以口语重复和反问回应，随后解释做法但未形成完整表达，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 75%（BV1Jtah6TE7Q）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 371.73s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 432.43s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾全程在解释调研方法论和观察到的普遍现象，未针对任何具体公司或资产做出‘买入/卖出/持有’等实质性判断。结尾落在‘医院这个渠道哈’，属于话题自然收束于背景描述，而非切断论述或遗留未答问题。因此缺乏构成独立成片所需的明确观点（claim）及支撑理由（reasoning）。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 714.60s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 300.27s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 40.10s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 92%（BV1xuaB6YEmf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未形成可独立成片的观点表达，整段话均为对主持人问题的回应性叙述，无实质性判断或结论性语句。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40951833603,
+    "artifact_id": 12934196181,
+    "name": "production-reject-ly-1029-02fc50",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未针对主持人提出的‘有哪些财务问题特别关心’这一核心提问给出明确观点或判断，仅以口语重复和反问回应，随后解释做法但未形成完整表达，属于必要论述被切断。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -142908,6 +142977,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/cz9UFEcnlx08vmrTr8Ri0104120apJDQ0E040.mp4",
    "ts": 1793301020,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这是投资投资股票什么有？\", \"suspect_quote\": \"什么有\", \"kind\": \"unintelligible_term\", \"reason\": \"无法识别的口语填充或断句，疑似漏听关键名词（如“指标”、“数据”等），导致语义不完整。\"}, {\"sentence_id\": 13, \"quote\": \"买新车。\", \"suspect_quote\": \"买新车\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文讨论投资体系与财务指标，突然出现“买新车”这一具体动作，疑似将“买新仓”、“买新股”或特定术语误识别为日常词汇，存在实体污染。\"}]"
+  },
+  {
+   "slug": "ly-1029-02fc50",
+   "key": "weibo_search:5258329783533675",
+   "video_id": "https://f.video.weibocdn.com/o0/Fq4OpKI0lx08uMbhlNew010412038eCY0E020.mp4",
+   "ts": 1793308839,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未针对主持人提出的‘有哪些财务问题特别关心’这一核心提问给出明确观点或判断，仅以口语重复和反问回应，随后解释做法但未形成完整表达，属于必要论述被切断。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
