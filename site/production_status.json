@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793300982,
+  "updated_at": 1793301086,
   "inventory_updated_at": 1793300980,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 39,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -169,7 +169,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793300982,
+    "updated_at": 1793301086,
     "records": 12710,
     "video_records": 10809,
     "initial_candidates": 56,
@@ -206,14 +206,14 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1435,
+    "failed": 1436,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 34,
     "ready": 11,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "running": 1
   },
   "tasks": [
@@ -30363,11 +30363,11 @@
     },
     {
       "slug": "ly-1029-0a752b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这是投资投资股票什么有？\", \"suspect_quote\": \"什么有\", \"kind\": \"unintelligible_term\", \"reason\": \"无法识别的口语填充或断句，疑似漏听关键名词（如“指标”、“数据”等），导致语义不完整。\"}, {\"sentence_id\": 13, \"quote\": \"买新车。\", \"suspect_quote\": \"买新车\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文讨论投资体系与财务指标，突然出现“买新车”这一具体动作，疑似将“买新仓”、“买新股”或特定术语误识别为日常词汇，存在实体污染。\"}]",
       "signature": {
         "ts": 1793293617,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30435,14 +30435,14 @@
     },
     {
       "slug": "ly-1029-f9cb62",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793300236,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793301912,
         "weekly_full_week": ""
       },
       "history_count": 1,
