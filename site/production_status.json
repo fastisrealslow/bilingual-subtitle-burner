@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793253585,
-  "inventory_updated_at": 1793253459,
+  "updated_at": 1793253979,
+  "inventory_updated_at": 1793253977,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 38,
-    "active_or_recovering_sources": 9,
+    "verified_daily_stock": 37,
+    "active_or_recovering_sources": 8,
     "waiting_candidates": 3,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -14,10 +14,10 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 38,
+      "verified_stock_snapshot": 37,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
-      "reserve_shortfall": 2,
+      "reserve_shortfall": 1,
       "dates": [
         "2026-10-29",
         "2026-10-30",
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 8,
-        "landscape": 30
+        "portrait": 9,
+        "landscape": 28
       },
-      "full_schedule_days": 2,
-      "required_week_shortfall": 13,
+      "full_schedule_days": 3,
+      "required_week_shortfall": 12,
       "required_week_shortfall_by_layout": {
-        "portrait": 13,
+        "portrait": 12,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -50,7 +50,7 @@
         "landscape": 2
       },
       "reserve_shortfall_by_layout": {
-        "portrait": 2,
+        "portrait": 1,
         "landscape": 0
       }
     }
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 6,
+    "consecutive_fallbacks": 7,
     "actual_treatment_published": 4,
     "valid_comparison_days": 1,
     "daily": [
@@ -157,10 +157,10 @@
       },
       {
         "date": "2026-10-29",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
@@ -169,7 +169,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793253584,
+    "updated_at": 1793253978,
     "records": 12418,
     "video_records": 10688,
     "initial_candidates": 59,
@@ -218,29 +218,28 @@
     ]
   },
   "inventory": {
-    "verified_live": 38,
+    "verified_live": 37,
     "verified_audio_card": 0,
-    "verified_landscape": 30,
-    "verified_portrait": 8,
+    "verified_landscape": 28,
+    "verified_portrait": 9,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 38,
+    "daily_mix_usable": 37,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
-    "complete": 157,
+    "complete": 158,
     "failed": 1415,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "excluded": 23,
     "experiment_fallback": 33,
-    "ready": 9,
+    "ready": 8,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 5,
-    "queued": 1
+    "running": 5
   },
   "tasks": [
     {
@@ -24877,13 +24876,13 @@
     },
     {
       "slug": "ly-1023-259492",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1792744042,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -30101,8 +30100,8 @@
     },
     {
       "slug": "ly-1029-662e34",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793253541,
         "failed": null,
@@ -30115,7 +30114,7 @@
       "run_id": 40826483016,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40826483016",
       "run_started_at": "2026-10-29T05:59:01Z",
-      "run_updated_at": "2026-10-29T05:59:01Z"
+      "run_updated_at": "2026-10-29T06:04:35Z"
     }
   ],
   "runs": {
@@ -43946,12 +43945,23 @@
       "run_number": 2883,
       "display_title": "中文源出片 · ly-story-9ccd46299a"
     },
+    "ly-story-39d9f5caa9": {
+      "id": 40817997769,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-29T04:29:07Z",
+      "updated_at": "2026-10-29T05:57:00Z",
+      "run_started_at": "2026-10-29T04:29:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40817997769",
+      "run_number": 2877,
+      "display_title": "中文源出片 · ly-story-39d9f5caa9"
+    },
     "ly-1029-662e34": {
       "id": 40826483016,
-      "status": "queued",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-29T05:59:01Z",
-      "updated_at": "2026-10-29T05:59:01Z",
+      "updated_at": "2026-10-29T06:04:35Z",
       "run_started_at": "2026-10-29T05:59:01Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40826483016",
       "run_number": 2887,
@@ -44011,17 +44021,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40818011352",
       "run_number": 2878,
       "display_title": "中文源出片 · ly-1029-42db38"
-    },
-    "ly-story-39d9f5caa9": {
-      "id": 40817997769,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-29T04:29:07Z",
-      "updated_at": "2026-10-29T05:57:00Z",
-      "run_started_at": "2026-10-29T04:29:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40817997769",
-      "run_number": 2877,
-      "display_title": "中文源出片 · ly-story-39d9f5caa9"
     }
   }
 }
