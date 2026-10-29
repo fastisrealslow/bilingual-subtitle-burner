@@ -543,6 +543,10 @@ def story_title_prompt(prompt,schema,evidence):
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
         'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
     focus=title_focus(evidence)
+    if not focus['details']:
+        prompt+='\n这条事例没有可独立命名的理由词。标题只需自然说清具体对象与这次实际判断，不要把“记录、结果”等叙述用语硬塞进标题。理由与经过保留在完整视频中，事实和条件仍须独立复核。'
+    if evidence.get('kind')=='company_case' and focus['subjects']:
+        prompt+='\n本次对象使用原话里的完整名称，不改成简称。正文最多28字，只选这一件事的一个判断，别同时串入书籍背景、后来变化和市场预测；必要的过去时、条件和不确定性不能省。'
     scope=('\n标题范围（仅为原文字词范围，不是事实批准）：'+json.dumps(dict(
         object_terms=focus['subjects'],named_reason_terms=focus['details'],
         body_only_background_terms=focus['background_terms']),ensure_ascii=False)+
@@ -600,7 +604,8 @@ def holding_time_anchors(text):
 def title_focus(selection):
     """Literal source-word coverage, not an entailment or speaker approval."""
     import jieba.posseg
-    generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
+    generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期',
+             '记录','结果'}
     sectors={'银行','金融','医药','消费','科技','白酒','地产','证券'}
     categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股',
                 '银行','金融','医药','消费','科技','白酒','地产','证券','机构','集团',
