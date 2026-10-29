@@ -1,0 +1,44 @@
+name: 已验证标题修复的单次正常补产
+on:
+  push:
+    branches: [main]
+    paths:
+      - linyuan/verified_story_title_recovery.py
+      - .github/workflows/linyuan-verified-story-title-recovery.yml
+  workflow_run:
+    workflows: ['FC production deploy', '林园素材与真实成片库存']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: verified-story-title-recovery
+  cancel-in-progress: false
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 验证单次恢复计划与原并发、来源、库存限制
+        run: |
+          pip install -q -r linyuan/fc/runtime-requirements.txt pytest
+          python -m pytest -q tests/test_linyuan_verified_story_title_recovery.py
+      - name: 仅实际CPU与线上代码均已验证后请求正常生产
+        run: python linyuan/verified_story_title_recovery.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verified-title-recovery-request
+          path: verified-title-recovery-request.json
+          if-no-files-found: warn
+          retention-days: 30
