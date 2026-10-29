@@ -36,3 +36,15 @@ def test_real_cpu_responses_match_every_full_prompt_and_schema_before_ordinary_t
     assert not error(result['title'],result['title_rewrite'],''.join(units))
     assert not E.title_focus_error(result['title'],E.title_focus(fixture['story_evidence']),cover=result['cover_title'])
     assert any(name in result['title'] for name in E.SUBJECT_NAMES['招商银行'])
+    # The actual model approved this changed price condition. Its true flags
+    # must not let it survive the additional deterministic source check.
+    unsafe=next(c for c in result['editorial_selection']['candidates'] if '股价翻倍' in c['title'])
+    assert not unsafe['accepted'] and unsafe['programmatic_rejection']
+    assert result['editorial_selection']['accepted_count']==1
+
+
+def test_explicit_price_signal_is_not_an_arbitrary_doubling_signal():
+    source='招商银行只有两块多啊，到十五块，你们去对应指数，那就是牛市开始。'
+    assert E.price_signal_scope_error('林园：招行股价翻倍对应指数进入牛市','招行翻倍是牛市开始',source)
+    assert not E.price_signal_scope_error('林园：招行涨到十五块就是牛市开始','招行到十五块是牛市起点',source)
+    assert not E.price_signal_scope_error('股价翻倍是牛市开始','股价翻倍是牛市开始','我说股价翻倍就标志牛市开始。')

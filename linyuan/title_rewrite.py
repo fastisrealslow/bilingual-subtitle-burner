@@ -2068,6 +2068,18 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                     if quote_issue:
                         row['source_supported']=False
                         row['reason']=quote_issue
+                    index=row.get('index')
+                    if type(index) is int and 0<=index<len(valid):
+                        from publishing_experiment import price_signal_scope_error
+                        copy=valid[index]
+                        scope_issue=price_signal_scope_error(copy['title'],copy['cover_title'],transcript)
+                        if scope_issue:
+                            # Preserve the actual model output in the request
+                            # evidence; a true model flag cannot waive this
+                            # deterministic source-condition check.
+                            row['programmatic_rejection']=scope_issue
+                            row['source_supported']=False
+                            row['reason']=scope_issue
                 if (isinstance(row, dict) and type(row.get('index')) is int and 0 <= row['index'] < len(valid)
                         and all(row.get(k) is True for k in CHECKS)
                         and isinstance(row.get('reason'),str) and len(compact(row['reason'])) >= 12
@@ -2102,13 +2114,18 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
                     limitation='Source-bound main-answer proposal, not a human editorial approval')
                 if bound_subject:
                     result['answer_focus_reading']['subject']=bound_subject
+            programmatic_rejections={r['index']:r['programmatic_rejection'] for r in reviews
+                                     if r.get('programmatic_rejection')}
             result['editorial_selection'] = dict(
                 policy='review_then_source_reader_value_v2', attempt=attempt+1,
                 proposal_method=item.get('proposal_method','model_draft'),
                 reviewed_count=len(valid), accepted_count=len(accepted),
                 selected_index=winner['index'],
                 candidates=[dict(title=c['title'], features=editorial_features(c),
-                    accepted=i in {r['index'] for r in accepted}) for i,c in enumerate(valid)],
+                    accepted=i in {r['index'] for r in accepted},
+                    **({'programmatic_rejection':programmatic_rejections[i]}
+                       if i in programmatic_rejections else {}))
+                    for i,c in enumerate(valid)],
                 note='仅排序已通过事实复核的候选；具体对象与原文细节优先于目录套话，不代表点击率')
             return result
         except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:

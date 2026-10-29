@@ -750,6 +750,19 @@ def company_subject_error(selection):
     return None
 
 
+def price_signal_scope_error(title, cover, source):
+    """A concrete market signal price is not an arbitrary doubling signal."""
+    source=str(source or '')
+    price=r'[\d〇零一二三四五六七八九十百千万两点.]+'
+    barrier=re.search(r'(?:涨到|涨至|到)'+price+r'(?:块|元|点)[^。！？!?]{0,40}(?:牛市|熊市)',source)
+    if not barrier:return None
+    doubled_signal=r'(?:翻倍|翻一番)[^。！？!?]{0,35}(?:牛市|熊市)'
+    if re.search(doubled_signal,source):return None
+    if any(re.search(doubled_signal,str(copy or '')) for copy in (title,cover)):
+        return '原文以具体价位判断行情，不能换成股价翻倍即进入牛市/熊市；保留原来的价位条件'
+    return None
+
+
 def proof_error(meta):
     if not isinstance(meta,dict):return 'Invalid treatment metadata'
     if meta.get('editorial_profile')!=TREATMENT:
@@ -789,6 +802,8 @@ def proof_error(meta):
         if issue:return issue
     focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
+    price_issue=price_signal_scope_error(meta.get('title'),meta.get('cover_title'),''.join(focus['source']))
+    if price_issue:return price_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),
                        ('video_sha256',(meta.get('fingerprints') or {}).get('sha256')),
                        ('cover_sha256',cover.get('sha256'))):
