@@ -56546,7 +56546,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-21T20:56:22+08:00"
+   "publish_time": "2026-01-21T20:56:22+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-771352",
+    "run_id": 40914483223,
+    "artifact_id": 12918319944,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "634dd4beec429ba34c001c7252ee4684680f25c7efca530cc3a72479373fadf4",
+     "duration_sec": 1242.08,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5257630190404590"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1RCn76bE4M）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1908/2977，总帧数5342；身份匹配但人脸短边不足96px的帧数1069"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "舞台宽景仍有底部原字幕或顶部账号角标：[{'sample': 0, 'unwanted_text': ['雪球', '奇']}, {'sample': 1, 'unwanted_text': ['雪球', '利', '奇']}, {'sample': 2, 'unwanted_text': ['雪球', '奇']}, {'sample': 3, 'unwanted_text': ['雪球', '奇']}, {'sample': 4, 'unwanted_text': ['雪球', '奇']}, {'sample': 5, 'unwanted_text': ['B站：复', 'F基金理财']}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40914483223,
+    "artifact_id": 12918319944,
+    "name": "production-reject-ly-1029-771352",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1RCn76bE4M）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5191457038140367",
@@ -56625,7 +56666,8 @@
    },
    "last_error": "清理后预计短边 384 < 480",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5266572113350451",
@@ -56671,7 +56713,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-14T13:30:47+00:00"
+   "publish_time": "2026-06-14T13:30:47+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-6a4afb",
+    "run_id": 40917536727,
+    "artifact_id": 12916148955,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8e40255a35f0793bc03f7f2176de60016821e767974e223c17703f2d933abb2b",
+     "duration_sec": 21.27,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV13VJP6UEZE"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40917536727,
+    "artifact_id": 12916148955,
+    "name": "production-reject-ly-1029-6a4afb",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5266569762704120",
@@ -142484,6 +142559,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/KpPZzOzngx08qi6bD0OI01041206Ceey0E030.mp4",
    "ts": 1793293580,
    "error": "清理后预计短边 384 < 480"
+  },
+  {
+   "slug": "ly-1029-6a4afb",
+   "key": "bilibili_search:BV13VJP6UEZE",
+   "video_id": "BV13VJP6UEZE",
+   "ts": 1793295882,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1029-771352",
+   "key": "weibo_search:5257630190404590",
+   "video_id": "https://f.video.weibocdn.com/o0/W5gGGySvlx08uJ6nqrHi01041206DFgS0E030.mp4",
+   "ts": 1793295883,
+   "error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1RCn76bE4M）"
   }
  ],
  "reviewed_third_video_0910": {
