@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": 1793297263,
-  "inventory_updated_at": 1793297158,
+  "updated_at": 1793300104,
+  "inventory_updated_at": 1793300101,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 38,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 0,
+    "verified_daily_stock": 39,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 2,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 38,
+      "verified_stock_snapshot": 39,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
-      "reserve_shortfall": 3,
+      "reserve_shortfall": 1,
       "dates": [
         "2026-10-30",
         "2026-10-31",
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 7,
-        "landscape": 31
+        "portrait": 9,
+        "landscape": 30
       },
-      "full_schedule_days": 2,
-      "required_week_shortfall": 14,
+      "full_schedule_days": 3,
+      "required_week_shortfall": 12,
       "required_week_shortfall_by_layout": {
-        "portrait": 14,
+        "portrait": 12,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -50,7 +50,7 @@
         "landscape": 2
       },
       "reserve_shortfall_by_layout": {
-        "portrait": 3,
+        "portrait": 1,
         "landscape": 0
       }
     }
@@ -169,38 +169,55 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793297262,
-    "records": 12623,
-    "video_records": 10792,
-    "initial_candidates": 56,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1793300103,
+    "records": 12710,
+    "video_records": 10809,
+    "initial_candidates": 58,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "no_video": 1831,
+      "no_video": 1901,
       "already_attempted_or_cooling": 1758,
-      "speaker_unconfirmed": 7441,
-      "clip_title": 1218,
+      "speaker_unconfirmed": 7448,
+      "clip_title": 1220,
       "unrelated": 67,
-      "reference_only": 195,
+      "reference_only": 201,
       "noise": 21,
       "ai_content": 36,
       "over_limit": 19,
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5167978070672799",
+        "title": "【#林园辟谣40元以上不加仓茅台#：最近还在买茅台股票】#林园称最近还在买茅台股票# 5月19日，日前，知名私募林园现身",
+        "source": "weibo_search",
+        "author": "科技猩球",
+        "url": "https://m.weibo.cn/detail/5167978070672799",
+        "duration_sec": 31.0
+      },
+      {
+        "key": "netease_video:VE9H3Q2S4",
+        "title": "来自陕西汉中的股神林园趣事，最近采访说，大多数人没赚钱没牛市",
+        "source": "netease_video",
+        "author": "网易视频",
+        "url": "https://www.163.com/v/video/VE9H3Q2S4.html",
+        "duration_sec": 215.04
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 38,
+    "verified_live": 39,
     "verified_audio_card": 0,
-    "verified_landscape": 31,
-    "verified_portrait": 7,
+    "verified_landscape": 30,
+    "verified_portrait": 9,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 38,
+    "daily_mix_usable": 39,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -211,10 +228,10 @@
     "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 34,
-    "ready": 10,
+    "ready": 11,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -30327,8 +30344,8 @@
     },
     {
       "slug": "ly-1029-6130ce",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1793293196,
         "failed": null,
@@ -30341,7 +30358,7 @@
       "run_id": 40917026986,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917026986",
       "run_started_at": "2026-10-29T16:59:56Z",
-      "run_updated_at": "2026-10-29T17:01:09Z"
+      "run_updated_at": "2026-10-29T18:53:12Z"
     },
     {
       "slug": "ly-1029-6a4afb",
@@ -44510,10 +44527,10 @@
     },
     "ly-1029-6130ce": {
       "id": 40917026986,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-29T16:59:56Z",
-      "updated_at": "2026-10-29T17:01:09Z",
+      "updated_at": "2026-10-29T18:53:12Z",
       "run_started_at": "2026-10-29T16:59:56Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917026986",
       "run_number": 2911,
