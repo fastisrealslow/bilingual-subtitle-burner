@@ -1,5 +1,5 @@
 {
-  "run_id": "40864296300",
+  "run_id": "40882960043",
   "processed": 3,
   "inspected": 0,
   "historical_media_verified": 211,
@@ -7,13 +7,27 @@
   "pending": 259,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -1931,10 +1945,10 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 15,
+      "attempts": 16,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793137188.0533636,
-      "next_retry_at": 1793223588.0533636,
+      "last_attempt_at": 1793280945.5591896,
+      "next_retry_at": 1793367345.5591896,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -1946,10 +1960,10 @@
       "family": "hnw_course",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 15,
+      "attempts": 16,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793136521.1755593,
-      "next_retry_at": 1793222921.1755593,
+      "last_attempt_at": 1793280943.1816666,
+      "next_retry_at": 1793367343.1816666,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -7160,13 +7174,13 @@
       "family": "dadao_2026_06",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 6,
+      "attempts": 7,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793137197.3478787,
-      "next_retry_at": 1793223597.3478787,
+      "last_attempt_at": 1793280956.056459,
+      "next_retry_at": 1793367356.056459,
       "download_partial_bytes": 0
     },
     "d5e23b9e8d754931cdef": {
@@ -8334,18 +8348,24 @@
       "new_ids": []
     },
     "historical_long_leads_20261010|林园 2006 走进资本市场 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793204452.8197522,
-      "next_retry_at": 1793247652.8197522,
+      "next_retry_at": 1793302539.8681645,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793280939.8681645
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793235622.973559,
-      "next_retry_at": 1793278822.973559,
+      "next_retry_at": 1793302539.8681645,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793280939.8681645
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
