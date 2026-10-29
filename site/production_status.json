@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793293083,
+  "updated_at": 1793293237,
   "inventory_updated_at": 1793293079,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 38,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 5,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 3,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793293082,
+    "updated_at": 1793293237,
     "records": 12621,
     "video_records": 10790,
-    "initial_candidates": 61,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 59,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1831,
-      "already_attempted_or_cooling": 1753,
+      "already_attempted_or_cooling": 1755,
       "speaker_unconfirmed": 7440,
       "clip_title": 1218,
       "unrelated": 67,
@@ -198,22 +198,6 @@
         "author": "价值投资和科技股",
         "url": "https://www.bilibili.com/video/BV13VJP6UEZE",
         "duration_sec": 22.0
-      },
-      {
-        "key": "weibo_search:5195149206620631",
-        "title": "林园总2019年09月18日申万宏源交流会，解读投资秘籍，完整版，值得收藏。 http://t.cn/A6FNN6uZ ",
-        "source": "weibo_search",
-        "author": "价值成长的天空一追求复合增长",
-        "url": "https://m.weibo.cn/detail/5195149206620631",
-        "duration_sec": 4412.0
-      },
-      {
-        "key": "weibo_search:5266572113350451",
-        "title": "林园炒股秘籍《林园华南农大演讲》2019.7.6下集#投资##炒股##炒股##财经##财经# 炒股 #林园##林园##股",
-        "source": "weibo_search",
-        "author": "复利财务自由",
-        "url": "https://m.weibo.cn/detail/5266572113350451",
-        "duration_sec": 2843.0
       },
       {
         "key": "weibo_search:5266569762704120",
@@ -247,15 +231,16 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1425,
+    "failed": 1428,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 33,
     "ready": 10,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 3,
+    "queued": 2
   },
   "tasks": [
     {
@@ -30224,11 +30209,11 @@
     },
     {
       "slug": "ly-1029-49224f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
       "signature": {
         "ts": 1793291923,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30242,11 +30227,11 @@
     },
     {
       "slug": "ly-1029-13307c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我是用常识来判断，大概在一一五年、一六年的时候，我都说他们不要去买房子。\", \"suspect_quote\": \"一一五年、一六\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别不清，'一一五'与'一六'不符合常规口语表达习惯，疑似将'2015'误转为'一一五'或'一五'，且'一六'缺少世纪前缀，无法确认是否为'2016'。\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"炒基友\", \"kind\": \"unintelligible_term\", \"reason\": \"'炒基友'疑似将行业术语'炒基金'误识别为人名或无关词汇，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"没有P一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'P 一'疑似将英文字母'P'与数字'1'粘连或误识别，无法确定原意是'P1'还是其他含义，属于专名错写。\", \"reported_suspect_quote\": \"没有 P 一\", \"quote_binding\": \"unique_contiguous_cjk_latin_layout_space\"}, {\"sentence_id\": 19, \"quote\": \"所以我们的方法也是等，手足代错，等他总要轮到我，是吧？\", \"suspect_quote\": \"手足代错\", \"kind\": \"unintelligible_term\", \"reason\": \"'手足代错'疑似将成语'失之东隅，收之桑榆'或类似表达误识别，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
       "signature": {
         "ts": 1793291932,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30260,11 +30245,11 @@
     },
     {
       "slug": "ly-1029-4a2f6c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793291943,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30347,6 +30332,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914529444",
       "run_started_at": "2026-10-29T16:44:27Z",
       "run_updated_at": "2026-10-29T16:48:22Z"
+    },
+    {
+      "slug": "ly-1029-7d1833",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793293190,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": "2026-W44"
+      },
+      "history_count": 1,
+      "run_id": 40917009118,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917009118",
+      "run_started_at": "2026-10-29T16:59:49Z",
+      "run_updated_at": "2026-10-29T16:59:49Z"
+    },
+    {
+      "slug": "ly-1029-6130ce",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793293196,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40917026986,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917026986",
+      "run_started_at": "2026-10-29T16:59:56Z",
+      "run_updated_at": "2026-10-29T16:59:56Z"
     }
   ],
   "runs": {
@@ -44320,39 +44341,6 @@
       "run_number": 2906,
       "display_title": "中文源出片 · ly-1029-a861be"
     },
-    "ly-1029-ffa5ec": {
-      "id": 40914529444,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-29T16:44:27Z",
-      "updated_at": "2026-10-29T16:48:22Z",
-      "run_started_at": "2026-10-29T16:44:27Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914529444",
-      "run_number": 2909,
-      "display_title": "中文源出片 · ly-1029-ffa5ec"
-    },
-    "ly-1029-4d55d7": {
-      "id": 40914505031,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-29T16:44:18Z",
-      "updated_at": "2026-10-29T16:46:35Z",
-      "run_started_at": "2026-10-29T16:44:18Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914505031",
-      "run_number": 2908,
-      "display_title": "中文源出片 · ly-1029-4d55d7"
-    },
-    "ly-1029-771352": {
-      "id": 40914483223,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-29T16:44:10Z",
-      "updated_at": "2026-10-29T16:45:26Z",
-      "run_started_at": "2026-10-29T16:44:10Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914483223",
-      "run_number": 2907,
-      "display_title": "中文源出片 · ly-1029-771352"
-    },
     "ly-1029-4a2f6c": {
       "id": 40913658299,
       "status": "completed",
@@ -44385,6 +44373,61 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40913604775",
       "run_number": 2903,
       "display_title": "中文源出片 · ly-1029-49224f"
+    },
+    "ly-1029-6130ce": {
+      "id": 40917026986,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-29T16:59:56Z",
+      "updated_at": "2026-10-29T16:59:56Z",
+      "run_started_at": "2026-10-29T16:59:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917026986",
+      "run_number": 2911,
+      "display_title": "中文源出片 · ly-1029-6130ce"
+    },
+    "ly-1029-7d1833": {
+      "id": 40917009118,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-29T16:59:49Z",
+      "updated_at": "2026-10-29T16:59:49Z",
+      "run_started_at": "2026-10-29T16:59:49Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917009118",
+      "run_number": 2910,
+      "display_title": "中文源出片 · ly-1029-7d1833"
+    },
+    "ly-1029-ffa5ec": {
+      "id": 40914529444,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T16:44:27Z",
+      "updated_at": "2026-10-29T16:48:22Z",
+      "run_started_at": "2026-10-29T16:44:27Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914529444",
+      "run_number": 2909,
+      "display_title": "中文源出片 · ly-1029-ffa5ec"
+    },
+    "ly-1029-4d55d7": {
+      "id": 40914505031,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T16:44:18Z",
+      "updated_at": "2026-10-29T16:46:35Z",
+      "run_started_at": "2026-10-29T16:44:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914505031",
+      "run_number": 2908,
+      "display_title": "中文源出片 · ly-1029-4d55d7"
+    },
+    "ly-1029-771352": {
+      "id": 40914483223,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T16:44:10Z",
+      "updated_at": "2026-10-29T16:45:26Z",
+      "run_started_at": "2026-10-29T16:44:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914483223",
+      "run_number": 2907,
+      "display_title": "中文源出片 · ly-1029-771352"
     }
   }
 }
