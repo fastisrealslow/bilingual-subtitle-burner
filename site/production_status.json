@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793308694,
+  "updated_at": 1793308915,
   "inventory_updated_at": 1793308692,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 39,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 15,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 13,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793308694,
+    "updated_at": 1793308914,
     "records": 12893,
     "video_records": 10886,
-    "initial_candidates": 71,
-    "duration_eligible_records": 15,
-    "candidate_count": 15,
-    "known_duration_candidates": 15,
+    "initial_candidates": 69,
+    "duration_eligible_records": 13,
+    "candidate_count": 13,
+    "known_duration_candidates": 13,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2007,
-      "already_attempted_or_cooling": 1764,
+      "already_attempted_or_cooling": 1766,
       "speaker_unconfirmed": 7492,
       "clip_title": 1228,
       "unrelated": 67,
@@ -191,22 +191,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4957807391017573",
-        "title": "林园称第一个100万很难赚\n靠投资改变命运需要15年\n\n中国股市人物林园认为，对于白手起家的大多数人来说，资本市场的第一",
-        "source": "weibo_search",
-        "author": "中访网微博",
-        "url": "https://m.weibo.cn/detail/4957807391017573",
-        "duration_sec": 21.0
-      },
-      {
-        "key": "weibo_search:5296673606862802",
-        "title": "20250515林园总达仁堂股东会和王磊总交流，提议达仁堂扩大生产品类。王总说把122个独家品种都生产出来。\n\n#得中药",
-        "source": "weibo_search",
-        "author": "价值成长的天空一追求复合增长",
-        "url": "https://m.weibo.cn/detail/5296673606862802",
-        "duration_sec": 485.0
-      },
       {
         "key": "weibo_search:5315297902857464",
         "title": "#昕礽果复利增长价值亿亿金#   医药是未来二十年唯一价值洼地\n投资垄断的医药赚钱机器，100到500倍复利\n未来世界前",
@@ -327,15 +311,15 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1437,
+    "failed": 1438,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 35,
     "ready": 11,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -30664,11 +30648,11 @@
     },
     {
       "slug": "ly-1029-02fc50",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未针对主持人提出的‘有哪些财务问题特别关心’这一核心提问给出明确观点或判断，仅以口语重复和反问回应，随后解释做法但未形成完整表达，属于必要论述被切断。；原文问题：[]",
       "signature": {
         "ts": 1793306716,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30679,6 +30663,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40951833603",
       "run_started_at": "2026-10-29T20:45:16Z",
       "run_updated_at": "2026-10-29T21:16:41Z"
+    },
+    {
+      "slug": "ly-1029-19238c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793308868,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40957051435,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40957051435",
+      "run_started_at": "2026-10-29T21:21:08Z",
+      "run_updated_at": "2026-10-29T21:21:13Z"
+    },
+    {
+      "slug": "ly-1029-13db0a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793308875,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40957067857,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40957067857",
+      "run_started_at": "2026-10-29T21:21:15Z",
+      "run_updated_at": "2026-10-29T21:21:19Z"
     }
   ],
   "runs": {
@@ -44827,6 +44847,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40951833603",
       "run_number": 2925,
       "display_title": "中文源出片 · ly-1029-02fc50"
+    },
+    "ly-1029-13db0a": {
+      "id": 40957067857,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T21:21:15Z",
+      "updated_at": "2026-10-29T21:21:19Z",
+      "run_started_at": "2026-10-29T21:21:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40957067857",
+      "run_number": 2927,
+      "display_title": "中文源出片 · ly-1029-13db0a"
+    },
+    "ly-1029-19238c": {
+      "id": 40957051435,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-29T21:21:08Z",
+      "updated_at": "2026-10-29T21:21:13Z",
+      "run_started_at": "2026-10-29T21:21:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40957051435",
+      "run_number": 2926,
+      "display_title": "中文源出片 · ly-1029-19238c"
     },
     "ly-1029-1af404": {
       "id": 40951367752,
