@@ -3840,10 +3840,12 @@ def copywrite(cues, sel, speaker, occasion, api_key, work, suffix="",
         if story_evidence:
             from publishing_experiment import story_title_prompt, title_focus
             prompt=story_title_prompt(prompt,schema,story_evidence)
-            prompt+=('\n这条故事的标题必须在前半句写明具体对象，并保留实际理由/细节原词；'
+            focus=title_focus(story_evidence)
+            detail_requirement='，并保留实际理由/细节原词' if focus['details'] else '与这次实际判断'
+            prompt+=('\n这条故事的标题必须在前半句写明具体对象'+detail_requirement+'；'
                      '不能把背景达到某个水平压成该对象已经或即将爆发的新判断。'
                      '以下仅是原文定位词，不批准任何事实或提问前提：'
-                     +json.dumps(title_focus(story_evidence),ensure_ascii=False))
+                     +json.dumps(focus,ensure_ascii=False))
         drafting = 'c_candidates' in schema.get('properties', {})
         messages=[{'role':'user','content':prompt}]
         profile=os.environ.get('LINYUAN_TITLE_DRAFT_PROFILE','production') if speaker=='林园' else 'production'

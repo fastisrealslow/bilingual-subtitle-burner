@@ -22,6 +22,9 @@ END_EXCLUSIVE = '2026-11-17'
 HOURS = (10, 14, 16, 21)
 MIN_MOTHER_SECONDS = 1200
 CST = timezone(timedelta(hours=8))
+# Exact company identity, not fuzzy name matching or a new source fact.
+# The bank uses 招行 as its own short name on cmbchina.com.
+SUBJECT_NAMES = {'招商银行': ('招商银行', '招行')}
 
 
 def profile():
@@ -543,6 +546,10 @@ def story_title_prompt(prompt,schema,evidence):
     prompt=prompt.replace('central_point抓住中心而不是举例或旁枝',
         'central_point抓住下列具体事例中嘉宾实际做了什么、为什么，不能改成别的话题或抽象自评')
     focus=title_focus(evidence)
+    if not focus['details']:
+        prompt+='\n这条事例没有可独立命名的理由词。标题只需自然说清具体对象与这次实际判断，不要把“记录、结果”等叙述用语硬塞进标题。理由与经过保留在完整视频中，事实和条件仍须独立复核。'
+    if evidence.get('kind')=='company_case' and focus['subjects']:
+        prompt+='\n本次对象使用原话里的完整名称，不改成简称。正文最多28字，只选这一件事的一个判断，别同时串入书籍背景、后来变化和市场预测；必要的过去时、条件和不确定性不能省。'
     scope=('\n标题范围（仅为原文字词范围，不是事实批准）：'+json.dumps(dict(
         object_terms=focus['subjects'],named_reason_terms=focus['details'],
         body_only_background_terms=focus['background_terms']),ensure_ascii=False)+
@@ -600,7 +607,8 @@ def holding_time_anchors(text):
 def title_focus(selection):
     """Literal source-word coverage, not an entailment or speaker approval."""
     import jieba.posseg
-    generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期'}
+    generic={'公司','企业','投资','理论','原因','时候','当时','地方','产品','东西','事例','故事','选择','判断','水平','前期',
+             '记录','结果'}
     sectors={'银行','金融','医药','消费','科技','白酒','地产','证券'}
     categories={'ETF','指数','基金','指数基金','市场','股票','行业','板块','成份','成分','机制','规则','资金','差别','例子','成份股','成分股',
                 '银行','金融','医药','消费','科技','白酒','地产','证券','机构','集团',
@@ -693,7 +701,8 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     body=title.removeprefix(speaker+'：')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
-    if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
+    if focus.get('subjects') and not any(name in body[:12] for t in focus['subjects']
+                                        for name in SUBJECT_NAMES.get(t, (t,))):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
     anchors=[a for quote in focus.get('past_holding_times',[]) for a in holding_time_anchors(quote)]
     presented=holding_time_anchors(body) if anchors else []
@@ -741,6 +750,19 @@ def company_subject_error(selection):
     return None
 
 
+def price_signal_scope_error(title, cover, source):
+    """A concrete market signal price is not an arbitrary doubling signal."""
+    source=str(source or '')
+    price=r'[\d〇零一二三四五六七八九十百千万两点.]+'
+    barrier=re.search(r'(?:涨到|涨至|到)'+price+r'(?:块|元|点)[^。！？!?]{0,40}(?:牛市|熊市)',source)
+    if not barrier:return None
+    doubled_signal=r'(?:翻倍|翻一番)[^。！？!?]{0,35}(?:牛市|熊市)'
+    if re.search(doubled_signal,source):return None
+    if any(re.search(doubled_signal,str(copy or '')) for copy in (title,cover)):
+        return '原文以具体价位判断行情，不能换成股价翻倍即进入牛市/熊市；保留原来的价位条件'
+    return None
+
+
 def proof_error(meta):
     if not isinstance(meta,dict):return 'Invalid treatment metadata'
     if meta.get('editorial_profile')!=TREATMENT:
@@ -780,6 +802,8 @@ def proof_error(meta):
         if issue:return issue
     focus_issue=title_focus_error(meta.get('title'),focus,cover=meta.get('cover_title'))
     if focus_issue:return focus_issue
+    price_issue=price_signal_scope_error(meta.get('title'),meta.get('cover_title'),''.join(focus['source']))
+    if price_issue:return price_issue
     for key,actual in (('title',meta.get('title')),('source_sha256',meta.get('source_sha256')),
                        ('video_sha256',(meta.get('fingerprints') or {}).get('sha256')),
                        ('cover_sha256',cover.get('sha256'))):
