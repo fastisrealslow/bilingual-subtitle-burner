@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1793230935,
-  "inventory_updated_at": 1793230820,
+  "updated_at": 1793233420,
+  "inventory_updated_at": 1793233417,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 32,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 0,
+    "verified_daily_stock": 33,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 3,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 32,
+      "verified_stock_snapshot": 33,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 2,
@@ -37,7 +37,7 @@
       },
       "verified_by_layout": {
         "portrait": 8,
-        "landscape": 24
+        "landscape": 25
       },
       "full_schedule_days": 2,
       "required_week_shortfall": 13,
@@ -161,18 +161,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793230935,
-    "records": 12379,
-    "video_records": 10656,
-    "initial_candidates": 55,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1793233419,
+    "records": 12390,
+    "video_records": 10665,
+    "initial_candidates": 58,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "no_video": 1725,
+      "speaker_unconfirmed": 7361,
       "already_attempted_or_cooling": 1730,
-      "no_video": 1723,
-      "speaker_unconfirmed": 7355,
       "unrelated": 67,
       "clip_title": 1214,
       "noise": 21,
@@ -182,17 +182,42 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1QH4y1i7fx",
+        "title": "林园：大健康3年翻一倍20231104",
+        "source": "bilibili_search",
+        "author": "路人呷哺",
+        "url": "https://www.bilibili.com/video/BV1QH4y1i7fx",
+        "duration_sec": 1796.0
+      },
+      {
+        "key": "bilibili_search:BV1rUXAYHEzv",
+        "title": "2018年投资名人堂采访林园-推荐",
+        "source": "bilibili_search",
+        "author": "人人の股神",
+        "url": "https://www.bilibili.com/video/BV1rUXAYHEzv",
+        "duration_sec": 657.0
+      },
+      {
+        "key": "bilibili_search:BV1FN4y1d7Mz",
+        "title": "2023-05林园谈乳制品：市值并不高，低出生率只是暂时的。",
+        "source": "bilibili_search",
+        "author": "林园门下走狗",
+        "url": "https://www.bilibili.com/video/BV1FN4y1d7Mz",
+        "duration_sec": 59.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 32,
+    "verified_live": 33,
     "verified_audio_card": 0,
-    "verified_landscape": 24,
+    "verified_landscape": 25,
     "verified_portrait": 8,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 32,
+    "daily_mix_usable": 33,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -202,11 +227,11 @@
     "paused": 5,
     "interrupted": 6,
     "excluded": 23,
-    "experiment_fallback": 25,
+    "experiment_fallback": 26,
     "ready": 10,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -29779,8 +29804,8 @@
     },
     {
       "slug": "ly-story-ca2b411807",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793225175,
         "failed": false,
@@ -29793,7 +29818,7 @@
       "run_id": 40777332294,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40777332294",
       "run_started_at": "2026-10-28T22:06:15Z",
-      "run_updated_at": "2026-10-28T22:06:19Z"
+      "run_updated_at": "2026-10-29T00:22:05Z"
     },
     {
       "slug": "ly-story-76a421d637",
@@ -43534,10 +43559,10 @@
     },
     "ly-story-ca2b411807": {
       "id": 40777332294,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-28T22:06:15Z",
-      "updated_at": "2026-10-28T22:06:19Z",
+      "updated_at": "2026-10-29T00:22:05Z",
       "run_started_at": "2026-10-28T22:06:15Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40777332294",
       "run_number": 2863,
