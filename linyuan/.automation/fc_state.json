@@ -56495,7 +56495,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-02T10:59:15+08:00"
+   "publish_time": "2025-08-02T10:59:15+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40917009118,
+    "artifact_id": 12917076731,
+    "name": "source-reject-ly-1029-7d1833",
+    "retained": true
+   },
+   "last_error": "清理后预计短边 384 < 480",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5266572113350451",
@@ -142283,6 +142293,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/NolIBbRqgx08BXnMu45W01041200zNa50E010.mp4",
    "ts": 1793293159,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我是用常识来判断，大概在一一五年、一六年的时候，我都说他们不要去买房子。\", \"suspect_quote\": \"一一五年、一六\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别不清，'一一五'与'一六'不符合常规口语表达习惯，疑似将'2015'误转为'一一五'或'一五'，且'一六'缺少世纪前缀，无法确认是否为'2016'。\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"炒基友\", \"kind\": \"unintelligible_term\", \"reason\": \"'炒基友'疑似将行业术语'炒基金'误识别为人名或无关词汇，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"没有P一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'P 一'疑似将英文字母'P'与数字'1'粘连或误识别，无法确定原意是'P1'还是其他含义，属于专名错写。\", \"reported_suspect_quote\": \"没有 P 一\", \"quote_binding\": \"unique_contiguous_cjk_latin_layout_space\"}, {\"sentence_id\": 19, \"quote\": \"所以我们的方法也是等，手足代错，等他总要轮到我，是吧？\", \"suspect_quote\": \"手足代错\", \"kind\": \"unintelligible_term\", \"reason\": \"'手足代错'疑似将成语'失之东隅，收之桑榆'或类似表达误识别，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
+  },
+  {
+   "slug": "ly-1029-7d1833",
+   "key": "weibo_search:5195149206620631",
+   "video_id": "https://f.video.weibocdn.com/u0/KpPZzOzngx08qi6bD0OI01041206Ceey0E030.mp4",
+   "ts": 1793293580,
+   "error": "清理后预计短边 384 < 480"
   }
  ],
  "reviewed_third_video_0910": {
