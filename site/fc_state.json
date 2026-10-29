@@ -31222,8 +31222,8 @@
    "publish_time": "2026-10-15T13:44:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1015-7bbf42",
-    "run_id": 39036523292,
-    "artifact_id": 12101589485,
+    "run_id": 38778580976,
+    "artifact_id": 11994704665,
     "accepted": 0,
     "failures": [
      {
@@ -31277,21 +31277,21 @@
    "publish_time": "2026-10-15T09:08:56+00:00",
    "production_failure_summary": {
     "slug": "ly-1015-8f39b4",
-    "run_id": 39036803925,
-    "artifact_id": 12103215799,
+    "run_id": 38737960477,
+    "artifact_id": 11975272769,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们的消费起不来，消费股起不来，实际上都是那些传导过嗯，嗯，好的。\", \"suspect_quote\": \"传导过嗯，嗯，好的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘传导过’语义不明，疑似‘传导过来’或‘传导过去’的误识；‘嗯，嗯，好的’为填充词堆叠，非正常口语结构，且‘好的’在此处无明确指代对象，导致整段话逻辑断裂。\"}, {\"sentence_id\": 4, \"quote\": \"哎，我我还不如把钱放在美，去存存银行去存存，美美债相关的一些东西，肯定有。\", \"suspect"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我们的消费起不来，消费股起不来，实际上都是那些传导过嗯，嗯，好的。\", \"suspect_quote\": \"传导过嗯，嗯，好的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘传导过嗯，嗯，好的’中‘嗯，嗯’为填充词，但‘传导过’后直接接无实义的语气词堆叠，导致‘传导过’的对象缺失，属于无法解释的具体词语污染，影响对‘传导机制’的理解。\"}, {\"sentence_id\": 4, \"quote\": \"哎，我我还不如把钱放在美，去存存银行去存存，美美债相关的一些东西，肯定有。\", \"sus"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"乙肝有治疗率，因为这个肝啊，它是个开始，比如说肝乙肝属于肝炎，病毒性肝炎，是吧？\", \"suspect_quote\": \"乙肝有治疗率，因为这个肝啊，它是个开始，比如说肝\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'治疗率'在语境中无意义，结合后文'它是个开始'及发音推测，原意应为'治愈率'或'有治疗方法'；'因为这个肝啊'存在明显的语音转写混乱，'这个肝'与上下文逻辑不通，可能是'这个病'、'这个病毒'或'这个阶段'的误识。\"}, {\"sentence_id\": 12"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"现在治愈的病只有一个肺炎，那是抗生素发的，还有都是对症。\", \"suspect_quote\": \"现在治愈的病只有一个肺炎，那是抗生素发的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘只有一个肺炎’中的数字‘一个’与医学常识严重冲突（肺炎种类极多），且‘抗生素发的’表述模糊，疑似将‘抗生素引发的’误听为‘发的’，属于互相矛盾的关键数字及含义不明的否定/修饰。\"}, {\"sentence_id\": 16, \"quote\": \"啊，你说血管高血啊，你给我治愈治不能，一"
      },
      {
       "stage": "part-quality",
-      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 缺失：主持人提问（句 0-1）后，嘉宾回答从‘他对诊断学啊’开始，但缺乏明确的观点陈述或结论性判断；句 4‘我相信他会对医药的’为未完成语句，无法构成完整表达。；原文问题：[[\"他对诊断学啊，嗯，人更加便捷。\", \"‘他对诊断学啊，嗯，人更加便捷’存在指代不明（‘他’指代不清）、口语填充词（‘啊’‘嗯’）及语义断裂，影响理解。\"], [\"我相信他会对医药的。\", \"‘我相信他会对医药的’为明显未完成的句子，关键宾语缺失，无法构成有效判断。\"]]"
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 缺失：主持人提问（句 0-1）后，嘉宾回答（句 2-4）中句 2 为模糊指代‘他对诊断学’，句 3 为举例而非判断，句 4 为未完成的结论‘我相信他会对医药的’，缺乏完整观点陈述。；原文问题：[[\"他对诊断学啊，嗯，人更加便捷。\", \"‘他对诊断学啊’指代不明，前文无对应主语，影响理解嘉宾具体所指对象。\"], [\"我相信他会对医药的。\", \"‘我相信他会对医药的’语句未完，关键断言被切断，无法构成完整判断。\"]]"
      }
     ]
    },
@@ -31340,8 +31340,8 @@
    "publish_time": "2026-09-02T23:45:11+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-651a86",
-    "run_id": 39037310682,
-    "artifact_id": 12103171577,
+    "run_id": 38598737667,
+    "artifact_id": 11912273689,
     "accepted": 0,
     "failures": [
      {
@@ -46118,17 +46118,17 @@
    "publish_time": "2026-10-18T14:16:38+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-efeb96",
-    "run_id": 39403151241,
-    "artifact_id": 12256469541,
+    "run_id": 40084537591,
+    "artifact_id": 12556997464,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"嗯，对，应该是这个图上有问题，有所。\", \"suspect_quote\": \"图上有问题\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，将口语中的指代或模糊表达误识为具体名词。结合上下文（讨论乙肝治疗），此处极可能为“这个”、“这里”或特定术语的误听，导致含义不明且无法解释。\"}]"
+      "reason": "整段取景预检：源 94.34s，原始画面不足以保留完整人脸及头顶余量"
      }
     ]
    },
@@ -54570,13 +54570,37 @@
    "recovery_origin_run_id": 39813128512,
    "production_failure_summary": {
     "slug": "ly-story-cd0cc1dffe",
-    "run_id": 39813128512,
-    "artifact_id": 12441567598,
+    "run_id": 40776736524,
+    "artifact_id": 12856952827,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"嘉宾目标明确为“林园”，但字幕识别为“林岩”。在中文语境下，“林园”与“林岩”发音相近，极易发生同音异字错误。此处将知名投资人“林园”误识为普通名字“林岩”，属于典型的专有名词错写，严重影响对嘉宾身份的准确理解。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林岩”属于专名错写，需核实原音。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"呃申请\", \"kind\": \"unintelligible_term\", \"reason\": "
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4002.27s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那我想问一下那个林老师：如果一个经历了，就是我们呃几十年的呃实证，以及是我们老老祖宗传下来的道家辟谷，加上温谷的话，您愿意尝试吗？\", \"suspect_quote\": \"温谷\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“温补”或特定术语误识别为无意义的“温谷”，且与上下文“道家辟谷”搭配不合逻辑，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"透析以后的病人啊，你的那个透析病，为这我都把几个医院我都经常去，我去他他会去仔细转转。\", \"susp"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"非常感谢林岩导师为我们呈现的压轴的大咖分享啊。\", \"suspect_quote\": \"林岩\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林岩”属于专名错写，需核实原音。\"}, {\"sentence_id\": 1, \"quote\": \"那林岩导师，我们也申请一下，我们请呃申请几个名额，我们现场给您提一些问题，好不好？\", \"suspect_quote\": \"呃申请\", \"kind\": \"unintelligible_term\", \"reason\": "
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
      }
     ]
    },
@@ -55650,13 +55674,109 @@
    "recovery_origin_run_id": 39835364910,
    "production_failure_summary": {
     "slug": "ly-story-99ddef2e4b",
-    "run_id": 39813108156,
-    "artifact_id": 12441728860,
+    "run_id": 40824893139,
+    "artifact_id": 12880185464,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"你的过去也是今天一实心，那个明天实心那个。\", \"suspect_quote\": \"今天一实心\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘今天一实心’语义不通，无法确定是否为人名、术语或口语表达，需音频核验。\"}, {\"sentence_id\": 5, \"quote\": \"北京大概零几年的时候，这个这个二零零零年左右，突然吃饸饹血，满街的人都跟我说饸饹血。\", \"suspect_quote\": \"吃饸饹血\", \"kind\": \"unintelligible_term\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1fHn167EUf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 84%（BV184pb6oEQu）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Zia96FEuE）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3131.83s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾回答：片段中仅有主持人提问（编号 0），未包含嘉宾对‘投资心态’分享的任何实质性回应、理由或结论，属于必要论述被切断的情况。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1J3Y76vEXY）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在句子 0 被主持人提问后，未在后续句子中形成针对该问题的独立判断或结论。句子 1 和 2 是对肥胖与疾病关系的泛化陈述，并非对‘其他选股’的具体回答；句子 3 直接切换话题至消费领域，导致关于医药选股的讨论在缺乏明确结论的情况下中断。因此，该片段无法构成一个完整的观点表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 46%（BV1MztC6CEFf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片动态窗口目标人物不足5/6帧：4/6"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片动态窗口目标人物不足5/6帧：4/6"
      }
     ]
    },
@@ -56169,6 +56289,29 @@
    "automatic_rule_recoveries": {}
   },
   {
+   "key": "bilibili_search:BV12g41197ac",
+   "video_id": "BV12g41197ac",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "baseline",
+   "slug": "ly-1029-cf4606",
+   "ts": 1793284816,
+   "source_url": "https://www.bilibili.com/video/BV12g41197ac",
+   "asset_url": "https://www.bilibili.com/video/BV12g41197ac",
+   "title": "林园：谈我只选便宜的，就爱逛商场和菜市场（历史回顾）",
+   "delay_hours": 0,
+   "source": "bilibili_search",
+   "author": "临园指路",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2022-06-18T05:46:59+00:00"
+  },
+  {
    "key": "bilibili_search:BV1yXsf6MEuV",
    "video_id": "BV1yXsf6MEuV",
    "required_presentation_version": 2,
@@ -56177,7 +56320,7 @@
    "output_layout": "portrait",
    "editorial_profile": "baseline",
    "slug": "ly-1029-49224f",
-   "ts": 1793279185,
+   "ts": 1793288875,
    "source_url": "https://www.bilibili.com/video/BV1yXsf6MEuV",
    "asset_url": "https://www.bilibili.com/video/BV1yXsf6MEuV",
    "title": "林园：不是红利没了，是你认知跟不上",
@@ -56192,8 +56335,8 @@
    "publish_time": "2026-10-29T11:05:55+00:00",
    "production_failure_summary": {
     "slug": "ly-1029-49224f",
-    "run_id": 40878916533,
-    "artifact_id": 12901297277,
+    "run_id": 40889433342,
+    "artifact_id": 12904997324,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -56221,11 +56364,11 @@
      }
     ]
    },
-   "source_check_report_id": 12901297277,
-   "source_check_run_id": 40878916533,
+   "source_check_report_id": 12904997324,
+   "source_check_run_id": 40889433342,
    "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
    "failure_stage": "quality-service",
-   "source_check_retry_after": 1793281658
+   "source_check_attempts": 2
   }
  ],
  "makeup_receipts": {
@@ -143339,7 +143482,7 @@
  },
  "source_refresh_requested_at": 1793280787,
  "inventory_refresh_requested_at": 1793279019,
- "rule_recovery_page": 8,
+ "rule_recovery_page": 3,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",

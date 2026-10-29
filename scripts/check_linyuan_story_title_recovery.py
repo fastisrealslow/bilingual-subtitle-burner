@@ -40,7 +40,7 @@ def main():
         assert result['title_rewrite']['review']['method']=='cpu_text_review'
         assert not error(result['title'],result['title_rewrite'],''.join(units))
         assert not E.title_focus_error(result['title'],E.title_focus(selection),cover=result['cover_title'])
-        assert '招商银行' in result['title']
+        assert any(name in result['title'] for name in E.SUBJECT_NAMES['招商银行'])
         report.update(passed=True,result=result)
     except Exception as exc:
         report['error']=str(exc)
