@@ -57184,7 +57184,72 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-03-07T17:20:45+08:00"
+   "publish_time": "2026-03-07T17:20:45+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-b4737a",
+    "run_id": 40951349580,
+    "artifact_id": 12937256817,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ea7604e56cb2ea46aac434a464bdb85f42f522c5fe2d0e3609a8448fc3957e1b",
+     "duration_sec": 1234.07,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5273883386577080"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片存在持续黑色填充边"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 466.43s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾针对投资方向选择（券商/科技/金融地产）的明确判断与理由，仅提及对医药看好但未构成完整表达；结尾无自然收束，不符合独立成片要求。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 412.77s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40951349580,
+    "artifact_id": 12937256817,
+    "name": "production-reject-ly-1029-b4737a",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5301314699395699",
@@ -57252,7 +57317,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"但我们首先是看它是不是赚钱机器，它是不是能成为国家的片？\", \"suspect_quote\": \"国家的片\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国家的片'语义不通且无法确定实体，疑似'国家的饼'或特定术语误识。\"}, {\"sentence_id\": 26, \"quote\": \"好的，非常感谢林源总。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，嘉宾名为'林园'，此处'林源'为错写。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5258329783533675",
@@ -143384,6 +143450,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/R7mFEbFLlx08xNX6o1Ak0104120drueL0E050.mp4",
    "ts": 1793311478,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"但我们首先是看它是不是赚钱机器，它是不是能成为国家的片？\", \"suspect_quote\": \"国家的片\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国家的片'语义不通且无法确定实体，疑似'国家的饼'或特定术语误识。\"}, {\"sentence_id\": 26, \"quote\": \"好的，非常感谢林源总。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，嘉宾名为'林园'，此处'林源'为错写。\"}]"
+  },
+  {
+   "slug": "ly-1029-b4737a",
+   "key": "weibo_search:5273883386577080",
+   "video_id": "https://f.video.weibocdn.com/o0/ppNzbr3Ilx08vSDF5Bm001041204MfXU0E020.mp4",
+   "ts": 1793312392,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
