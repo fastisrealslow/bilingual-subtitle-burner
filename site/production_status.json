@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793254734,
+  "updated_at": 1793254838,
   "inventory_updated_at": 1793254731,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 37,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 3,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 2,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,19 +169,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793254733,
+    "updated_at": 1793254837,
     "records": 12418,
     "video_records": 10688,
-    "initial_candidates": 59,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 58,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1730,
       "clip_title": 1214,
       "speaker_unconfirmed": 7369,
-      "already_attempted_or_cooling": 1740,
+      "already_attempted_or_cooling": 1741,
       "unrelated": 67,
       "reference_only": 182,
       "noise": 21,
@@ -191,14 +191,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1pFJYzcEd5",
-        "title": "林园：投资要有会计基本功，投资就是比较，基础指标很重要",
-        "source": "bilibili_series",
-        "author": "木八的自由之路",
-        "url": "https://www.bilibili.com/video/BV1pFJYzcEd5",
-        "duration_sec": 78.0
-      },
       {
         "key": "bilibili_search:BV1jv4y1S7N3",
         "title": "非常经典-林园-申万宏源分享 2019.9.18（全集）",
@@ -233,13 +225,14 @@
     "complete": 158,
     "failed": 1416,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 33,
     "ready": 8,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 5
+    "retry_queued": 3,
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -30100,14 +30093,14 @@
     },
     {
       "slug": "ly-1029-0d00f8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793254459,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793256564,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -30115,6 +30108,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40828003713",
       "run_started_at": "2026-10-29T06:14:19Z",
       "run_updated_at": "2026-10-29T06:17:21Z"
+    },
+    {
+      "slug": "ly-1029-f02426",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793254795,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40828551378,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40828551378",
+      "run_started_at": "2026-10-29T06:19:54Z",
+      "run_updated_at": "2026-10-29T06:19:54Z"
     }
   ],
   "runs": {
@@ -43966,6 +43977,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40828003713",
       "run_number": 2889,
       "display_title": "中文源出片 · ly-1029-0d00f8"
+    },
+    "ly-1029-f02426": {
+      "id": 40828551378,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-29T06:19:54Z",
+      "updated_at": "2026-10-29T06:19:54Z",
+      "run_started_at": "2026-10-29T06:19:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40828551378",
+      "run_number": 2890,
+      "display_title": "中文源出片 · ly-1029-f02426"
     },
     "ly-story-ff8235aa42": {
       "id": 40826472909,
