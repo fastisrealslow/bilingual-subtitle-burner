@@ -56211,8 +56211,8 @@
    "publish_time": "2026-10-29T11:05:55+00:00",
    "production_failure_summary": {
     "slug": "ly-1029-49224f",
-    "run_id": 40905183847,
-    "artifact_id": 12911537749,
+    "run_id": 40913604775,
+    "artifact_id": 12916501024,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -56240,13 +56240,13 @@
      }
     ]
    },
-   "source_check_report_id": 12911537749,
-   "source_check_run_id": 40905183847,
+   "source_check_report_id": 12916501024,
+   "source_check_run_id": 40913604775,
    "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
    "failure_stage": "quality-service",
    "source_check_attempts": 3,
-   "failed": false,
-   "source_check_exhausted": false,
+   "failed": true,
+   "source_check_exhausted": true,
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
      "run_id": 40905183847,
@@ -56278,7 +56278,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-29T22:11:06+08:00"
+   "publish_time": "2026-10-29T22:11:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-13307c",
+    "run_id": 40913629984,
+    "artifact_id": 12915434216,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "37dd2fb3d94f33aa71fa8c4c9a5411e9470264cd79a1b8f2aa56dcb4e98e9b88",
+     "duration_sec": 174.64,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5359479987115373"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我是用常识来判断，大概在一一五年、一六年的时候，我都说他们不要去买房子。\", \"suspect_quote\": \"一一五年、一六\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别不清，'一一五'与'一六'不符合常规口语表达习惯，疑似将'2015'误转为'一一五'或'一五'，且'一六'缺少世纪前缀，无法确认是否为'2016'。\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"sus"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40913629984,
+    "artifact_id": 12915434216,
+    "name": "production-reject-ly-1029-13307c",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我是用常识来判断，大概在一一五年、一六年的时候，我都说他们不要去买房子。\", \"suspect_quote\": \"一一五年、一六\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别不清，'一一五'与'一六'不符合常规口语表达习惯，疑似将'2015'误转为'一一五'或'一五'，且'一六'缺少世纪前缀，无法确认是否为'2016'。\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"炒基友\", \"kind\": \"unintelligible_term\", \"reason\": \"'炒基友'疑似将行业术语'炒基金'误识别为人名或无关词汇，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"没有P一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'P 一'疑似将英文字母'P'与数字'1'粘连或误识别，无法确定原意是'P1'还是其他含义，属于专名错写。\", \"reported_suspect_quote\": \"没有 P 一\", \"quote_binding\": \"unique_contiguous_cjk_latin_layout_space\"}, {\"sentence_id\": 19, \"quote\": \"所以我们的方法也是等，手足代错，等他总要轮到我，是吧？\", \"suspect_quote\": \"手足代错\", \"kind\": \"unintelligible_term\", \"reason\": \"'手足代错'疑似将成语'失之东隅，收之桑榆'或类似表达误识别，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1QVJL67E2B",
@@ -56301,7 +56334,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-13T01:01:00+00:00"
+   "publish_time": "2026-06-13T01:01:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-4a2f6c",
+    "run_id": 40913658299,
+    "artifact_id": 12914164300,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "eb7a8331617491cb1fc3faa5c732c39ae7a17e139cd6bcf1b367f37e4f5eff91",
+     "duration_sec": 59.03,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1QVJL67E2B"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40913658299,
+    "artifact_id": 12914164300,
+    "name": "production-reject-ly-1029-4a2f6c",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1dAvtBoEmT",
@@ -56334,7 +56400,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5257630190404590",
@@ -142131,6 +142198,20 @@
    "video_id": "BV1dAvtBoEmT",
    "ts": 1793292219,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标"
+  },
+  {
+   "slug": "ly-1029-4a2f6c",
+   "key": "bilibili_search:BV1QVJL67E2B",
+   "video_id": "BV1QVJL67E2B",
+   "ts": 1793293158,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1029-13307c",
+   "key": "weibo_search:5359479987115373",
+   "video_id": "https://f.video.weibocdn.com/u0/NolIBbRqgx08BXnMu45W01041200zNa50E010.mp4",
+   "ts": 1793293159,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我是用常识来判断，大概在一一五年、一六年的时候，我都说他们不要去买房子。\", \"suspect_quote\": \"一一五年、一六\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别不清，'一一五'与'一六'不符合常规口语表达习惯，疑似将'2015'误转为'一一五'或'一五'，且'一六'缺少世纪前缀，无法确认是否为'2016'。\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"炒基友\", \"kind\": \"unintelligible_term\", \"reason\": \"'炒基友'疑似将行业术语'炒基金'误识别为人名或无关词汇，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 12, \"quote\": \"像今天这个股市，炒基友，炒了个不好的，炒未来，炒没有P一的。\", \"suspect_quote\": \"没有P一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'P 一'疑似将英文字母'P'与数字'1'粘连或误识别，无法确定原意是'P1'还是其他含义，属于专名错写。\", \"reported_suspect_quote\": \"没有 P 一\", \"quote_binding\": \"unique_contiguous_cjk_latin_layout_space\"}, {\"sentence_id\": 19, \"quote\": \"所以我们的方法也是等，手足代错，等他总要轮到我，是吧？\", \"suspect_quote\": \"手足代错\", \"kind\": \"unintelligible_term\", \"reason\": \"'手足代错'疑似将成语'失之东隅，收之桑榆'或类似表达误识别，属于专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
   }
  ],
  "reviewed_third_video_0910": {
