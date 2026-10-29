@@ -319,7 +319,7 @@ def main():
         help='After the catalogue target, replenish proven long-source shortages within a daily cap')
     parser.add_argument('--output', type=Path, default=BASE / '.automation/seed_growth_report.json')
     args = parser.parse_args()
-    if not 1 <= args.limit <= 64 or not 1 <= args.target <= 2000:
+    if not 1 <= args.limit <= 64 or not 1 <= args.target <= 5000:
         parser.error('bounded target/limit required')
     report = run(target=args.target, limit=args.limit,replenish_long=args.replenish_long)
     from batch_delivery import write_json
