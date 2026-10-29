@@ -18,7 +18,9 @@ def test_actual_failed_story_keeps_all_original_context_and_specific_company():
     assert focus['subjects']==['招商银行'] and focus['details']==[]
     title='林园：招商银行两块多时，我就说到十五块才是牛市'
     assert E.title_focus_error(title,focus) is None
+    assert E.title_focus_error(title.replace('招商银行','招行'),focus) is None
     assert E.title_focus_error(title.replace('招商银行','银行板块'),focus)
+    assert E.title_focus_error(title.replace('招商银行','工商银行'),focus)
 
 
 def test_prompt_does_not_replace_source_detail_coverage_with_fact_approval():

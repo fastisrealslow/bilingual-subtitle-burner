@@ -22,6 +22,9 @@ END_EXCLUSIVE = '2026-11-17'
 HOURS = (10, 14, 16, 21)
 MIN_MOTHER_SECONDS = 1200
 CST = timezone(timedelta(hours=8))
+# Exact company identity, not fuzzy name matching or a new source fact.
+# The bank uses 招行 as its own short name on cmbchina.com.
+SUBJECT_NAMES = {'招商银行': ('招商银行', '招行')}
 
 
 def profile():
@@ -698,7 +701,8 @@ def title_focus_error(title,focus,speaker='林园',cover=None):
     body=title.removeprefix(speaker+'：')
     action_pairs=[v for k,v in focus.items() if k.startswith('detail_actions_')]
     if len(body)>28:return '故事标题把过多背景压进一句；请用具体选择加一条直接理由，不能截断或删必要条件'
-    if focus.get('subjects') and not any(t in body[:12] for t in focus['subjects']):
+    if focus.get('subjects') and not any(name in body[:12] for t in focus['subjects']
+                                        for name in SUBJECT_NAMES.get(t, (t,))):
         return '故事标题前半句必须写明本次具体对象：'+','.join(focus['subjects'])
     anchors=[a for quote in focus.get('past_holding_times',[]) for a in holding_time_anchors(quote)]
     presented=holding_time_anchors(body) if anchors else []
