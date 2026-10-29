@@ -33,6 +33,7 @@ on:
       - linyuan/seed_scan.py
       - linyuan/seed_campaign.py
       - linyuan/seed_growth.py
+      - linyuan/seed_pool_growth.py
       - linyuan/source_catalogue_duration.py
       - linyuan/verified_seed_snapshot.py
       - linyuan/bilibili_series.py
@@ -91,7 +92,7 @@ jobs:
 
       - name: 来源自动重试回归
         working-directory: .
-        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_seed_replenishment.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py tests/test_linyuan_p5w_source.py
+        run: python -m pytest -q tests/test_linyuan_source_gap_backfill.py tests/test_linyuan_source_research.py tests/test_linyuan_weibo_video_source.py tests/test_linyuan_seed_scan.py tests/test_linyuan_seed_campaign.py tests/test_linyuan_seed_growth.py tests/test_linyuan_seed_replenishment.py tests/test_linyuan_seed_pool_growth.py tests/test_linyuan_bilibili_discovery.py tests/test_linyuan_native_long_pages.py tests/test_linyuan_native_parent_catalog.py tests/test_linyuan_p5w_source.py
 
       - name: 优先抓取可核验的官方与精确视频源
         timeout-minutes: 5
@@ -113,10 +114,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/linyuan-source-inventory.yml/dispatches" -f ref=main
 
-      - name: 有界扩充独立母片目录（不阻挡一手源与日常补库）
-        timeout-minutes: 5
+      - name: 向5000个独立视频种子扩源（来源冷却互不阻挡，不计成片）
+        timeout-minutes: 8
         continue-on-error: true
-        run: python -u seed_growth.py --target 2000 --limit 48 --replenish-long
+        run: python -u seed_pool_growth.py --target 5000 --limit 48
 
       - name: 恢复已核验来源证据
         uses: actions/cache/restore@v4
