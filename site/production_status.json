@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793312353,
+  "updated_at": 1793312466,
   "inventory_updated_at": 1793312349,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 41,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 9,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793312352,
+    "updated_at": 1793312465,
     "records": 12893,
     "video_records": 10886,
-    "initial_candidates": 66,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
-    "known_duration_candidates": 10,
+    "initial_candidates": 65,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2007,
-      "already_attempted_or_cooling": 1769,
+      "already_attempted_or_cooling": 1770,
       "speaker_unconfirmed": 7492,
       "clip_title": 1228,
       "unrelated": 67,
@@ -256,14 +256,6 @@
         "duration_sec": 616.0
       },
       {
-        "key": "weibo_search:5263370929832306",
-        "title": "#微博超有用视频大赛# 【高清修复版】2020.06.04林园经典采访！#十分钟专业分享##十分钟视频助燃计划##圣叹财",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5263370929832306",
-        "duration_sec": 3415.0
-      },
-      {
         "key": "weibo_search:5304197421467421",
         "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2010.03.12﹣湖北卫视﹣\n\n人一生最重要的两个字是：认知。认知，是高",
         "source": "weibo_search",
@@ -287,15 +279,16 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1441,
+    "failed": 1442,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 36,
     "ready": 11,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -30588,11 +30581,11 @@
     },
     {
       "slug": "ly-1029-b4737a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1793306518,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30747,6 +30740,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40963085164",
       "run_started_at": "2026-10-29T22:05:13Z",
       "run_updated_at": "2026-10-29T22:06:34Z"
+    },
+    {
+      "slug": "ly-1029-709520",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793312426,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40965102928,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40965102928",
+      "run_started_at": "2026-10-29T22:20:25Z",
+      "run_updated_at": "2026-10-29T22:20:25Z"
     }
   ],
   "runs": {
@@ -44940,6 +44951,28 @@
       "run_number": 2924,
       "display_title": "中文源出片 · ly-1029-1af404"
     },
+    "ly-1029-b4737a": {
+      "id": 40951349580,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-29T20:41:58Z",
+      "updated_at": "2026-10-29T22:17:13Z",
+      "run_started_at": "2026-10-29T20:41:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40951349580",
+      "run_number": 2923,
+      "display_title": "中文源出片 · ly-1029-b4737a"
+    },
+    "ly-1029-709520": {
+      "id": 40965102928,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-29T22:20:25Z",
+      "updated_at": "2026-10-29T22:20:25Z",
+      "run_started_at": "2026-10-29T22:20:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40965102928",
+      "run_number": 2932,
+      "display_title": "中文源出片 · ly-1029-709520"
+    },
     "ly-story-8b03242669": {
       "id": 40963085164,
       "status": "in_progress",
@@ -44983,17 +45016,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40958878990",
       "run_number": 2928,
       "display_title": "中文源出片 · ly-1029-5e1f2c"
-    },
-    "ly-1029-b4737a": {
-      "id": 40951349580,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-29T20:41:58Z",
-      "updated_at": "2026-10-29T22:17:13Z",
-      "run_started_at": "2026-10-29T20:41:58Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40951349580",
-      "run_number": 2923,
-      "display_title": "中文源出片 · ly-1029-b4737a"
     },
     "ly-1029-cb5ec6": {
       "id": 40951326838,
