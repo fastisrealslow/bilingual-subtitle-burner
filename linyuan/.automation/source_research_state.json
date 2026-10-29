@@ -3387,10 +3387,10 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 11,
+      "attempts": 12,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793120279.2564983,
-      "next_retry_at": 1793206679.2564983,
+      "last_attempt_at": 1793248221.319695,
+      "next_retry_at": 1793334621.319695,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -4869,12 +4869,12 @@
       "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 11,
+      "attempts": 12,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793120341.2230563,
-      "next_retry_at": 1793206741.2230563,
+      "last_attempt_at": 1793248231.4174001,
+      "next_retry_at": 1793334631.4174001,
       "download_partial_bytes": 0
     },
     "3b89002d051fbefd126f": {
@@ -5863,13 +5863,13 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 10,
+      "attempts": 11,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793129802.2374206,
-      "next_retry_at": 1793216202.2374206,
+      "last_attempt_at": 1793248241.8626196,
+      "next_retry_at": 1793334641.8626196,
       "download_partial_bytes": 0
     },
     "a95be35ed9c89b3c08f8": {
@@ -8228,21 +8228,21 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
+      "status": "searched",
+      "checked_at": 1793248216.9528515,
+      "next_retry_at": 1793291416.9528515,
+      "found": 0,
+      "new_ids": []
+    },
+    "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "retry_wait",
-      "checked_at": 1793168667.8565729,
-      "next_retry_at": 1793235456.5724576,
-      "found": 1,
+      "checked_at": 1793176596.438823,
+      "next_retry_at": 1793269816.9528515,
+      "found": 0,
       "new_ids": [],
       "attempts": 1,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1793213856.5724576
-    },
-    "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
-      "status": "searched",
-      "checked_at": 1793176596.438823,
-      "next_retry_at": 1793219796.438823,
-      "found": 0,
-      "new_ids": []
+      "last_attempt_at": 1793248216.9528515
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
       "status": "searched",
@@ -8280,11 +8280,14 @@
       "new_ids": []
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793194606.3193867,
-      "next_retry_at": 1793237806.3193867,
+      "next_retry_at": 1793269816.9528515,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793248216.9528515
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
@@ -8337,17 +8340,25 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 2,
+          "error": "ValueError"
+        }
+      ]
     }
   },
-  "search_cursor": 2,
-  "updated_at": 1793243075,
-  "last_run_id": "40809117925",
+  "search_cursor": 4,
+  "updated_at": 1793248243,
+  "last_run_id": "40817855299",
   "audio_match_candidates": []
 }
