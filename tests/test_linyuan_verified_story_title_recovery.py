@@ -11,6 +11,11 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'linyuan'))
 import verified_story_title_recovery as R
 
 
+@pytest.fixture(autouse=True)
+def fixed_experiment_window(monkeypatch):
+    monkeypatch.setattr(R.F.experiment,'preparing',lambda:True)
+
+
 @pytest.fixture
 def state():
     original=dict(slug=R.ORIGINAL,source_url=R.SOURCE,editorial_profile=R.TREATMENT,
@@ -38,6 +43,11 @@ def test_exact_verified_source_can_request_one_new_normal_job_without_altering_o
 def test_unknown_response_or_any_existing_recovery_entry_cannot_replay(state,stock):
     state['dispatched'].append(dict(slug=R.CHILD))
     assert R.plan(state,stock,[],[])[1]=='already_attempted_or_unresolved'
+
+
+def test_closed_experiment_cannot_start_a_late_repair(state,stock,monkeypatch):
+    monkeypatch.setattr(R.F.experiment,'preparing',lambda:False)
+    assert R.plan(state,stock,[],[])[1]=='experiment_closed'
 
 
 def test_worker_ceiling_related_active_source_and_known_ban_remain_closed(state,stock):
