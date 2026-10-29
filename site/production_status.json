@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793295780,
+  "updated_at": 1793295959,
   "inventory_updated_at": 1793295777,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 38,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793295779,
+    "updated_at": 1793295958,
     "records": 12621,
     "video_records": 10790,
-    "initial_candidates": 57,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 56,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1831,
-      "already_attempted_or_cooling": 1757,
+      "already_attempted_or_cooling": 1758,
       "speaker_unconfirmed": 7440,
       "clip_title": 1218,
       "unrelated": 67,
@@ -190,16 +190,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5226308621831327",
-        "title": "2025-10-23（6），林园：中药过去疫情期间，人们为了防病，囤了很多药物，这是泡沫，现在恢复到了2018-19年的",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5226308621831327",
-        "duration_sec": 227.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 38,
@@ -215,15 +206,16 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1429,
+    "failed": 1431,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 33,
     "ready": 10,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -30264,11 +30256,11 @@
     },
     {
       "slug": "ly-1029-771352",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 95%（BV1RCn76bE4M）",
       "signature": {
         "ts": 1793292251,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30354,11 +30346,11 @@
     },
     {
       "slug": "ly-1029-6a4afb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793293379,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30405,6 +30397,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40920169914",
       "run_started_at": "2026-10-29T17:19:11Z",
       "run_updated_at": "2026-10-29T17:19:31Z"
+    },
+    {
+      "slug": "ly-1029-fe1f44",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793295915,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40924319976,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40924319976",
+      "run_started_at": "2026-10-29T17:45:15Z",
+      "run_updated_at": "2026-10-29T17:45:15Z"
     }
   ],
   "runs": {
@@ -44422,6 +44432,39 @@
       "run_number": 2910,
       "display_title": "中文源出片 · ly-1029-7d1833"
     },
+    "ly-1029-6a4afb": {
+      "id": 40917536727,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-29T17:02:59Z",
+      "updated_at": "2026-10-29T17:13:53Z",
+      "run_started_at": "2026-10-29T17:02:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917536727",
+      "run_number": 2912,
+      "display_title": "中文源出片 · ly-1029-6a4afb"
+    },
+    "ly-1029-771352": {
+      "id": 40914483223,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-29T16:44:10Z",
+      "updated_at": "2026-10-29T17:41:07Z",
+      "run_started_at": "2026-10-29T16:44:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914483223",
+      "run_number": 2907,
+      "display_title": "中文源出片 · ly-1029-771352"
+    },
+    "ly-1029-fe1f44": {
+      "id": 40924319976,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-29T17:45:15Z",
+      "updated_at": "2026-10-29T17:45:15Z",
+      "run_started_at": "2026-10-29T17:45:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40924319976",
+      "run_number": 2915,
+      "display_title": "中文源出片 · ly-1029-fe1f44"
+    },
     "ly-titlefix-20261030-4b387838": {
       "id": 40920169914,
       "status": "in_progress",
@@ -44443,17 +44486,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40918191493",
       "run_number": 2913,
       "display_title": "中文源出片 · ly-1029-0a752b"
-    },
-    "ly-1029-6a4afb": {
-      "id": 40917536727,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-29T17:02:59Z",
-      "updated_at": "2026-10-29T17:13:53Z",
-      "run_started_at": "2026-10-29T17:02:59Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917536727",
-      "run_number": 2912,
-      "display_title": "中文源出片 · ly-1029-6a4afb"
     },
     "ly-1029-6130ce": {
       "id": 40917026986,
@@ -44487,17 +44519,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914505031",
       "run_number": 2908,
       "display_title": "中文源出片 · ly-1029-4d55d7"
-    },
-    "ly-1029-771352": {
-      "id": 40914483223,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-29T16:44:10Z",
-      "updated_at": "2026-10-29T17:41:07Z",
-      "run_started_at": "2026-10-29T16:44:10Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40914483223",
-      "run_number": 2907,
-      "display_title": "中文源出片 · ly-1029-771352"
     }
   }
 }
