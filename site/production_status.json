@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793293237,
-  "inventory_updated_at": 1793293079,
+  "updated_at": 1793293548,
+  "inventory_updated_at": 1793293546,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 38,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 3,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 2,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793293237,
+    "updated_at": 1793293548,
     "records": 12621,
     "video_records": 10790,
-    "initial_candidates": 59,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 58,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 1831,
-      "already_attempted_or_cooling": 1755,
+      "already_attempted_or_cooling": 1756,
       "speaker_unconfirmed": 7440,
       "clip_title": 1218,
       "unrelated": 67,
@@ -191,14 +191,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV13VJP6UEZE",
-        "title": "林园 P1 林园说：他持有茅台心情历史最好的#茅台#贵州茅台#价值投资#传统消费",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV13VJP6UEZE",
-        "duration_sec": 22.0
-      },
       {
         "key": "weibo_search:5266569762704120",
         "title": "林园炒股秘籍《林园华南农大演讲》2019.7.6上集#投资##炒股##炒股##财经##财经# 炒股 #林园##林园##股",
@@ -239,8 +231,8 @@
     "ready": 10,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3,
-    "queued": 2
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -30335,8 +30327,8 @@
     },
     {
       "slug": "ly-1029-7d1833",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "running",
+      "detail": "正在出片",
       "signature": {
         "ts": 1793293190,
         "failed": null,
@@ -30349,12 +30341,12 @@
       "run_id": 40917009118,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917009118",
       "run_started_at": "2026-10-29T16:59:49Z",
-      "run_updated_at": "2026-10-29T16:59:49Z"
+      "run_updated_at": "2026-10-29T17:01:00Z"
     },
     {
       "slug": "ly-1029-6130ce",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "running",
+      "detail": "正在出片",
       "signature": {
         "ts": 1793293196,
         "failed": null,
@@ -30367,7 +30359,25 @@
       "run_id": 40917026986,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917026986",
       "run_started_at": "2026-10-29T16:59:56Z",
-      "run_updated_at": "2026-10-29T16:59:56Z"
+      "run_updated_at": "2026-10-29T17:01:09Z"
+    },
+    {
+      "slug": "ly-1029-6a4afb",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793293379,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40917536727,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917536727",
+      "run_started_at": "2026-10-29T17:02:59Z",
+      "run_updated_at": "2026-10-29T17:02:59Z"
     }
   ],
   "runs": {
@@ -44374,12 +44384,23 @@
       "run_number": 2903,
       "display_title": "中文源出片 · ly-1029-49224f"
     },
-    "ly-1029-6130ce": {
-      "id": 40917026986,
+    "ly-1029-6a4afb": {
+      "id": 40917536727,
       "status": "queued",
       "conclusion": null,
+      "created_at": "2026-10-29T17:02:59Z",
+      "updated_at": "2026-10-29T17:02:59Z",
+      "run_started_at": "2026-10-29T17:02:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917536727",
+      "run_number": 2912,
+      "display_title": "中文源出片 · ly-1029-6a4afb"
+    },
+    "ly-1029-6130ce": {
+      "id": 40917026986,
+      "status": "in_progress",
+      "conclusion": null,
       "created_at": "2026-10-29T16:59:56Z",
-      "updated_at": "2026-10-29T16:59:56Z",
+      "updated_at": "2026-10-29T17:01:09Z",
       "run_started_at": "2026-10-29T16:59:56Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917026986",
       "run_number": 2911,
@@ -44387,10 +44408,10 @@
     },
     "ly-1029-7d1833": {
       "id": 40917009118,
-      "status": "queued",
+      "status": "in_progress",
       "conclusion": null,
       "created_at": "2026-10-29T16:59:49Z",
-      "updated_at": "2026-10-29T16:59:49Z",
+      "updated_at": "2026-10-29T17:01:00Z",
       "run_started_at": "2026-10-29T16:59:49Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40917009118",
       "run_number": 2910,
