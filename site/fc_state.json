@@ -56747,7 +56747,52 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-02-15T12:59:02+08:00"
+   "publish_time": "2026-02-15T12:59:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-0a752b",
+    "run_id": 40918191493,
+    "artifact_id": 12924148939,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c61c695f02959b3859756acfaa77fbf5ae1d89e56bdcff6188d121ae6e5679a3",
+     "duration_sec": 2996.56,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5266569762704120"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这是投资投资股票什么有？\", \"suspect_quote\": \"什么有\", \"kind\": \"unintelligible_term\", \"reason\": \"无法识别的口语填充或断句，疑似漏听关键名词（如“指标”、“数据”等），导致语义不完整。\"}, {\"sentence_id\": 13, \"quote\": \"买新车。\", \"suspect_quote\": \"买新车\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文讨论投资体系与财务指标，突然出现“买新车”这一具体动作，疑似将“买"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"这前几年啊，像最近像他们敢有说是涨了多少倍，那时候的销售金额只有只有三千多。\", \"suspect_quote\": \"敢有说是涨了多少倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"识别污染：'敢有说'疑似将口语中的'敢'或填充词误录，导致语义不通；且'涨了多少倍'前缺乏明确主语或对比基准，结合上下文（前句提消费量、后句提销售金额），此处可能应为'敢说'（表示传闻）或具体数值描述被截断/错识，无法确认真实涨幅数据。\"}, {\"sentence_id\": 17, \"qu"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我希望您接着您问五道门槛，跟我们谈一下医药类到底这种辅助内类让人吃了变得舒服的这种药啊，哈，我们的方向在哪个地方？\", \"suspect_quote\": \"辅助内类\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“辅助内服”或具体药名误识别为无意义的“辅助内类”，无法确定实体含义。\"}, {\"sentence_id\": 9, \"quote\": \"这前几年啊，像最近像他们敢有说是涨了多少倍，那时候的销售金额只有只有三千多。\", \"suspect_quote\": \"敢有说是涨了多少倍\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在句子 0 和句子 1 中提出了问题并进行了部分分析，但在句子 2 中直接给出了投资判断（必须像康美医药这种...），并未对“辅助类药品”的具体例子进行展开或细化。虽然句子 2 是一个完整的结论句，但整个片段的核心意图是询问“哪一些辅助类的药能把它细化一下”，而嘉宾的回答跳过了具体的药品细分举例，直接给出了一个关于投资策略的通用结论（投重仓头）。因此，从严格保留完整表达的角度看，嘉宾没有回答主持人关于“细化辅助类药”的具体请求，导致观点与问题不完全匹配。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40918191493,
+    "artifact_id": 12924148939,
+    "name": "production-reject-ly-1029-0a752b",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这是投资投资股票什么有？\", \"suspect_quote\": \"什么有\", \"kind\": \"unintelligible_term\", \"reason\": \"无法识别的口语填充或断句，疑似漏听关键名词（如“指标”、“数据”等），导致语义不完整。\"}, {\"sentence_id\": 13, \"quote\": \"买新车。\", \"suspect_quote\": \"买新车\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文讨论投资体系与财务指标，突然出现“买新车”这一具体动作，疑似将“买新仓”、“买新股”或特定术语误识别为日常词汇，存在实体污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1iC4y1H7JN",
@@ -142737,6 +142782,13 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2610/30/3oplrvnnmz5/SD/3oplrvnnmz5-mobile.mp4",
    "ts": 1793300784,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.3329, 2: 0.1514, 3: 0.2424, 4: 0.1754, 5: 0.1836, 6: 0.1535, 7: 0.1721, 8: 0.1813, 9: 0.1865, 10: 0.1703, 11: 0.1682, 12: 0.1605, 13: 0.173, 14: 0.1293, 15: 0.1632, 16: 0.1148, 17: 0.1419, 18: 0.1555}"
+  },
+  {
+   "slug": "ly-1029-0a752b",
+   "key": "weibo_search:5266569762704120",
+   "video_id": "https://f.video.weibocdn.com/o0/cz9UFEcnlx08vmrTr8Ri0104120apJDQ0E040.mp4",
+   "ts": 1793301020,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这是投资投资股票什么有？\", \"suspect_quote\": \"什么有\", \"kind\": \"unintelligible_term\", \"reason\": \"无法识别的口语填充或断句，疑似漏听关键名词（如“指标”、“数据”等），导致语义不完整。\"}, {\"sentence_id\": 13, \"quote\": \"买新车。\", \"suspect_quote\": \"买新车\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文讨论投资体系与财务指标，突然出现“买新车”这一具体动作，疑似将“买新仓”、“买新股”或特定术语误识别为日常词汇，存在实体污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
