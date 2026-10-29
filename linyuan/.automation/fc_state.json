@@ -57207,7 +57207,52 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-05-22T10:03:00+08:00"
+   "publish_time": "2026-05-22T10:03:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-1af404",
+    "run_id": 40951367752,
+    "artifact_id": 12935064972,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1e71077ebd396d55671ba2a1071eb67d2f09471fa441660b71cd2747c2198133",
+     "duration_sec": 2088.75,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5301314699395699"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"但我们首先是看它是不是赚钱机器，它是不是能成为国家的片？\", \"suspect_quote\": \"国家的片\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国家的片'语义不通且无法确定实体，疑似'国家的饼'或特定术语误识。\"}, {\"sentence_id\": 26, \"quote\": \"好的，非常感谢林源总。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，嘉宾名为'林园"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那么也想问一下啊，林元总，以后就是核心资产，甚至是一些我们所说的一些代表性的一些企业，他们估值是否会越来越贵呢？\", \"suspect_quote\": \"林元总\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾应为“林园”，识别为“林元”属于专名错写。\"}, {\"sentence_id\": 10, \"quote\": \"好的，非常感谢林源总的一个分享。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"reason\":"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那么也想问一下啊，林元总，以后就是核心资产，甚至是一些我们所说的一些代表性的一些企业，他们估值是否会越来越贵呢？\", \"suspect_quote\": \"林元总\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，转写为“林元”属于专名错写，需核实原音。\"}, {\"sentence_id\": 12, \"quote\": \"好的，非常感谢林源总的一个分享。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"rea"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 93%（BV1rLnC6CEyx）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40951367752,
+    "artifact_id": 12935064972,
+    "name": "production-reject-ly-1029-1af404",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"但我们首先是看它是不是赚钱机器，它是不是能成为国家的片？\", \"suspect_quote\": \"国家的片\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国家的片'语义不通且无法确定实体，疑似'国家的饼'或特定术语误识。\"}, {\"sentence_id\": 26, \"quote\": \"好的，非常感谢林源总。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，嘉宾名为'林园'，此处'林源'为错写。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5258329783533675",
@@ -57417,7 +57462,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5315297902857464",
@@ -143305,6 +143351,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/c3mB6Ctalx08xuWMGbGw01041203wn6y0E020.mp4",
    "ts": 1793310575,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1029-1af404",
+   "key": "weibo_search:5301314699395699",
+   "video_id": "https://f.video.weibocdn.com/o0/R7mFEbFLlx08xNX6o1Ak0104120drueL0E050.mp4",
+   "ts": 1793311478,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"但我们首先是看它是不是赚钱机器，它是不是能成为国家的片？\", \"suspect_quote\": \"国家的片\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国家的片'语义不通且无法确定实体，疑似'国家的饼'或特定术语误识。\"}, {\"sentence_id\": 26, \"quote\": \"好的，非常感谢林源总。\", \"suspect_quote\": \"林源总\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，嘉宾名为'林园'，此处'林源'为错写。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
