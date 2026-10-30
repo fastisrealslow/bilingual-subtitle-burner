@@ -64502,7 +64502,8 @@
    },
    "last_error": "动态取景连续2.04秒缺少人脸",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4906010706186001",
@@ -64525,7 +64526,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-05-27T14:06:04+08:00"
+   "publish_time": "2023-05-27T14:06:04+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-74bff1",
+    "run_id": 41107057090,
+    "artifact_id": 13003182274,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9719ec89be4f689c40a73a0062cb720259e69aec311e950928bfe69c30b271a2",
+     "duration_sec": 391.4,
+     "resolution": {
+      "width": 1578,
+      "height": 888,
+      "short_edge": 888
+     },
+     "source_url": "https://m.weibo.cn/detail/4906010706186001"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41107057090,
+    "artifact_id": 13003182274,
+    "name": "production-reject-ly-1030-74bff1",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.04秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5237243226623560",
@@ -64605,7 +64639,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-13T11:12:54+08:00"
+   "publish_time": "2023-06-13T11:12:54+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-0dbfe9",
+    "run_id": 41108240474,
+    "artifact_id": 13003421796,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ea58f861dd1901bdb921ea44a6d5f3299380de01ae504c32bea4c4d8a737fa64",
+     "duration_sec": 53.34,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4912127721083237"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：原话中无任何林园的判断、理由或结论性陈述；全段均为第三方（记者）对现场情况的描述与活动预告，缺乏嘉宾观点支撑。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41108240474,
+    "artifact_id": 13003421796,
+    "name": "production-reject-ly-1030-0dbfe9",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原话中无任何林园的判断、理由或结论性陈述；全段均为第三方（记者）对现场情况的描述与活动预告，缺乏嘉宾观点支撑。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5220128614778515",
@@ -64628,7 +64695,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-10T09:18:30+08:00"
+   "publish_time": "2025-10-10T09:18:30+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-d6137d",
+    "run_id": 41108260884,
+    "artifact_id": 13002902017,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7d5c9f00f2b0b49026b320770f6eec2b66a7c9c0c61f2496fd5ded8b01bc7ec8",
+     "duration_sec": 60.33,
+     "resolution": {
+      "width": 888,
+      "height": 496,
+      "short_edge": 496
+     },
+     "source_url": "https://m.weibo.cn/detail/5220128614778515"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/360，总帧数1796；身份匹配但人脸短边不足96px的帧数360"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41108260884,
+    "artifact_id": 13002902017,
+    "name": "production-reject-ly-1030-d6137d",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/360，总帧数1796；身份匹配但人脸短边不足96px的帧数360",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5298896118220230",
@@ -152788,6 +152888,27 @@
    "key": "weibo_search:4906147925987884",
    "video_id": "http://f.video.weibocdn.com/o0/3yT0hTqvlx085LukGkdi01041201W37a0E010.mp4",
    "ts": 1793385953,
+   "error": "动态取景连续2.04秒缺少人脸"
+  },
+  {
+   "slug": "ly-1030-d6137d",
+   "key": "weibo_search:5220128614778515",
+   "video_id": "http://f.video.weibocdn.com/o0/j80K9O17lx08s2tcBVDW01041200ixuc0E010.mp4",
+   "ts": 1793386241,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/360，总帧数1796；身份匹配但人脸短边不足96px的帧数360"
+  },
+  {
+   "slug": "ly-1030-0dbfe9",
+   "key": "weibo_search:4912127721083237",
+   "video_id": "http://f.video.weibocdn.com/o0/maukCUz2lx086cpwhoNq01041200EPWs0E010.mp4",
+   "ts": 1793386242,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：原话中无任何林园的判断、理由或结论性陈述；全段均为第三方（记者）对现场情况的描述与活动预告，缺乏嘉宾观点支撑。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1030-74bff1",
+   "key": "weibo_search:4906010706186001",
+   "video_id": "http://f.video.weibocdn.com/o0/3yT0hTqvlx085LukGkdi01041201W37a0E010.mp4",
+   "ts": 1793386243,
    "error": "动态取景连续2.04秒缺少人脸"
   }
  ],
