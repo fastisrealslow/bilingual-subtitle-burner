@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793335902,
+  "updated_at": 1793336028,
   "inventory_updated_at": 1793335897,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
-    "active_or_recovering_sources": 22,
+    "active_or_recovering_sources": 20,
     "waiting_candidates": 86,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793335900,
+    "updated_at": 1793336026,
     "records": 13249,
     "video_records": 11042,
     "initial_candidates": 145,
@@ -406,22 +406,6 @@
         "author": "新浪证券",
         "url": "https://m.weibo.cn/detail/4975301384474789",
         "duration_sec": 157.0
-      },
-      {
-        "key": "weibo_search:5357643879155558",
-        "title": "林园：看好中药，相对看淡创新药。（via 天玉）问：就是现在调整的差不多了，医药大行业的话，是不是未来，一到两年就是行情",
-        "source": "weibo_search",
-        "author": "用户7010019442",
-        "url": "https://m.weibo.cn/detail/5357643879155558",
-        "duration_sec": 231.0
-      },
-      {
-        "key": "weibo_search:5314721544930066",
-        "title": "2026.06.26片仔癀2025年度股东大会期间，                                  ",
-        "source": "weibo_search",
-        "author": "用户7010019442",
-        "url": "https://m.weibo.cn/detail/5314721544930066",
-        "duration_sec": 263.0
       },
       {
         "key": "weibo_search:5343930074006222",
@@ -688,6 +672,22 @@
         "duration_sec": 253.0
       },
       {
+        "key": "weibo_search:5357643879155558",
+        "title": "林园：看好中药，相对看淡创新药。（via 天玉）问：就是现在调整的差不多了，医药大行业的话，是不是未来，一到两年就是行情",
+        "source": "weibo_search",
+        "author": "用户7010019442",
+        "url": "https://m.weibo.cn/detail/5357643879155558",
+        "duration_sec": 231.0
+      },
+      {
+        "key": "weibo_search:5314721544930066",
+        "title": "2026.06.26片仔癀2025年度股东大会期间，                                  ",
+        "source": "weibo_search",
+        "author": "用户7010019442",
+        "url": "https://m.weibo.cn/detail/5314721544930066",
+        "duration_sec": 263.0
+      },
+      {
         "key": "weibo_search:5126083559559297",
         "title": "#林园称现在A股就是满仓睡觉#【林园：对中国股市会好起来非常有信心 买满了睡觉就不看了】1月23日，中长期资金入市实施方",
         "source": "weibo_search",
@@ -903,14 +903,14 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1440,
+    "failed": 1442,
     "paused": 5,
     "interrupted": 8,
     "excluded": 24,
     "experiment_fallback": 48,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 18,
+    "retry_queued": 16,
     "running": 4
   },
   "tasks": [
@@ -31401,42 +31401,6 @@
       "run_updated_at": "2026-10-30T04:13:41Z"
     },
     {
-      "slug": "ly-1025-f7baa1",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793331075,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793331074,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 40199412838,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199412838",
-      "run_started_at": "2026-10-25T13:49:55Z",
-      "run_updated_at": "2026-10-25T14:04:07Z"
-    },
-    {
-      "slug": "ly-1025-9f7084",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793331083,
-        "failed": false,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793331082,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 40199405818,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199405818",
-      "run_started_at": "2026-10-25T13:49:49Z",
-      "run_updated_at": "2026-10-25T13:57:09Z"
-    },
-    {
       "slug": "ly-1025-8cef1a",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -31924,11 +31888,11 @@
     },
     {
       "slug": "ly-1026-943f88",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793335465,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -31942,11 +31906,11 @@
     },
     {
       "slug": "ly-1026-6f1624",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793335474,
-        "failed": false,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -31960,8 +31924,8 @@
     },
     {
       "slug": "ly-1025-409773",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793335736,
         "failed": false,
@@ -31974,12 +31938,12 @@
       "run_id": 41004970811,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41004970811",
       "run_started_at": "2026-10-30T04:48:55Z",
-      "run_updated_at": "2026-10-30T04:48:59Z"
+      "run_updated_at": "2026-10-30T04:53:39Z"
     },
     {
       "slug": "ly-1025-603b42",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793335743,
         "failed": false,
@@ -31992,7 +31956,43 @@
       "run_id": 41004982271,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41004982271",
       "run_started_at": "2026-10-30T04:49:03Z",
-      "run_updated_at": "2026-10-30T04:49:08Z"
+      "run_updated_at": "2026-10-30T04:53:39Z"
+    },
+    {
+      "slug": "ly-1025-f7baa1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793335981,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41005331882,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41005331882",
+      "run_started_at": "2026-10-30T04:53:00Z",
+      "run_updated_at": "2026-10-30T04:53:04Z"
+    },
+    {
+      "slug": "ly-1025-9f7084",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793335987,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41005342163,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41005342163",
+      "run_started_at": "2026-10-30T04:53:07Z",
+      "run_updated_at": "2026-10-30T04:53:22Z"
     }
   ],
   "runs": {
@@ -45109,25 +45109,25 @@
       "display_title": "中文源出片 · ly-1025-bc37d7"
     },
     "ly-1025-9f7084": {
-      "id": 40199405818,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T13:49:49Z",
-      "updated_at": "2026-10-25T13:57:09Z",
-      "run_started_at": "2026-10-25T13:49:49Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199405818",
-      "run_number": 2817,
+      "id": 41005342163,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T04:53:07Z",
+      "updated_at": "2026-10-30T04:53:22Z",
+      "run_started_at": "2026-10-30T04:53:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41005342163",
+      "run_number": 2987,
       "display_title": "中文源出片 · ly-1025-9f7084"
     },
     "ly-1025-f7baa1": {
-      "id": 40199412838,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-25T13:49:55Z",
-      "updated_at": "2026-10-25T14:04:07Z",
-      "run_started_at": "2026-10-25T13:49:55Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40199412838",
-      "run_number": 2818,
+      "id": 41005331882,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T04:53:00Z",
+      "updated_at": "2026-10-30T04:53:04Z",
+      "run_started_at": "2026-10-30T04:53:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41005331882",
+      "run_number": 2986,
       "display_title": "中文源出片 · ly-1025-f7baa1"
     },
     "ly-1025-fd7e25": {
@@ -46595,10 +46595,10 @@
     },
     "ly-1025-603b42": {
       "id": 41004982271,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T04:49:03Z",
-      "updated_at": "2026-10-30T04:49:08Z",
+      "updated_at": "2026-10-30T04:53:39Z",
       "run_started_at": "2026-10-30T04:49:03Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41004982271",
       "run_number": 2985,
@@ -46606,10 +46606,10 @@
     },
     "ly-1025-409773": {
       "id": 41004970811,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T04:48:55Z",
-      "updated_at": "2026-10-30T04:48:59Z",
+      "updated_at": "2026-10-30T04:53:39Z",
       "run_started_at": "2026-10-30T04:48:55Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41004970811",
       "run_number": 2984,
