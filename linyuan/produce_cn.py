@@ -775,6 +775,7 @@ def _asr_cache_identity(src, work=None):
             return dict(version=ASR_PIPELINE_VERSION, source_sha256=source_sha,
                 backend='qwen3', chunk_sec=30, overlap_sec=3, threads=2,
                 reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
+                word_ownership_sha256=_sha256_file(BASE/'qwen_asr_evidence.py'),
                 evidence_sha256=sorted(_sha256_file(path) for path in files),
                 model_revisions=revisions,
                 **({'recognition_context':context} if context else {}))
@@ -785,6 +786,7 @@ def _asr_cache_identity(src, work=None):
         return dict(version=ASR_PIPELINE_VERSION,source_sha256=source_sha,
             backend='qwen3',chunk_sec=30,overlap_sec=3,threads=2,
             reviewed_corrections_sha256=_sha256_file(BASE/'reviewed_asr_corrections.py'),
+            word_ownership_sha256=_sha256_file(BASE/'qwen_asr_evidence.py'),
             models={str(p.resolve()):_sha256_file(p) for p in files},
             **({'recognition_context':context} if context else {}))
     model_dir = Path(SENSEVOICE_DIR if ASR_BACKEND == "sensevoice" else FUNASR_DIR)
@@ -881,7 +883,7 @@ def release_local_text_weights_for_asr(model_id):
 def _transcribe_qwen_cpu(src,work):
     """Explicit CPU backend; no ASR API or automatic model fallback."""
     import wave
-    from qwen_asr_evidence import validated_words,load_reports,punctuated_words
+    from qwen_asr_evidence import validated_words,load_reports,punctuated_words,ownership_ranges,WORD_OWNERSHIP_VERSION
     from reviewed_asr_corrections import apply_reviewed_corrections
     video_sha=_sha256_file(src)
     selected_audio=audio_policy(video_sha)
@@ -924,10 +926,13 @@ def _transcribe_qwen_cpu(src,work):
         raise ValueError('离线转写缓存与当前识别/对齐权重版本不同')
     words=validated_words(reports,pcm_sha,video_sha,duration,
         model_id=recognition_model(choice))
+    _,ownership_changes=ownership_ranges(sorted([c for r in reports for c in r['chunks']],key=lambda c:c['core_start']))
     (work/'asr_raw_chunks.json').write_text(json.dumps(reports,ensure_ascii=False,indent=1))
     tokens=[w['text'] for w in words];times=[w['start'] for w in words]
     (work/'asr_tokens.json').write_text(json.dumps(dict(tokens=tokens,timestamps=times,
-        duration=duration,backend='qwen3',alignment='Qwen3-ForcedAligner-0.6B'),ensure_ascii=False))
+        duration=duration,backend='qwen3',alignment='Qwen3-ForcedAligner-0.6B',
+        word_ownership=dict(version=WORD_OWNERSHIP_VERSION,
+            method='shared_pause_between_agreeing_overlap_contexts',changes=ownership_changes)),ensure_ascii=False))
     timed=punctuated_words(reports,words)
     corrected,changes=(timed,[]) if automatic_only() else apply_reviewed_corrections(timed,video_sha)
     (work/'asr_reviewed_corrections.json').write_text(json.dumps(changes,ensure_ascii=False,indent=2))

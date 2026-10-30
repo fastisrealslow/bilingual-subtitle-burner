@@ -32,7 +32,7 @@ jobs:
       - name: 验证单次恢复计划与原并发、来源、库存限制
         run: |
           pip install -q -r linyuan/fc/runtime-requirements.txt pytest
-          python -m pytest -q tests/test_linyuan_verified_story_title_recovery.py
+          python -m pytest -q tests/test_linyuan_verified_story_title_recovery.py tests/test_linyuan_asr_overlap_ownership.py
       - name: 仅实际CPU与线上代码均已验证后请求正常生产
         run: python linyuan/verified_story_title_recovery.py
       - uses: actions/upload-artifact@v4
