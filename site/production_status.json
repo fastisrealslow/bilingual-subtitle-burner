@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793320540,
+  "updated_at": 1793320727,
   "inventory_updated_at": 1793320537,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 46,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793320539,
+    "updated_at": 1793320726,
     "records": 12991,
     "video_records": 10909,
-    "initial_candidates": 57,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 56,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2082,
-      "already_attempted_or_cooling": 1785,
+      "already_attempted_or_cooling": 1786,
       "speaker_unconfirmed": 7504,
       "clip_title": 1232,
       "unrelated": 67,
@@ -190,16 +190,7 @@
       "too_short": 37,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5200555018552444",
-        "title": "经典｜私募大佬林园：我们就是寄生虫，没有创造任何价值！ http://t.cn/A6sEiivO ​​​",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5200555018552444",
-        "duration_sec": 805.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 46,
@@ -215,15 +206,15 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1449,
+    "failed": 1450,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 40,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -30966,11 +30957,11 @@
     },
     {
       "slug": "ly-1029-66f467",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 音视频尾部差异不在安全修复范围：保留1026.28s，裁切12.46s",
       "signature": {
         "ts": 1793320333,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30981,6 +30972,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40980299156",
       "run_started_at": "2026-10-30T00:32:13Z",
       "run_updated_at": "2026-10-30T00:33:57Z"
+    },
+    {
+      "slug": "ly-1030-040062",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793320684,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40980907222,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40980907222",
+      "run_started_at": "2026-10-30T00:38:04Z",
+      "run_updated_at": "2026-10-30T00:38:08Z"
     }
   ],
   "runs": {
@@ -45371,6 +45380,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40980299156",
       "run_number": 2952,
       "display_title": "中文源出片 · ly-1029-66f467"
+    },
+    "ly-1030-040062": {
+      "id": 40980907222,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T00:38:04Z",
+      "updated_at": "2026-10-30T00:38:08Z",
+      "run_started_at": "2026-10-30T00:38:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40980907222",
+      "run_number": 2953,
+      "display_title": "中文源出片 · ly-1030-040062"
     },
     "ly-1030-cd299a": {
       "id": 40978357074,
