@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793344400,
+  "updated_at": 1793344585,
   "inventory_updated_at": 1793344396,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 52,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 53,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 51,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793344399,
+    "updated_at": 1793344584,
     "records": 13249,
     "video_records": 11042,
-    "initial_candidates": 112,
-    "duration_eligible_records": 53,
-    "candidate_count": 53,
-    "known_duration_candidates": 53,
+    "initial_candidates": 110,
+    "duration_eligible_records": 51,
+    "candidate_count": 51,
+    "known_duration_candidates": 51,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 7539,
+      "speaker_unconfirmed": 7535,
       "no_video": 2207,
-      "already_attempted_or_cooling": 1819,
+      "already_attempted_or_cooling": 1825,
       "clip_title": 1241,
       "unrelated": 67,
       "reference_only": 207,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5178478870921910",
-        "title": "林园：我哪能做和尚，我喜欢这个花花世界。 http://t.cn/A6e10akC ​​​",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5178478870921910",
-        "duration_sec": 448.0
-      },
-      {
-        "key": "weibo_search:5317073246622437",
-        "title": "片仔癀股东大会的用餐期间，林园表示片仔癀这两年的股价tm一坨屎[笑cry]，并表示这几年他和他母亲两人吃的片仔癀差不多有",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5317073246622437",
-        "duration_sec": 30.0
-      },
       {
         "key": "weibo_search:4691444964528085",
         "title": "稀缺视频，干货满满！\n【下集】林园2007年的采访《走进资本市场》干货满满！  http://t.cn/A6M9ymNZ",
@@ -488,6 +472,14 @@
         "duration_sec": 253.0
       },
       {
+        "key": "weibo_search:5182933686027330",
+        "title": "林园：接下来我们就投人口老龄化赛道，我说了的都是牛股，不要跟我作对。东阿阿胶最后还是好的，但是你得风险控制，不能机械式的",
+        "source": "weibo_search",
+        "author": "大川成长价值投资",
+        "url": "https://m.weibo.cn/detail/5182933686027330",
+        "duration_sec": 115.0
+      },
+      {
         "key": "weibo_search:5314526249484983",
         "title": "#昕礽果复利增长价值亿亿金# 林园总片仔癀股东大会发言202606#得中药龙头者得天下# http://t.cn/AXS",
         "source": "weibo_search",
@@ -584,14 +576,6 @@
         "duration_sec": 104.0
       },
       {
-        "key": "weibo_search:5182933686027330",
-        "title": "林园：接下来我们就投人口老龄化赛道，我说了的都是牛股，不要跟我作对。东阿阿胶最后还是好的，但是你得风险控制，不能机械式的",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5182933686027330",
-        "duration_sec": 115.0
-      },
-      {
         "key": "weibo_search:5305164944639558",
         "title": "#昕礽果复利增长价值亿亿金# 2007年中，林园总经典采访（精华版）\n\n人一生最重要的两个字是：认知。认知，是高于人生经",
         "source": "weibo_search",
@@ -639,15 +623,15 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1481,
+    "failed": 1484,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 49,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -31750,11 +31734,11 @@
     },
     {
       "slug": "ly-1030-42c704",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
       "signature": {
         "ts": 1793338365,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32164,11 +32148,11 @@
     },
     {
       "slug": "ly-1030-e433dd",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 音视频尾部差异不在安全修复范围：保留24.61s，裁切3.43s",
       "signature": {
         "ts": 1793344249,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32178,15 +32162,15 @@
       "run_id": 41018489613,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41018489613",
       "run_started_at": "2026-10-30T07:10:49Z",
-      "run_updated_at": "2026-10-30T07:10:53Z"
+      "run_updated_at": "2026-10-30T07:12:53Z"
     },
     {
       "slug": "ly-1030-74d4fc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 音视频尾部差异不在安全修复范围：保留86.75s，裁切3.42s",
       "signature": {
         "ts": 1793344256,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32197,6 +32181,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41018500239",
       "run_started_at": "2026-10-30T07:10:55Z",
       "run_updated_at": "2026-10-30T07:12:32Z"
+    },
+    {
+      "slug": "ly-1030-e1268c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793344539,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41018993010,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41018993010",
+      "run_started_at": "2026-10-30T07:15:39Z",
+      "run_updated_at": "2026-10-30T07:15:43Z"
+    },
+    {
+      "slug": "ly-1030-96acec",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793344546,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41019003459,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41019003459",
+      "run_started_at": "2026-10-30T07:15:45Z",
+      "run_updated_at": "2026-10-30T07:15:49Z"
     }
   ],
   "runs": {
@@ -47072,12 +47092,34 @@
       "run_number": 3034,
       "display_title": "中文源出片 · ly-1030-74d4fc"
     },
-    "ly-1030-e433dd": {
-      "id": 41018489613,
+    "ly-1030-96acec": {
+      "id": 41019003459,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-30T07:15:45Z",
+      "updated_at": "2026-10-30T07:15:49Z",
+      "run_started_at": "2026-10-30T07:15:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41019003459",
+      "run_number": 3036,
+      "display_title": "中文源出片 · ly-1030-96acec"
+    },
+    "ly-1030-e1268c": {
+      "id": 41018993010,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T07:15:39Z",
+      "updated_at": "2026-10-30T07:15:43Z",
+      "run_started_at": "2026-10-30T07:15:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41018993010",
+      "run_number": 3035,
+      "display_title": "中文源出片 · ly-1030-e1268c"
+    },
+    "ly-1030-e433dd": {
+      "id": 41018489613,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T07:10:49Z",
-      "updated_at": "2026-10-30T07:10:53Z",
+      "updated_at": "2026-10-30T07:12:53Z",
       "run_started_at": "2026-10-30T07:10:49Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41018489613",
       "run_number": 3033,
