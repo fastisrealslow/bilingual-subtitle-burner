@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793329418,
+  "updated_at": 1793329653,
   "inventory_updated_at": 1793329416,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 50,
-    "active_or_recovering_sources": 11,
+    "active_or_recovering_sources": 12,
     "waiting_candidates": 20,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793329418,
+    "updated_at": 1793329653,
     "records": 13162,
     "video_records": 10959,
     "initial_candidates": 77,
@@ -375,14 +375,14 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1453,
+    "failed": 1452,
     "paused": 5,
     "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 45,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 7,
+    "retry_queued": 8,
     "running": 4
   },
   "tasks": [
@@ -30009,24 +30009,6 @@
       "run_updated_at": "2026-10-29T03:36:45Z"
     },
     {
-      "slug": "ly-1029-abbdf5",
-      "status": "failed",
-      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-      "signature": {
-        "ts": 1793245917,
-        "failed": true,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": null,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 40814524810,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40814524810",
-      "run_started_at": "2026-10-29T03:51:57Z",
-      "run_updated_at": "2026-10-29T03:55:45Z"
-    },
-    {
       "slug": "ly-story-77352bfc47",
       "status": "experiment_fallback",
       "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
@@ -31411,6 +31393,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40828551378",
       "run_started_at": "2026-10-29T06:19:54Z",
       "run_updated_at": "2026-10-29T06:30:18Z"
+    },
+    {
+      "slug": "ly-1029-abbdf5",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1793329594,
+        "failed": false,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1793329593,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40814524810,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40814524810",
+      "run_started_at": "2026-10-29T03:51:57Z",
+      "run_updated_at": "2026-10-29T03:55:45Z"
     }
   ],
   "runs": {
