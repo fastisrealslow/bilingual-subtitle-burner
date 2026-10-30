@@ -57842,7 +57842,76 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-03-25T13:01:54+08:00"
+   "publish_time": "2025-03-25T13:01:54+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-75ad39",
+    "run_id": 40987725369,
+    "artifact_id": 12951093224,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "5c86e1a76312a159acf7234ca211f2df84b953fdfa785301a17e75d2208f2c2d",
+     "duration_sec": 1242.45,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5148069651023066"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40987725369,
+    "artifact_id": 12951093224,
+    "name": "production-reject-ly-1030-75ad39",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4992258053768194",
@@ -57943,7 +58012,8 @@
    },
    "last_error": "清理后预计短边 462 < 480",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4634856468514658",
@@ -145232,6 +145302,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/kfj9Dnf6lx08aAYVHqA80104120aAbPG0E040.mp4",
    "ts": 1793328124,
    "error": "清理后预计短边 462 < 480"
+  },
+  {
+   "slug": "ly-1030-75ad39",
+   "key": "weibo_search:5148069651023066",
+   "video_id": "https://f.video.weibocdn.com/o0/NAjKYOnmlx08mWSO1xPi01041205hZgG0E020.mp4",
+   "ts": 1793330804,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
