@@ -66509,7 +66509,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-04-25T18:38:58+08:00"
+   "publish_time": "2026-04-25T18:38:58+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-280191",
+    "run_id": 41143554226,
+    "artifact_id": 13019574447,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ce6553dba634e87db704c8749cc2c5d7f8a9c35321021b492bd5ef378595a784",
+     "duration_sec": 61.7,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5291660070358685"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41143554226,
+    "artifact_id": 13019574447,
+    "name": "production-reject-ly-1030-280191",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1sjxv6zEne",
@@ -154787,6 +154820,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/4makAvnMlx08BZ7XaG7S010412014zeJ0E010.mp4",
    "ts": 1793401465,
    "error": "整段取景预检：源 82.27s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1030-280191",
+   "key": "weibo_search:5291660070358685",
+   "video_id": "http://f.video.weibocdn.com/o0/aP7BScftlx08x8SFBs5a01041200faCY0E010.mp4",
+   "ts": 1793402833,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
