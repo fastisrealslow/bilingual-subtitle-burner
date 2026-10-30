@@ -59918,7 +59918,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5315997926952710",
@@ -59951,7 +59952,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.166, 2: 0.1707, 3: 0.1676, 4: 0.2458, 5: 0.2039, 6: 0.1416, 7: 0.1879, 8: 0.1814, 9: 0.1933, 10: 0.2613, 11: 0.2632, 12: 0.1534, 13: 0.2578, 14: 0.1246, 15: 0.2085, 16: 0.1253, 17: 0.205, 18: 0.1394}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5320912677372130",
@@ -59974,7 +59976,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-15T11:58:22+08:00"
+   "publish_time": "2026-07-15T11:58:22+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-c68d4a",
+    "run_id": 41015583312,
+    "artifact_id": 12960255374,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "5373925ca395670af94738646a57598cc1b3b5fa8451b708861feb0f8036ca1b",
+     "duration_sec": 125.67,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5320912677372130"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41015583312,
+    "artifact_id": 12960255374,
+    "name": "production-reject-ly-1030-c68d4a",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4975304808341006",
@@ -60020,7 +60055,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-04T19:04:06+08:00"
+   "publish_time": "2023-12-04T19:04:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-1b48d2",
+    "run_id": 41015998751,
+    "artifact_id": 12959773125,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f8ddb556830a71c11208022720675f8f079032ac9a45a3817052533004fb41ac",
+     "duration_sec": 157.13,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4975301788700049"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41015998751,
+    "artifact_id": 12959773125,
+    "name": "production-reject-ly-1030-1b48d2",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -146913,6 +146981,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/PN7wDuBWlx07UxCSmVlu0104120bbwIN0E040.mp4",
    "ts": 1793342705,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1030-1b48d2",
+   "key": "weibo_search:4975301788700049",
+   "video_id": "https://f.video.weibocdn.com/o0/9paE0Ihvlx08aGsNRXA401041201kDqc0E010.mp4",
+   "ts": 1793343345,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1030-c68d4a",
+   "key": "weibo_search:5320912677372130",
+   "video_id": "https://f.video.weibocdn.com/o0/BdtAkzValx08zdDi6iQU01041200kWmb0E010.mp4",
+   "ts": 1793343346,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
