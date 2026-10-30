@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793343303,
+  "updated_at": 1793343426,
   "inventory_updated_at": 1793343299,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 52,
     "active_or_recovering_sources": 8,
-    "waiting_candidates": 60,
+    "waiting_candidates": 58,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793343302,
+    "updated_at": 1793343424,
     "records": 13249,
     "video_records": 11042,
-    "initial_candidates": 119,
-    "duration_eligible_records": 60,
-    "candidate_count": 60,
-    "known_duration_candidates": 60,
+    "initial_candidates": 117,
+    "duration_eligible_records": 58,
+    "candidate_count": 58,
+    "known_duration_candidates": 58,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7539,
       "no_video": 2207,
-      "already_attempted_or_cooling": 1812,
+      "already_attempted_or_cooling": 1814,
       "clip_title": 1241,
       "unrelated": 67,
       "reference_only": 207,
@@ -199,30 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5343930074006222",
-        "title": "【#林园称科技股长期看100%风险#，能长期站稳脚跟的公司少得可怜】 近日林园投资董事长林园在接受专访时，对于科技股，林",
-        "source": "weibo_search",
-        "author": "会计员小波",
-        "url": "https://m.weibo.cn/detail/5343930074006222",
-        "duration_sec": 27.0
-      },
-      {
-        "key": "weibo_search:5335482952323832",
-        "title": "【#林园称科技股长期看100%风险#，能长期站稳脚跟的公司少得可怜】\n\n近日林园投资董事长林园在接受专访时，对于科技股，",
-        "source": "weibo_search",
-        "author": "中访网微博",
-        "url": "https://m.weibo.cn/detail/5335482952323832",
-        "duration_sec": 27.0
-      },
-      {
-        "key": "weibo_search:5162483761546237",
-        "title": "【#林园称A股现在是牛市的起点#，#林园称3000点就是A股的底#】\n\n林园投资董事长林园在接受第一财经专访时表示，A股",
-        "source": "weibo_search",
-        "author": "中访网微博",
-        "url": "https://m.weibo.cn/detail/5162483761546237",
-        "duration_sec": 99.0
-      },
       {
         "key": "weibo_search:4981399392354419",
         "title": "【林园谈市场：我持续买入 满仓操作 现在这个时候甚至不考虑风险】新浪财经2023医药与资本论坛12月21日（周四）北京召",
@@ -349,6 +325,14 @@
         "source": "weibo_search",
         "author": "AI未来引擎",
         "url": "https://m.weibo.cn/detail/5162491790755821",
+        "duration_sec": 99.0
+      },
+      {
+        "key": "weibo_search:5162483761546237",
+        "title": "【#林园称A股现在是牛市的起点#，#林园称3000点就是A股的底#】\n\n林园投资董事长林园在接受第一财经专访时表示，A股",
+        "source": "weibo_search",
+        "author": "中访网微博",
+        "url": "https://m.weibo.cn/detail/5162483761546237",
         "duration_sec": 99.0
       },
       {
@@ -695,15 +679,15 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1474,
+    "failed": 1476,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 24,
     "experiment_fallback": 49,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 4,
-    "running": 4
+    "retry_queued": 3,
+    "running": 5
   },
   "tasks": [
     {
@@ -31967,24 +31951,6 @@
       "run_updated_at": "2026-10-30T06:12:47Z"
     },
     {
-      "slug": "ly-1030-b14e3a",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793340867,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793342904,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41012920747,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41012920747",
-      "run_started_at": "2026-10-30T06:14:27Z",
-      "run_updated_at": "2026-10-30T06:16:19Z"
-    },
-    {
       "slug": "ly-1030-dce0d7",
       "status": "failed",
       "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
@@ -32112,11 +32078,11 @@
     },
     {
       "slug": "ly-1030-c68d4a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景连续2.03秒缺少人脸",
       "signature": {
         "ts": 1793342506,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32130,8 +32096,8 @@
     },
     {
       "slug": "ly-1030-70d2c2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793342749,
         "failed": null,
@@ -32144,15 +32110,15 @@
       "run_id": 41015987301,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41015987301",
       "run_started_at": "2026-10-30T06:45:49Z",
-      "run_updated_at": "2026-10-30T06:45:53Z"
+      "run_updated_at": "2026-10-30T06:55:48Z"
     },
     {
       "slug": "ly-1030-1b48d2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793342756,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32163,6 +32129,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41015998751",
       "run_started_at": "2026-10-30T06:45:56Z",
       "run_updated_at": "2026-10-30T06:54:12Z"
+    },
+    {
+      "slug": "ly-1030-b14e3a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793343381,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41017022320,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017022320",
+      "run_started_at": "2026-10-30T06:56:21Z",
+      "run_updated_at": "2026-10-30T06:56:25Z"
+    },
+    {
+      "slug": "ly-1030-6d90e7",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793343387,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41017031623,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017031623",
+      "run_started_at": "2026-10-30T06:56:27Z",
+      "run_updated_at": "2026-10-30T06:56:30Z"
     }
   ],
   "runs": {
@@ -46885,14 +46887,14 @@
       "display_title": "中文源出片 · ly-1030-b3ca14"
     },
     "ly-1030-b14e3a": {
-      "id": 41012920747,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T06:14:27Z",
-      "updated_at": "2026-10-30T06:16:19Z",
-      "run_started_at": "2026-10-30T06:14:27Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41012920747",
-      "run_number": 3016,
+      "id": 41017022320,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T06:56:21Z",
+      "updated_at": "2026-10-30T06:56:25Z",
+      "run_started_at": "2026-10-30T06:56:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017022320",
+      "run_number": 3027,
       "display_title": "中文源出片 · ly-1030-b14e3a"
     },
     "ly-1030-dce0d7": {
@@ -46983,17 +46985,6 @@
       "run_number": 3026,
       "display_title": "中文源出片 · ly-1030-1b48d2"
     },
-    "ly-1030-70d2c2": {
-      "id": 41015987301,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-30T06:45:49Z",
-      "updated_at": "2026-10-30T06:45:53Z",
-      "run_started_at": "2026-10-30T06:45:49Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41015987301",
-      "run_number": 3025,
-      "display_title": "中文源出片 · ly-1030-70d2c2"
-    },
     "ly-1030-c68d4a": {
       "id": 41015583312,
       "status": "completed",
@@ -47004,6 +46995,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41015583312",
       "run_number": 3024,
       "display_title": "中文源出片 · ly-1030-c68d4a"
+    },
+    "ly-1030-6d90e7": {
+      "id": 41017031623,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T06:56:27Z",
+      "updated_at": "2026-10-30T06:56:30Z",
+      "run_started_at": "2026-10-30T06:56:27Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017031623",
+      "run_number": 3028,
+      "display_title": "中文源出片 · ly-1030-6d90e7"
+    },
+    "ly-1030-70d2c2": {
+      "id": 41015987301,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-30T06:45:49Z",
+      "updated_at": "2026-10-30T06:55:48Z",
+      "run_started_at": "2026-10-30T06:45:49Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41015987301",
+      "run_number": 3025,
+      "display_title": "中文源出片 · ly-1030-70d2c2"
     },
     "ly-1030-f1cbd2": {
       "id": 41013379018,
