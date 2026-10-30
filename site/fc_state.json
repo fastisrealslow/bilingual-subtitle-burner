@@ -58012,7 +58012,43 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-12-26T16:28:53+08:00"
+   "publish_time": "2025-12-26T16:28:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1029-137e92",
+    "run_id": 40975622065,
+    "artifact_id": 12945372499,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c7f02f22c3972633856f8c1da9f4de79e092c706df75bc5bdf207dd710b1bbed",
+     "duration_sec": 2237.55,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5248140789681545"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "观点审核服务未提供可对照的实际原文证据：本地文本推理未完成：qwen3.5:9b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2134.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段仅包含个人身世叙述与主持人开场寒暄，缺乏可独立成片的观点表达或完整论述逻辑。；原文问题：[]"
+     }
+    ]
+   },
+   "source_check_report_id": 12945372499,
+   "source_check_run_id": 40975622065,
+   "last_error": "观点审核服务未提供可对照的实际原文证据：本地文本推理未完成：qwen3.5:9b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793322675
   },
   {
    "key": "weibo_search:5304201116649530",
@@ -58187,7 +58223,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5200555018552444",
