@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793363993,
+  "updated_at": 1793364105,
   "inventory_updated_at": 1793363990,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 39,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 38,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793363992,
+    "updated_at": 1793364105,
     "records": 13391,
     "video_records": 11170,
-    "initial_candidates": 101,
-    "duration_eligible_records": 39,
-    "candidate_count": 39,
-    "known_duration_candidates": 39,
+    "initial_candidates": 100,
+    "duration_eligible_records": 38,
+    "candidate_count": 38,
+    "known_duration_candidates": 38,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 7595,
+      "speaker_unconfirmed": 7590,
       "no_video": 2221,
-      "already_attempted_or_cooling": 1892,
+      "already_attempted_or_cooling": 1898,
       "clip_title": 1247,
       "unrelated": 71,
       "reference_only": 207,
@@ -376,14 +376,6 @@
         "duration_sec": 104.0
       },
       {
-        "key": "weibo_search:4982168537534052",
-        "title": "2014年11月27日，林园第一财经《解码财商》演讲，说了五大选股秘籍。",
-        "source": "weibo_search",
-        "author": "月有卅",
-        "url": "https://m.weibo.cn/detail/4982168537534052",
-        "duration_sec": 1324.0
-      },
-      {
         "key": "weibo_search:4818058671818195",
         "title": "这是十年前，2012年6月24日林园接受《中国经营者》节目采访时的视频，这一期在所有林园视频里都堪称经典！干货满满，主持",
         "source": "weibo_search",
@@ -527,15 +519,15 @@
   },
   "counts": {
     "complete": 162,
-    "failed": 1518,
+    "failed": 1521,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 54,
     "ready": 15,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -32682,11 +32674,11 @@
     },
     {
       "slug": "ly-1030-c42a8b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793362721,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32772,11 +32764,11 @@
     },
     {
       "slug": "ly-1030-e3ebca",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[2, 5]，scan_same=[9, 12, 17]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 18]，confidence=0.99，reason=CPU SFace逐帧比对；匹配3/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1371, 2: 0.0372, 3: 0.1819, 4: 0.1306, 5: 0.1152, 6: 0.0279, 7: 0.1507, 8: 0.1214, 9: 0.6861, 10: 0.1651, 11: 0.1872, 12: 0.537, 13: 0.0672, 14: 0.2184, 15: 0.0846, 16: 0.0954, 17: 0.6992, 18: 0.0161}",
       "signature": {
         "ts": 1793363490,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32790,11 +32782,11 @@
     },
     {
       "slug": "ly-1030-af8cda",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1793363498,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32841,6 +32833,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41056754644",
       "run_started_at": "2026-10-30T12:37:35Z",
       "run_updated_at": "2026-10-30T12:37:41Z"
+    },
+    {
+      "slug": "ly-1030-9b861c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793364065,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41057193137,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41057193137",
+      "run_started_at": "2026-10-30T12:41:05Z",
+      "run_updated_at": "2026-10-30T12:41:25Z"
     }
   ],
   "runs": {
@@ -48188,6 +48198,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41054377899",
       "run_number": 3074,
       "display_title": "中文源出片 · ly-1030-c42a8b"
+    },
+    "ly-1030-9b861c": {
+      "id": 41057193137,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T12:41:05Z",
+      "updated_at": "2026-10-30T12:41:25Z",
+      "run_started_at": "2026-10-30T12:41:05Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41057193137",
+      "run_number": 3083,
+      "display_title": "中文源出片 · ly-1030-9b861c"
     },
     "ly-1030-7bcf3a": {
       "id": 41056754644,
