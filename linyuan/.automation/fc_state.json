@@ -60719,7 +60719,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-04T23:42:02+08:00"
+   "publish_time": "2026-01-04T23:42:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-b56266",
+    "run_id": 41019720513,
+    "artifact_id": 12963399585,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3f3de80b1a9e471f93e6a81ad32e47e8fbb82bba86849b9221b18097ee47305e",
+     "duration_sec": 1649.15,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5251511286237869"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1181/2789，总帧数8038；身份匹配但人脸短边不足96px的帧数1"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41019720513,
+    "artifact_id": 12963399585,
+    "name": "production-reject-ly-1030-b56266",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4775773242130548",
@@ -60742,7 +60791,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-02T04:48:53+08:00"
+   "publish_time": "2022-06-02T04:48:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-f1da5e",
+    "run_id": 41020123331,
+    "artifact_id": 12963574553,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "909e2b0deaceb3d895cc6e4a18466ae7b580f79803a6ce170b568bed9ec78641",
+     "duration_sec": 1649.31,
+     "resolution": {
+      "width": 640,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4775773242130548"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/387，总帧数751；身份匹配但人脸短边不足96px的帧数37"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答以‘而目前我们知道……'转折，直接陈述外部事实（巴菲特持仓及行业现状），未回应开头关于‘像林园这么乐观的人是否很少’的核心提问，导致观点表达不完整。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配274/1882，总帧数8035；身份匹配但人脸短边不足96px的帧数776"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41020123331,
+    "artifact_id": 12963574553,
+    "name": "production-reject-ly-1030-f1da5e",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/387，总帧数751；身份匹配但人脸短边不足96px的帧数37",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5246231743824952",
@@ -148593,6 +148691,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/2zgDhRS3gx07VQgUGbTW01041202qLBc0E010.mp4",
    "ts": 1793348128,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1030-f1da5e",
+   "key": "weibo_search:4775773242130548",
+   "video_id": "https://f.video.weibocdn.com/e8u2Jtv2lx07KbDXdbBK01041204yPkS0E020.mp4",
+   "ts": 1793349456,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配236/387，总帧数751；身份匹配但人脸短边不足96px的帧数37"
+  },
+  {
+   "slug": "ly-1030-b56266",
+   "key": "weibo_search:5251511286237869",
+   "video_id": "https://f.video.weibocdn.com/o0/tkBTpviZlx08uiaLw6ha01041206P3XL0E030.mp4",
+   "ts": 1793349456,
+   "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
   }
  ],
  "reviewed_third_video_0910": {
