@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793354637,
+  "updated_at": 1793354784,
   "inventory_updated_at": 1793354632,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 52,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 58,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 56,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793354635,
+    "updated_at": 1793354783,
     "records": 13391,
     "video_records": 11170,
-    "initial_candidates": 120,
-    "duration_eligible_records": 58,
-    "candidate_count": 58,
-    "known_duration_candidates": 58,
+    "initial_candidates": 118,
+    "duration_eligible_records": 56,
+    "candidate_count": 56,
+    "known_duration_candidates": 56,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7596,
       "no_video": 2221,
-      "already_attempted_or_cooling": 1872,
+      "already_attempted_or_cooling": 1874,
       "clip_title": 1247,
       "unrelated": 71,
       "reference_only": 207,
@@ -208,36 +208,12 @@
         "duration_sec": 624.0
       },
       {
-        "key": "weibo_search:5040124215689454",
-        "title": "2014年解码财商，林园谈“我的选股秘籍”，非常经典的一次演讲对话。此时白酒行业还在经受限制三公消费和塑化剂风波的不利影",
-        "source": "weibo_search",
-        "author": "Desmond的乐园",
-        "url": "https://m.weibo.cn/detail/5040124215689454",
-        "duration_sec": 1393.0
-      },
-      {
-        "key": "weibo_search:5357677233570064",
-        "title": "天玉朋友圈对话林园：老龄化背景下，看好慢病相关垄断独家中药，看淡创新药。",
-        "source": "weibo_search",
-        "author": "Desmond的乐园",
-        "url": "https://m.weibo.cn/detail/5357677233570064",
-        "duration_sec": 231.0
-      },
-      {
         "key": "weibo_search:5290247841906965",
         "title": "林园早期央视采访，2007年公布持仓近亿元，2012年采访时称自己大举建仓贵州茅台，06年成立私募基金，管理市值200亿",
         "source": "weibo_search",
         "author": "琥珀柏林",
         "url": "https://m.weibo.cn/detail/5290247841906965",
         "duration_sec": 456.0
-      },
-      {
-        "key": "weibo_search:5053649466426404",
-        "title": "#淘说说# 【林园：怎样与熊市共舞】\n\n时间回到历史追溯到2012年，那个大起大落的市场。\n\n也曾强调自己的理念：\n\n1",
-        "source": "weibo_search",
-        "author": "淘股吧官方微博",
-        "url": "https://m.weibo.cn/detail/5053649466426404",
-        "duration_sec": 1242.0
       },
       {
         "key": "weibo_search:5242409451521692",
@@ -317,6 +293,14 @@
         "source": "weibo_search",
         "author": "云岗山人",
         "url": "https://m.weibo.cn/detail/5357826044330320",
+        "duration_sec": 231.0
+      },
+      {
+        "key": "weibo_search:5357677233570064",
+        "title": "天玉朋友圈对话林园：老龄化背景下，看好慢病相关垄断独家中药，看淡创新药。",
+        "source": "weibo_search",
+        "author": "Desmond的乐园",
+        "url": "https://m.weibo.cn/detail/5357677233570064",
         "duration_sec": 231.0
       },
       {
@@ -679,7 +663,7 @@
   },
   "counts": {
     "complete": 162,
-    "failed": 1506,
+    "failed": 1507,
     "paused": 5,
     "interrupted": 7,
     "excluded": 24,
@@ -687,7 +671,7 @@
     "ready": 15,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -32438,11 +32422,11 @@
     },
     {
       "slug": "ly-story-7c05e70443",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
       "signature": {
         "ts": 1793349491,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32636,8 +32620,8 @@
     },
     {
       "slug": "ly-1030-f1cbd2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793353619,
         "failed": null,
@@ -32650,7 +32634,43 @@
       "run_id": 41035930931,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41035930931",
       "run_started_at": "2026-10-30T09:46:59Z",
-      "run_updated_at": "2026-10-30T09:47:03Z"
+      "run_updated_at": "2026-10-30T10:05:18Z"
+    },
+    {
+      "slug": "ly-1030-5a8a16",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793354733,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41038174494,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41038174494",
+      "run_started_at": "2026-10-30T10:05:33Z",
+      "run_updated_at": "2026-10-30T10:05:37Z"
+    },
+    {
+      "slug": "ly-1030-8c6fef",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793354742,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41038192054,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41038192054",
+      "run_started_at": "2026-10-30T10:05:41Z",
+      "run_updated_at": "2026-10-30T10:05:45Z"
     }
   ],
   "runs": {
@@ -47790,12 +47810,45 @@
       "run_number": 3060,
       "display_title": "中文源出片 · ly-1030-6315cf"
     },
-    "ly-1030-f1cbd2": {
-      "id": 41035930931,
+    "ly-story-7c05e70443": {
+      "id": 41027776629,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-30T08:38:11Z",
+      "updated_at": "2026-10-30T10:01:53Z",
+      "run_started_at": "2026-10-30T08:38:11Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41027776629",
+      "run_number": 3050,
+      "display_title": "中文源出片 · ly-story-7c05e70443"
+    },
+    "ly-1030-8c6fef": {
+      "id": 41038192054,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-30T10:05:41Z",
+      "updated_at": "2026-10-30T10:05:45Z",
+      "run_started_at": "2026-10-30T10:05:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41038192054",
+      "run_number": 3063,
+      "display_title": "中文源出片 · ly-1030-8c6fef"
+    },
+    "ly-1030-5a8a16": {
+      "id": 41038174494,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T10:05:33Z",
+      "updated_at": "2026-10-30T10:05:37Z",
+      "run_started_at": "2026-10-30T10:05:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41038174494",
+      "run_number": 3062,
+      "display_title": "中文源出片 · ly-1030-5a8a16"
+    },
+    "ly-1030-f1cbd2": {
+      "id": 41035930931,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T09:46:59Z",
-      "updated_at": "2026-10-30T09:47:03Z",
+      "updated_at": "2026-10-30T10:05:18Z",
       "run_started_at": "2026-10-30T09:46:59Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41035930931",
       "run_number": 3061,
@@ -47822,17 +47875,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41029208634",
       "run_number": 3058,
       "display_title": "中文源出片 · ly-1030-95991a"
-    },
-    "ly-story-7c05e70443": {
-      "id": 41027776629,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T08:38:11Z",
-      "updated_at": "2026-10-30T10:01:53Z",
-      "run_started_at": "2026-10-30T08:38:11Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41027776629",
-      "run_number": 3050,
-      "display_title": "中文源出片 · ly-story-7c05e70443"
     }
   }
 }
