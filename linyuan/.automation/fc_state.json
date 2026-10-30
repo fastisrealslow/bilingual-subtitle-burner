@@ -62220,7 +62220,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5212244340376370",
@@ -62266,7 +62267,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-03-22T16:45:27+08:00"
+   "publish_time": "2025-03-22T16:45:27+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-ff4b63",
+    "run_id": 41047551598,
+    "artifact_id": 12975991287,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "aec240cee6a922aebe508fcac8ae24c0c02e75020e3418e949cf623133fab2af",
+     "duration_sec": 1393.08,
+     "resolution": {
+      "width": 960,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5147038750343464"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配370/948，总帧数2885；身份匹配但人脸短边不足96px的帧数219"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配313/537，总帧数1118；身份匹配但人脸短边不足96px的帧数152"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/128，总帧数636；身份匹配但人脸短边不足96px的帧数128"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在主持人提问后，未对‘为什么选择此时点’或‘股市位置高不高’等核心问题给出任何回答、判断或解释，而是直接进行串场介绍他人。根据门禁规则，缺少观点证据且理由论述被切断（从回答转向介绍），属于‘必要论述被切断’及‘未回答的新问题结尾’的情况，无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41047551598,
+    "artifact_id": 12975991287,
+    "name": "production-reject-ly-1030-ff4b63",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配370/948，总帧数2885；身份匹配但人脸短边不足96px的帧数219",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/f2fCQ0iKlx08tE6UdZQc01041206a8qm0E030.mp4",
@@ -149924,6 +149978,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/CIJd9x5jgx08rB7LpOTu01041205A8KN0E020.mp4",
    "ts": 1793362244,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1030-ff4b63",
+   "key": "weibo_search:5147038750343464",
+   "video_id": "https://f.video.weibocdn.com/u0/trD66vp1gx08mSlumQpW01041205WNYr0E030.mp4",
+   "ts": 1793362466,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配370/948，总帧数2885；身份匹配但人脸短边不足96px的帧数219"
   }
  ],
  "reviewed_third_video_0910": {
