@@ -16,7 +16,12 @@ from seed_scan import rotating_batch
 from source_catalogue_duration import eligible_duration
 
 TARGET = 5000
-WEIBO_LIMIT = 4
+WEIBO_LIMIT = 16
+WEIBO_RECHECK_SECONDS = 86400
+
+
+def lead_signature(lead):
+    return hashlib.sha256(json.dumps(lead, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
 
 
 class SeedMetadataRejected(ValueError):
@@ -131,8 +136,13 @@ def grow_weibo(base=BASE, *, target=TARGET, limit=WEIBO_LIMIT, session=None):
             extra = json.loads(encoded or '{}')
             if str(extra.get('mid')) in ids and extra.get('video_url'):
                 seen_media.add(video_path_hash(extra['video_url']))
-    leads = weibo_leads(base)
-    report['discovery_leads'] = len(leads)
+    discovered = weibo_leads(base)
+    attempts = state.setdefault('weibo_attempts', {})
+    leads = [lead for lead in discovered if not (
+        attempts.get(lead['mid'], {}).get('signature') == lead_signature(lead)
+        and attempts[lead['mid']].get('next_check_at', 0) > now)]
+    report.update(discovery_leads=len(discovered), eligible_checks=len(leads),
+                  deferred_checks=len(discovered)-len(leads), exact_checks=0)
     if not leads:
         return report
     try:
@@ -145,20 +155,27 @@ def grow_weibo(base=BASE, *, target=TARGET, limit=WEIBO_LIMIT, session=None):
     deadline = time.monotonic() + 90
     for lead in rotating_batch('weibo_parents', leads, path, min(WEIBO_LIMIT, max(1, limit)),
                                key=lambda r: r['mid'], state=state):
+        if report['exact_checks']:
+            time.sleep(1)
         if time.monotonic() >= deadline or census(base)['total'] >= target:
             break
+        report['exact_checks'] += 1
         try:
             row = verify_weibo(lead, request, xsrf)
             if (row['mid'] in ids or row['source_parent_id'] in parent_ids
                     or row['video_identity_sha256'] in seen_media):
                 report.setdefault('duplicate_video_count', 0)
                 report['duplicate_video_count'] += 1
+                attempts[lead['mid']] = dict(signature=lead_signature(lead),
+                    next_check_at=time.time()+WEIBO_RECHECK_SECONDS, outcome='duplicate_video')
+                write_json(path, state)
                 continue
             data['urls'].append(row['url'])
             evidence.append(row)
             ids.add(row['mid']); parent_ids.add(row['source_parent_id'])
             seen_media.add(row['video_identity_sha256'])
             data['updated_at'] = datetime.now(timezone.utc).date().isoformat()
+            attempts.pop(lead['mid'], None)
             # Checkpoint actual verified identities before proceeding. A timeout
             # or failure in one provider cannot erase another provider's work.
             write_json(base / 'weibo_seeds.json', data)
@@ -169,11 +186,13 @@ def grow_weibo(base=BASE, *, target=TARGET, limit=WEIBO_LIMIT, session=None):
             report['errors'].append(dict(stage='exact_video', mid=lead['mid'], error=type(exc).__name__,
                                          **({'checks': exc.checks} if isinstance(exc, SeedMetadataRejected) else {}),
                                          **({'http_status': code} if type(code) is int else {})))
-            if code in {403, 412, 429} or not isinstance(exc, ValueError):
+            if code in {401, 403, 412, 429} or not isinstance(exc, ValueError):
                 state['weibo_cooldown_until'] = time.time() + 3600
                 write_json(path, state)
                 break
-        time.sleep(.5)
+            attempts[lead['mid']] = dict(signature=lead_signature(lead),
+                next_check_at=time.time()+WEIBO_RECHECK_SECONDS, outcome='metadata_not_verified')
+            write_json(path, state)
     report['after'] = census(base)['total']
     return report
 

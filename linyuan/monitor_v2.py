@@ -783,6 +783,23 @@ class WeiboSearchSource(Source):
     SIGNAL = re.compile(r"投资|股|市值|仓|私募|基金|财经|估值|分红|茅台|片仔癉|"
                         r"价值|巴菲特|毛利|企业|消费|医药|中药|A股|牛市|买入|持有")
 
+    def _provider_state_path(self):
+        scan=self.config.get('_seed_scan_path')
+        return (Path(scan).parent if scan else Path(__file__).parent/'.automation')/'seed_pool_growth_scan.json'
+
+    def can_fetch(self):
+        path=self._provider_state_path()
+        state=json.loads(path.read_text()) if path.exists() else {}
+        return state.get('weibo_cooldown_until',0)<=time.time() and super().can_fetch()
+
+    def _record_provider_restriction(self, exc):
+        if getattr(exc,'code',None) not in {401,403,412,429}:return
+        from batch_delivery import write_json
+        path=self._provider_state_path()
+        state=json.loads(path.read_text()) if path.exists() else {}
+        state['weibo_cooldown_until']=time.time()+3600
+        write_json(path,state)
+
     def _visitor_session(self):
         """换取微博访客票据，返回（opener, xsrf_token）。"""
         import http.cookiejar
@@ -838,14 +855,17 @@ class WeiboSearchSource(Source):
         recent=(pages+1)//2
         yield keyword,range(1,recent+1)
         from seed_scan import rotating_batch
-        for query in rotating_batch('weibo_archive_queries',archives,self.config.get('_seed_scan_path'),
-                                    1,state=self.scan_state):
+        archive_pages=pages-recent
+        query_count=max(1,min(archive_pages,len(archives),int(self.config.get('archive_queries_per_run',1))))
+        for index,query in enumerate(rotating_batch('weibo_archive_queries',archives,self.config.get('_seed_scan_path'),
+                                    query_count,state=self.scan_state)):
+            allocated=archive_pages//query_count+(index<archive_pages%query_count)
             cursors=self.scan_state.setdefault('weibo_archive_pages',{})
             first=cursors.get(query,1)
-            if type(first) is not int or not 1<=first<=19:
+            if type(first) is not int or not 1<=first<=20:
                 raise ValueError('Invalid bounded archive page cursor')
-            end=min(21,first+pages-recent)
-            cursors[query]=end if end<=19 else 1
+            end=min(21,first+allocated)
+            cursors[query]=end if end<=20 else 1
             path=self.config.get('_seed_scan_path')
             if path:
                 from batch_delivery import write_json
@@ -867,6 +887,7 @@ class WeiboSearchSource(Source):
                 try:
                     data=json.loads(rq(url,headers))
                 except Exception as exc:
+                    self._record_provider_restriction(exc)
                     if not statuses:raise
                     # Keep already-observed recent rows, but stop this provider
                     # on an outage rather than try more queries/endpoints.
@@ -994,6 +1015,8 @@ class WeiboVideoSource(WeiboSearchSource):
                 self.partial_items = video_rows()
             except Exception as exc:
                 print(f'[{self.name}] {mid} 暂不可取：{type(exc).__name__}',file=sys.stderr)
+                self._record_provider_restriction(exc)
+                if getattr(exc,'code',None) in {401,403,412,429}:break
         return video_rows()
 
 
@@ -2259,6 +2282,8 @@ def _run_source(source_cls, config, state, page):
             return src.partial_items
         except Exception as e:
             print(f"[{src.name}] 抓取失败 (attempt {attempt+1}/3): {e}", file=sys.stderr)
+            if isinstance(src,WeiboSearchSource) and not src.can_fetch():
+                return src.partial_items
             if attempt < 2:
                 src.backoff(attempt)
     return []

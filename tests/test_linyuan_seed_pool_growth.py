@@ -125,13 +125,43 @@ def test_no_discovery_requests_when_target_is_met_or_only_a_research_hold_exists
     assert G.grow_weibo(base,session=forbidden)['discovery_leads']==0
 
 
-def test_bounded_batch_remains_four_metadata_checks_not_source_jobs(base):
+def test_bounded_batch_checks_sixteen_independent_identities_not_source_jobs(base):
     rows={}
-    for i in range(8):
+    for i in range(20):
         mid=str(int(MID)+i);lead(base,mid)
         row=status();row['mid']=mid
         row['page_info']['object_id']='1034:'+mid
         row['page_info']['media_info']['stream_url_hd']=f'https://cdn.example.com/{mid}.mp4'
         rows[mid]=row
     r=G.grow_weibo(base,limit=100,session=session(rows))
-    assert r['added_count']==4 and len(json.loads((base/'weibo_seeds.json').read_text())['urls'])==4
+    assert r['added_count']==r['exact_checks']==16
+    assert len(json.loads((base/'weibo_seeds.json').read_text())['urls'])==16
+
+
+def test_rejected_metadata_is_deferred_but_a_changed_lead_can_be_rechecked(base):
+    lead(base)
+    row=status();row['page_info']={}
+    assert G.grow_weibo(base,session=session({MID:row}))['exact_checks']==1
+    def forbidden():raise AssertionError('Do not repeatedly request unchanged rejected metadata')
+    report=G.grow_weibo(base,session=forbidden)
+    assert report['deferred_checks']==1 and report['exact_checks']==0
+    with sqlite3.connect(base/'monitor_v2.db') as c:
+        c.execute('UPDATE items SET title=?',('林园完整访谈：新视频信息',))
+    assert G.grow_weibo(base,session=session({MID:status()}))['added_count']==1
+
+
+def test_duplicate_video_is_not_requested_again_in_the_next_batch(base):
+    second=str(int(MID)+1);lead(base);lead(base,second)
+    report=G.grow_weibo(base,session=session({MID:status(),second:{**status(),'mid':second}}))
+    assert report['added_count']==1 and report['duplicate_video_count']==1
+    def forbidden():raise AssertionError('The same video identity is already known')
+    report=G.grow_weibo(base,session=forbidden)
+    assert report['exact_checks']==0 and report['deferred_checks']==1
+
+
+def test_target_and_monotonic_deadline_still_bound_the_larger_batch(base,monkeypatch):
+    for i in range(3):lead(base,str(int(MID)+i))
+    ticks=iter([0,91])
+    monkeypatch.setattr(G.time,'monotonic',lambda:next(ticks))
+    def forbidden(url,headers):raise AssertionError('No request after the 90 second budget')
+    assert G.grow_weibo(base,session=lambda:(forbidden,''))['exact_checks']==0
