@@ -63972,7 +63972,88 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-30T21:59:05+08:00"
+   "publish_time": "2026-05-30T21:59:05+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-04bb89",
+    "run_id": 41081709841,
+    "artifact_id": 12992998587,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "554d6977aa015e3375d399c44552d4b592b5dd0263a7adfbafab6f35c428bff2",
+     "duration_sec": 737.23,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5304394007974542"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答缺乏对核心问题（研发路是否可行）的直接判断。原话仅描述了研发难度大、未来导向及公司发展到一定程度需拥有自主知识产权等背景信息，但未给出‘可行’或‘不可行’的明确立场，属于论述被切断或未形成完整结论。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/554，总帧数2765；身份匹配但人脸短边不足96px的帧数554"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配803/1389，总帧数2928；身份匹配但人脸短边不足96px的帧数586"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配200/349，总帧数742；身份匹配但人脸短边不足96px的帧数149"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段以主持人串场或无关话题结尾（'啊，这么个，过去十年是没有的。'），导致嘉宾对‘看好哪一个方向’的核心判断被切断，未形成完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/319，总帧数1594；身份匹配但人脸短边不足96px的帧数319"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中仅包含主持人的提问和开场白（如'我们设计了十五个小问题'、'你准备好，我开始了'），完全缺失嘉宾林园的回答内容。根据任务要求，claim_quote 必须取自嘉宾的实际判断，而此处 claim_range 为 [-1,-1]，表明缺乏核心观点证据，因此无法通过审核。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/216，总帧数1078；身份匹配但人脸短边不足96px的帧数216"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/176，总帧数878；身份匹配但人脸短边不足96px的帧数176"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/126，总帧数629；身份匹配但人脸短边不足96px的帧数126"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/228，总帧数1138；身份匹配但人脸短边不足96px的帧数228"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/192，总帧数958；身份匹配但人脸短边不足96px的帧数192"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41081709841,
+    "artifact_id": 12992998587,
+    "name": "production-reject-ly-1030-04bb89",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5292073424782234",
@@ -64111,7 +64192,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5259791481965381",
@@ -152220,6 +152302,13 @@
    "key": "weibo_search:4594382491881708",
    "video_id": "https://f.video.weibocdn.com/004kR5qtgx07JDCCdkpN01041206OnRd0E030.mp4",
    "ts": 1793377249,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1030-04bb89",
+   "key": "weibo_search:5304394007974542",
+   "video_id": "https://f.video.weibocdn.com/u0/PDh6kSzUgx08y2xdMcre010412028UaS0E010.mp4",
+   "ts": 1793378224,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
