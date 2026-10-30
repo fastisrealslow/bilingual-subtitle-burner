@@ -63237,7 +63237,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5357826044330320",
@@ -63397,7 +63398,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-31T21:34:25+08:00"
+   "publish_time": "2026-05-31T21:34:25+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-4813a1",
+    "run_id": 41068434888,
+    "artifact_id": 12986791390,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3827138cf4385d0810f28d4ac7343f6930b203a4608ca053b9f1be1cfd905458",
+     "duration_sec": 1225.99,
+     "resolution": {
+      "width": 1504,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5304750189054992"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41068434888,
+    "artifact_id": 12986791390,
+    "name": "production-reject-ly-1030-4813a1",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5239743551900764",
@@ -63430,7 +63464,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4658980763212003",
@@ -151450,6 +151485,13 @@
    "key": "weibo_search:4561719009223285",
    "video_id": "https://f.video.weibocdn.com/003jEhvrgx07Hk7Pbxtd01041205ktQC0E020.mp4",
    "ts": 1793371057,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1030-4813a1",
+   "key": "weibo_search:5304750189054992",
+   "video_id": "https://f.video.weibocdn.com/u0/yAdkoPOugx08y4uN3iBa01041206rH0I0E030.mp4",
+   "ts": 1793371580,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
