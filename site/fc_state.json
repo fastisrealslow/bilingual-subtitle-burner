@@ -62721,7 +62721,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5044105472115769",
@@ -62926,7 +62927,60 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-12-23T17:50:06+08:00"
+   "publish_time": "2023-12-23T17:50:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-9b861c",
+    "run_id": 41057193137,
+    "artifact_id": 12981412707,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e4fbcea77396610b77f9f1b118666e17313e3e3f48a76cb8885369d2bdcf1034",
+     "duration_sec": 1324.65,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4982168537534052"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配341/919，总帧数2885；身份匹配但人脸短边不足96px的帧数306"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空，因主持人提问句（编号 0）被排除，后续句子中嘉宾仅表示‘不看’‘不敢看’‘别人看去吧’，未形成可独立成片的判断性陈述；结尾转入主持人总结与串场，无新观点补充。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾对核心问题的实质性回应，仅有主持人的开场白和介绍语，无有效观点支撑。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/128，总帧数637；身份匹配但人脸短边不足96px的帧数128"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41057193137,
+    "artifact_id": 12981412707,
+    "name": "production-reject-ly-1030-9b861c",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/hij8nnrWgx08n7VaN4d201041204mpHR0E020.mp4",
@@ -150908,6 +150962,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/0cYaBq65lx08qHVAlU3K010412099cQt0E040.mp4",
    "ts": 1793367208,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1030-9b861c",
+   "key": "weibo_search:4982168537534052",
+   "video_id": "https://f.video.weibocdn.com/o0/YxoyvfnLlx08b5onkN7a01041202S8XU0E020.mp4",
+   "ts": 1793367726,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
