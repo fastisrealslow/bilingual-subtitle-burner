@@ -1,0 +1,59 @@
+name: 林园种子池扩充（半小时）
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/linyuan-seed-growth-tick.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# The normal monitor owns the same DB and scan cursors. Never run both writers
+# simultaneously; a delayed tick is preferable to losing verified identities.
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  expand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: linyuan
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装轻量依赖并验证身份、去重、冷却及预算
+        run: |
+          pip install -q pytest -r fc/runtime-requirements.txt
+          python -m pytest -q ../tests/test_linyuan_seed_pool_growth.py ../tests/test_linyuan_weibo_archive_discovery.py ../tests/test_linyuan_seed_scan.py
+      - name: 在原六页预算内轮换三个历史主题并保留最新素材
+        timeout-minutes: 3
+        continue-on-error: true
+        run: python -u monitor_v2.py --source-types weibo_search
+      - name: 精确核验独立视频，目标5000；不取代媒体验收
+        timeout-minutes: 8
+        continue-on-error: true
+        run: python -u seed_pool_growth.py --target 5000 --limit 48
+      - name: 持久化已取得的目录、核验及失败重查进度
+        if: always()
+        run: |
+          bash persist_monitor_metadata.sh 'chore(seeds): checkpoint bounded half-hour source expansion'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seed-expansion-${{ github.run_id }}
+          path: |
+            linyuan/.automation/seed_pool_growth_report.json
+            linyuan/.automation/seed_pool_growth_scan.json
+          include-hidden-files: true
+          retention-days: 30
