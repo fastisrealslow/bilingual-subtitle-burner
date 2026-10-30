@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1793347401,
-  "inventory_updated_at": 1793347242,
+  "updated_at": 1793347526,
+  "inventory_updated_at": 1793347522,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 14,
-        "landscape": 38
+        "portrait": 16,
+        "landscape": 36
       },
-      "full_schedule_days": 4,
-      "required_week_shortfall": 7,
+      "full_schedule_days": 5,
+      "required_week_shortfall": 5,
       "required_week_shortfall_by_layout": {
-        "portrait": 7,
+        "portrait": 5,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793347401,
+    "updated_at": 1793347525,
     "records": 13306,
     "video_records": 11096,
     "initial_candidates": 123,
@@ -708,8 +708,8 @@
   "inventory": {
     "verified_live": 52,
     "verified_audio_card": 0,
-    "verified_landscape": 38,
-    "verified_portrait": 14,
+    "verified_landscape": 36,
+    "verified_portrait": 16,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -719,9 +719,9 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1491,
+    "failed": 1492,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 24,
     "experiment_fallback": 49,
     "ready": 16,
@@ -32298,11 +32298,11 @@
     },
     {
       "slug": "ly-1030-a1f738",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别成“林远”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"把财务指标上，财务指标上它就是，首先是一个产产品毛利率的变化，毛利率的变化就是非常重要。\", \"suspect_quote\": \"产产品\", \"kind\": \"unintelligible_term\", \"reason\": \"相邻字粘连导致语义不通，疑似“产品的”识别污染。\"}, {\"sentence_id\": 3, \"quote\": \"啊，一会儿高一会儿就这个这种公司我们就不参与，这就是我们说的这个周期性。\", \"suspect_quote\": \"一会儿高一会儿就这个这种公司\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充与指代混乱，连读后语义不清，疑似漏听或错录具体描述。\"}, {\"sentence_id\": 14, \"quote\": \"我的利润是靠投资拉动的，还是就是，还是就是，我投资一定利润无限大。\", \"suspect_quote\": \"我投资一定利润无限大\", \"kind\": \"unintelligible_term\", \"reason\": \"逻辑矛盾且语义不明，疑似“投资一定能产生利润”或类似表述被严重误识。\"}, {\"sentence_id\": 15, \"quote\": \"我喜欢投资完了以后光产利润。\", \"suspect_quote\": \"光产利润\", \"kind\": \"unintelligible_term\", \"reason\": \"动词搭配错误，疑似“产生利润”或“产出利润”被误识为“光产”。\"}, {\"sentence_id\": 18, \"quote\": \"啊，现金流直接，嗯，就是看你这个公司的硬难度。\", \"suspect_quote\": \"硬难度\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别错误，疑似“硬难度”应为“含金量”或“硬度/难度”等词。\"}]",
       "signature": {
         "ts": 1793344741,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
