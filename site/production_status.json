@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793392640,
-  "inventory_updated_at": 1793392415,
+  "updated_at": 1793393743,
+  "inventory_updated_at": 1793393738,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 57,
-    "active_or_recovering_sources": 7,
+    "verified_daily_stock": 58,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 76,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 57,
+      "verified_stock_snapshot": 58,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -37,7 +37,7 @@
       },
       "verified_by_layout": {
         "portrait": 13,
-        "landscape": 44
+        "landscape": 45
       },
       "full_schedule_days": 4,
       "required_week_shortfall": 8,
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793392639,
+    "updated_at": 1793393741,
     "records": 13628,
     "video_records": 11394,
     "initial_candidates": 151,
@@ -810,14 +810,14 @@
     ]
   },
   "inventory": {
-    "verified_live": 57,
+    "verified_live": 58,
     "verified_audio_card": 0,
-    "verified_landscape": 44,
+    "verified_landscape": 45,
     "verified_portrait": 13,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 57,
+    "daily_mix_usable": 58,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -825,14 +825,13 @@
     "complete": 163,
     "failed": 1563,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "excluded": 24,
     "experiment_fallback": 63,
-    "ready": 14,
+    "ready": 15,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5,
-    "queued": 1
+    "running": 4
   },
   "tasks": [
     {
@@ -33969,8 +33968,8 @@
     },
     {
       "slug": "ly-1030-d4087e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1793389239,
         "failed": null,
@@ -33983,7 +33982,7 @@
       "run_id": 41117184189,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117184189",
       "run_started_at": "2026-10-30T19:40:39Z",
-      "run_updated_at": "2026-10-30T19:40:43Z"
+      "run_updated_at": "2026-10-30T20:53:11Z"
     },
     {
       "slug": "ly-1030-964d72",
@@ -34077,8 +34076,8 @@
     },
     {
       "slug": "ly-1030-183f73",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793392598,
         "failed": null,
@@ -34091,7 +34090,7 @@
       "run_id": 41124594372,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41124594372",
       "run_started_at": "2026-10-30T20:36:37Z",
-      "run_updated_at": "2026-10-30T20:36:37Z"
+      "run_updated_at": "2026-10-30T20:53:03Z"
     }
   ],
   "runs": {
@@ -50003,10 +50002,10 @@
     },
     "ly-1030-183f73": {
       "id": 41124594372,
-      "status": "queued",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T20:36:37Z",
-      "updated_at": "2026-10-30T20:36:37Z",
+      "updated_at": "2026-10-30T20:53:03Z",
       "run_started_at": "2026-10-30T20:36:37Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41124594372",
       "run_number": 3143,
@@ -50036,10 +50035,10 @@
     },
     "ly-1030-d4087e": {
       "id": 41117184189,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-30T19:40:39Z",
-      "updated_at": "2026-10-30T19:40:43Z",
+      "updated_at": "2026-10-30T20:53:11Z",
       "run_started_at": "2026-10-30T19:40:39Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117184189",
       "run_number": 3137,
