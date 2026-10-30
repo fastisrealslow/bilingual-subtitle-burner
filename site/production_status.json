@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793318744,
+  "updated_at": 1793318841,
   "inventory_updated_at": 1793318741,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 45,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 3,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -169,17 +169,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793318743,
+    "updated_at": 1793318840,
     "records": 12991,
     "video_records": 10909,
-    "initial_candidates": 59,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 58,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2082,
-      "already_attempted_or_cooling": 1783,
+      "already_attempted_or_cooling": 1784,
       "speaker_unconfirmed": 7504,
       "clip_title": 1232,
       "unrelated": 67,
@@ -191,14 +191,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4996892140241360",
-        "title": "林园：亏了不活该！人有多大胆地有多大产。现在中药股严重低估！#A股# http://t.cn/A6jRJ8Cg ​​​",
-        "source": "weibo_search",
-        "author": "模型预测",
-        "url": "https://m.weibo.cn/detail/4996892140241360",
-        "duration_sec": 582.0
-      },
       {
         "key": "weibo_search:4975951182825066",
         "title": "林园：牛市来了就要搂一把，把安全垫做足，后面就好办了@你不知道的乐游 @乐游养生 http://t.cn/A6lLPJB",
@@ -231,15 +223,16 @@
   },
   "counts": {
     "complete": 160,
-    "failed": 1447,
+    "failed": 1448,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 23,
     "experiment_fallback": 40,
     "ready": 15,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -30946,11 +30939,11 @@
     },
     {
       "slug": "ly-1030-1783f6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1793318429,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -30961,6 +30954,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40976881293",
       "run_started_at": "2026-10-30T00:00:29Z",
       "run_updated_at": "2026-10-30T00:03:52Z"
+    },
+    {
+      "slug": "ly-1030-14dd40",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793318803,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40977573860,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40977573860",
+      "run_started_at": "2026-10-30T00:06:43Z",
+      "run_updated_at": "2026-10-30T00:06:43Z"
     }
   ],
   "runs": {
@@ -45329,6 +45340,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40976881293",
       "run_number": 2949,
       "display_title": "中文源出片 · ly-1030-1783f6"
+    },
+    "ly-1030-14dd40": {
+      "id": 40977573860,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-30T00:06:43Z",
+      "updated_at": "2026-10-30T00:06:43Z",
+      "run_started_at": "2026-10-30T00:06:43Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40977573860",
+      "run_number": 2950,
+      "display_title": "中文源出片 · ly-1030-14dd40"
     },
     "ly-1029-f9ae3b": {
       "id": 40976489510,
