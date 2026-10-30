@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793346136,
+  "updated_at": 1793346329,
   "inventory_updated_at": 1793346131,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 52,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 66,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 64,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793346134,
+    "updated_at": 1793346328,
     "records": 13306,
     "video_records": 11096,
-    "initial_candidates": 126,
-    "duration_eligible_records": 66,
-    "candidate_count": 66,
-    "known_duration_candidates": 66,
+    "initial_candidates": 124,
+    "duration_eligible_records": 64,
+    "candidate_count": 64,
+    "known_duration_candidates": 64,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7555,
       "no_video": 2210,
-      "already_attempted_or_cooling": 1836,
+      "already_attempted_or_cooling": 1838,
       "clip_title": 1245,
       "unrelated": 70,
       "reference_only": 207,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4585774739890847",
-        "title": "[浪]【林园：很多外资都是从常识性问题出发去寻找投资机会】  林园说：2010年的时候老外问他最多的是茅台。都是著名的基",
-        "source": "weibo_search",
-        "author": "股市陈阿姨68申猴",
-        "url": "https://m.weibo.cn/detail/4585774739890847",
-        "duration_sec": 331.0
-      },
-      {
-        "key": "weibo_search:4585774463320454",
-        "title": "[浪]【林园：很多外资都是从常识性问题出发去寻找投资机会】\n\n林园说：2010年的时候老外问他最多的是茅台。都是著名的基",
-        "source": "weibo_search",
-        "author": "正义南康",
-        "url": "https://m.weibo.cn/detail/4585774463320454",
-        "duration_sec": 331.0
-      },
       {
         "key": "weibo_search:4766233193613751",
         "title": "【2011年林园：我理解的价值投资跟大家不一样】 \n \n采访的时间是2011年一个初冬的下午。这次采访中，我觉得林园总这",
@@ -743,15 +727,15 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1489,
+    "failed": 1490,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "excluded": 24,
     "experiment_fallback": 49,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 6
+    "running": 5
   },
   "tasks": [
     {
@@ -32034,8 +32018,8 @@
     },
     {
       "slug": "ly-1030-f1cbd2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793341151,
         "failed": null,
@@ -32048,7 +32032,7 @@
       "run_id": 41013379018,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41013379018",
       "run_started_at": "2026-10-30T06:19:11Z",
-      "run_updated_at": "2026-10-30T06:19:15Z"
+      "run_updated_at": "2026-10-30T07:43:14Z"
     },
     {
       "slug": "ly-1030-88700e",
@@ -32430,11 +32414,11 @@
     },
     {
       "slug": "ly-1030-5ff31c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（480x360），画质不达标",
       "signature": {
         "ts": 1793345975,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32444,7 +32428,25 @@
       "run_id": 41021431218,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41021431218",
       "run_started_at": "2026-10-30T07:39:35Z",
-      "run_updated_at": "2026-10-30T07:39:40Z"
+      "run_updated_at": "2026-10-30T07:42:18Z"
+    },
+    {
+      "slug": "ly-1030-b545cb",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793346290,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41021973257,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41021973257",
+      "run_started_at": "2026-10-30T07:44:50Z",
+      "run_updated_at": "2026-10-30T07:44:55Z"
     }
   ],
   "runs": {
@@ -47397,12 +47399,23 @@
       "run_number": 3041,
       "display_title": "中文源出片 · ly-1030-452a52"
     },
-    "ly-1030-5ff31c": {
-      "id": 41021431218,
+    "ly-1030-b545cb": {
+      "id": 41021973257,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-30T07:44:50Z",
+      "updated_at": "2026-10-30T07:44:55Z",
+      "run_started_at": "2026-10-30T07:44:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41021973257",
+      "run_number": 3043,
+      "display_title": "中文源出片 · ly-1030-b545cb"
+    },
+    "ly-1030-5ff31c": {
+      "id": 41021431218,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T07:39:35Z",
-      "updated_at": "2026-10-30T07:39:40Z",
+      "updated_at": "2026-10-30T07:42:18Z",
       "run_started_at": "2026-10-30T07:39:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41021431218",
       "run_number": 3042,
@@ -47454,10 +47467,10 @@
     },
     "ly-1030-f1cbd2": {
       "id": 41013379018,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T06:19:11Z",
-      "updated_at": "2026-10-30T06:19:15Z",
+      "updated_at": "2026-10-30T07:43:14Z",
       "run_started_at": "2026-10-30T06:19:11Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41013379018",
       "run_number": 3018,
