@@ -63453,7 +63453,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-02T22:20:10+08:00"
+   "publish_time": "2026-05-02T22:20:10+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-d9d8f4",
+    "run_id": 41074726915,
+    "artifact_id": 12990372442,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d227984a8a1ef5925ad4847412b15d09f9cad021dc0a123e048ce34d9ec78a3f",
+     "duration_sec": 719.84,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5294252451956413"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1062/1339，总帧数1382；身份匹配但人脸短边不足96px的帧数277"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"ID名为盛明的提问说：林元前辈，您有那么高的回报率，请问一下，您认为胜率重要还是盈亏比比较重要？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，转写将“林园”误识别为“林元”。\"}, {\"sentence_id\": 5, \"quote\": \"那接下来ID为酒干糖卖无的投资人提问说：今年一季度收益远大，呃远超大盘表现，主要是在医药板块嘛，医药板块的细分领域主要看重一些什么？\", \"suspect_quote\": \"远大\", "
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配953/1285，总帧数1656；身份匹配但人脸短边不足96px的帧数332"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41074726915,
+    "artifact_id": 12990372442,
+    "name": "production-reject-ly-1030-d9d8f4",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1062/1339，总帧数1382；身份匹配但人脸短边不足96px的帧数277",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5359779520451597",
@@ -63623,7 +63680,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"中国个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"夹杂无意义口语填充词，疑似识别污染。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4788319626723384",
@@ -63646,7 +63704,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-07-06T19:43:43+08:00"
+   "publish_time": "2022-07-06T19:43:43+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-a0caae",
+    "run_id": 41077698809,
+    "artifact_id": 12990266044,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "67eebd9013450e72101b384f78f04b86ebe17c614bccd3ed1b9b623de1e0a0a6",
+     "duration_sec": 603.39,
+     "resolution": {
+      "width": 1920,
+      "height": 1072,
+      "short_edge": 1072
+     },
+     "source_url": "https://m.weibo.cn/detail/4788319626723384"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"个这个\", \"kind\": \"unintelligible"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41077698809,
+    "artifact_id": 12990266044,
+    "name": "production-reject-ly-1030-a0caae",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充词粘连，无法确定实际指代对象。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5304394007974542",
@@ -151702,6 +151793,20 @@
    "video_id": "https://f.video.weibocdn.com/004yBbS9gx07KJbUyW3d01041203rLqN0E020.mp4",
    "ts": 1793374328,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"中国个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"夹杂无意义口语填充词，疑似识别污染。\"}]"
+  },
+  {
+   "slug": "ly-1030-a0caae",
+   "key": "weibo_search:4788319626723384",
+   "video_id": "https://f.video.weibocdn.com/004yBbS9gx07KJbUyW3d01041203rLqN0E020.mp4",
+   "ts": 1793375119,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充词粘连，无法确定实际指代对象。\"}]"
+  },
+  {
+   "slug": "ly-1030-d9d8f4",
+   "key": "weibo_search:5294252451956413",
+   "video_id": "https://f.video.weibocdn.com/u0/PnDTHmlQgx08xkedGQk0010412020d2B0E010.mp4",
+   "ts": 1793375123,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1062/1339，总帧数1382；身份匹配但人脸短边不足96px的帧数277"
   }
  ],
  "reviewed_third_video_0910": {
