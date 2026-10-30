@@ -46,7 +46,8 @@ jobs:
         run: python -u seed_pool_growth.py --target 5000 --limit 48
       - name: 持久化已取得的目录、核验及失败重查进度
         if: always()
-        run: bash persist_monitor_metadata.sh 'chore(seeds): checkpoint bounded half-hour source expansion'
+        run: |
+          bash persist_monitor_metadata.sh 'chore(seeds): checkpoint bounded half-hour source expansion'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
