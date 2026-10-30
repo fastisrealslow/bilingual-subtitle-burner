@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793403542,
+  "updated_at": 1793403669,
   "inventory_updated_at": 1793403537,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 60,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 67,
+    "active_or_recovering_sources": 10,
+    "waiting_candidates": 66,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793403541,
+    "updated_at": 1793403668,
     "records": 13692,
     "video_records": 11450,
-    "initial_candidates": 144,
-    "duration_eligible_records": 67,
-    "candidate_count": 67,
-    "known_duration_candidates": 67,
+    "initial_candidates": 143,
+    "duration_eligible_records": 66,
+    "candidate_count": 66,
+    "known_duration_candidates": 66,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2017,
-      "speaker_unconfirmed": 7689,
+      "already_attempted_or_cooling": 2019,
+      "speaker_unconfirmed": 7688,
       "no_video": 2242,
       "clip_title": 1263,
       "unrelated": 73,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5300409242752301",
-        "title": "2022年林园参加五粮液股东会，提倡多分红，降价多卖酒，培养大量的消费者",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5300409242752301",
-        "duration_sec": 347.0
-      },
-      {
-        "key": "weibo_search:5356932506323216",
-        "title": "林园说今年牛没有来过，一定范围内涨跌，各个板块轮动都很正常",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5356932506323216",
-        "duration_sec": 253.0
-      },
       {
         "key": "weibo_search:5245276090533283",
         "title": "2011年12月，林园央视专访：投资神话的回归！ #林园##股市##股市##投资##投资##基金##基金##经济##经济",
@@ -414,6 +398,14 @@
         "author": "全球独一",
         "url": "https://m.weibo.cn/detail/5192573515467619",
         "duration_sec": 3030.0
+      },
+      {
+        "key": "weibo_search:5356932506323216",
+        "title": "林园说今年牛没有来过，一定范围内涨跌，各个板块轮动都很正常",
+        "source": "weibo_search",
+        "author": "养老投资人",
+        "url": "https://m.weibo.cn/detail/5356932506323216",
+        "duration_sec": 253.0
       },
       {
         "key": "weibo_search:5227357281715621",
@@ -753,13 +745,13 @@
     "complete": 163,
     "failed": 1574,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 68,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 4,
-    "running": 4
+    "retry_queued": 5,
+    "running": 5
   },
   "tasks": [
     {
@@ -34328,14 +34320,14 @@
     },
     {
       "slug": "ly-1030-fbb76d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793403148,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793405395,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -34379,6 +34371,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145485252",
       "run_started_at": "2026-10-30T23:36:29Z",
       "run_updated_at": "2026-10-30T23:36:33Z"
+    },
+    {
+      "slug": "ly-1030-d402bd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793403626,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41145853820,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145853820",
+      "run_started_at": "2026-10-30T23:40:26Z",
+      "run_updated_at": "2026-10-30T23:40:31Z"
     }
   ],
   "runs": {
@@ -50529,6 +50539,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145075715",
       "run_number": 3165,
       "display_title": "中文源出片 · ly-1030-fbb76d"
+    },
+    "ly-1030-d402bd": {
+      "id": 41145853820,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T23:40:26Z",
+      "updated_at": "2026-10-30T23:40:31Z",
+      "run_started_at": "2026-10-30T23:40:26Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145853820",
+      "run_number": 3168,
+      "display_title": "中文源出片 · ly-1030-d402bd"
     },
     "ly-1030-533325": {
       "id": 41145485252,
