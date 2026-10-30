@@ -112,3 +112,19 @@ def test_configured_discovery_queries_are_not_counted_as_video_seeds():
     assert config['pages']==6 and '林园 第一桶金' in config['archive_keywords']
     assert '林园 2010' in config['archive_keywords'] and '林园 2026' in config['archive_keywords']
     assert census(root)['counting_policy']=='unique_parent_video_id_not_parts_or_search_queries'
+    assert config['video_only'] is True
+
+
+def test_video_filter_uses_the_same_six_requests_and_still_requires_playable_metadata(tmp_path,monkeypatch):
+    calls=[]
+    def request(url,headers):
+        query=parse_qs(urlsplit(url).query);calls.append(query)
+        assert query['hasvideo']==['1']
+        # A search filter is not a media guarantee; a missing player stays a
+        # non-video lead rather than gaining an identity or catalogue approval.
+        row=dict(mid=str(5355011066565500+len(calls)),text_raw='林园完整访谈',user=dict(screen_name='实际作者'))
+        return json.dumps(dict(statuses=[row]))
+    monkeypatch.setattr(m.WeiboSearchSource,'_visitor_session',lambda _:(request,''))
+    rows=source(tmp_path,video_only=True).fetch(None)
+    assert len(calls)==6 and len(rows)==6
+    assert all(json.loads(r['extra'])['has_video'] is False for r in rows)
