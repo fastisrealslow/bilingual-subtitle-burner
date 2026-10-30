@@ -22,6 +22,9 @@ MOTHER = '4b3878382b576fd0c8272ae4eeec9e0b1960edb460e8e8019953be7b8c23378e'
 CPU_RUN = 40907811869
 DEPLOY_RUN = 40911312468
 DELIVERY_ARTIFACT = 12875084203
+ASR_CHILD = 'ly-asrseam-20261030-4b387838'
+ASR_RUN = 40920169914
+ASR_DELIVERY_ARTIFACT = 12919627941
 
 
 def proof_error(cpu, deploy, root=ROOT):
@@ -46,9 +49,16 @@ def proof_error(cpu, deploy, root=ROOT):
     return None
 
 
-def plan(state, stock, active, seeds):
+def plan(state, stock, active, seeds, *, seam_proof=None):
+    child_slug=CHILD
+    if seam_proof is not None:
+        from asr_overlap_replay import proof_error as seam_error
+        if seam_error(seam_proof):return None,'actual_asr_seam_not_verified'
+        if not any(e.get('slug')==CHILD for e in state.get('dispatched',[])):
+            return None,'prior_title_retry_missing'
+        child_slug=ASR_CHILD
     if not F.experiment.preparing():return None,'experiment_closed'
-    if any(e.get('slug')==CHILD for e in state.get('dispatched',[])):
+    if any(e.get('slug')==child_slug for e in state.get('dispatched',[])):
         return None,'already_attempted_or_unresolved'
     if not stock.get('inventory_fresh'):
         return None,'inventory_unknown'
@@ -76,15 +86,16 @@ def plan(state, stock, active, seeds):
           'required_presentation_version','production_rules_version','experiment_selection_revision',
           'experiment_mother_sha256','experiment_parent_slug')
     child={k:deepcopy(original[k]) for k in keep if k in original}
-    child.update(slug=CHILD,key=CHILD,asset_url=SOURCE,editorial_profile=TREATMENT,
+    child.update(slug=child_slug,key=child_slug,asset_url=SOURCE,editorial_profile=TREATMENT,
         output_layout='landscape',ts=int(time.time()),delay_hours=0,
         title_recovery_evidence=dict(rule='canonical-company-story-title-20261030-v1',
             original_slug=ORIGINAL,original_run_id=40817982883,cpu_run_id=CPU_RUN,
             deployment_run_id=DEPLOY_RUN,source_sha256=MOTHER,media_approved=False))
+    if seam_proof is not None:child['asr_seam_recovery_evidence']=deepcopy(seam_proof)
     return child,None
 
 
-def request(cpu, deploy):
+def request(cpu, deploy, *, seam_proof=None):
     issue=proof_error(cpu,deploy)
     if issue:return dict(dispatched=0,reason=issue)
     state=F.load_state()
@@ -94,17 +105,19 @@ def request(cpu, deploy):
     for status in ('queued','in_progress'):
         active+=F.gh('GET',f'/actions/workflows/{F.WF_PRODUCE}/runs?status={status}&per_page=100').get('workflow_runs',[])
     seeds=json.loads(F.gh('GET','/contents/linyuan/bilibili_seeds.json?ref=main',raw=True))['seeds']
-    child,issue=plan(state,stock,active,seeds)
+    child,issue=plan(state,stock,active,seeds,seam_proof=seam_proof)
     if issue:return dict(dispatched=0,reason=issue)
     # Persist the deterministic intent before the existing dispatcher posts.
     # An unknown response must not produce a duplicate attempt on a callback.
     state['dispatched'].append(child)
     F.save_state(state)
-    sent=F._request_quality_reprocess(state,child,CHILD,
-        '真实CPU和部署读回已验证的标题修复：重新自动选段，全部成片门禁照常验收',DELIVERY_ARTIFACT)
+    artifact=ASR_DELIVERY_ARTIFACT if seam_proof is not None else DELIVERY_ARTIFACT
+    reason=('完整原始识别重放验证的分块交界修复' if seam_proof is not None else '真实CPU和部署读回已验证的标题修复')
+    sent=F._request_quality_reprocess(state,child,child['slug'],
+        reason+'：重新自动选段，全部成片门禁照常验收',artifact)
     child['title_recovery_evidence']['dispatch_confirmed']=bool(sent)
     F.save_state(state)
-    return dict(dispatched=int(bool(sent)),slug=CHILD,actual_treatment_stock_added=0,
+    return dict(dispatched=int(bool(sent)),slug=child['slug'],actual_treatment_stock_added=0,
                 reason='normal_production_requested' if sent else 'request_unresolved_no_automatic_replay')
 
 
@@ -129,6 +142,19 @@ def main():
             cpu=json.loads(cpu_paths[0].read_text())
             deploy=json.loads(deploy_paths[0].read_text())
             report=F.run_with_lease('dispatch',lambda:request(cpu,deploy))
+            if report.get('reason')=='already_attempted_or_unresolved':
+                # A failed title retry exposed a distinct raw-ASR seam defect.
+                # Replay its complete immutable alignment before granting one
+                # separate, deterministic normal retry. Old attempts survive.
+                run=F.gh('GET',f'/actions/runs/{ASR_RUN}')
+                if run.get('status')=='completed' and run.get('conclusion')=='failure':
+                    subprocess.run(['gh','run','download',str(ASR_RUN),'--repo',F.REPO,
+                        '--name','editorial-'+CHILD,'--dir',str(directory/'asr')],check=True,capture_output=True)
+                    paths=list((directory/'asr').rglob('qwen_cpu/aligned.json'))
+                    if len(paths)!=1:raise ValueError('Unambiguous actual alignment required')
+                    from asr_overlap_replay import replay
+                    seam=replay(paths[0])
+                    report=F.run_with_lease('dispatch',lambda:request(cpu,deploy,seam_proof=seam))
     Path('verified-title-recovery-request.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False))
 
