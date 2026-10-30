@@ -60439,7 +60439,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5249204618264721",
@@ -60495,7 +60496,8 @@
    },
    "last_error": "整段取景预检：源 77.47s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5315556606482240",
@@ -60603,7 +60605,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-04T21:41:51+08:00"
+   "publish_time": "2026-07-04T21:41:51+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-96acec",
+    "run_id": 41019003459,
+    "artifact_id": 12960368895,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "5b66f8f205c9200cf5db7b27874289853ba31e6bc730dbcc1ee9b83473c25846",
+     "duration_sec": 30.9,
+     "resolution": {
+      "width": 928,
+      "height": 1056,
+      "short_edge": 928
+     },
+     "source_url": "https://m.weibo.cn/detail/5317073246622437"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：原话中未出现任何关于投资观点、事实陈述或逻辑结论的有效句子；存在大量无法理解的指代（如‘一’、‘屁友’）和切断的论述，属于结构不完整且无实质内容的闲聊片段。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41019003459,
+    "artifact_id": 12960368895,
+    "name": "production-reject-ly-1030-96acec",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原话中未出现任何关于投资观点、事实陈述或逻辑结论的有效句子；存在大量无法理解的指代（如‘一’、‘屁友’）和切断的论述，属于结构不完整且无实质内容的闲聊片段。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4691444964528085",
@@ -147605,6 +147640,13 @@
    "video_id": "http://f.video.weibocdn.com/u0/HyASHkEmgx08BKj6BLfq01041200CcJJ0E010.mp4",
    "ts": 1793344931,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56"
+  },
+  {
+   "slug": "ly-1030-96acec",
+   "key": "weibo_search:5317073246622437",
+   "video_id": "https://f.video.weibocdn.com/o0/oSvjuAPJlx08yWJDRpZ601041200hyUL0E010.mp4",
+   "ts": 1793345163,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：原话中未出现任何关于投资观点、事实陈述或逻辑结论的有效句子；存在大量无法理解的指代（如‘一’、‘屁友’）和切断的论述，属于结构不完整且无实质内容的闲聊片段。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
