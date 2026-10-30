@@ -6,10 +6,10 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 419,
+      "weibo": 435,
       "bilibili": 1669
     },
-    "total": 2159,
+    "total": 2175,
     "reference_only": 1080,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -19,14 +19,14 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 435,
+      "weibo": 449,
       "bilibili": 1669
     },
-    "total": 2175,
+    "total": 2189,
     "reference_only": 1080,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 16,
+  "added_count": 14,
   "providers": {
     "bilibili": {
       "baseline": {
@@ -35,10 +35,10 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 419,
+          "weibo": 435,
           "bilibili": 1669
         },
-        "total": 2159,
+        "total": 2175,
         "reference_only": 1080,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -47,24 +47,37 @@
       "rights_approved_count": 0,
       "production_dispatch": false,
       "added_count": 0,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        }
+      ],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
       "search_pages": {
-        "林园 资本人物": [
+        "林园 微观世界": [
           1,
           2
         ],
-        "林园 投资者说": [
+        "林园 会见财经界": [
           1,
           2
         ],
-        "林园 商业人生": [
+        "林园 华南农大": [
           1,
           2
         ]
       },
       "verification_paused": {
-        "until": 1793347958.074625,
+        "until": 1793354257.6424346,
         "reason": "provider_restricted",
         "http_status": 412,
         "api_code": null
@@ -82,10 +95,10 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 419,
+          "weibo": 435,
           "bilibili": 1669
         },
-        "total": 2159,
+        "total": 2175,
         "reference_only": 1080,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -100,41 +113,46 @@
     "weibo": {
       "provider": "weibo",
       "target": 5000,
-      "before": 2159,
-      "added_count": 16,
+      "before": 2175,
+      "added_count": 14,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
-      "discovery_leads": 112,
-      "eligible_checks": 95,
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "4982168537534052",
+          "error": "ValueError"
+        }
+      ],
+      "discovery_leads": 152,
+      "eligible_checks": 135,
       "deferred_checks": 17,
       "exact_checks": 16,
       "long_checks": 12,
       "added_mids": [
-        "5137148870657298",
-        "5250947942975069",
-        "5335083800070075",
-        "5325701324736771",
-        "4748433271032807",
-        "5148069651023066",
-        "5257630190404590",
-        "4992258053768194",
-        "5273883386577080",
-        "4748979088916629",
-        "5241716439515398",
-        "4747910367936622",
-        "5335007129504221",
-        "5334853841323486",
-        "5334854352242927",
-        "5334984093074064"
+        "4989674218588656",
+        "5199507400693292",
+        "4697547044030171",
+        "5201017541236246",
+        "5201008001027304",
+        "5040124215689454",
+        "5147038750343464",
+        "5212244340376370",
+        "5213558266921464",
+        "5246231743824952",
+        "4766233193613751",
+        "5037703827556195",
+        "5263671255108343",
+        "5245276090533283"
       ],
-      "after": 2175
+      "duplicate_video_count": 1,
+      "after": 2189
     }
   },
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "remaining_to_target": 2825,
+  "remaining_to_target": 2811,
   "counting_policy": "unique_parent_video_ids_not_parts_queries_or_accepted_stock"
 }
