@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793394726,
-  "inventory_updated_at": 1793394594,
+  "updated_at": 1793395621,
+  "inventory_updated_at": 1793395617,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 58,
-    "active_or_recovering_sources": 5,
+    "verified_daily_stock": 60,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 96,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 58,
+      "verified_stock_snapshot": 60,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 15,
-        "landscape": 43
+        "portrait": 14,
+        "landscape": 46
       },
-      "full_schedule_days": 5,
-      "required_week_shortfall": 6,
+      "full_schedule_days": 4,
+      "required_week_shortfall": 7,
       "required_week_shortfall_by_layout": {
-        "portrait": 6,
+        "portrait": 7,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793394724,
+    "updated_at": 1793395620,
     "records": 13692,
     "video_records": 11450,
     "initial_candidates": 173,
@@ -970,14 +970,14 @@
     ]
   },
   "inventory": {
-    "verified_live": 58,
+    "verified_live": 60,
     "verified_audio_card": 0,
-    "verified_landscape": 43,
-    "verified_portrait": 15,
+    "verified_landscape": 46,
+    "verified_portrait": 14,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 58,
+    "daily_mix_usable": 60,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -987,11 +987,11 @@
     "paused": 5,
     "interrupted": 6,
     "excluded": 24,
-    "experiment_fallback": 63,
+    "experiment_fallback": 64,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -34110,8 +34110,8 @@
     },
     {
       "slug": "ly-1030-8a07e4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793389232,
         "failed": null,
@@ -34124,7 +34124,7 @@
       "run_id": 41117167465,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117167465",
       "run_started_at": "2026-10-30T19:40:32Z",
-      "run_updated_at": "2026-10-30T19:40:35Z"
+      "run_updated_at": "2026-10-30T21:24:47Z"
     },
     {
       "slug": "ly-1030-d4087e",
@@ -50264,10 +50264,10 @@
     },
     "ly-1030-8a07e4": {
       "id": 41117167465,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T19:40:32Z",
-      "updated_at": "2026-10-30T19:40:35Z",
+      "updated_at": "2026-10-30T21:24:47Z",
       "run_started_at": "2026-10-30T19:40:32Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117167465",
       "run_number": 3136,
