@@ -62776,7 +62776,64 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-18T15:37:55+08:00"
+   "publish_time": "2025-08-18T15:37:55+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-0e37dd",
+    "run_id": 41055342065,
+    "artifact_id": 12980582718,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6e0047440728c133f7467b98c80eb701b7a8ca4c0c98e7d7969a315164e30958",
+     "duration_sec": 1412.05,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5201017541236246"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段中主持人提出两个问题：一是选择登台的原因是否与股市现状有关，二是若位置高是否还会来。嘉宾仅对第二个假设性问题做出简短回应（‘不会来数’），并未正面回答第一个关于‘为什么选择此时点’的核心提问，也未展开任何实质性观点或理由。因此缺乏独立成片的完整表达内容。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1286.57s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1364.63s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 175.53s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1087.73s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41055342065,
+    "artifact_id": 12980582718,
+    "name": "production-reject-ly-1030-0e37dd",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5044105472115769",
@@ -150933,6 +150990,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/VsLH8uvpgx08tX3lorva01041200gOp60E010.mp4",
    "ts": 1793364447,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1030-0e37dd",
+   "key": "weibo_search:5201017541236246",
+   "video_id": "https://f.video.weibocdn.com/o0/0cYaBq65lx08qHVAlU3K010412099cQt0E040.mp4",
+   "ts": 1793367208,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
