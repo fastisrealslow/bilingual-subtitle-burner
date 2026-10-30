@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793396610,
+  "updated_at": 1793396829,
   "inventory_updated_at": 1793396605,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 60,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 92,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 88,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793396609,
+    "updated_at": 1793396828,
     "records": 13692,
     "video_records": 11450,
-    "initial_candidates": 169,
-    "duration_eligible_records": 92,
-    "candidate_count": 92,
-    "known_duration_candidates": 89,
+    "initial_candidates": 165,
+    "duration_eligible_records": 88,
+    "candidate_count": 88,
+    "known_duration_candidates": 85,
     "unknown_duration_candidates": 3,
     "excluded": {
       "speaker_unconfirmed": 7694,
-      "already_attempted_or_cooling": 1987,
+      "already_attempted_or_cooling": 1991,
       "no_video": 2242,
       "clip_title": 1263,
       "unrelated": 73,
@@ -200,28 +200,12 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:4645411291399624",
-        "title": "林园在华南农大演讲【上】   http://t.cn/AieXV6eF    【下集】http://t.cn/A6VHU",
-        "source": "weibo_search",
-        "author": "啸宇流星588",
-        "url": "https://m.weibo.cn/detail/4645411291399624",
-        "duration_sec": 2996.0
-      },
-      {
         "key": "weibo_search:5314167822881168",
         "title": "片仔癀2025年度股东大会期间，林园：从投资的角度，现在这些所谓的老登股都非常便宜，所有的消费股现在闭着眼睛买，不会亏钱",
         "source": "weibo_search",
         "author": "正宗孤独老登",
         "url": "https://m.weibo.cn/detail/5314167822881168",
         "duration_sec": 263.0
-      },
-      {
-        "key": "weibo_search:4645164994269550",
-        "title": "#股知道涨停#林园在华南农大演讲【上】\n\n http://t.cn/AieXV6eF \n\n【下集】http://t.cn",
-        "source": "weibo_search",
-        "author": "价值策划",
-        "url": "https://m.weibo.cn/detail/4645164994269550",
-        "duration_sec": 2996.0
       },
       {
         "key": "weibo_search:5314162503979005",
@@ -246,30 +230,6 @@
         "author": "中金在线",
         "url": "https://m.weibo.cn/detail/5168013472960833",
         "duration_sec": 31.0
-      },
-      {
-        "key": "weibo_search:4496948352090638",
-        "title": "林园在华南农大演讲【上】",
-        "source": "weibo_search",
-        "author": "远方的使命",
-        "url": "https://m.weibo.cn/detail/4496948352090638",
-        "duration_sec": 2996.0
-      },
-      {
-        "key": "weibo_search:4446888994099857",
-        "title": "林园在华南农大演讲【上】\n\n http://t.cn/AieXV6eF \n\n\n【下集】http://t.cn/A6VHU",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4446888994099857",
-        "duration_sec": 2996.0
-      },
-      {
-        "key": "weibo_search:4691444231834849",
-        "title": "稀缺视频！【上集】林园2007年的采访《走进资本市场》干货满满！  http://t.cn/A6M9yjqD ​​​",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4691444231834849",
-        "duration_sec": 897.0
       },
       {
         "key": "weibo_search:5148471167814958",
@@ -373,6 +333,14 @@
         "source": "weibo_search",
         "author": "下雨天堵车0",
         "url": "https://m.weibo.cn/detail/4272946262615788",
+        "duration_sec": 897.0
+      },
+      {
+        "key": "weibo_search:4691444231834849",
+        "title": "稀缺视频！【上集】林园2007年的采访《走进资本市场》干货满满！  http://t.cn/A6M9yjqD ​​​",
+        "source": "weibo_search",
+        "author": "加仓多吉丿",
+        "url": "https://m.weibo.cn/detail/4691444231834849",
         "duration_sec": 897.0
       },
       {
@@ -951,15 +919,15 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1565,
+    "failed": 1566,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 65,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -34276,11 +34244,11 @@
     },
     {
       "slug": "ly-1030-f146e6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 240 < 480（428x240），画质不达标",
       "signature": {
         "ts": 1793396353,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -34291,6 +34259,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41132624229",
       "run_started_at": "2026-10-30T21:39:13Z",
       "run_updated_at": "2026-10-30T21:41:45Z"
+    },
+    {
+      "slug": "ly-1030-f58583",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793396788,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41133489901,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41133489901",
+      "run_started_at": "2026-10-30T21:46:28Z",
+      "run_updated_at": "2026-10-30T21:46:32Z"
     }
   ],
   "runs": {
@@ -50276,6 +50262,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41132624229",
       "run_number": 3147,
       "display_title": "中文源出片 · ly-1030-f146e6"
+    },
+    "ly-1030-f58583": {
+      "id": 41133489901,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T21:46:28Z",
+      "updated_at": "2026-10-30T21:46:32Z",
+      "run_started_at": "2026-10-30T21:46:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41133489901",
+      "run_number": 3148,
+      "display_title": "中文源出片 · ly-1030-f58583"
     },
     "ly-1030-47a161": {
       "id": 41127264277,
