@@ -65352,8 +65352,8 @@
    "publish_time": "2025-12-10T15:46:00+08:00",
    "production_failure_summary": {
     "slug": "ly-1030-3ddd7e",
-    "run_id": 41112289629,
-    "artifact_id": 13003893097,
+    "run_id": 41116192636,
+    "artifact_id": 13005862982,
     "accepted": 0,
     "source_context": null,
     "failures": [
@@ -65363,11 +65363,12 @@
      }
     ]
    },
-   "source_check_report_id": 13003893097,
-   "source_check_run_id": 41112289629,
+   "source_check_report_id": 13005862982,
+   "source_check_run_id": 41116192636,
    "last_error": "工作流步骤失败，未形成素材不合格结论：render",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1793390985
   },
   {
    "key": "weibo_search:5220676705455361",
@@ -65390,7 +65391,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-11T21:36:25+08:00"
+   "publish_time": "2025-10-11T21:36:25+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41116209092,
+    "artifact_id": 13004419809,
+    "name": "source-reject-ly-1030-e03180",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（644x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -153533,6 +153544,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/xKe3gQYplx08nWBsvD3a010412044Khc0E020.mp4",
    "ts": 1793388296,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1633, 2: 0.0832, 3: 0.2769, 4: 0.0909, 5: 0.0217, 6: 0.1465, 7: 0.1635, 8: 0.2529, 9: 0.1519, 10: 0.0657, 11: 0.069, 12: 0.1504, 13: 0.1453, 14: 0.1635, 15: 0.1583, 16: 0.0262, 17: -0.0006, 18: 0.0056}"
+  },
+  {
+   "slug": "ly-1030-e03180",
+   "key": "weibo_search:5220676705455361",
+   "video_id": "http://f.video.weibocdn.com/u0/1esv66Wogx08s6shT8Bq0104120095GM0E010.mp4",
+   "ts": 1793389184,
+   "error": "原始素材短边 360 < 480（644x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
