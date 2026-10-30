@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793371535,
+  "updated_at": 1793371680,
   "inventory_updated_at": 1793371531,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 70,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 68,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793371534,
+    "updated_at": 1793371678,
     "records": 13479,
     "video_records": 11250,
-    "initial_candidates": 132,
-    "duration_eligible_records": 70,
-    "candidate_count": 70,
-    "known_duration_candidates": 70,
+    "initial_candidates": 130,
+    "duration_eligible_records": 68,
+    "candidate_count": 68,
+    "known_duration_candidates": 68,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7621,
-      "already_attempted_or_cooling": 1911,
+      "already_attempted_or_cooling": 1913,
       "no_video": 2229,
       "clip_title": 1250,
       "unrelated": 72,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5294252451956413",
-        "title": "林园2018年采访",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5294252451956413",
-        "duration_sec": 719.0
-      },
-      {
-        "key": "weibo_search:5292316664531713",
-        "title": "2018年林园采访",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5292316664531713",
-        "duration_sec": 4444.0
-      },
       {
         "key": "weibo_search:5359779520451597",
         "title": "白酒逆势大涨！林园：白酒股息率可能会涨回1%，我相信会有这一天！\n林园最新路演直播回放ps://ly.simuwang.",
@@ -310,6 +294,22 @@
         "author": "小李说红木家具",
         "url": "https://m.weibo.cn/detail/4685768561265716",
         "duration_sec": 603.0
+      },
+      {
+        "key": "weibo_search:5304394007974542",
+        "title": "2018年林园谈中药",
+        "source": "weibo_search",
+        "author": "养老投资人",
+        "url": "https://m.weibo.cn/detail/5304394007974542",
+        "duration_sec": 737.0
+      },
+      {
+        "key": "weibo_search:5292073424782234",
+        "title": "2018年林园的采访",
+        "source": "weibo_search",
+        "author": "养老投资人",
+        "url": "https://m.weibo.cn/detail/5292073424782234",
+        "duration_sec": 596.0
       },
       {
         "key": "weibo_search:4594382491881708",
@@ -616,20 +616,12 @@
         "duration_sec": 191.0
       },
       {
-        "key": "weibo_search:5304394007974542",
-        "title": "2018年林园谈中药",
+        "key": "weibo_search:5356932506323216",
+        "title": "林园说今年牛没有来过，一定范围内涨跌，各个板块轮动都很正常",
         "source": "weibo_search",
         "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5304394007974542",
-        "duration_sec": 737.0
-      },
-      {
-        "key": "weibo_search:5292073424782234",
-        "title": "2018年林园的采访",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5292073424782234",
-        "duration_sec": 596.0
+        "url": "https://m.weibo.cn/detail/5356932506323216",
+        "duration_sec": 253.0
       },
       {
         "key": "weibo_search:5314721544930066",
@@ -662,14 +654,6 @@
         "author": "大川成长价值投资",
         "url": "https://m.weibo.cn/detail/5227848395656468",
         "duration_sec": 191.0
-      },
-      {
-        "key": "weibo_search:5356932506323216",
-        "title": "林园说今年牛没有来过，一定范围内涨跌，各个板块轮动都很正常",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5356932506323216",
-        "duration_sec": 253.0
       },
       {
         "key": "weibo_search:5144547982838104",
@@ -775,15 +759,15 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1529,
+    "failed": 1530,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 56,
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 5
   },
   "tasks": [
     {
@@ -33200,11 +33184,11 @@
     },
     {
       "slug": "ly-1030-4813a1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1793368992,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -33269,6 +33253,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41073375146",
       "run_started_at": "2026-10-30T14:38:20Z",
       "run_updated_at": "2026-10-30T14:38:26Z"
+    },
+    {
+      "slug": "ly-1030-9df308",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793371629,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41074706358,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41074706358",
+      "run_started_at": "2026-10-30T14:47:09Z",
+      "run_updated_at": "2026-10-30T14:47:13Z"
+    },
+    {
+      "slug": "ly-1030-d9d8f4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793371637,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41074726915,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41074726915",
+      "run_started_at": "2026-10-30T14:47:17Z",
+      "run_updated_at": "2026-10-30T14:47:38Z"
     }
   ],
   "runs": {
@@ -48727,6 +48747,39 @@
       "run_number": 3085,
       "display_title": "中文源出片 · ly-1030-110721"
     },
+    "ly-1030-4813a1": {
+      "id": 41068434888,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-30T14:03:12Z",
+      "updated_at": "2026-10-30T14:43:36Z",
+      "run_started_at": "2026-10-30T14:03:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41068434888",
+      "run_number": 3089,
+      "display_title": "中文源出片 · ly-1030-4813a1"
+    },
+    "ly-1030-d9d8f4": {
+      "id": 41074726915,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T14:47:17Z",
+      "updated_at": "2026-10-30T14:47:38Z",
+      "run_started_at": "2026-10-30T14:47:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41074726915",
+      "run_number": 3094,
+      "display_title": "中文源出片 · ly-1030-d9d8f4"
+    },
+    "ly-1030-9df308": {
+      "id": 41074706358,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T14:47:09Z",
+      "updated_at": "2026-10-30T14:47:13Z",
+      "run_started_at": "2026-10-30T14:47:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41074706358",
+      "run_number": 3093,
+      "display_title": "中文源出片 · ly-1030-9df308"
+    },
     "ly-1030-5a9420": {
       "id": 41073375146,
       "status": "in_progress",
@@ -48748,17 +48801,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41072663006",
       "run_number": 3091,
       "display_title": "中文源出片 · ly-1030-c9bf6e"
-    },
-    "ly-1030-4813a1": {
-      "id": 41068434888,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T14:03:12Z",
-      "updated_at": "2026-10-30T14:43:36Z",
-      "run_started_at": "2026-10-30T14:03:12Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41068434888",
-      "run_number": 3089,
-      "display_title": "中文源出片 · ly-1030-4813a1"
     },
     "ly-1030-d81e44": {
       "id": 41066764483,
