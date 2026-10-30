@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793339597,
+  "updated_at": 1793339735,
   "inventory_updated_at": 1793339593,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 77,
+    "waiting_candidates": 76,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793339595,
+    "updated_at": 1793339734,
     "records": 13249,
     "video_records": 11042,
-    "initial_candidates": 136,
-    "duration_eligible_records": 77,
-    "candidate_count": 77,
-    "known_duration_candidates": 77,
+    "initial_candidates": 135,
+    "duration_eligible_records": 76,
+    "candidate_count": 76,
+    "known_duration_candidates": 76,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7540,
       "no_video": 2207,
-      "already_attempted_or_cooling": 1794,
+      "already_attempted_or_cooling": 1795,
       "clip_title": 1241,
       "unrelated": 67,
       "reference_only": 207,
@@ -199,14 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV17dxP6rEYA",
-        "title": "林园：中字头将翻30倍，市场仅此3家",
-        "source": "bilibili_search",
-        "author": "XUROP",
-        "url": "https://www.bilibili.com/video/BV17dxP6rEYA",
-        "duration_sec": 137.0
-      },
       {
         "key": "weibo_search:5314970996704479",
         "title": "林园总片仔癀股东大会发言202606 http://t.cn/AXSBtGtM ​​​",
@@ -831,7 +823,7 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1465,
+    "failed": 1466,
     "paused": 5,
     "interrupted": 7,
     "excluded": 24,
@@ -32014,8 +32006,8 @@
     },
     {
       "slug": "ly-1030-d23548",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793339105,
         "failed": null,
@@ -32028,15 +32020,15 @@
       "run_id": 41010148811,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41010148811",
       "run_started_at": "2026-10-30T05:45:04Z",
-      "run_updated_at": "2026-10-30T05:45:09Z"
+      "run_updated_at": "2026-10-30T05:54:48Z"
     },
     {
       "slug": "ly-1030-129163",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793339112,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32065,6 +32057,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41010515788",
       "run_started_at": "2026-10-30T05:49:00Z",
       "run_updated_at": "2026-10-30T05:49:05Z"
+    },
+    {
+      "slug": "ly-1030-b14e3a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793339693,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41011053840,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41011053840",
+      "run_started_at": "2026-10-30T05:54:53Z",
+      "run_updated_at": "2026-10-30T05:54:57Z"
     }
   ],
   "runs": {
@@ -46742,17 +46752,6 @@
       "run_number": 3007,
       "display_title": "中文源出片 · ly-1030-eab8c8"
     },
-    "ly-1030-a4d4eb": {
-      "id": 41010515788,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-30T05:49:00Z",
-      "updated_at": "2026-10-30T05:49:05Z",
-      "run_started_at": "2026-10-30T05:49:00Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41010515788",
-      "run_number": 3010,
-      "display_title": "中文源出片 · ly-1030-a4d4eb"
-    },
     "ly-1030-129163": {
       "id": 41010161575,
       "status": "completed",
@@ -46764,12 +46763,34 @@
       "run_number": 3009,
       "display_title": "中文源出片 · ly-1030-129163"
     },
-    "ly-1030-d23548": {
-      "id": 41010148811,
+    "ly-1030-b14e3a": {
+      "id": 41011053840,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-30T05:54:53Z",
+      "updated_at": "2026-10-30T05:54:57Z",
+      "run_started_at": "2026-10-30T05:54:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41011053840",
+      "run_number": 3011,
+      "display_title": "中文源出片 · ly-1030-b14e3a"
+    },
+    "ly-1030-a4d4eb": {
+      "id": 41010515788,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T05:49:00Z",
+      "updated_at": "2026-10-30T05:49:05Z",
+      "run_started_at": "2026-10-30T05:49:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41010515788",
+      "run_number": 3010,
+      "display_title": "中文源出片 · ly-1030-a4d4eb"
+    },
+    "ly-1030-d23548": {
+      "id": 41010148811,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T05:45:04Z",
-      "updated_at": "2026-10-30T05:45:09Z",
+      "updated_at": "2026-10-30T05:54:48Z",
       "run_started_at": "2026-10-30T05:45:04Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41010148811",
       "run_number": 3008,
