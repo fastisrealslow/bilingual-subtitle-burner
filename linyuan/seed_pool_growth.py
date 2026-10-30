@@ -24,6 +24,24 @@ def lead_signature(lead):
     return hashlib.sha256(json.dumps(lead, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
 
 
+def weibo_priority_batch(leads, path, limit, state):
+    """Reserve three quarters for long mothers, retaining short/new coverage.
+
+    Each queue keeps its own durable cursor. A shrinking short-video queue
+    cannot jump past all newly discovered long interviews on the next pass.
+    Empty queues donate their slots; total checks still cannot exceed 16.
+    """
+    limit=min(WEIBO_LIMIT,max(1,limit))
+    long=[r for r in leads if r['duration']>=900]
+    short=[r for r in leads if r['duration']<900]
+    short_count=min(len(short),limit//4)
+    long_count=min(len(long),limit-short_count)
+    short_count=min(len(short),limit-long_count)
+    for name,rows,count in [('weibo_long_parents',long,long_count),('weibo_short_parents',short,short_count)]:
+        if count:
+            yield from rotating_batch(name,rows,path,count,key=lambda r:r['mid'],state=state)
+
+
 class SeedMetadataRejected(ValueError):
     def __init__(self, checks):
         self.checks = checks
@@ -153,13 +171,13 @@ def grow_weibo(base=BASE, *, target=TARGET, limit=WEIBO_LIMIT, session=None):
         report['errors'].append(dict(stage='public_session', error=type(exc).__name__))
         return report
     deadline = time.monotonic() + 90
-    for lead in rotating_batch('weibo_parents', leads, path, min(WEIBO_LIMIT, max(1, limit)),
-                               key=lambda r: r['mid'], state=state):
+    for lead in weibo_priority_batch(leads,path,limit,state):
         if report['exact_checks']:
             time.sleep(1)
         if time.monotonic() >= deadline or census(base)['total'] >= target:
             break
         report['exact_checks'] += 1
+        report['long_checks'] = report.get('long_checks',0)+int(lead['duration']>=900)
         try:
             row = verify_weibo(lead, request, xsrf)
             if (row['mid'] in ids or row['source_parent_id'] in parent_ids
