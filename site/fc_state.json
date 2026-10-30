@@ -62634,7 +62634,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4968499263572789",
@@ -62838,7 +62839,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[2, 5]，scan_same=[9, 12, 17]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 18]，confidence=0.99，reason=CPU SFace逐帧比对；匹配3/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1371, 2: 0.0372, 3: 0.1819, 4: 0.1306, 5: 0.1152, 6: 0.0279, 7: 0.1507, 8: 0.1214, 9: 0.6861, 10: 0.1651, 11: 0.1872, 12: 0.537, 13: 0.0672, 14: 0.2184, 15: 0.0846, 16: 0.0954, 17: 0.6992, 18: 0.0161}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4911477749973304",
@@ -62871,7 +62873,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5201128430242127",
@@ -62917,7 +62920,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-22T19:10:01+08:00"
+   "publish_time": "2025-12-22T19:10:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-7bcf3a",
+    "run_id": 41056754644,
+    "artifact_id": 12976918931,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "01a35fca7f83defee06baaa586d4d6f1790eb686ac5b6ea58250e8fafe5562d1",
+     "duration_sec": 63.39,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5246731789797327"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41056754644,
+    "artifact_id": 12976918931,
+    "name": "production-reject-ly-1030-7bcf3a",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4982168537534052",
@@ -150482,6 +150518,13 @@
    "key": "weibo_search:5290247841906965",
    "video_id": "https://f.video.weibocdn.com/o0/F2FTRuyplx08x2eMR1ok01041202IKI50E010.mp4",
    "ts": 1793364028,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1030-7bcf3a",
+   "key": "weibo_search:5246731789797327",
+   "video_id": "https://f.video.weibocdn.com/u0/VsLH8uvpgx08tX3lorva01041200gOp60E010.mp4",
+   "ts": 1793364447,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
