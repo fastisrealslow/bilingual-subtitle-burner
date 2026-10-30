@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793355876,
+  "updated_at": 1793356015,
   "inventory_updated_at": 1793355872,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 52,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 56,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 55,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793355875,
+    "updated_at": 1793356014,
     "records": 13391,
     "video_records": 11170,
-    "initial_candidates": 118,
-    "duration_eligible_records": 56,
-    "candidate_count": 56,
-    "known_duration_candidates": 56,
+    "initial_candidates": 117,
+    "duration_eligible_records": 55,
+    "candidate_count": 55,
+    "known_duration_candidates": 55,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7596,
       "no_video": 2221,
-      "already_attempted_or_cooling": 1874,
+      "already_attempted_or_cooling": 1875,
       "clip_title": 1247,
       "unrelated": 71,
       "reference_only": 207,
@@ -214,22 +214,6 @@
         "author": "琥珀柏林",
         "url": "https://m.weibo.cn/detail/5290247841906965",
         "duration_sec": 456.0
-      },
-      {
-        "key": "weibo_search:5242409451521692",
-        "title": "（经典）林园2012年专访：我的财富投资人生！#林园##私募大佬林园##基金##投资##基金##投资##股市##股票##",
-        "source": "weibo_search",
-        "author": "一地基毛VIP",
-        "url": "https://m.weibo.cn/detail/5242409451521692",
-        "duration_sec": 2395.0
-      },
-      {
-        "key": "weibo_search:5245276090533283",
-        "title": "2011年12月，林园央视专访：投资神话的回归！ #林园##股市##股市##投资##投资##基金##基金##经济##经济",
-        "source": "weibo_search",
-        "author": "一地基毛VIP",
-        "url": "https://m.weibo.cn/detail/5245276090533283",
-        "duration_sec": 529.0
       },
       {
         "key": "weibo_search:5213558266921464",
@@ -310,6 +294,14 @@
         "author": "资本大事纪",
         "url": "https://m.weibo.cn/detail/5324145422243147",
         "duration_sec": 165.0
+      },
+      {
+        "key": "weibo_search:5245276090533283",
+        "title": "2011年12月，林园央视专访：投资神话的回归！ #林园##股市##股市##投资##投资##基金##基金##经济##经济",
+        "source": "weibo_search",
+        "author": "一地基毛VIP",
+        "url": "https://m.weibo.cn/detail/5245276090533283",
+        "duration_sec": 529.0
       },
       {
         "key": "weibo_search:5357643879155558",
@@ -665,13 +657,13 @@
     "complete": 162,
     "failed": 1508,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 50,
     "ready": 15,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 3
+    "retry_queued": 2,
+    "running": 4
   },
   "tasks": [
     {
@@ -32566,14 +32558,14 @@
     },
     {
       "slug": "ly-1030-95991a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793350253,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793356824,
         "weekly_full_week": "2026-W44"
       },
       "history_count": 1,
@@ -32671,6 +32663,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41038192054",
       "run_started_at": "2026-10-30T10:05:41Z",
       "run_updated_at": "2026-10-30T10:05:45Z"
+    },
+    {
+      "slug": "ly-1030-bf3131",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793355970,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41040728298,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41040728298",
+      "run_started_at": "2026-10-30T10:26:10Z",
+      "run_updated_at": "2026-10-30T10:26:14Z"
     }
   ],
   "runs": {
@@ -47832,6 +47842,28 @@
       "run_number": 3061,
       "display_title": "中文源出片 · ly-1030-f1cbd2"
     },
+    "ly-1030-95991a": {
+      "id": 41029208634,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-30T08:50:53Z",
+      "updated_at": "2026-10-30T10:22:45Z",
+      "run_started_at": "2026-10-30T08:50:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41029208634",
+      "run_number": 3058,
+      "display_title": "中文源出片 · ly-1030-95991a"
+    },
+    "ly-1030-bf3131": {
+      "id": 41040728298,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T10:26:10Z",
+      "updated_at": "2026-10-30T10:26:14Z",
+      "run_started_at": "2026-10-30T10:26:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41040728298",
+      "run_number": 3064,
+      "display_title": "中文源出片 · ly-1030-bf3131"
+    },
     "ly-1030-8c6fef": {
       "id": 41038192054,
       "status": "in_progress",
@@ -47864,17 +47896,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41029220479",
       "run_number": 3059,
       "display_title": "中文源出片 · ly-1030-10a2a0"
-    },
-    "ly-1030-95991a": {
-      "id": 41029208634,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T08:50:53Z",
-      "updated_at": "2026-10-30T10:22:45Z",
-      "run_started_at": "2026-10-30T08:50:53Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41029208634",
-      "run_number": 3058,
-      "display_title": "中文源出片 · ly-1030-95991a"
     }
   }
 }
