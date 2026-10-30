@@ -15,6 +15,7 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 标题和封面各自保留假设条件；“如果发生某事”不是“已经发生某事”。逐项核对谁做了什么：本人没买不等于国家或企业不买；不需要不等于没有购买。不能从不同分句拼接主体和行动。
 保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
+估值倍数须保留原文计算口径，标题和封面各自说明剔除现金等调整条件；不能用标题中的条件替封面补足。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
 “我要赚够一万倍”是本人目标，不能改写为公司“能赚到一万倍”；标题和封面各自保留目标或意愿，不把愿望当已经验证的回报。
 “十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
@@ -1065,6 +1066,44 @@ def market_order_scope_error(title, cover, transcript):
     return None
 
 
+def cash_adjusted_valuation_error(title, cover, transcript):
+    """Keep an explicitly cash-adjusted valuation basis on each numeric claim.
+
+    Only bind quantities in the adjustment's result sentence, not every PE
+    mentioned elsewhere in the source. This is a rejection guard, not a
+    semantic approval of other numbers, populations or historical dates.
+    """
+    source = str(transcript or '')
+    adjustment = (r'(?<!不)(?<!未)(?<!无需)(?:剔除|扣除|除去|不计|撇开)(?:了|掉|掉了)?(?:这个|那个|其|账上|账面的|账面)?现金'
+                  r'|现金[^。！？!?；;]{0,35}(?:撇撇?开|扣除|剔除|不算(?!多|少|充足)|不计入)')
+    result_numbers = set()
+    for match in re.finditer(adjustment, source):
+        if re.search(r'不(?:能|应|用|必)|无需|未', match[0]):
+            continue
+        # A direct adjustment and its result must share a sentence.
+        tail = source[match.end():]
+        result = re.split(r'[。！？!?；;]', tail, maxsplit=1)[0]
+        result_numbers.update((a, b) for unit, a, b, _ in _quantity_intervals(result)
+                              if unit == '倍')
+        # Spoken explanations can put the result in a later conditional
+        # sentence. Require an explicit removal anaphor, within a short span.
+        follow = re.search(r'(?:你)?(?:要|如果)(?:把)?(?:这|那)个(?:除过|除去|扣除|剔除)(?:的)?话'
+                           r'([^。！？!?；;]{0,80})', tail[:180])
+        if follow:
+            result_numbers.update((a, b) for unit, a, b, _ in _quantity_intervals(follow[1])
+                                  if unit == '倍')
+    if not result_numbers:
+        return None
+    for copy in (str(title or ''), str(cover or '')):
+        for clause in re.split(r'[。！？!?；;]', copy):
+            if not re.search(r'估值|市盈率|PE', clause, re.I):
+                continue
+            values = {(a, b) for unit, a, b, _ in _quantity_intervals(clause) if unit == '倍'}
+            if values & result_numbers and not re.search(adjustment, clause):
+                return '原文的估值倍数以剔除现金为计算口径；标题和封面须各自保留现金调整条件，不能借另一处文案补足'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -1072,6 +1111,9 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    cash_issue = cash_adjusted_valuation_error(title, cover, transcript)
+    if cash_issue:
+        return cash_issue
     market_issue=market_order_scope_error(title,cover,transcript)
     if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
