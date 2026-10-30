@@ -60733,7 +60733,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-10-12T11:58:25+08:00"
+   "publish_time": "2021-10-12T11:58:25+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-a1f738",
+    "run_id": 41019335493,
+    "artifact_id": 12962476889,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ecf0cb26beae21fa7b211b4543e0d7443ce998ed01b013f5acf57209aff5c101",
+     "duration_sec": 1005.38,
+     "resolution": {
+      "width": 960,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4691444964528085"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别成“林远”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"把财务指标上，财务指标上它就是，首先是一个产产品毛利率的变化，毛利率的变化就是非常重要。\", \"suspect_quote\": \"产产品\", \"kind\": \"u"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 25, \"quote\": \"西瓜之轩哥。\", \"suspect_quote\": \"西瓜之轩哥\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“西瓜智选股”误识别为“西瓜之轩哥”，属专名错写且无法通过上下文确证。\"}, {\"sentence_id\": 31, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\","
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"林源通过调研，根据企业的情况买入一定量的股票，用量来对风险进行控制。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别为“林源”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"林元也说：买股票是有一定风险，这个风险体现在时间上，他的股票也经常面对不涨的情况，所以他经常会猫着等着等涨。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"我觉得这公司是没有问题的，没是好公司。\", \"suspect_quote\": \"没是好公司\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似漏字或识别污染，应为“不是好公司”或“没有好公司”，当前表述逻辑不通。\"}, {\"sentence_id\": 4, \"quote\": \"我就持有，下午两夜茅台都是，我就在拿着。\", \"suspect_quote\": \"下午两夜茅台\", \"kind\": \"ambiguous_number_or_negation\", \"reason\""
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41019335493,
+    "artifact_id": 12962476889,
+    "name": "production-reject-ly-1030-a1f738",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别成“林远”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"把财务指标上，财务指标上它就是，首先是一个产产品毛利率的变化，毛利率的变化就是非常重要。\", \"suspect_quote\": \"产产品\", \"kind\": \"unintelligible_term\", \"reason\": \"相邻字粘连导致语义不通，疑似“产品的”识别污染。\"}, {\"sentence_id\": 3, \"quote\": \"啊，一会儿高一会儿就这个这种公司我们就不参与，这就是我们说的这个周期性。\", \"suspect_quote\": \"一会儿高一会儿就这个这种公司\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充与指代混乱，连读后语义不清，疑似漏听或错录具体描述。\"}, {\"sentence_id\": 14, \"quote\": \"我的利润是靠投资拉动的，还是就是，还是就是，我投资一定利润无限大。\", \"suspect_quote\": \"我投资一定利润无限大\", \"kind\": \"unintelligible_term\", \"reason\": \"逻辑矛盾且语义不明，疑似“投资一定能产生利润”或类似表述被严重误识。\"}, {\"sentence_id\": 15, \"quote\": \"我喜欢投资完了以后光产利润。\", \"suspect_quote\": \"光产利润\", \"kind\": \"unintelligible_term\", \"reason\": \"动词搭配错误，疑似“产生利润”或“产出利润”被误识为“光产”。\"}, {\"sentence_id\": 18, \"quote\": \"啊，现金流直接，嗯，就是看你这个公司的硬难度。\", \"suspect_quote\": \"硬难度\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别错误，疑似“硬难度”应为“含金量”或“硬度/难度”等词。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5251511286237869",
@@ -148061,6 +148106,13 @@
    "video_id": "https://f.video.weibocdn.com/001g4pwtgx07J1USuX4b01041200Q9IG0E010.mp4",
    "ts": 1793346479,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1030-a1f738",
+   "key": "weibo_search:4691444964528085",
+   "video_id": "https://f.video.weibocdn.com/eydINcUVlx07Qx6gHFVu01041203NjTY0E020.mp4",
+   "ts": 1793347412,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别成“林远”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"把财务指标上，财务指标上它就是，首先是一个产产品毛利率的变化，毛利率的变化就是非常重要。\", \"suspect_quote\": \"产产品\", \"kind\": \"unintelligible_term\", \"reason\": \"相邻字粘连导致语义不通，疑似“产品的”识别污染。\"}, {\"sentence_id\": 3, \"quote\": \"啊，一会儿高一会儿就这个这种公司我们就不参与，这就是我们说的这个周期性。\", \"suspect_quote\": \"一会儿高一会儿就这个这种公司\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充与指代混乱，连读后语义不清，疑似漏听或错录具体描述。\"}, {\"sentence_id\": 14, \"quote\": \"我的利润是靠投资拉动的，还是就是，还是就是，我投资一定利润无限大。\", \"suspect_quote\": \"我投资一定利润无限大\", \"kind\": \"unintelligible_term\", \"reason\": \"逻辑矛盾且语义不明，疑似“投资一定能产生利润”或类似表述被严重误识。\"}, {\"sentence_id\": 15, \"quote\": \"我喜欢投资完了以后光产利润。\", \"suspect_quote\": \"光产利润\", \"kind\": \"unintelligible_term\", \"reason\": \"动词搭配错误，疑似“产生利润”或“产出利润”被误识为“光产”。\"}, {\"sentence_id\": 18, \"quote\": \"啊，现金流直接，嗯，就是看你这个公司的硬难度。\", \"suspect_quote\": \"硬难度\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别错误，疑似“硬难度”应为“含金量”或“硬度/难度”等词。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
