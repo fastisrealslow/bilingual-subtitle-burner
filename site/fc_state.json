@@ -63509,7 +63509,8 @@
    },
    "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5156123607043063",
@@ -63565,7 +63566,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4804452957294573",
@@ -63588,7 +63590,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-08-20T08:11:50+08:00"
+   "publish_time": "2022-08-20T08:11:50+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-902902",
+    "run_id": 41077674668,
+    "artifact_id": 12989606151,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "67eebd9013450e72101b384f78f04b86ebe17c614bccd3ed1b9b623de1e0a0a6",
+     "duration_sec": 603.39,
+     "resolution": {
+      "width": 1920,
+      "height": 1072,
+      "short_edge": 1072
+     },
+     "source_url": "https://m.weibo.cn/detail/4804452957294573"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"中国个这个\", \"kind\": \"unintelligib"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41077674668,
+    "artifact_id": 12989606151,
+    "name": "production-reject-ly-1030-902902",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"中国个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"夹杂无意义口语填充词，疑似识别污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4788319626723384",
@@ -151614,6 +151649,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/KrKoo7Y3gx08BYHxlWqQ010412009yUc0E010.mp4",
    "ts": 1793372757,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1030-902902",
+   "key": "weibo_search:4804452957294573",
+   "video_id": "https://f.video.weibocdn.com/004yBbS9gx07KJbUyW3d01041203rLqN0E020.mp4",
+   "ts": 1793374328,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"中国个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"夹杂无意义口语填充词，疑似识别污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
