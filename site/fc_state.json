@@ -65663,7 +65663,8 @@
     "name": "production-reject-ly-1030-a9236a",
     "retained": true
    },
-   "source_quality_rejected": true
+   "source_quality_rejected": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5242331793722664",
@@ -65706,7 +65707,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5314458475300304",
@@ -65729,7 +65731,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-27T16:31:41+08:00"
+   "publish_time": "2026-06-27T16:31:41+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-183f73",
+    "run_id": 41124594372,
+    "artifact_id": 13011476123,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "52c346d18eb43c14fd378815cc8a15bf5087de75537fc584e3442c35587ee3ee",
+     "duration_sec": 263.55,
+     "resolution": {
+      "width": 660,
+      "height": 754,
+      "short_edge": 660
+     },
+     "source_url": "https://m.weibo.cn/detail/5314458475300304"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41124594372,
+    "artifact_id": 13011476123,
+    "name": "production-reject-ly-1030-183f73",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -153921,6 +153956,13 @@
    "video_id": "http://f.video.weibocdn.com/u0/L1vdhUGFgx08ydOjPOVa01041206SnCZ0E030.mp4",
    "ts": 1793392559,
    "error": "真人动态区仍有稳定来源角标：[(0.0, 0.09574468085106383, 0.1360759493670886, 0.14893617021276595)]"
+  },
+  {
+   "slug": "ly-1030-183f73",
+   "key": "weibo_search:5314458475300304",
+   "video_id": "https://f.video.weibocdn.com/u0/MGUBpaSDgx08yLe1z8CA01041201D4eU0E010.mp4",
+   "ts": 1793393793,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
