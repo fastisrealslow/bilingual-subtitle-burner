@@ -56991,7 +56991,80 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2021-05-09T08:15:56+08:00"
+   "publish_time": "2021-05-09T08:15:56+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-ac9151",
+    "run_id": 40993251590,
+    "artifact_id": 12953354222,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cd3a83c4541f3fc913ac7ca9306bcaeef2b59176978a2c2c4cb4e39382d0bf80",
+     "duration_sec": 2422.35,
+     "resolution": {
+      "width": 1176,
+      "height": 616,
+      "short_edge": 616
+     },
+     "source_url": "https://m.weibo.cn/detail/4634856468514658"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/143，总帧数713；身份匹配但人脸短边不足96px的帧数143"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配180/1383，总帧数6012；身份匹配但人脸短边不足96px的帧数1203"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话中第 4 句提出具体问题‘具体的这个新能源汽车怎么看？’，但随后第 5 句直接将其归为‘刚才说的大方向’，未展开具体分析或给出独立判断；第 0-3 句讨论的是军工企业，与新能源汽车无关。因此缺少针对该问题的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配41/940，总帧数4493；身份匹配但人脸短边不足96px的帧数899"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/440，总帧数2196；身份匹配但人脸短边不足96px的帧数440"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/438，总帧数2189；身份匹配但人脸短边不足96px的帧数438"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/759，总帧数3792；身份匹配但人脸短边不足96px的帧数759"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/179，总帧数890；身份匹配但人脸短边不足96px的帧数179"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/447，总帧数2230；身份匹配但人脸短边不足96px的帧数447"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配144/1408，总帧数6317；身份匹配但人脸短边不足96px的帧数1249"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40993251590,
+    "artifact_id": 12953354222,
+    "name": "production-reject-ly-1030-ac9151",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1iC4y1H7JN",
@@ -59180,8 +59253,8 @@
    "publish_time": "2026-06-13T01:01:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1029-4a2f6c",
-    "run_id": 40913658299,
-    "artifact_id": 12914164300,
+    "run_id": 41002629131,
+    "artifact_id": 12954645063,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -59201,15 +59274,15 @@
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 40913658299,
-    "artifact_id": 12914164300,
+    "run_id": 41002629131,
+    "artifact_id": 12954645063,
     "name": "production-reject-ly-1029-4a2f6c",
     "retained": true
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
@@ -145557,6 +145630,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/NAjKYOnmlx08mWSO1xPi01041205hZgG0E020.mp4",
    "ts": 1793330804,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1030-ac9151",
+   "key": "weibo_search:4634856468514658",
+   "video_id": "https://f.video.weibocdn.com/ZmLkwThMlx07Mw22GTao010412068f5O0E030.mp4",
+   "ts": 1793334555,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
   }
  ],
  "reviewed_third_video_0910": {
