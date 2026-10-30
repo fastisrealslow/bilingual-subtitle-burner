@@ -37671,17 +37671,13 @@
    "recovery_origin_run_id": 39876029370,
    "production_failure_summary": {
     "slug": "ly-story-9c88bea169",
-    "run_id": 39803440656,
-    "artifact_id": 12441140498,
+    "run_id": 39889888595,
+    "artifact_id": 12475383118,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用频率的语境下，“睡觉就一天吃三次”存在严重的语义逻辑矛盾。正常服药行为发生在“睡觉前”或“醒来后”，而非“睡觉时”。此处极可能是将口语中的时间状语（如“睡前”）误识别为名词“睡觉”，导致动作发生的时间点与常识冲突，属于无法解释的错\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]"
      },
      {
       "stage": "part-quality",
@@ -37689,7 +37685,7 @@
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那么，因为我这个人啊，就说话就是以最坏的打算，所以我就赶紧让他们赶紧把那个跟头那个事儿停了，啊。\", \"suspect_quote\": \"跟头那个事儿\", \"kind\": \"unintelligible_term\", \"reason\": \"“跟头”在金融语境下无明确含义，疑似将“跟投”误识别为“跟头”，属于关键动词/名词的错写，影响对业务行为（停止跟投）的理解。\"}]"
+      "reason": "选段原画仍有原字幕或免责声明"
      }
     ]
    },
@@ -154902,7 +154898,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793365638,
- "rule_recovery_page": 6,
+ "rule_recovery_page": 7,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
