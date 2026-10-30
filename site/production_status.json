@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793401339,
+  "updated_at": 1793401535,
   "inventory_updated_at": 1793401334,
   "continuity": {
     "daily_target": 4,
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793401338,
+    "updated_at": 1793401534,
     "records": 13692,
     "video_records": 11450,
     "initial_candidates": 148,
@@ -783,15 +783,15 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1570,
+    "failed": 1572,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 67,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "running": 4
+    "retry_queued": 2,
+    "running": 5
   },
   "tasks": [
     {
@@ -34179,30 +34179,12 @@
       "run_updated_at": "2026-10-30T22:44:08Z"
     },
     {
-      "slug": "ly-1030-1cfd26",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793399982,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793401485,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41139584967,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41139584967",
-      "run_started_at": "2026-10-30T22:39:42Z",
-      "run_updated_at": "2026-10-30T22:46:47Z"
-    },
-    {
       "slug": "ly-1030-a93f45",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 82.27s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1793399990,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -34216,11 +34198,11 @@
     },
     {
       "slug": "ly-1030-2a797e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2088/2942，总帧数4268；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1793400092,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -34321,6 +34303,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41141244981",
       "run_started_at": "2026-10-30T22:55:21Z",
       "run_updated_at": "2026-10-30T22:55:27Z"
+    },
+    {
+      "slug": "ly-1030-1cfd26",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793401496,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41142244500,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41142244500",
+      "run_started_at": "2026-10-30T23:04:56Z",
+      "run_updated_at": "2026-10-30T23:05:00Z"
     }
   ],
   "runs": {
@@ -50374,14 +50374,14 @@
       "display_title": "中文源出片 · ly-1030-1c16ad"
     },
     "ly-1030-1cfd26": {
-      "id": 41139584967,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T22:39:42Z",
-      "updated_at": "2026-10-30T22:46:47Z",
-      "run_started_at": "2026-10-30T22:39:42Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41139584967",
-      "run_number": 3152,
+      "id": 41142244500,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T23:04:56Z",
+      "updated_at": "2026-10-30T23:05:00Z",
+      "run_started_at": "2026-10-30T23:04:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41142244500",
+      "run_number": 3160,
       "display_title": "中文源出片 · ly-1030-1cfd26"
     },
     "ly-1030-2a602b": {
