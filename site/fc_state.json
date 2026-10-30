@@ -37528,17 +37528,17 @@
    "publish_time": "2026-10-17T05:21:02+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-13a2c9",
-    "run_id": 39885958339,
-    "artifact_id": 12474210619,
+    "run_id": 39864415088,
+    "artifact_id": 12467807098,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是对‘TCL'的误听/误识（多音字或发音相似导致），属于无法解释的具体词语疑点。\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", "
      },
      {
       "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：现场原画封面存在黑色填充边"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中'五六块钱'为口语化的模糊数字范围，非精确数值冲突或否定错误，但作为关键价格描述存在识别歧义（是五块六还是五到六？），需指出具体数字表述不清。\"}]"
      }
     ]
    },
@@ -37596,13 +37596,13 @@
    "publish_time": "2021-08-31T15:25:11+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-a4bea9",
-    "run_id": 39888617974,
-    "artifact_id": 12473453635,
+    "run_id": 39870682612,
+    "artifact_id": 12467210636,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"他就挂了两百万，我记得是几兄弟，是潮州人啊，当时是开商场的，传说就挂在那里，谁都不敢去买。\", \"suspect_quote\": \"几兄弟\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或日常语境中无明确含义，疑似识别错误（可能为“几亿”、“几十亿”或其他数字/量词的误识），属于无法解释的具体词语。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\""
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"只有一只股票啊，深发展，我们就关关注深发展。\", \"suspect_quote\": \"关关注\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“关注”或“关心”，多出的“关”字导致语义不通。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\", \"kind\": \"unintelligible_term\", \"reason\": \"金融领域无“四会"
      }
     ]
    },
@@ -37655,13 +37655,21 @@
    "recovery_origin_run_id": 39876029370,
    "production_failure_summary": {
     "slug": "ly-story-9c88bea169",
-    "run_id": 39889888595,
-    "artifact_id": 12475383118,
+    "run_id": 39876029370,
+    "artifact_id": 12469862084,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"我前一段时间就是偶尔的去了一个重庆一家企业，因为我在重庆，哎，他就给我推荐了一个六味安神胶囊。\", \"suspect_quote\": \"六味安神胶囊\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词：中药‘六味地黄丸’常被误记为‘六味安神胶囊’，且‘六味安神胶囊’并非常见标准药品名，存在名称混淆风险。\"}, {\"sentence_id\": 10, \"quote\": \"我吃了大概现在有一一个多疗程呢。\", \"suspect_quote\": \"一一个多疗程\", \"k"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段原画仍有原字幕或免责声明"
      },
      {
       "stage": "part-quality",
@@ -156351,7 +156359,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793365638,
- "rule_recovery_page": 7,
+ "rule_recovery_page": 8,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
