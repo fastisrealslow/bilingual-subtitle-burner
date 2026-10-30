@@ -60782,7 +60782,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别成“林远”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"把财务指标上，财务指标上它就是，首先是一个产产品毛利率的变化，毛利率的变化就是非常重要。\", \"suspect_quote\": \"产产品\", \"kind\": \"unintelligible_term\", \"reason\": \"相邻字粘连导致语义不通，疑似“产品的”识别污染。\"}, {\"sentence_id\": 3, \"quote\": \"啊，一会儿高一会儿就这个这种公司我们就不参与，这就是我们说的这个周期性。\", \"suspect_quote\": \"一会儿高一会儿就这个这种公司\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充与指代混乱，连读后语义不清，疑似漏听或错录具体描述。\"}, {\"sentence_id\": 14, \"quote\": \"我的利润是靠投资拉动的，还是就是，还是就是，我投资一定利润无限大。\", \"suspect_quote\": \"我投资一定利润无限大\", \"kind\": \"unintelligible_term\", \"reason\": \"逻辑矛盾且语义不明，疑似“投资一定能产生利润”或类似表述被严重误识。\"}, {\"sentence_id\": 15, \"quote\": \"我喜欢投资完了以后光产利润。\", \"suspect_quote\": \"光产利润\", \"kind\": \"unintelligible_term\", \"reason\": \"动词搭配错误，疑似“产生利润”或“产出利润”被误识为“光产”。\"}, {\"sentence_id\": 18, \"quote\": \"啊，现金流直接，嗯，就是看你这个公司的硬难度。\", \"suspect_quote\": \"硬难度\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别错误，疑似“硬难度”应为“含金量”或“硬度/难度”等词。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5251511286237869",
@@ -60976,7 +60977,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-06T21:00:08+08:00"
+   "publish_time": "2022-05-06T21:00:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-a1e481",
+    "run_id": 41022376011,
+    "artifact_id": 12962539904,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6fc812a2745c74e58a985e63c96bd05e90e64a99056f2425f81d60336903156e",
+     "duration_sec": 580.5,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4766233193613751"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41022376011,
+    "artifact_id": 12962539904,
+    "name": "production-reject-ly-1030-a1e481",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4975698274422317",
@@ -148481,6 +148515,13 @@
    "video_id": "https://f.video.weibocdn.com/eydINcUVlx07Qx6gHFVu01041203NjTY0E020.mp4",
    "ts": 1793347412,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"面对纷繁复杂、科目林立的上市公司财务报表，林远表示，调研上市公司的财务状况可以化繁为简，抓住其中几个重要财务指标就可以了。\", \"suspect_quote\": \"林远\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别成“林远”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"把财务指标上，财务指标上它就是，首先是一个产产品毛利率的变化，毛利率的变化就是非常重要。\", \"suspect_quote\": \"产产品\", \"kind\": \"unintelligible_term\", \"reason\": \"相邻字粘连导致语义不通，疑似“产品的”识别污染。\"}, {\"sentence_id\": 3, \"quote\": \"啊，一会儿高一会儿就这个这种公司我们就不参与，这就是我们说的这个周期性。\", \"suspect_quote\": \"一会儿高一会儿就这个这种公司\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充与指代混乱，连读后语义不清，疑似漏听或错录具体描述。\"}, {\"sentence_id\": 14, \"quote\": \"我的利润是靠投资拉动的，还是就是，还是就是，我投资一定利润无限大。\", \"suspect_quote\": \"我投资一定利润无限大\", \"kind\": \"unintelligible_term\", \"reason\": \"逻辑矛盾且语义不明，疑似“投资一定能产生利润”或类似表述被严重误识。\"}, {\"sentence_id\": 15, \"quote\": \"我喜欢投资完了以后光产利润。\", \"suspect_quote\": \"光产利润\", \"kind\": \"unintelligible_term\", \"reason\": \"动词搭配错误，疑似“产生利润”或“产出利润”被误识为“光产”。\"}, {\"sentence_id\": 18, \"quote\": \"啊，现金流直接，嗯，就是看你这个公司的硬难度。\", \"suspect_quote\": \"硬难度\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别错误，疑似“硬难度”应为“含金量”或“硬度/难度”等词。\"}]"
+  },
+  {
+   "slug": "ly-1030-a1e481",
+   "key": "weibo_search:4766233193613751",
+   "video_id": "https://f.video.weibocdn.com/u0/2zgDhRS3gx07VQgUGbTW01041202qLBc0E010.mp4",
+   "ts": 1793348128,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
