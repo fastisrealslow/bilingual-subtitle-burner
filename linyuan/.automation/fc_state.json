@@ -64312,7 +64312,55 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-06T21:24:49+08:00"
+   "publish_time": "2026-06-06T21:24:49+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-a9236a",
+    "run_id": 41096122527,
+    "artifact_id": 13003020852,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e19e0c87826669d319514eda2cd69c79a48a0d357196572cd911f85268693070",
+     "duration_sec": 1808.57,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5306922099807874"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/195，总帧数974；身份匹配但人脸短边不足96px的帧数195"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配636/913，总帧数1382；身份匹配但人脸短边不足96px的帧数248"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配739/1346，总帧数3034；身份匹配但人脸短边不足96px的帧数607"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1144/2137，总帧数4963；身份匹配但人脸短边不足96px的帧数918"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配724/1590，总帧数4325；身份匹配但人脸短边不足96px的帧数863"
+     }
+    ]
+   },
+   "source_check_report_id": 13003020852,
+   "source_check_run_id": 41096122527,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793386270
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/7PlK3InHgx08xbsyaLUA0104120erMxv0E060.mp4",
@@ -64617,7 +64665,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[5, 6, 7, 14, 15, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{5: 0.1219, 6: 0.0533, 7: 0.1208, 14: 0.1252, 15: 0.0382, 18: 0.0905}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4912127721083237",
