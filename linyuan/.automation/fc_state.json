@@ -61674,7 +61674,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4674230207385354",
@@ -61811,7 +61812,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-11-29T12:01:39+08:00"
+   "publish_time": "2024-11-29T12:01:39+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-6315cf",
+    "run_id": 41030134144,
+    "artifact_id": 12967262711,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9fd125cecc7fca5663705b8d4ee825be28228ccc6939a19a1637ebffd9920868",
+     "duration_sec": 1240.64,
+     "resolution": {
+      "width": 724,
+      "height": 544,
+      "short_edge": 544
+     },
+     "source_url": "https://m.weibo.cn/detail/5106017497776604"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 572.04s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41030134144,
+    "artifact_id": 12967262711,
+    "name": "production-reject-ly-1030-6315cf",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -149256,6 +149310,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/K9PzLc71lx08aGtF0H6w01041200qMq60E010.mp4",
    "ts": 1793350503,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1030-6315cf",
+   "key": "weibo_search:5106017497776604",
+   "video_id": "https://fb.video.weibocdn.com/u8/4YbkKCGQgx08jXNmjX2U01041203H9Of0E028.mp4",
+   "ts": 1793353582,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
