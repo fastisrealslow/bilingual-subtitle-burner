@@ -64980,8 +64980,8 @@
    "publish_time": "2026-06-06T21:24:49+08:00",
    "production_failure_summary": {
     "slug": "ly-1030-a9236a",
-    "run_id": 41096122527,
-    "artifact_id": 13003020852,
+    "run_id": 41110446099,
+    "artifact_id": 13003843619,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -64998,6 +64998,10 @@
      {
       "stage": "editorial-service",
       "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.09574468085106383, 0.1360759493670886, 0.14893617021276595)]"
      },
      {
       "stage": "part-quality",
@@ -65018,14 +65022,19 @@
      {
       "stage": "part-quality",
       "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配724/1590，总帧数4325；身份匹配但人脸短边不足96px的帧数863"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配282/444，总帧数809；身份匹配但人脸短边不足96px的帧数162"
      }
     ]
    },
-   "source_check_report_id": 13003020852,
-   "source_check_run_id": 41096122527,
+   "source_check_report_id": 13003843619,
+   "source_check_run_id": 41110446099,
    "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1793389697
   },
   {
    "key": "weibo_search:4694159019737231",
