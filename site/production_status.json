@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793389393,
+  "updated_at": 1793389594,
   "inventory_updated_at": 1793389389,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 57,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 78,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 77,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793389392,
+    "updated_at": 1793389593,
     "records": 13628,
     "video_records": 11394,
-    "initial_candidates": 153,
-    "duration_eligible_records": 78,
-    "candidate_count": 78,
-    "known_duration_candidates": 78,
+    "initial_candidates": 152,
+    "duration_eligible_records": 77,
+    "candidate_count": 77,
+    "known_duration_candidates": 77,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7678,
-      "already_attempted_or_cooling": 1965,
+      "already_attempted_or_cooling": 1966,
       "no_video": 2234,
       "clip_title": 1261,
       "unrelated": 73,
@@ -199,14 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV15Rxe69Ed9",
-        "title": "#天玉朋友圈 连续第三年专访“民间股神”林园，林园再次强调生意的本质是垄断。（片尾有彩蛋哦）欢迎大家点赞转发评论，感谢支",
-        "source": "bilibili_search",
-        "author": "天玉和她的朋友们",
-        "url": "https://www.bilibili.com/video/BV15Rxe69Ed9",
-        "duration_sec": 869.0
-      },
       {
         "key": "weibo_search:5314458475300304",
         "title": "片仔癀2025年度股东大会期间，林园：从投资的角度，现在这些所谓的老登股都非常便宜，所有的消费股现在闭着眼睛买，不会亏钱",
@@ -846,8 +838,9 @@
     "experiment_fallback": 63,
     "ready": 14,
     "validation_failed": 2,
-    "retry_queued": 4,
-    "running": 4
+    "retry_queued": 3,
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -33875,24 +33868,6 @@
       "run_updated_at": "2026-10-30T19:05:50Z"
     },
     {
-      "slug": "ly-1030-ff8705",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793387412,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793389439,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41113007434,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41113007434",
-      "run_started_at": "2026-10-30T19:10:11Z",
-      "run_updated_at": "2026-10-30T19:12:21Z"
-    },
-    {
       "slug": "ly-1030-d8be4e",
       "status": "failed",
       "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配568/820，总帧数1255；身份匹配但人脸短边不足96px的帧数252",
@@ -34071,6 +34046,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117201077",
       "run_started_at": "2026-10-30T19:40:47Z",
       "run_updated_at": "2026-10-30T19:40:51Z"
+    },
+    {
+      "slug": "ly-1030-ff8705",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793389547,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41117883387,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117883387",
+      "run_started_at": "2026-10-30T19:45:47Z",
+      "run_updated_at": "2026-10-30T19:45:58Z"
+    },
+    {
+      "slug": "ly-1030-e62839",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793389553,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41117897560,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117897560",
+      "run_started_at": "2026-10-30T19:45:53Z",
+      "run_updated_at": "2026-10-30T19:45:53Z"
     }
   ],
   "runs": {
@@ -49871,14 +49882,14 @@
       "display_title": "中文源出片 · ly-1030-088426"
     },
     "ly-1030-ff8705": {
-      "id": 41113007434,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T19:10:11Z",
-      "updated_at": "2026-10-30T19:12:21Z",
-      "run_started_at": "2026-10-30T19:10:11Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41113007434",
-      "run_number": 3128,
+      "id": 41117883387,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T19:45:47Z",
+      "updated_at": "2026-10-30T19:45:58Z",
+      "run_started_at": "2026-10-30T19:45:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117883387",
+      "run_number": 3139,
       "display_title": "中文源出片 · ly-1030-ff8705"
     },
     "ly-1030-a9236a": {
@@ -49979,6 +49990,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41116192636",
       "run_number": 3134,
       "display_title": "中文源出片 · ly-1030-3ddd7e"
+    },
+    "ly-1030-e62839": {
+      "id": 41117897560,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-30T19:45:53Z",
+      "updated_at": "2026-10-30T19:45:53Z",
+      "run_started_at": "2026-10-30T19:45:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41117897560",
+      "run_number": 3140,
+      "display_title": "中文源出片 · ly-1030-e62839"
     },
     "ly-1030-964d72": {
       "id": 41117201077,
