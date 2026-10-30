@@ -63148,7 +63148,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配4843/6150，总帧数6532；身份匹配但人脸短边不足96px的帧数328",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5033300483902237",
@@ -63194,7 +63195,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-31T21:47:29+08:00"
+   "publish_time": "2026-05-31T21:47:29+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-b81528",
+    "run_id": 41066778965,
+    "artifact_id": 12984109555,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9e6b44b9c4833bdb66000e9a94741cfbfc8622b6a34de265afda2ea4dc44d480",
+     "duration_sec": 1225.99,
+     "resolution": {
+      "width": 1504,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5304753477126003"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41066778965,
+    "artifact_id": 12984109555,
+    "name": "production-reject-ly-1030-b81528",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5304750189054992",
@@ -63218,6 +63252,29 @@
     "basis": "unknown"
    },
    "publish_time": "2026-05-31T21:34:25+08:00"
+  },
+  {
+   "key": "weibo_search:5239743551900764",
+   "video_id": "https://f.video.weibocdn.com/u0/Kj7BJRspgx08tsnlTImY01041206pcvT0E030.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "portrait",
+   "editorial_profile": "field-story-v1",
+   "slug": "ly-1030-9dc3fa",
+   "ts": 1793370524,
+   "source_url": "https://m.weibo.cn/detail/5239743551900764",
+   "asset_url": "https://m.weibo.cn/detail/5239743551900764",
+   "title": "2015年林园访谈：某地产的暴雷只是时间问题，我不可能去投他 [赞][赞][赞] http://t.cn/AXyq0Is",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "桂哥猎手VIP777",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2025-12-03T12:21:15+08:00"
   }
  ],
  "makeup_receipts": {
@@ -151171,6 +151228,13 @@
    "video_id": "http://f.video.weibocdn.com/u0/HyViBEa1gx08BOyYWqeA01041200xL8l0E010.mp4",
    "ts": 1793369171,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配4843/6150，总帧数6532；身份匹配但人脸短边不足96px的帧数328"
+  },
+  {
+   "slug": "ly-1030-b81528",
+   "key": "weibo_search:5304753477126003",
+   "video_id": "https://f.video.weibocdn.com/u0/9MVFIg8mgx08y4vGiu7K01041206rH090E030.mp4",
+   "ts": 1793370475,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
@@ -152564,7 +152628,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793365638,
- "rule_recovery_page": 1,
+ "rule_recovery_page": 2,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
