@@ -165,3 +165,22 @@ def test_target_and_monotonic_deadline_still_bound_the_larger_batch(base,monkeyp
     monkeypatch.setattr(G.time,'monotonic',lambda:next(ticks))
     def forbidden(url,headers):raise AssertionError('No request after the 90 second budget')
     assert G.grow_weibo(base,session=lambda:(forbidden,''))['exact_checks']==0
+
+
+def test_new_long_interviews_are_not_skipped_by_the_old_mixed_queue_cursor(base):
+    rows=[dict(mid=str(i),duration=1800 if i<20 else 180) for i in range(40)]
+    state=dict(weibo_parents=dict(cursor=24,seed_count=40))
+    first=list(G.weibo_priority_batch(rows,base/'scan.json',16,state))
+    assert len(first)==16 and sum(r['duration']>=900 for r in first)==12
+    second=list(G.weibo_priority_batch(rows,base/'scan.json',16,state))
+    assert second[0]['mid']=='12' and sum(r['duration']>=900 for r in second)==12
+    assert state['weibo_parents']['cursor']==24
+
+
+@pytest.mark.parametrize('long_count,short_count,limit,expected',[(20,0,16,16),(0,20,16,16),
+    (1,20,16,16),(20,1,16,16),(2,3,16,5),(20,20,1,1),(20,20,100,16)])
+def test_priority_queues_share_one_bounded_budget_and_donate_empty_slots(base,long_count,short_count,limit,expected):
+    rows=[dict(mid='l'+str(i),duration=1800) for i in range(long_count)]
+    rows += [dict(mid='s'+str(i),duration=180) for i in range(short_count)]
+    batch=list(G.weibo_priority_batch(rows,base/'scan.json',limit,{}))
+    assert len(batch)==expected and len({r['mid'] for r in batch})==expected

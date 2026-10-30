@@ -884,6 +884,8 @@ class WeiboSearchSource(Source):
             for pg in page_numbers:
                 url=('https://weibo.com/ajax/statuses/search'
                      f'?q={urllib.parse.quote(query)}&page={pg}')
+                if self.config.get('video_only') is True:
+                    url+='&hasvideo=1'
                 try:
                     data=json.loads(rq(url,headers))
                 except Exception as exc:
