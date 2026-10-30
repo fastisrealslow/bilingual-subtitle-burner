@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793328094,
+  "updated_at": 1793328191,
   "inventory_updated_at": 1793328090,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 49,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793328093,
+    "updated_at": 1793328191,
     "records": 13025,
     "video_records": 10931,
-    "initial_candidates": 64,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 63,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2094,
-      "already_attempted_or_cooling": 1796,
+      "already_attempted_or_cooling": 1797,
       "speaker_unconfirmed": 7508,
       "clip_title": 1232,
       "unrelated": 67,
@@ -232,14 +232,6 @@
         "duration_sec": 41.0
       },
       {
-        "key": "weibo_search:4634856468514658",
-        "title": "【旺财学堂大佬分享】\n股神林园2021年5月7日最新访谈视频【完整版】，目前依然是牛市初期，对牛市的判断没有任何改变！\n",
-        "source": "weibo_search",
-        "author": "旺财学堂",
-        "url": "https://m.weibo.cn/detail/4634856468514658",
-        "duration_sec": 2422.0
-      },
-      {
         "key": "weibo_search:5090572341351177",
         "title": "【完整版】2024.10.16 林园采访完整版:牛市有回调很正常，没什么大不了的[心][心] http://t.cn/A",
         "source": "weibo_search",
@@ -279,15 +271,16 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1458,
+    "failed": 1459,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 44,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 3,
+    "queued": 1
   },
   "tasks": [
     {
@@ -31264,11 +31257,11 @@
     },
     {
       "slug": "ly-1030-87d591",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "清理后预计短边 462 < 480",
       "signature": {
         "ts": 1793327484,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -31279,6 +31272,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40992179438",
       "run_started_at": "2026-10-30T02:31:24Z",
       "run_updated_at": "2026-10-30T02:37:29Z"
+    },
+    {
+      "slug": "ly-1030-ac9151",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793328151,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40993251590,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40993251590",
+      "run_started_at": "2026-10-30T02:42:31Z",
+      "run_updated_at": "2026-10-30T02:42:31Z"
     }
   ],
   "runs": {
@@ -45834,6 +45845,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40992179438",
       "run_number": 2966,
       "display_title": "中文源出片 · ly-1030-87d591"
+    },
+    "ly-1030-ac9151": {
+      "id": 40993251590,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-30T02:42:31Z",
+      "updated_at": "2026-10-30T02:42:31Z",
+      "run_started_at": "2026-10-30T02:42:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40993251590",
+      "run_number": 2967,
+      "display_title": "中文源出片 · ly-1030-ac9151"
     },
     "ly-1030-75ad39": {
       "id": 40987725369,
