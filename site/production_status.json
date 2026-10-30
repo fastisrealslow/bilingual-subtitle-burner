@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793374259,
+  "updated_at": 1793374423,
   "inventory_updated_at": 1793374256,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 56,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 52,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793374258,
+    "updated_at": 1793374423,
     "records": 13479,
     "video_records": 11250,
-    "initial_candidates": 118,
-    "duration_eligible_records": 56,
-    "candidate_count": 56,
-    "known_duration_candidates": 56,
+    "initial_candidates": 114,
+    "duration_eligible_records": 52,
+    "candidate_count": 52,
+    "known_duration_candidates": 52,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7621,
-      "already_attempted_or_cooling": 1925,
+      "already_attempted_or_cooling": 1929,
       "no_video": 2229,
       "clip_title": 1250,
       "unrelated": 72,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5304394007974542",
-        "title": "2018年林园谈中药",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5304394007974542",
-        "duration_sec": 737.0
-      },
-      {
-        "key": "weibo_search:5292073424782234",
-        "title": "2018年林园的采访",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5292073424782234",
-        "duration_sec": 596.0
-      },
       {
         "key": "weibo_search:4594382491881708",
         "title": "林园参加万科2015年股东会现场——调查研究，长期集中投资于时代的行业企业，第一或唯一。",
@@ -376,6 +360,14 @@
         "duration_sec": 119.0
       },
       {
+        "key": "weibo_search:5356932506323216",
+        "title": "林园说今年牛没有来过，一定范围内涨跌，各个板块轮动都很正常",
+        "source": "weibo_search",
+        "author": "养老投资人",
+        "url": "https://m.weibo.cn/detail/5356932506323216",
+        "duration_sec": 253.0
+      },
+      {
         "key": "weibo_search:5092671333074278",
         "title": "林园：人到了五十岁了就能够明显感觉到身体不行了，力不从心，你现在和年轻人谈健康保健养生，他们都不感兴趣，但作为投资人现在",
         "source": "weibo_search",
@@ -520,14 +512,6 @@
         "duration_sec": 191.0
       },
       {
-        "key": "weibo_search:5356932506323216",
-        "title": "林园说今年牛没有来过，一定范围内涨跌，各个板块轮动都很正常",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5356932506323216",
-        "duration_sec": 253.0
-      },
-      {
         "key": "weibo_search:5314721544930066",
         "title": "2026.06.26片仔癀2025年度股东大会期间，                                  ",
         "source": "weibo_search",
@@ -608,14 +592,6 @@
         "duration_sec": 396.0
       },
       {
-        "key": "weibo_search:5304304744276563",
-        "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2018.12.28﹣医药专题﹣红周刊专访\n\n人一生最重要的两个字是：认知。",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5304304744276563",
-        "duration_sec": 737.0
-      },
-      {
         "key": "weibo_search:5304303264991392",
         "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2018.12.28﹣医药专题﹣红周刊专访\n\n人一生最重要的两个字是：认知。",
         "source": "weibo_search",
@@ -638,14 +614,6 @@
         "author": "昕礽果复利增长",
         "url": "https://m.weibo.cn/detail/5304278006892903",
         "duration_sec": 741.0
-      },
-      {
-        "key": "weibo_search:5292053169705051",
-        "title": "#昕礽果复利增长价值亿亿金#   林园经典采访﹣2018.01.17﹣投资名人堂 http://t.cn/AXxu26o",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5292053169705051",
-        "duration_sec": 596.0
       }
     ]
   },
@@ -663,7 +631,7 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1533,
+    "failed": 1534,
     "paused": 5,
     "interrupted": 7,
     "excluded": 24,
@@ -671,7 +639,8 @@
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -33232,11 +33201,11 @@
     },
     {
       "slug": "ly-1030-902902",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"中国个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"夹杂无意义口语填充词，疑似识别污染。\"}]",
       "signature": {
         "ts": 1793372808,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -33250,8 +33219,8 @@
     },
     {
       "slug": "ly-1030-a0caae",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793372818,
         "failed": null,
@@ -33264,7 +33233,43 @@
       "run_id": 41077698809,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41077698809",
       "run_started_at": "2026-10-30T15:06:58Z",
-      "run_updated_at": "2026-10-30T15:07:53Z"
+      "run_updated_at": "2026-10-30T15:31:58Z"
+    },
+    {
+      "slug": "ly-1030-04bb89",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793374373,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41081709841,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41081709841",
+      "run_started_at": "2026-10-30T15:32:53Z",
+      "run_updated_at": "2026-10-30T15:32:59Z"
+    },
+    {
+      "slug": "ly-1030-239978",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793374380,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41081729372,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41081729372",
+      "run_started_at": "2026-10-30T15:33:00Z",
+      "run_updated_at": "2026-10-30T15:33:00Z"
     }
   ],
   "runs": {
@@ -48767,17 +48772,6 @@
       "run_number": 3095,
       "display_title": "中文源出片 · ly-1030-fc88a5"
     },
-    "ly-1030-a0caae": {
-      "id": 41077698809,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-30T15:06:58Z",
-      "updated_at": "2026-10-30T15:07:53Z",
-      "run_started_at": "2026-10-30T15:06:58Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41077698809",
-      "run_number": 3098,
-      "display_title": "中文源出片 · ly-1030-a0caae"
-    },
     "ly-1030-902902": {
       "id": 41077674668,
       "status": "completed",
@@ -48788,6 +48782,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41077674668",
       "run_number": 3097,
       "display_title": "中文源出片 · ly-1030-902902"
+    },
+    "ly-1030-239978": {
+      "id": 41081729372,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-30T15:33:00Z",
+      "updated_at": "2026-10-30T15:33:00Z",
+      "run_started_at": "2026-10-30T15:33:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41081729372",
+      "run_number": 3100,
+      "display_title": "中文源出片 · ly-1030-239978"
+    },
+    "ly-1030-04bb89": {
+      "id": 41081709841,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T15:32:53Z",
+      "updated_at": "2026-10-30T15:32:59Z",
+      "run_started_at": "2026-10-30T15:32:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41081709841",
+      "run_number": 3099,
+      "display_title": "中文源出片 · ly-1030-04bb89"
+    },
+    "ly-1030-a0caae": {
+      "id": 41077698809,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-30T15:06:58Z",
+      "updated_at": "2026-10-30T15:31:58Z",
+      "run_started_at": "2026-10-30T15:06:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41077698809",
+      "run_number": 3098,
+      "display_title": "中文源出片 · ly-1030-a0caae"
     },
     "ly-1030-d9d8f4": {
       "id": 41074726915,
