@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793387859,
+  "updated_at": 1793387988,
   "inventory_updated_at": 1793387855,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 57,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 59,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 57,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793387858,
+    "updated_at": 1793387986,
     "records": 13569,
     "video_records": 11336,
-    "initial_candidates": 128,
-    "duration_eligible_records": 59,
-    "candidate_count": 59,
-    "known_duration_candidates": 59,
+    "initial_candidates": 126,
+    "duration_eligible_records": 57,
+    "candidate_count": 57,
+    "known_duration_candidates": 57,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7652,
-      "already_attempted_or_cooling": 1964,
+      "already_attempted_or_cooling": 1966,
       "no_video": 2233,
       "clip_title": 1256,
       "unrelated": 72,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5324145422243147",
-        "title": "【林园——万科是美女，我却不敢娶回家】这是林园2016年7月的采访，当时正值宝万之争白热化阶段，主持人问到林园参加万科股",
-        "source": "weibo_search",
-        "author": "资本大事纪",
-        "url": "https://m.weibo.cn/detail/5324145422243147",
-        "duration_sec": 165.0
-      },
-      {
-        "key": "weibo_search:5163353350869050",
-        "title": "赵心童晋级决赛后的采访，首先感谢了偶像奥沙利文多年来的帮助，既有风度又谦逊；\n主持人表示，2016年世锦赛决赛，中国有1",
-        "source": "weibo_search",
-        "author": "高宇飚",
-        "url": "https://m.weibo.cn/detail/5163353350869050",
-        "duration_sec": 234.0
-      },
       {
         "key": "weibo_search:5324877573655454",
         "title": "林园：股市确实是个好机会哦，你要抓住牛市了，挣个几十倍50倍以上80倍，咣咣咣一下就来了，你别让牛市抓不住，你光考虑风险",
@@ -689,13 +673,13 @@
     "complete": 163,
     "failed": 1553,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 63,
     "ready": 14,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "running": 3
+    "retry_queued": 4,
+    "running": 5
   },
   "tasks": [
     {
@@ -33652,14 +33636,14 @@
     },
     {
       "slug": "ly-1030-a9236a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793386288,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793389697,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -33775,6 +33759,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41113648063",
       "run_started_at": "2026-10-30T19:14:44Z",
       "run_updated_at": "2026-10-30T19:14:48Z"
+    },
+    {
+      "slug": "ly-1030-99aaba",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793387938,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41114229838,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41114229838",
+      "run_started_at": "2026-10-30T19:18:58Z",
+      "run_updated_at": "2026-10-30T19:19:16Z"
+    },
+    {
+      "slug": "ly-1030-cf7f4a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793387946,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41114248413,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41114248413",
+      "run_started_at": "2026-10-30T19:19:06Z",
+      "run_updated_at": "2026-10-30T19:19:18Z"
     }
   ],
   "runs": {
@@ -49606,6 +49626,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41110446099",
       "run_number": 3123,
       "display_title": "中文源出片 · ly-1030-a9236a"
+    },
+    "ly-1030-cf7f4a": {
+      "id": 41114248413,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T19:19:06Z",
+      "updated_at": "2026-10-30T19:19:18Z",
+      "run_started_at": "2026-10-30T19:19:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41114248413",
+      "run_number": 3131,
+      "display_title": "中文源出片 · ly-1030-cf7f4a"
+    },
+    "ly-1030-99aaba": {
+      "id": 41114229838,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T19:18:58Z",
+      "updated_at": "2026-10-30T19:19:16Z",
+      "run_started_at": "2026-10-30T19:18:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41114229838",
+      "run_number": 3130,
+      "display_title": "中文源出片 · ly-1030-99aaba"
     },
     "ly-1030-d8be4e": {
       "id": 41113648063,
