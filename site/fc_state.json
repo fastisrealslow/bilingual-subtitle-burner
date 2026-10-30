@@ -64034,7 +64034,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-27T20:04:34+08:00"
+   "publish_time": "2026-01-27T20:04:34+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-373923",
+    "run_id": 41088182914,
+    "artifact_id": 12996161204,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c34843277a5579400d5191d42f6ac4da48c66dc017168aa5a8269b346879e013",
+     "duration_sec": 1343.48,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5259791481965381"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41088182914,
+    "artifact_id": 12996161204,
+    "name": "production-reject-ly-1030-373923",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5258510147258355",
@@ -152258,6 +152295,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/PDh6kSzUgx08y2xdMcre010412028UaS0E010.mp4",
    "ts": 1793378224,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1030-373923",
+   "key": "weibo_search:5259791481965381",
+   "video_id": "http://f.video.weibocdn.com/o0/3wuKwGI9lx08uSC9K2Z201041204qyZn0E020.mp4",
+   "ts": 1793380034,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
