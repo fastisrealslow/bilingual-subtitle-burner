@@ -66655,7 +66655,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-19T22:05:03+08:00"
+   "publish_time": "2026-05-19T22:05:03+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-d402bd",
+    "run_id": 41145853820,
+    "artifact_id": 13020574410,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "64524a6e85721e58cc6d0ae8e806b475ccf8a74f66cbd879907baf119006c77d",
+     "duration_sec": 347.13,
+     "resolution": {
+      "width": 1168,
+      "height": 680,
+      "short_edge": 680
+     },
+     "source_url": "https://m.weibo.cn/detail/5300409242752301"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41145853820,
+    "artifact_id": 13020574410,
+    "name": "production-reject-ly-1030-d402bd",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5168013472960833",
@@ -154965,6 +154998,13 @@
    "video_id": "BV1sjxv6zEne",
    "ts": 1793403351,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1030-d402bd",
+   "key": "weibo_search:5300409242752301",
+   "video_id": "http://f.video.weibocdn.com/o0/1Aoe0vGqlx08xlpLLILC01041201rgnt0E010.mp4",
+   "ts": 1793404707,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
