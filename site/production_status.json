@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793343528,
+  "updated_at": 1793343721,
   "inventory_updated_at": 1793343524,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 52,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 58,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 56,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793343526,
+    "updated_at": 1793343720,
     "records": 13249,
     "video_records": 11042,
-    "initial_candidates": 117,
-    "duration_eligible_records": 58,
-    "candidate_count": 58,
-    "known_duration_candidates": 58,
+    "initial_candidates": 115,
+    "duration_eligible_records": 56,
+    "candidate_count": 56,
+    "known_duration_candidates": 56,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7539,
       "no_video": 2207,
-      "already_attempted_or_cooling": 1814,
+      "already_attempted_or_cooling": 1816,
       "clip_title": 1241,
       "unrelated": 67,
       "reference_only": 207,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4981399392354419",
-        "title": "【林园谈市场：我持续买入 满仓操作 现在这个时候甚至不考虑风险】新浪财经2023医药与资本论坛12月21日（周四）北京召",
-        "source": "weibo_search",
-        "author": "价值策划",
-        "url": "https://m.weibo.cn/detail/4981399392354419",
-        "duration_sec": 74.0
-      },
-      {
-        "key": "weibo_search:4981391033113276",
-        "title": "【林园谈市场：我持续买入 满仓操作 现在这个时候甚至不考虑风险】新浪财经2023医药与资本论坛12月21日（周四）北京召",
-        "source": "weibo_search",
-        "author": "苏世山成长价值投资",
-        "url": "https://m.weibo.cn/detail/4981391033113276",
-        "duration_sec": 74.0
-      },
       {
         "key": "weibo_search:5356612034495864",
         "title": "林园：这几年就没有真正意义上的牛市，没有突破4300点就是波动不算牛市，牛没来过。科技板块有泡沫赚了指数不赚钱，大多数人",
@@ -679,15 +663,15 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1476,
+    "failed": 1478,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 49,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -32096,11 +32080,11 @@
     },
     {
       "slug": "ly-1030-70d2c2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793342749,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32132,11 +32116,11 @@
     },
     {
       "slug": "ly-1030-b14e3a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: embed 页没有 __playinfo__",
       "signature": {
         "ts": 1793343381,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32146,7 +32130,7 @@
       "run_id": 41017022320,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017022320",
       "run_started_at": "2026-10-30T06:56:21Z",
-      "run_updated_at": "2026-10-30T06:56:25Z"
+      "run_updated_at": "2026-10-30T06:58:30Z"
     },
     {
       "slug": "ly-1030-6d90e7",
@@ -32165,6 +32149,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017031623",
       "run_started_at": "2026-10-30T06:56:27Z",
       "run_updated_at": "2026-10-30T06:56:30Z"
+    },
+    {
+      "slug": "ly-1030-d9b467",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793343675,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41017501829,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017501829",
+      "run_started_at": "2026-10-30T07:01:14Z",
+      "run_updated_at": "2026-10-30T07:01:19Z"
+    },
+    {
+      "slug": "ly-1030-196ba3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793343681,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41017513998,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017513998",
+      "run_started_at": "2026-10-30T07:01:21Z",
+      "run_updated_at": "2026-10-30T07:01:26Z"
     }
   ],
   "runs": {
@@ -46996,6 +47016,28 @@
       "run_number": 3025,
       "display_title": "中文源出片 · ly-1030-70d2c2"
     },
+    "ly-1030-196ba3": {
+      "id": 41017513998,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T07:01:21Z",
+      "updated_at": "2026-10-30T07:01:26Z",
+      "run_started_at": "2026-10-30T07:01:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017513998",
+      "run_number": 3030,
+      "display_title": "中文源出片 · ly-1030-196ba3"
+    },
+    "ly-1030-d9b467": {
+      "id": 41017501829,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T07:01:14Z",
+      "updated_at": "2026-10-30T07:01:19Z",
+      "run_started_at": "2026-10-30T07:01:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017501829",
+      "run_number": 3029,
+      "display_title": "中文源出片 · ly-1030-d9b467"
+    },
     "ly-1030-6d90e7": {
       "id": 41017031623,
       "status": "in_progress",
@@ -47009,10 +47051,10 @@
     },
     "ly-1030-b14e3a": {
       "id": 41017022320,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T06:56:21Z",
-      "updated_at": "2026-10-30T06:56:25Z",
+      "updated_at": "2026-10-30T06:58:30Z",
       "run_started_at": "2026-10-30T06:56:21Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41017022320",
       "run_number": 3027,
