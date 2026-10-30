@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793326941,
+  "updated_at": 1793327052,
   "inventory_updated_at": 1793326938,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 49,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793326940,
+    "updated_at": 1793327051,
     "records": 13025,
     "video_records": 10931,
-    "initial_candidates": 66,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
-    "known_duration_candidates": 10,
+    "initial_candidates": 65,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
       "no_video": 2094,
-      "already_attempted_or_cooling": 1794,
+      "already_attempted_or_cooling": 1795,
       "speaker_unconfirmed": 7508,
       "clip_title": 1232,
       "unrelated": 67,
@@ -232,20 +232,20 @@
         "duration_sec": 41.0
       },
       {
-        "key": "weibo_search:5094177883555610",
-        "title": "【完整版】2024年10月25日林园接受搜狐财经访谈提出：“现在也有很多贵的公司，不值得投资，我们只投好的公司，哪怕短期",
-        "source": "weibo_search",
-        "author": "桂哥猎手VIP777",
-        "url": "https://m.weibo.cn/detail/5094177883555610",
-        "duration_sec": 3183.0
-      },
-      {
         "key": "weibo_search:4974056189199598",
         "title": "2023年11月30日，首创证券林园专访。\n私募课堂，完整版，独家。\n内容详实，转发留存，慢慢听。\n#股票##价值投资#",
         "source": "weibo_search",
         "author": "财俊玩股",
         "url": "https://m.weibo.cn/detail/4974056189199598",
         "duration_sec": 3553.0
+      },
+      {
+        "key": "weibo_search:4634856468514658",
+        "title": "【旺财学堂大佬分享】\n股神林园2021年5月7日最新访谈视频【完整版】，目前依然是牛市初期，对牛市的判断没有任何改变！\n",
+        "source": "weibo_search",
+        "author": "旺财学堂",
+        "url": "https://m.weibo.cn/detail/4634856468514658",
+        "duration_sec": 2422.0
       },
       {
         "key": "weibo_search:5090572341351177",
@@ -262,14 +262,6 @@
         "author": "乐游-杨生",
         "url": "https://m.weibo.cn/detail/5044105472115769",
         "duration_sec": 3727.0
-      },
-      {
-        "key": "weibo_search:4634856468514658",
-        "title": "【旺财学堂大佬分享】\n股神林园2021年5月7日最新访谈视频【完整版】，目前依然是牛市初期，对牛市的判断没有任何改变！\n",
-        "source": "weibo_search",
-        "author": "旺财学堂",
-        "url": "https://m.weibo.cn/detail/4634856468514658",
-        "duration_sec": 2422.0
       },
       {
         "key": "weibo_search:4911477749973304",
@@ -295,15 +287,15 @@
   },
   "counts": {
     "complete": 161,
-    "failed": 1456,
+    "failed": 1457,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 44,
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -31244,11 +31236,11 @@
     },
     {
       "slug": "ly-1030-39fc36",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 328 < 480（640x328），画质不达标",
       "signature": {
         "ts": 1793326712,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -31259,6 +31251,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40990917880",
       "run_started_at": "2026-10-30T02:18:32Z",
       "run_updated_at": "2026-10-30T02:20:29Z"
+    },
+    {
+      "slug": "ly-1030-11946c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793327010,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 40991403095,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40991403095",
+      "run_started_at": "2026-10-30T02:23:30Z",
+      "run_updated_at": "2026-10-30T02:23:34Z"
     }
   ],
   "runs": {
@@ -45792,6 +45802,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40990917880",
       "run_number": 2964,
       "display_title": "中文源出片 · ly-1030-39fc36"
+    },
+    "ly-1030-11946c": {
+      "id": 40991403095,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T02:23:30Z",
+      "updated_at": "2026-10-30T02:23:34Z",
+      "run_started_at": "2026-10-30T02:23:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/40991403095",
+      "run_number": 2965,
+      "display_title": "中文源出片 · ly-1030-11946c"
     },
     "ly-1030-75ad39": {
       "id": 40987725369,
