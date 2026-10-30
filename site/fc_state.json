@@ -58386,8 +58386,8 @@
    "publish_time": "2025-12-26T16:28:53+08:00",
    "production_failure_summary": {
     "slug": "ly-1029-137e92",
-    "run_id": 40975622065,
-    "artifact_id": 12945372499,
+    "run_id": 40984608546,
+    "artifact_id": 12947630984,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -58403,23 +58403,31 @@
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "观点审核服务未提供可对照的实际原文证据：本地文本推理未完成：qwen3.5:9b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格"
-     },
-     {
-      "stage": "part-quality",
       "reason": "整段取景预检：源 2134.37s，原始画面不足以保留完整人脸及头顶余量"
      },
      {
       "stage": "part-quality",
       "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段仅包含个人身世叙述与主持人开场寒暄，缺乏可独立成片的观点表达或完整论述逻辑。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 93.40s，来源角标覆盖必须保留的人脸或头顶区域"
      }
     ]
    },
    "source_check_report_id": 12945372499,
    "source_check_run_id": 40975622065,
-   "last_error": "观点审核服务未提供可对照的实际原文证据：本地文本推理未完成：qwen3.5:9b，耗时600.1秒，预算600秒，TimeoutError: timed out；保留ASR并重试，不判素材不合格",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "整段取景预检：源 2134.37s，原始画面不足以保留完整人脸及头顶余量",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40984608546,
+    "artifact_id": 12947630984,
+    "name": "production-reject-ly-1029-137e92",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:4863784033715846",
@@ -144364,6 +144372,13 @@
    "video_id": "https://f.video.weibocdn.com/HZ8Jm2b2lx07NFJ20ZGE01041203oB3l0E020.mp4",
    "ts": 1793323156,
    "error": "原始素材短边 272 < 480（368x272），画质不达标"
+  },
+  {
+   "slug": "ly-1029-137e92",
+   "key": "weibo_search:5248140789681545",
+   "video_id": "https://f.video.weibocdn.com/o0/hTIHRAoClx08u3kR6C7601041208B5Ly0E040.mp4",
+   "ts": 1793324189,
+   "error": "整段取景预检：源 2134.37s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
