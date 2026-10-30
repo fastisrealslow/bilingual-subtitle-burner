@@ -134,6 +134,7 @@ def test_qwen_verified_evidence_can_be_reused_without_weight_files(tmp_path, mon
     base = tmp_path/'linyuan'
     base.mkdir()
     (base/'reviewed_asr_corrections.py').write_text('VERSION = 1\n')
+    (base/'qwen_asr_evidence.py').write_text('WORD_OWNERSHIP_VERSION = 1\n')
     (base/'asr_production_config.json').write_text(json.dumps({
         'backend': 'qwen3',
         'model_revisions': {'asr': 'asr-revision', 'aligner': 'align-revision'},
@@ -154,6 +155,9 @@ def test_qwen_verified_evidence_can_be_reused_without_weight_files(tmp_path, mon
     monkeypatch.delenv('QWEN3_ASR_DIR', raising=False)
     monkeypatch.delenv('QWEN3_ALIGNER_DIR', raising=False)
     identity = P._asr_cache_identity(src)
+    (base/'qwen_asr_evidence.py').write_text('WORD_OWNERSHIP_VERSION = 2\n')
+    assert P._asr_cache_identity(src)['word_ownership_sha256'] != identity['word_ownership_sha256']
+    (base/'qwen_asr_evidence.py').write_text('WORD_OWNERSHIP_VERSION = 1\n')
     assert identity['source_sha256'] == source_sha
     assert identity['model_revisions']['asr'] == 'asr-revision'
     assert identity['evidence_sha256'] == [hashlib.sha256((evidence/'aligned.json').read_bytes()).hexdigest()]
@@ -200,6 +204,7 @@ def test_cue_cache_migration_keeps_alignment_and_bound_editing_caches(tmp_path,m
     sha=hashlib.sha256(src.read_bytes()).hexdigest()
     base=tmp_path/'base';base.mkdir();work=tmp_path/'new-slug';work.mkdir()
     (base/'reviewed_asr_corrections.py').write_text('VERSION=1')
+    (base/'qwen_asr_evidence.py').write_text('WORD_OWNERSHIP_VERSION = 1\n')
     revisions=dict(asr='asr-rev',aligner='align-rev')
     (base/'asr_production_config.json').write_text(json.dumps(dict(model_revisions=revisions)))
     raw=work/'qwen_cpu';raw.mkdir()

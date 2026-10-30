@@ -173,6 +173,7 @@ def test_producer_cue_cache_cannot_treat_old_alignment_as_context_trial(tmp_path
     base=tmp_path/'config';base.mkdir()
     write(base/'asr_production_config.json',{'model_revisions':{'asr':'asr','aligner':'align'}})
     (base/'reviewed_asr_corrections.py').write_text('VERSION=1')
+    (base/'qwen_asr_evidence.py').write_text('WORD_OWNERSHIP_VERSION=1')
     evidence=tmp_path/'evidence/aligned.json'
     report=raw();report['source_video_sha256']=source_sha
     write(evidence,report)

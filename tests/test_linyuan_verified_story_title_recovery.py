@@ -105,3 +105,46 @@ def test_actual_cpu_proof_cannot_be_used_before_matching_runtime_deployment():
     assert R.proof_error({**cpu,'source_sha256':'a'*64},deploy)=='actual_cpu_case_not_verified'
     assert R.proof_error(cpu,{**deploy,'verification_complete':False})=='deployment_not_verified'
     assert R.proof_error(cpu,{**deploy,'health':{**health,'publishing_experiment_sha256':'a'*64}})=='deployed_code_differs'
+
+
+def seam_proof():
+    import asr_overlap_replay as A
+    root=Path(__file__).resolve().parents[1]
+    fixture=json.loads((root/'tests/fixtures/linyuan_asr_seam_20261030.json').read_text())
+    return dict(passed=True,source_run_id=40920169914,source_sha256=R.MOTHER,
+        raw_report_sha256=fixture['raw_report_sha256'],original_report_unchanged=True,
+        caption_edit_proof_replayed=True,media_approved=False,asr_inference_rerun=False,selected_cues=43,
+        ownership_changes=[dict(core_boundary=1080,selected_boundary=1081.56,shared_context=['瞎','说','我','说'])],
+        repair_sha256=hashlib.sha256((root/'linyuan/qwen_asr_evidence.py').read_bytes()).hexdigest(),
+        producer_sha256=hashlib.sha256((root/'linyuan/produce_cn.py').read_bytes()).hexdigest())
+
+
+def test_distinct_proven_asr_repair_can_retry_once_without_erasing_title_attempt(state,stock):
+    proof=seam_proof()
+    assert R.plan(state,stock,[],[],seam_proof=proof)[1]=='prior_title_retry_missing'
+    state['dispatched'].append(dict(slug=R.CHILD,quality_retries=1))
+    before=deepcopy(state)
+    child,issue=R.plan(state,stock,[],[],seam_proof=proof)
+    assert issue is None and child['slug']==R.ASR_CHILD
+    assert child['asr_seam_recovery_evidence']==proof and child['editorial_profile']==R.TREATMENT
+    assert state==before and 'quality_retries' not in child
+    state['dispatched'].append(child)
+    assert R.plan(state,stock,[],[],seam_proof=proof)[1]=='already_attempted_or_unresolved'
+
+
+@pytest.mark.parametrize('change',[
+    dict(source_run_id=40817982883),dict(source_sha256='different'),dict(selected_cues=42),
+    dict(media_approved=True),dict(asr_inference_rerun=True),dict(ownership_changes=[]),
+    dict(repair_sha256='old'),dict(producer_sha256='old'),dict(caption_edit_proof_replayed=False),
+])
+def test_unverified_or_obsolete_seam_replay_never_grants_a_retry(state,stock,change):
+    proof=seam_proof();proof.update(change)
+    state['dispatched'].append(dict(slug=R.CHILD))
+    assert R.plan(state,stock,[],[],seam_proof=proof)[1]=='actual_asr_seam_not_verified'
+
+
+def test_seam_recovery_keeps_source_bans_and_worker_ceiling(state,stock):
+    state['dispatched'].append(dict(slug=R.CHILD))
+    proof=seam_proof()
+    assert R.plan(state,stock,[dict(status='queued')]*6,[],seam_proof=proof)[1]=='worker_limit'
+    assert R.plan(state,stock,[],[dict(bvid='BV1iC4y1H7JN',no_reprint=1)],seam_proof=proof)[1]=='source_restricted'
