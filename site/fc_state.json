@@ -60043,7 +60043,71 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-03T18:58:40+08:00"
+   "publish_time": "2026-01-03T18:58:40+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-f1cbd2",
+    "run_id": 41013379018,
+    "artifact_id": 12961793498,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "62dcb7093cc5013dc5d8a43cf52e1990db01cc455939fee789114b6700d08429",
+     "duration_sec": 1112.47,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5251077587868138"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：意群以未完成的连接词结束：嗯哼资金推动是吧？他又不挣钱多少年不挣钱那么我们投资者确确实还是要就是。请重新按原文输出全部字幕。上次分屏文本：[\"那么我们分板块分行业来看的话呢您比较看好哪些行业\", \"我们认为就是投资消费行业还有医疗养老行业\", \"我们就看这长期的行业这些行业总是能够挣钱的不会错\", \"嗯热了半天最后这公司不在了或者不挣钱了那就是炒作\", \"嗯哼资金推动是吧他又不挣钱多少年不挣钱那么我们投资者确确实还是要就是\"]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 93%（BV1Lheu6kEfE）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1hHHr6REMi）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：封面主体或标题超出信息流中心安全区"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"预判二零二零年，我们预判还是整体市场是向向好的，或者是啊非常向好。\", \"suspect_quote\": \"二零二零年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"上下文讨论的是“明年”及“二零二六年”，此处识别为“二零二零年”与时间逻辑矛盾，疑似将“二六”误识为“二零”。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 97%（BV1ive36mETJ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1292/1649，总帧数1780；身份匹配但人脸短边不足96px的帧数357"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾针对市场现象（寒武纪超越茅台、上尾新材暴涨、GPU 公司上市）的实质性回应或评价，属于未回答的新问题结尾，无法独立成片。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少核心观点：嘉宾仅陈述市场现象（人工智能、机器人等行业上半年火热下半年下滑），未给出任何投资判断、结论或对未来走势的主观预测。回答内容仅为事实描述，不构成完整表达所需的观点 + 理由结构。；原文问题：[]"
+     }
+    ]
+   },
+   "source_check_report_id": 12961793498,
+   "source_check_run_id": 41013379018,
+   "last_error": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：意群以未完成的连接词结束：嗯哼资金推动是吧？他又不挣钱多少年不挣钱那么我们投资者确确实还是要就是。请重新按原文输出全部字幕。上次分屏文本：[\"那么我们分板块分行业来看的话呢您比较看好哪些行业\", \"我们认为就是投资消费行业还有医疗养老行业\", \"我们就看这长期的行业这些行业总是能够挣钱的不会错\", \"嗯热了半天最后这公司不在了或者不挣钱了那就是炒作\", \"嗯哼资金推动是吧他又不挣钱多少年不挣钱那么我们投资者确确实还是要就是\"]",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793347393
   },
   {
    "key": "weibo_search:5211909839654946",
@@ -60948,7 +61012,8 @@
    },
    "last_error": "原始素材短边 360 < 480（480x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4585774739890847",
@@ -60971,7 +61036,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-12-24T21:42:40+08:00"
+   "publish_time": "2020-12-24T21:42:40+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41021973257,
+    "artifact_id": 12962565425,
+    "name": "source-reject-ly-1030-b545cb",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -147955,6 +148030,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/Jq3D4oKmlx08qBhA3czK01041203oQul0E020.mp4",
    "ts": 1793346245,
    "error": "原始素材短边 360 < 480（480x360），画质不达标"
+  },
+  {
+   "slug": "ly-1030-b545cb",
+   "key": "weibo_search:4585774739890847",
+   "video_id": "https://f.video.weibocdn.com/001g4pwtgx07J1USuX4b01041200Q9IG0E010.mp4",
+   "ts": 1793346479,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
