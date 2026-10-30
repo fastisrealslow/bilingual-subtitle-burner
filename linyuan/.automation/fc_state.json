@@ -63115,7 +63115,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-25T08:38:54+08:00"
+   "publish_time": "2026-10-25T08:38:54+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-fcfc6c",
+    "run_id": 41065512402,
+    "artifact_id": 12982743387,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "96a06350847fbf39e021edc06e27d61a2bd8d5c00896fe7ab164dc0c2337f96b",
+     "duration_sec": 231.85,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5357826044330320"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配4843/6150，总帧数6532；身份匹配但人脸短边不足96px的帧数328"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41065512402,
+    "artifact_id": 12982743387,
+    "name": "production-reject-ly-1030-fcfc6c",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配4843/6150，总帧数6532；身份匹配但人脸短边不足96px的帧数328",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5033300483902237",
@@ -151131,6 +151164,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/d0R9ZFZolx08qGgLAiiA0104120fKMFq0E060.mp4",
    "ts": 1793368267,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1030-fcfc6c",
+   "key": "weibo_search:5357826044330320",
+   "video_id": "http://f.video.weibocdn.com/u0/HyViBEa1gx08BOyYWqeA01041200xL8l0E010.mp4",
+   "ts": 1793369171,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配4843/6150，总帧数6532；身份匹配但人脸短边不足96px的帧数328"
   }
  ],
  "reviewed_third_video_0910": {
