@@ -65606,8 +65606,8 @@
    "publish_time": "2026-06-06T21:24:49+08:00",
    "production_failure_summary": {
     "slug": "ly-1030-a9236a",
-    "run_id": 41110446099,
-    "artifact_id": 13003843619,
+    "run_id": 41118511903,
+    "artifact_id": 13007984054,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -65621,10 +65621,6 @@
      "source_url": "https://m.weibo.cn/detail/5306922099807874"
     },
     "failures": [
-     {
-      "stage": "editorial-service",
-      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
-     },
      {
       "stage": "part-quality",
       "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.09574468085106383, 0.1360759493670886, 0.14893617021276595)]"
@@ -65657,9 +65653,17 @@
    },
    "source_check_report_id": 13003843619,
    "source_check_run_id": 41110446099,
-   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "last_error": "真人动态区仍有稳定来源角标：[(0.0, 0.09574468085106383, 0.1360759493670886, 0.14893617021276595)]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41118511903,
+    "artifact_id": 13007984054,
+    "name": "production-reject-ly-1030-a9236a",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:5242331793722664",
@@ -153887,6 +153891,13 @@
    "video_id": "http://f.video.weibocdn.com/u0/Q0P3u91Agx08xEJislXG01041205hLPA0E020.mp4",
    "ts": 1793389202,
    "error": "整段取景预检：源 108.03s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1030-a9236a",
+   "key": "weibo_search:5306922099807874",
+   "video_id": "http://f.video.weibocdn.com/u0/L1vdhUGFgx08ydOjPOVa01041206SnCZ0E030.mp4",
+   "ts": 1793392559,
+   "error": "真人动态区仍有稳定来源角标：[(0.0, 0.09574468085106383, 0.1360759493670886, 0.14893617021276595)]"
   }
  ],
  "reviewed_third_video_0910": {
