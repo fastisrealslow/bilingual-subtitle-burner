@@ -60402,7 +60402,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-22T00:14:53+08:00"
+   "publish_time": "2026-10-22T00:14:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-c35b88",
+    "run_id": 41017836239,
+    "artifact_id": 12961365011,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ace31e922eff1a4c48fe4956f51df35610e5a34b5fb85cd7a772e788bf07c193",
+     "duration_sec": 253.75,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5356612034495864"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1MZxN6FEEs）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41017836239,
+    "artifact_id": 12961365011,
+    "name": "production-reject-ly-1030-c35b88",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5249204618264721",
@@ -60425,7 +60462,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-29T14:56:08+08:00"
+   "publish_time": "2025-12-29T14:56:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-b12718",
+    "run_id": 41017847017,
+    "artifact_id": 12960846699,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "671255aaef0b7df89077b9eaf70e484709df86c95bc1c9bd441d128b18171975",
+     "duration_sec": 225.93,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5249204618264721"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 77.47s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41017847017,
+    "artifact_id": 12960846699,
+    "name": "production-reject-ly-1030-b12718",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 77.47s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5315556606482240",
@@ -147498,6 +147568,20 @@
    "video_id": "https://f.video.weibocdn.com/tfXsgnCRlx07LfhBCKiY0104120lYDuK0E080.mp4",
    "ts": 1793344519,
    "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+  },
+  {
+   "slug": "ly-1030-b12718",
+   "key": "weibo_search:5249204618264721",
+   "video_id": "https://f.video.weibocdn.com/o0/M1CprnwVlx08u7ITYEGk01041201xCJP0E010.mp4",
+   "ts": 1793344931,
+   "error": "整段取景预检：源 77.47s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1030-c35b88",
+   "key": "weibo_search:5356612034495864",
+   "video_id": "http://f.video.weibocdn.com/u0/HyASHkEmgx08BKj6BLfq01041200CcJJ0E010.mp4",
+   "ts": 1793344931,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配999/1497，总帧数2486；身份匹配但人脸短边不足96px的帧数56"
   }
  ],
  "reviewed_third_video_0910": {
