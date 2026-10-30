@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793374979,
+  "updated_at": 1793375211,
   "inventory_updated_at": 1793374975,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 52,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 49,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793374978,
+    "updated_at": 1793375210,
     "records": 13479,
     "video_records": 11250,
-    "initial_candidates": 114,
-    "duration_eligible_records": 52,
-    "candidate_count": 52,
-    "known_duration_candidates": 52,
+    "initial_candidates": 111,
+    "duration_eligible_records": 49,
+    "candidate_count": 49,
+    "known_duration_candidates": 49,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7621,
-      "already_attempted_or_cooling": 1929,
+      "already_attempted_or_cooling": 1932,
       "no_video": 2229,
       "clip_title": 1250,
       "unrelated": 72,
@@ -200,28 +200,12 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:4594382491881708",
-        "title": "林园参加万科2015年股东会现场——调查研究，长期集中投资于时代的行业企业，第一或唯一。",
-        "source": "weibo_search",
-        "author": "芳香在人",
-        "url": "https://m.weibo.cn/detail/4594382491881708",
-        "duration_sec": 287.0
-      },
-      {
         "key": "weibo_search:4687182293898102",
         "title": "林园：复利滚雪球\n\n我们要让资产长期往前滚（赚钱），把雪球滚大，不要倒退（亏钱）。未来20年股票投资行业会超过所有行业，",
         "source": "weibo_search",
         "author": "投资金手指GZ",
         "url": "https://m.weibo.cn/detail/4687182293898102",
         "duration_sec": 20.0
-      },
-      {
-        "key": "weibo_search:4594321373006976",
-        "title": "林园参加万科2015年股东会现场。完整版http://t.cn/A65Z8XY9 http://t.cn/A65Z8CK",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4594321373006976",
-        "duration_sec": 287.0
       },
       {
         "key": "weibo_search:5025503121769361",
@@ -286,14 +270,6 @@
         "author": "高宇飚",
         "url": "https://m.weibo.cn/detail/5163353350869050",
         "duration_sec": 234.0
-      },
-      {
-        "key": "weibo_search:4596978401418780",
-        "title": "//@高宇飚:林园参加万科2015年股东会现场[赞]//@一面湖水23: 转发微博",
-        "source": "weibo_search",
-        "author": "用户5773984418财运",
-        "url": "https://m.weibo.cn/detail/4596978401418780",
-        "duration_sec": 287.0
       },
       {
         "key": "weibo_search:5324877573655454",
@@ -631,15 +607,16 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1534,
+    "failed": 1536,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 56,
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -33146,11 +33123,11 @@
     },
     {
       "slug": "ly-1030-d9d8f4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1062/1339，总帧数1382；身份匹配但人脸短边不足96px的帧数277",
       "signature": {
         "ts": 1793371637,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -33218,11 +33195,11 @@
     },
     {
       "slug": "ly-1030-a0caae",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个，做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不明，疑似识别污染。\"}, {\"sentence_id\": 10, \"quote\": \"啊，只是他们这个这现在中国个这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个，医药企业的效率是不好。\", \"suspect_quote\": \"个这个\", \"kind\": \"unintelligible_term\", \"reason\": \"口语填充词粘连，无法确定实际指代对象。\"}]",
       "signature": {
         "ts": 1793372818,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -33269,6 +33246,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41081729372",
       "run_started_at": "2026-10-30T15:33:00Z",
       "run_updated_at": "2026-10-30T15:33:55Z"
+    },
+    {
+      "slug": "ly-1030-b86892",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793375171,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41083746079,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41083746079",
+      "run_started_at": "2026-10-30T15:46:11Z",
+      "run_updated_at": "2026-10-30T15:46:11Z"
     }
   ],
   "runs": {
@@ -48793,6 +48788,28 @@
       "run_number": 3098,
       "display_title": "中文源出片 · ly-1030-a0caae"
     },
+    "ly-1030-d9d8f4": {
+      "id": 41074726915,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-30T14:47:17Z",
+      "updated_at": "2026-10-30T15:40:51Z",
+      "run_started_at": "2026-10-30T14:47:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41074726915",
+      "run_number": 3094,
+      "display_title": "中文源出片 · ly-1030-d9d8f4"
+    },
+    "ly-1030-b86892": {
+      "id": 41083746079,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-30T15:46:11Z",
+      "updated_at": "2026-10-30T15:46:11Z",
+      "run_started_at": "2026-10-30T15:46:11Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41083746079",
+      "run_number": 3101,
+      "display_title": "中文源出片 · ly-1030-b86892"
+    },
     "ly-1030-239978": {
       "id": 41081729372,
       "status": "in_progress",
@@ -48814,17 +48831,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41081709841",
       "run_number": 3099,
       "display_title": "中文源出片 · ly-1030-04bb89"
-    },
-    "ly-1030-d9d8f4": {
-      "id": 41074726915,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T14:47:17Z",
-      "updated_at": "2026-10-30T15:40:51Z",
-      "run_started_at": "2026-10-30T14:47:17Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41074726915",
-      "run_number": 3094,
-      "display_title": "中文源出片 · ly-1030-d9d8f4"
     },
     "ly-1030-9df308": {
       "id": 41074706358,
