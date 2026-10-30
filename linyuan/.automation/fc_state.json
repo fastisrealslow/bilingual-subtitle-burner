@@ -62851,7 +62851,64 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-18T22:58:33+08:00"
+   "publish_time": "2025-08-18T22:58:33+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-05810e",
+    "run_id": 41056736573,
+    "artifact_id": 12981209524,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "24e751ee745ff6da2b99e8f5fab5d06dd30480910e49ad0558f6f197ebf52b09",
+     "duration_sec": 1411.89,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5201128430242127"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾林园未针对股市情况或投资行为给出实质性判断。其回应‘我也不会来数’是对主持人假设性提问（‘如果说是现在位置很高’）的条件式否定，并非独立观点；‘重出江湖的感觉’是主观感受描述，不构成可验证的投资结论。后续内容均为主持人介绍嘉宾（句 4-7），无嘉宾回答，因此无法构成完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1285.33s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 175.27s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1372.90s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1086.63s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41056736573,
+    "artifact_id": 12981209524,
+    "name": "production-reject-ly-1030-05810e",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5246731789797327",
@@ -62984,7 +63041,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/hij8nnrWgx08n7VaN4d201041204mpHR0E020.mp4",
@@ -150996,6 +151054,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/YxoyvfnLlx08b5onkN7a01041202S8XU0E020.mp4",
    "ts": 1793367726,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1030-05810e",
+   "key": "weibo_search:5201128430242127",
+   "video_id": "https://f.video.weibocdn.com/o0/d0R9ZFZolx08qGgLAiiA0104120fKMFq0E060.mp4",
+   "ts": 1793368267,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
