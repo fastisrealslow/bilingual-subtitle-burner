@@ -58267,7 +58267,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-08-17T09:00:01+08:00"
+   "publish_time": "2025-08-17T09:00:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-040062",
+    "run_id": 40980907222,
+    "artifact_id": 12945164758,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "bf7588c5679792aa2b151dbcae2a9bd6ca96e66bf890b71409a94a6183598004",
+     "duration_sec": 805.78,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5200555018552444"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 166.83s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 40980907222,
+    "artifact_id": 12945164758,
+    "name": "production-reject-ly-1030-040062",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/M0Dn4RsRlx08v8h8Nm640104120hYblL0E070.mp4",
@@ -144214,6 +144271,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/vA1IoklKgx08cduyJuDK01041200DAvR0E010.mp4",
    "ts": 1793319201,
    "error": "原始素材短边 288 < 480（640x288），画质不达标"
+  },
+  {
+   "slug": "ly-1030-040062",
+   "key": "weibo_search:5200555018552444",
+   "video_id": "https://f.video.weibocdn.com/o0/yNnrAQKmlx08qED6G8Xu010412074XFQ0E030.mp4",
+   "ts": 1793322820,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
