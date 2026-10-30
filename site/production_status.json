@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793387594,
+  "updated_at": 1793387725,
   "inventory_updated_at": 1793387592,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 57,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 60,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 59,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,17 +177,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793387593,
+    "updated_at": 1793387725,
     "records": 13569,
     "video_records": 11336,
-    "initial_candidates": 129,
-    "duration_eligible_records": 60,
-    "candidate_count": 60,
-    "known_duration_candidates": 60,
+    "initial_candidates": 128,
+    "duration_eligible_records": 59,
+    "candidate_count": 59,
+    "known_duration_candidates": 59,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7652,
-      "already_attempted_or_cooling": 1963,
+      "already_attempted_or_cooling": 1964,
       "no_video": 2233,
       "clip_title": 1256,
       "unrelated": 72,
@@ -199,22 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5257308226717374",
-        "title": "林园2018年采访，抓住牛市，就财务自由了#林园##股市##股市##经济##经济# http://t.cn/AXGnWB",
-        "source": "weibo_search",
-        "author": "一地基毛VIP",
-        "url": "https://m.weibo.cn/detail/5257308226717374",
-        "duration_sec": 433.0
-      },
-      {
-        "key": "weibo_search:5245276090533283",
-        "title": "2011年12月，林园央视专访：投资神话的回归！ #林园##股市##股市##投资##投资##基金##基金##经济##经济",
-        "source": "weibo_search",
-        "author": "一地基毛VIP",
-        "url": "https://m.weibo.cn/detail/5245276090533283",
-        "duration_sec": 529.0
-      },
       {
         "key": "weibo_search:5324145422243147",
         "title": "【林园——万科是美女，我却不敢娶回家】这是林园2016年7月的采访，当时正值宝万之争白热化阶段，主持人问到林园参加万科股",
@@ -278,6 +262,14 @@
         "author": "养老投资人",
         "url": "https://m.weibo.cn/detail/5356932506323216",
         "duration_sec": 253.0
+      },
+      {
+        "key": "weibo_search:5245276090533283",
+        "title": "2011年12月，林园央视专访：投资神话的回归！ #林园##股市##股市##投资##投资##基金##基金##经济##经济",
+        "source": "weibo_search",
+        "author": "一地基毛VIP",
+        "url": "https://m.weibo.cn/detail/5245276090533283",
+        "duration_sec": 529.0
       },
       {
         "key": "weibo_search:5192234623828860",
@@ -697,12 +689,12 @@
     "complete": 163,
     "failed": 1553,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 24,
     "experiment_fallback": 63,
     "ready": 14,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 3,
     "running": 3
   },
   "tasks": [
@@ -33660,8 +33652,8 @@
     },
     {
       "slug": "ly-1030-a9236a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793386288,
         "failed": null,
@@ -33674,7 +33666,7 @@
       "run_id": 41110446099,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41110446099",
       "run_started_at": "2026-10-30T18:51:28Z",
-      "run_updated_at": "2026-10-30T18:51:32Z"
+      "run_updated_at": "2026-10-30T19:15:19Z"
     },
     {
       "slug": "ly-1030-95dd63",
@@ -33732,14 +33724,14 @@
     },
     {
       "slug": "ly-1030-3ddd7e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793387116,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793388547,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -33750,14 +33742,14 @@
     },
     {
       "slug": "ly-1030-ff8705",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793387412,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793389439,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -33765,6 +33757,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41113007434",
       "run_started_at": "2026-10-30T19:10:11Z",
       "run_updated_at": "2026-10-30T19:12:21Z"
+    },
+    {
+      "slug": "ly-1030-d8be4e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793387684,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41113648063,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41113648063",
+      "run_started_at": "2026-10-30T19:14:44Z",
+      "run_updated_at": "2026-10-30T19:14:48Z"
     }
   ],
   "runs": {
@@ -49586,6 +49596,17 @@
       "run_number": 3127,
       "display_title": "中文源出片 · ly-1030-3ddd7e"
     },
+    "ly-1030-d8be4e": {
+      "id": 41113648063,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T19:14:44Z",
+      "updated_at": "2026-10-30T19:14:48Z",
+      "run_started_at": "2026-10-30T19:14:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41113648063",
+      "run_number": 3129,
+      "display_title": "中文源出片 · ly-1030-d8be4e"
+    },
     "ly-1030-7682d2": {
       "id": 41112272349,
       "status": "in_progress",
@@ -49599,10 +49620,10 @@
     },
     "ly-1030-a9236a": {
       "id": 41110446099,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T18:51:28Z",
-      "updated_at": "2026-10-30T18:51:32Z",
+      "updated_at": "2026-10-30T19:15:19Z",
       "run_started_at": "2026-10-30T18:51:28Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41110446099",
       "run_number": 3123,
