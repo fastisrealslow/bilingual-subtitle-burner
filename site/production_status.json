@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793367176,
+  "updated_at": 1793367289,
   "inventory_updated_at": 1793367173,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 53,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 38,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 37,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,18 +177,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793367175,
+    "updated_at": 1793367288,
     "records": 13391,
     "video_records": 11170,
-    "initial_candidates": 100,
-    "duration_eligible_records": 38,
-    "candidate_count": 38,
-    "known_duration_candidates": 38,
+    "initial_candidates": 99,
+    "duration_eligible_records": 37,
+    "candidate_count": 37,
+    "known_duration_candidates": 37,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7590,
       "no_video": 2221,
-      "already_attempted_or_cooling": 1898,
+      "already_attempted_or_cooling": 1899,
       "clip_title": 1247,
       "unrelated": 71,
       "reference_only": 207,
@@ -384,14 +384,6 @@
         "duration_sec": 704.0
       },
       {
-        "key": "weibo_search:4561719009223285",
-        "title": "林园说他自己2010年10月满仓+借钱买  \n视频时间:2011.8.24 财富非常道 。 #a股#  http://t",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4561719009223285",
-        "duration_sec": 1649.0
-      },
-      {
         "key": "weibo_search:5098572041424196",
         "title": "2011年12月27日CCTV采访林园总“投资就是垄断，买错了三年也要回到那个高位上去[威武][威武] http://t",
         "source": "weibo_search",
@@ -519,15 +511,15 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1522,
+    "failed": 1523,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 55,
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -32728,11 +32720,11 @@
     },
     {
       "slug": "ly-1030-0e37dd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
       "signature": {
         "ts": 1793363183,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -32869,6 +32861,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41063808248",
       "run_started_at": "2026-10-30T13:30:25Z",
       "run_updated_at": "2026-10-30T13:31:27Z"
+    },
+    {
+      "slug": "ly-1030-110721",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793367246,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41064325056,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41064325056",
+      "run_started_at": "2026-10-30T13:34:06Z",
+      "run_updated_at": "2026-10-30T13:34:11Z"
     }
   ],
   "runs": {
@@ -48249,6 +48259,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41055342065",
       "run_number": 3077,
       "display_title": "中文源出片 · ly-1030-0e37dd"
+    },
+    "ly-1030-110721": {
+      "id": 41064325056,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T13:34:06Z",
+      "updated_at": "2026-10-30T13:34:11Z",
+      "run_started_at": "2026-10-30T13:34:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41064325056",
+      "run_number": 3085,
+      "display_title": "中文源出片 · ly-1030-110721"
     },
     "ly-story-2cffc63fdd": {
       "id": 41063808248,
