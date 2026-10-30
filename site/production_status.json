@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793403309,
+  "updated_at": 1793403430,
   "inventory_updated_at": 1793403304,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 60,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 68,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 67,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,16 +177,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793403307,
+    "updated_at": 1793403428,
     "records": 13692,
     "video_records": 11450,
-    "initial_candidates": 145,
-    "duration_eligible_records": 68,
-    "candidate_count": 68,
-    "known_duration_candidates": 68,
+    "initial_candidates": 144,
+    "duration_eligible_records": 67,
+    "candidate_count": 67,
+    "known_duration_candidates": 67,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2016,
+      "already_attempted_or_cooling": 2017,
       "speaker_unconfirmed": 7689,
       "no_video": 2242,
       "clip_title": 1263,
@@ -199,14 +199,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5315111817584092",
-        "title": "林园自2005年起开始买入片仔癀股票并坚定持有。会议现场他围绕经营性现金流股价回落后的市值管理举措、回购与分红等方面提出",
-        "source": "weibo_search",
-        "author": "吕安广",
-        "url": "https://m.weibo.cn/detail/5315111817584092",
-        "duration_sec": 546.0
-      },
       {
         "key": "weibo_search:5300409242752301",
         "title": "2022年林园参加五粮液股东会，提倡多分红，降价多卖酒，培养大量的消费者",
@@ -759,7 +751,7 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1573,
+    "failed": 1574,
     "paused": 5,
     "interrupted": 7,
     "excluded": 24,
@@ -767,7 +759,7 @@
     "ready": 16,
     "validation_failed": 2,
     "retry_queued": 4,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -34300,11 +34292,11 @@
     },
     {
       "slug": "ly-1030-ddad09",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
       "signature": {
         "ts": 1793402541,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -34336,8 +34328,8 @@
     },
     {
       "slug": "ly-1030-fbb76d",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793403148,
         "failed": null,
@@ -34350,7 +34342,43 @@
       "run_id": 41145075715,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145075715",
       "run_started_at": "2026-10-30T23:32:28Z",
-      "run_updated_at": "2026-10-30T23:32:31Z"
+      "run_updated_at": "2026-10-30T23:35:56Z"
+    },
+    {
+      "slug": "ly-story-09715d1891",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793403383,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 41145475722,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145475722",
+      "run_started_at": "2026-10-30T23:36:23Z",
+      "run_updated_at": "2026-10-30T23:36:27Z"
+    },
+    {
+      "slug": "ly-1030-533325",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793403389,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41145485252,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145485252",
+      "run_started_at": "2026-10-30T23:36:29Z",
+      "run_updated_at": "2026-10-30T23:36:33Z"
     }
   ],
   "runs": {
@@ -50491,12 +50519,34 @@
       "run_number": 3157,
       "display_title": "中文源出片 · ly-1030-6b8e57"
     },
-    "ly-1030-fbb76d": {
-      "id": 41145075715,
+    "ly-1030-533325": {
+      "id": 41145485252,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-30T23:36:29Z",
+      "updated_at": "2026-10-30T23:36:33Z",
+      "run_started_at": "2026-10-30T23:36:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145485252",
+      "run_number": 3167,
+      "display_title": "中文源出片 · ly-1030-533325"
+    },
+    "ly-story-09715d1891": {
+      "id": 41145475722,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T23:36:23Z",
+      "updated_at": "2026-10-30T23:36:27Z",
+      "run_started_at": "2026-10-30T23:36:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145475722",
+      "run_number": 3166,
+      "display_title": "中文源出片 · ly-story-09715d1891"
+    },
+    "ly-1030-fbb76d": {
+      "id": 41145075715,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-30T23:32:28Z",
-      "updated_at": "2026-10-30T23:32:31Z",
+      "updated_at": "2026-10-30T23:35:56Z",
       "run_started_at": "2026-10-30T23:32:28Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41145075715",
       "run_number": 3165,
