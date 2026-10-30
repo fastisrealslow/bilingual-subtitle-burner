@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793400848,
+  "updated_at": 1793400961,
   "inventory_updated_at": 1793400844,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 60,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 72,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 71,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -177,16 +177,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793400846,
+    "updated_at": 1793400960,
     "records": 13692,
     "video_records": 11450,
-    "initial_candidates": 149,
-    "duration_eligible_records": 72,
-    "candidate_count": 72,
-    "known_duration_candidates": 72,
+    "initial_candidates": 148,
+    "duration_eligible_records": 71,
+    "candidate_count": 71,
+    "known_duration_candidates": 71,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2012,
+      "already_attempted_or_cooling": 2013,
       "speaker_unconfirmed": 7689,
       "no_video": 2242,
       "clip_title": 1263,
@@ -382,14 +382,6 @@
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5265944723327083",
         "duration_sec": 83.0
-      },
-      {
-        "key": "weibo_search:4831059088507213",
-        "title": "【#基金# 】林园.申万宏源路演 2019.9.18（全集）谈到了很多，很难得！//@Ree_Choo \n\n#经济##b",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/4831059088507213",
-        "duration_sec": 4850.0
       },
       {
         "key": "weibo_search:4912204984357741",
@@ -793,13 +785,13 @@
     "complete": 163,
     "failed": 1570,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 67,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 5
+    "retry_queued": 3,
+    "running": 6
   },
   "tasks": [
     {
@@ -34296,14 +34288,14 @@
     },
     {
       "slug": "ly-1030-2a602b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793400642,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793401783,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -34311,6 +34303,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41140761875",
       "run_started_at": "2026-10-30T22:50:41Z",
       "run_updated_at": "2026-10-30T22:52:47Z"
+    },
+    {
+      "slug": "ly-1030-b4ffc5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793400921,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41141244981,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41141244981",
+      "run_started_at": "2026-10-30T22:55:21Z",
+      "run_updated_at": "2026-10-30T22:55:27Z"
     }
   ],
   "runs": {
@@ -50384,6 +50394,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41140761875",
       "run_number": 3158,
       "display_title": "中文源出片 · ly-1030-2a602b"
+    },
+    "ly-1030-b4ffc5": {
+      "id": 41141244981,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-30T22:55:21Z",
+      "updated_at": "2026-10-30T22:55:27Z",
+      "run_started_at": "2026-10-30T22:55:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41141244981",
+      "run_number": 3159,
+      "display_title": "中文源出片 · ly-1030-b4ffc5"
     },
     "ly-1030-6b8e57": {
       "id": 41140746175,
