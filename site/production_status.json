@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793474521,
+  "updated_at": 1793474614,
   "inventory_updated_at": 1793474518,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 71,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 145,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -185,7 +185,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793474520,
+    "updated_at": 1793474613,
     "records": 14192,
     "video_records": 11909,
     "initial_candidates": 255,
@@ -1383,15 +1383,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1649,
+    "failed": 1650,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 8,
     "excluded": 27,
     "experiment_fallback": 91,
     "ready": 18,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 6
+    "running": 4
   },
   "tasks": [
     {
@@ -36562,11 +36562,11 @@
     },
     {
       "slug": "ly-1031-edfe2a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
       "signature": {
         "ts": 1793469355,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -36850,8 +36850,8 @@
     },
     {
       "slug": "ly-1031-fb34c4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793474024,
         "failed": null,
@@ -36864,12 +36864,12 @@
       "run_id": 41233212627,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41233212627",
       "run_started_at": "2026-10-31T19:13:44Z",
-      "run_updated_at": "2026-10-31T19:13:48Z"
+      "run_updated_at": "2026-10-31T19:23:23Z"
     },
     {
       "slug": "ly-1031-f7276d",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793474032,
         "failed": null,
@@ -36882,7 +36882,7 @@
       "run_id": 41233221765,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41233221765",
       "run_started_at": "2026-10-31T19:13:52Z",
-      "run_updated_at": "2026-10-31T19:13:56Z"
+      "run_updated_at": "2026-10-31T19:23:24Z"
     },
     {
       "slug": "ly-1031-2eb9eb",
@@ -54238,10 +54238,10 @@
     },
     "ly-1031-f7276d": {
       "id": 41233221765,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T19:13:52Z",
-      "updated_at": "2026-10-31T19:13:56Z",
+      "updated_at": "2026-10-31T19:23:24Z",
       "run_started_at": "2026-10-31T19:13:52Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41233221765",
       "run_number": 3285,
@@ -54249,10 +54249,10 @@
     },
     "ly-1031-fb34c4": {
       "id": 41233212627,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T19:13:44Z",
-      "updated_at": "2026-10-31T19:13:48Z",
+      "updated_at": "2026-10-31T19:23:23Z",
       "run_started_at": "2026-10-31T19:13:44Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41233212627",
       "run_number": 3284,
