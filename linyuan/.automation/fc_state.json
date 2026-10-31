@@ -68440,7 +68440,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-08-20T15:58:29+08:00"
+   "publish_time": "2025-08-20T15:58:29+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-4c3c7c",
+    "run_id": 41195597569,
+    "artifact_id": 13041677469,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "58ae4ffd026794aa3e879c6d9427706f7349d4a90f51a302561e3125c0f31f00",
+     "duration_sec": 889.28,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5201747494047424"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41195597569,
+    "artifact_id": 13041677469,
+    "name": "production-reject-ly-1031-4c3c7c",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4638969348755685",
@@ -158442,6 +158499,13 @@
    "video_id": "https://f.video.weibocdn.com/003fNfSbgx07NlJJ97M401041200qubp0E010.mp4",
    "ts": 1793447527,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[3, 4, 5, 6, 7, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{3: 0.1557, 4: 0.2223, 5: 0.1117, 6: 0.0335, 7: 0.083, 16: 0.0893, 17: 0.0269, 18: 0.0067}"
+  },
+  {
+   "slug": "ly-1031-4c3c7c",
+   "key": "weibo_search:5201747494047424",
+   "video_id": "https://f.video.weibocdn.com/o0/nRZvs3xxlx08qL87NEtG01041206Uj7m0E030.mp4",
+   "ts": 1793447992,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
