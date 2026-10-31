@@ -72672,7 +72672,51 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-14T18:05:49+08:00"
+   "publish_time": "2026-06-14T18:05:49+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-87bf8a",
+    "run_id": 41237170145,
+    "artifact_id": 13060523376,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "986dc96927ddad412d3081802f5455052da607d32e8dd782f39f5dd794c8a5af",
+     "duration_sec": 2934.07,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5309771122479864"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出来源二维码（含裁切残留定位图案）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"累积身负大的是这样啊，这个市场上总是有很多人去炒作的。\", \"suspect_quote\": \"累积身负大\", \"kind\": \"unintelligible_term\", \"reason\": \"“身负”为无意义词汇，结合上下文应为“涨幅”，存在严重识别污染。\"}, {\"sentence_id\": 6, \"quote\": \"这样就导致这个短期和价值不不匹配，所以累积身负大，这也是一种风险。\", \"suspect_quote\": \"累积身负大\", \"kind\": \"unintelligible_term\", \"reason\": \""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"首先是老能源，老能源的缺乏，老能源的这个价格高企，是吧？\", \"suspect_quote\": \"老能源的缺乏\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，'老能源的缺乏'语义不通且不符合能源行业常规表述，疑似将'老能源价格高企'或类似概念误转写。\"}, {\"sentence_id\": 19, \"quote\": \"贵价格高企，所以这个时候，我们的方法就是：我们自自己就回避这个这个新能源这个行业了。\", \"suspect_quote\": \"自自己\", \"kind\": \""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 23, \"quote\": \"如果我们现在十四亿，你说难要一阶段是吧？\", \"suspect_quote\": \"十四亿\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字“十四亿”在上下文中指代中国人口，但结合后文“七七八亿”，需确认是否为“十”或“四”的误读，存在数值矛盾风险。\"}, {\"sentence_id\": 24, \"quote\": \"到了七七八亿，你说怎么办？\", \"suspect_quote\": \"七七八亿\", \"kind\": \"ambiguous_number_or_negatio"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"嗯，这件事上我们要转跟筋儿。\", \"suspect_quote\": \"转跟筋儿\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，无法确定具体含义\"}, {\"sentence_id\": 4, \"quote\": \"就我们什么东西多了，就就就就就不值钱了。\", \"suspect_quote\": \"就就就就\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，无法确定具体含义\"}]"
+     }
+    ]
+   },
+   "source_check_report_id": 13060523376,
+   "source_check_run_id": 41237170145,
+   "last_error": "真人动态区检出来源二维码（含裁切残留定位图案）",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793487649
   },
   {
    "key": "weibo_search:4971306677175927",
@@ -73171,7 +73215,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾林园全程未对主持人的反思问题给出实质性观点回答，仅以个人性格和他人评价作为回应，属于无明确判断的叙述；结尾部分为主持人总结与升华，非嘉宾原话结论，因此无法构成独立成片的完整表达。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4765486821411233",
@@ -73265,7 +73310,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对核心问题（是否反思）的明确判断或实质性解释，回答被主持人的串场和无关评价打断，无法构成完整表达。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4621435953742764",
@@ -73508,7 +73554,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-10T15:54:41+08:00"
+   "publish_time": "2026-07-10T15:54:41+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41249145399,
+    "artifact_id": 13060327321,
+    "name": "source-reject-ly-1031-c81121",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[2]，scan_same=[]，scan_different=[13]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{13: 0.0514}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -164161,6 +164217,13 @@
    "video_id": "https://f.video.weibocdn.com/003eZN2bgx07KxcQ3Ju701041207Cn1S0E030.mp4",
    "ts": 1793486311,
    "error": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾林园全程未对主持人的反思问题给出实质性观点回答，仅以个人性格和他人评价作为回应，属于无明确判断的叙述；结尾部分为主持人总结与升华，非嘉宾原话结论，因此无法构成独立成片的完整表达。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1031-c81121",
+   "key": "weibo_search:5319160206984523",
+   "video_id": "https://f.video.weibocdn.com/o0/yYoOTsuolx08z5V741CE010412018nuW0E010.mp4",
+   "ts": 1793486744,
+   "error": "人物不一致或无法确认：林园；initial_same=[2]，scan_same=[]，scan_different=[13]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{13: 0.0514}"
   }
  ],
  "reviewed_third_video_0910": {
