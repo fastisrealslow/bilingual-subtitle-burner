@@ -67103,7 +67103,63 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-08T08:00:01+08:00"
+   "publish_time": "2026-06-08T08:00:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-2d37fd",
+    "run_id": 41162491006,
+    "artifact_id": 13028284891,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c42521087604e3d3724461b6b27ffc75bfc89f1c5f6ae3b09b092cc8eff53629",
+     "duration_sec": 2021.79,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5307444339413815"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "source_check_report_id": 13028284891,
+   "source_check_run_id": 41162491006,
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793421063
   },
   {
    "key": "weibo_search:5260756138329727",
@@ -67126,7 +67182,72 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-30T11:57:46+08:00"
+   "publish_time": "2026-01-30T11:57:46+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-f4cd14",
+    "run_id": 41162502890,
+    "artifact_id": 13028574894,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9bfe2eca3b385ef05fc19ce5f94f5dd9f52e8364aa37daf97b52cd0c4f7957ba",
+     "duration_sec": 3140.38,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5260756138329727"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配456/583，总帧数634；身份匹配但人脸短边不足96px的帧数4"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41162502890,
+    "artifact_id": 13028574894,
+    "name": "production-reject-ly-1031-f4cd14",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -155785,6 +155906,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/X6Er7Z4Alx08ysaJ7OS40104120frux00E060.mp4",
    "ts": 1793415612,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1031-f4cd14",
+   "key": "weibo_search:5260756138329727",
+   "video_id": "https://f.video.weibocdn.com/o0/WBb9MnGGlx08uWRqDWA0010412092jIt0E040.mp4",
+   "ts": 1793420162,
+   "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
   }
  ],
  "reviewed_third_video_0910": {
