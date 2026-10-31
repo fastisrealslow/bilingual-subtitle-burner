@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793434637,
+  "updated_at": 1793434730,
   "inventory_updated_at": 1793434634,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 62,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 169,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 168,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793434636,
+    "updated_at": 1793434729,
     "records": 13979,
     "video_records": 11697,
-    "initial_candidates": 248,
-    "duration_eligible_records": 169,
-    "candidate_count": 169,
-    "known_duration_candidates": 169,
+    "initial_candidates": 247,
+    "duration_eligible_records": 168,
+    "candidate_count": 168,
+    "known_duration_candidates": 168,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 7760,
-      "already_attempted_or_cooling": 2071,
+      "speaker_unconfirmed": 7759,
+      "already_attempted_or_cooling": 2073,
       "no_video": 2282,
       "clip_title": 1281,
       "unrelated": 73,
@@ -254,22 +254,6 @@
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5306010644513208",
         "duration_sec": 899.0
-      },
-      {
-        "key": "weibo_search:4629765136581081",
-        "title": "林园的2017年演讲，选择吸收，兼听则明。 http://t.cn/A6cop8eW ​​​",
-        "source": "weibo_search",
-        "author": "股知道学院",
-        "url": "https://m.weibo.cn/detail/4629765136581081",
-        "duration_sec": 1973.0
-      },
-      {
-        "key": "weibo_search:4579132866826216",
-        "title": "【林园投资董事长林园：我个人判断，现在是牛市的初期，大家赶紧来炒股！】在#2020雪球嘉年华#现场，林园投资董事长林园表",
-        "source": "weibo_search",
-        "author": "股知道学院",
-        "url": "https://m.weibo.cn/detail/4579132866826216",
-        "duration_sec": 56.0
       },
       {
         "key": "weibo_search:4590030892572552",
@@ -541,6 +525,14 @@
         "source": "weibo_search",
         "author": "肥唐说",
         "url": "https://m.weibo.cn/detail/4579306959538131",
+        "duration_sec": 56.0
+      },
+      {
+        "key": "weibo_search:4579132866826216",
+        "title": "【林园投资董事长林园：我个人判断，现在是牛市的初期，大家赶紧来炒股！】在#2020雪球嘉年华#现场，林园投资董事长林园表",
+        "source": "weibo_search",
+        "author": "股知道学院",
+        "url": "https://m.weibo.cn/detail/4579132866826216",
         "duration_sec": 56.0
       },
       {
@@ -1575,15 +1567,15 @@
   },
   "counts": {
     "complete": 166,
-    "failed": 1594,
+    "failed": 1595,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 26,
     "experiment_fallback": 80,
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -35710,11 +35702,11 @@
     },
     {
       "slug": "ly-1031-4998ff",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 94%（BV1RCn76bE4M）",
       "signature": {
         "ts": 1793431409,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35761,6 +35753,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41183437087",
       "run_started_at": "2026-10-31T08:09:32Z",
       "run_updated_at": "2026-10-31T08:09:35Z"
+    },
+    {
+      "slug": "ly-1031-abb7bf",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793434688,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41184039191,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41184039191",
+      "run_started_at": "2026-10-31T08:18:08Z",
+      "run_updated_at": "2026-10-31T08:18:11Z"
     }
   ],
   "runs": {
@@ -52253,6 +52263,28 @@
       "run_number": 3201,
       "display_title": "中文源出片 · ly-1031-c8b8b4"
     },
+    "ly-1031-4998ff": {
+      "id": 41180417937,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-31T07:23:29Z",
+      "updated_at": "2026-10-31T08:15:30Z",
+      "run_started_at": "2026-10-31T07:23:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41180417937",
+      "run_number": 3203,
+      "display_title": "中文源出片 · ly-1031-4998ff"
+    },
+    "ly-1031-abb7bf": {
+      "id": 41184039191,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T08:18:08Z",
+      "updated_at": "2026-10-31T08:18:11Z",
+      "run_started_at": "2026-10-31T08:18:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41184039191",
+      "run_number": 3206,
+      "display_title": "中文源出片 · ly-1031-abb7bf"
+    },
     "ly-1031-0c10d2": {
       "id": 41183437087,
       "status": "in_progress",
@@ -52274,17 +52306,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41180425505",
       "run_number": 3204,
       "display_title": "中文源出片 · ly-1031-1a7265"
-    },
-    "ly-1031-4998ff": {
-      "id": 41180417937,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-31T07:23:29Z",
-      "updated_at": "2026-10-31T08:15:30Z",
-      "run_started_at": "2026-10-31T07:23:29Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41180417937",
-      "run_number": 3203,
-      "display_title": "中文源出片 · ly-1031-4998ff"
     },
     "ly-1031-2796df": {
       "id": 41180410361,
