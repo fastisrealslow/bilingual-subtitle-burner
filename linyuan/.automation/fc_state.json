@@ -74055,8 +74055,8 @@
    "publish_time": "2025-09-26T18:30:01+08:00",
    "production_failure_summary": {
     "slug": "ly-1031-347432",
-    "run_id": 41250247073,
-    "artifact_id": 13061321360,
+    "run_id": 41252153482,
+    "artifact_id": 13061895995,
     "accepted": 0,
     "source_context": null,
     "failures": [
@@ -74066,11 +74066,12 @@
      }
     ]
    },
-   "source_check_report_id": 13061321360,
-   "source_check_run_id": 41250247073,
+   "source_check_report_id": 13061895995,
+   "source_check_run_id": 41252153482,
    "last_error": "工作流步骤失败，未形成素材不合格结论：render",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1793491178
   },
   {
    "key": "weibo_search:5095658342849623",
@@ -74116,7 +74117,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-30T17:58:12+08:00"
+   "publish_time": "2023-12-30T17:58:12+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41252479653,
+    "artifact_id": 13062145794,
+    "name": "source-reject-ly-1031-8c8c6d",
+    "retained": true
+   },
+   "last_error": "原始素材短边 400 < 480（676x400），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5206855494139992",
@@ -74139,7 +74150,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-09-03T18:15:50+08:00"
+   "publish_time": "2025-09-03T18:15:50+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41252489960,
+    "artifact_id": 13061344662,
+    "name": "source-reject-ly-1031-33223c",
+    "retained": true
+   },
+   "last_error": "原始素材短边 438 < 480（684x438），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -164834,6 +164855,20 @@
    "video_id": "BV1XUxz6AE8J",
    "ts": 1793489102,
    "error": "与已发布内容文字指纹重复：转写片段重合 57%（BV1MZxN6FEEs）"
+  },
+  {
+   "slug": "ly-1031-33223c",
+   "key": "weibo_search:5206855494139992",
+   "video_id": "https://f.video.weibocdn.com/o0/UZGFIb5ylx08r7BGMzHW01041200zlkx0E010.mp4",
+   "ts": 1793489376,
+   "error": "原始素材短边 438 < 480（684x438），画质不达标"
+  },
+  {
+   "slug": "ly-1031-8c8c6d",
+   "key": "weibo_search:4984707291285794",
+   "video_id": "http://f.video.weibocdn.com/o0/YzUHpfV6lx08blQijTTW010412002HQV0E010.mp4",
+   "ts": 1793489377,
+   "error": "原始素材短边 400 < 480（676x400），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
