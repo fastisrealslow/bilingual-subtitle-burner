@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793486394,
-  "inventory_updated_at": 1793486239,
+  "updated_at": 1793486690,
+  "inventory_updated_at": 1793486683,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 72,
-    "active_or_recovering_sources": 8,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 114,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 17,
-        "landscape": 55
+        "portrait": 16,
+        "landscape": 56
       },
       "full_schedule_days": 5,
-      "required_week_shortfall": 4,
+      "required_week_shortfall": 5,
       "required_week_shortfall_by_layout": {
-        "portrait": 4,
+        "portrait": 5,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -185,7 +185,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793486393,
+    "updated_at": 1793486688,
     "records": 14297,
     "video_records": 12001,
     "initial_candidates": 222,
@@ -1124,8 +1124,8 @@
   "inventory": {
     "verified_live": 72,
     "verified_audio_card": 0,
-    "verified_landscape": 55,
-    "verified_portrait": 17,
+    "verified_landscape": 56,
+    "verified_portrait": 16,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -1137,14 +1137,13 @@
     "complete": 167,
     "failed": 1678,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 8,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 18,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5,
-    "queued": 1
+    "running": 4
   },
   "tasks": [
     {
@@ -36873,8 +36872,8 @@
     },
     {
       "slug": "ly-1031-87bf8a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793477076,
         "failed": null,
@@ -36887,7 +36886,7 @@
       "run_id": 41237170145,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41237170145",
       "run_started_at": "2026-10-31T20:04:36Z",
-      "run_updated_at": "2026-10-31T20:04:39Z"
+      "run_updated_at": "2026-10-31T22:43:02Z"
     },
     {
       "slug": "ly-1031-944bf4",
@@ -37215,8 +37214,8 @@
     },
     {
       "slug": "ly-1031-c81121",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793486354,
         "failed": null,
@@ -37229,7 +37228,7 @@
       "run_id": 41249145399,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249145399",
       "run_started_at": "2026-10-31T22:39:13Z",
-      "run_updated_at": "2026-10-31T22:39:13Z"
+      "run_updated_at": "2026-10-31T22:42:34Z"
     }
   ],
   "runs": {
@@ -54855,12 +54854,23 @@
       "run_number": 3318,
       "display_title": "中文源出片 · ly-1031-39d0af"
     },
+    "ly-1031-fa04b8": {
+      "id": 41246357220,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-31T22:02:40Z",
+      "updated_at": "2026-10-31T22:36:31Z",
+      "run_started_at": "2026-10-31T22:02:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41246357220",
+      "run_number": 3320,
+      "display_title": "中文源出片 · ly-1031-fa04b8"
+    },
     "ly-1031-c81121": {
       "id": 41249145399,
-      "status": "queued",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T22:39:13Z",
-      "updated_at": "2026-10-31T22:39:13Z",
+      "updated_at": "2026-10-31T22:42:34Z",
       "run_started_at": "2026-10-31T22:39:13Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249145399",
       "run_number": 3326,
@@ -54899,17 +54909,6 @@
       "run_number": 3322,
       "display_title": "中文源出片 · ly-1031-2deb29"
     },
-    "ly-1031-fa04b8": {
-      "id": 41246357220,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-31T22:02:40Z",
-      "updated_at": "2026-10-31T22:36:31Z",
-      "run_started_at": "2026-10-31T22:02:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41246357220",
-      "run_number": 3320,
-      "display_title": "中文源出片 · ly-1031-fa04b8"
-    },
     "ly-1031-941764": {
       "id": 41246001372,
       "status": "in_progress",
@@ -54923,10 +54922,10 @@
     },
     "ly-1031-87bf8a": {
       "id": 41237170145,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T20:04:36Z",
-      "updated_at": "2026-10-31T20:04:39Z",
+      "updated_at": "2026-10-31T22:43:02Z",
       "run_started_at": "2026-10-31T20:04:36Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41237170145",
       "run_number": 3304,
