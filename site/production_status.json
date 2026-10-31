@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793446279,
+  "updated_at": 1793446409,
   "inventory_updated_at": 1793446273,
   "continuity": {
     "daily_target": 4,
@@ -185,7 +185,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793446277,
+    "updated_at": 1793446407,
     "records": 13979,
     "video_records": 11697,
     "initial_candidates": 233,
@@ -1455,15 +1455,16 @@
   },
   "counts": {
     "complete": 166,
-    "failed": 1602,
+    "failed": 1603,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 26,
     "experiment_fallback": 83,
     "ready": 15,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 5
+    "retry_queued": 1,
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -35679,24 +35680,6 @@
       "run_updated_at": "2026-10-31T08:27:32Z"
     },
     {
-      "slug": "ly-1031-9aa2c9",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793435412,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793446056,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41184856159,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41184856159",
-      "run_started_at": "2026-10-31T08:30:12Z",
-      "run_updated_at": "2026-10-31T11:08:42Z"
-    },
-    {
       "slug": "ly-1031-c98da5",
       "status": "failed",
       "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈以新\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈以新'无法确认为有效人名或行业术语，疑似语音转写错误。\"}, {\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国巨'在此语境下含义不明，疑似语音转写错误。\"}]",
@@ -35896,11 +35879,11 @@
     },
     {
       "slug": "ly-1031-519b35",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]，confidence=0.896，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2861, 2: 0.3211, 3: 0.3027, 4: 0.1661, 5: 0.3146, 6: 0.2187, 7: 0.3357, 8: 0.2504, 9: 0.2316, 10: 0.2975, 11: 0.2448, 12: 0.3067, 13: 0.2511, 14: 0.2361, 15: 0.2269, 16: 0.348, 17: 0.3382, 18: 0.4604}",
       "signature": {
         "ts": 1793445938,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35911,6 +35894,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41196808295",
       "run_started_at": "2026-10-31T11:25:37Z",
       "run_updated_at": "2026-10-31T11:29:20Z"
+    },
+    {
+      "slug": "ly-1031-9aa2c9",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793446370,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41197297322,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41197297322",
+      "run_started_at": "2026-10-31T11:32:50Z",
+      "run_updated_at": "2026-10-31T11:32:50Z"
     }
   ],
   "runs": {
@@ -52514,14 +52515,14 @@
       "display_title": "中文源出片 · ly-story-2531146621"
     },
     "ly-1031-9aa2c9": {
-      "id": 41184856159,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-31T08:30:12Z",
-      "updated_at": "2026-10-31T11:08:42Z",
-      "run_started_at": "2026-10-31T08:30:12Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41184856159",
-      "run_number": 3208,
+      "id": 41197297322,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-31T11:32:50Z",
+      "updated_at": "2026-10-31T11:32:50Z",
+      "run_started_at": "2026-10-31T11:32:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41197297322",
+      "run_number": 3221,
       "display_title": "中文源出片 · ly-1031-9aa2c9"
     },
     "ly-1031-7d54e0": {
