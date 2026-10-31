@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793431975,
-  "inventory_updated_at": 1793431792,
+  "updated_at": 1793434090,
+  "inventory_updated_at": 1793434084,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 63,
-    "active_or_recovering_sources": 5,
+    "verified_daily_stock": 62,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 171,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 63,
+      "verified_stock_snapshot": 62,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 16,
+        "portrait": 15,
         "landscape": 47
       },
       "full_schedule_days": 5,
-      "required_week_shortfall": 5,
+      "required_week_shortfall": 6,
       "required_week_shortfall_by_layout": {
-        "portrait": 5,
+        "portrait": 6,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -173,9 +173,9 @@
       },
       {
         "date": "2026-10-31",
-        "published": 2,
+        "published": 3,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 1,
         "valid_comparison": false
       }
@@ -185,7 +185,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793431974,
+    "updated_at": 1793434088,
     "records": 13979,
     "video_records": 11697,
     "initial_candidates": 250,
@@ -1578,28 +1578,28 @@
     ]
   },
   "inventory": {
-    "verified_live": 63,
+    "verified_live": 62,
     "verified_audio_card": 0,
     "verified_landscape": 47,
-    "verified_portrait": 16,
+    "verified_portrait": 15,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 63,
+    "daily_mix_usable": 62,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
-    "complete": 165,
+    "complete": 166,
     "failed": 1593,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 7,
     "excluded": 26,
-    "experiment_fallback": 81,
+    "experiment_fallback": 80,
     "ready": 14,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -33206,13 +33206,13 @@
     },
     {
       "slug": "ly-1030-7bb578",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793345442,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -35690,8 +35690,8 @@
     },
     {
       "slug": "ly-1031-c8b8b4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793431175,
         "failed": null,
@@ -35704,7 +35704,7 @@
       "run_id": 41180152363,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41180152363",
       "run_started_at": "2026-10-31T07:19:35Z",
-      "run_updated_at": "2026-10-31T07:19:39Z"
+      "run_updated_at": "2026-10-31T08:06:13Z"
     },
     {
       "slug": "ly-1031-2796df",
@@ -52275,10 +52275,10 @@
     },
     "ly-1031-c8b8b4": {
       "id": 41180152363,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T07:19:35Z",
-      "updated_at": "2026-10-31T07:19:39Z",
+      "updated_at": "2026-10-31T08:06:13Z",
       "run_started_at": "2026-10-31T07:19:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41180152363",
       "run_number": 3201,
