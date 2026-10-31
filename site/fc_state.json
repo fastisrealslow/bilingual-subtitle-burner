@@ -69001,7 +69001,96 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-09-22T06:07:24+08:00"
+   "publish_time": "2025-09-22T06:07:24+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-e42479",
+    "run_id": 41199855801,
+    "artifact_id": 13044446338,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "be469b78d786b207779b5b9db27e999043f81050f4403094073a7ebc0508410e",
+     "duration_sec": 1768.53,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5213557541045505"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1063.13s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 799.00s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/236，总帧数1176；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1665.07s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"无论林园的财富神话是真是。\", \"suspect_quote\": \"真\", \"kind\": \"unintelligible_term\", \"reason\": \"句子末尾“无论林园的财富神话是真是”语义不通，疑似将“真假”识别为“真”，导致否定结构缺失、含义不明。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 521.67s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1400.13s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41199855801,
+    "artifact_id": 13044446338,
+    "name": "production-reject-ly-1031-e42479",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5360015112145723",
@@ -69024,7 +69113,80 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-31T09:37:30+08:00"
+   "publish_time": "2026-10-31T09:37:30+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-471c66",
+    "run_id": 41201918321,
+    "artifact_id": 13043493860,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e79aadec3d9d7c0541c76ff61e220c3b4f68931e1ffe10d7209f9c8eaf2eff7e",
+     "duration_sec": 867.33,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5360015112145723"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 57%（BV1MZxN6FEEs）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1022/1434，总帧数2057；身份匹配但人脸短边不足96px的帧数140"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 64%（BV1vbxk6CEEL）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配392/637，总帧数1222；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配293/465，总帧数859；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2132/3062，总帧数4646；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配438/605，总帧数833；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配89/308，总帧数1094；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配136/461，总帧数1620；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 535.70s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41201918321,
+    "artifact_id": 13043493860,
+    "name": "production-reject-ly-1031-471c66",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 57%（BV1MZxN6FEEs）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5302067885509015",
@@ -159282,6 +159444,20 @@
    "video_id": "https://f.video.weibocdn.com/WdWPKZuilx07IwZY2ZGE01041209IdN90E040.mp4",
    "ts": 1793449418,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1031-471c66",
+   "key": "weibo_search:5360015112145723",
+   "video_id": "https://f.video.weibocdn.com/u0/YY7GyWetgx08BZJObJX201041203e3Lc0E020.mp4",
+   "ts": 1793452833,
+   "error": "与已发布内容文字指纹重复：转写片段重合 57%（BV1MZxN6FEEs）"
+  },
+  {
+   "slug": "ly-1031-e42479",
+   "key": "weibo_search:5213557541045505",
+   "video_id": "https://f.video.weibocdn.com/u0/olBg8OPJgx08rB7z4jB601041207krah0E030.mp4",
+   "ts": 1793452834,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
   }
  ],
  "reviewed_third_video_0910": {
