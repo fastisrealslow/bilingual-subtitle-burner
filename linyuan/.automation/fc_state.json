@@ -66957,11 +66957,13 @@
     "basis": "unknown"
    },
    "publish_time": "2025-05-31T06:39:55+08:00",
-   "source_check_report_id": 13022260560,
-   "source_check_run_id": 41148201974,
+   "source_check_report_id": 13026422186,
+   "source_check_run_id": 41159498723,
    "last_error": "取源未完成：RuntimeError: 音视频尾部差异不在安全修复范围：保留38.87s，裁切3.43s",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:5115212889856368",
@@ -66984,7 +66986,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-12-24T21:00:52+08:00"
+   "publish_time": "2024-12-24T21:00:52+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41159508413,
+    "artifact_id": 13025674293,
+    "name": "source-reject-ly-1031-b2c745",
+    "retained": true
+   },
+   "last_error": "原始素材短边 416 < 480（526x416），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4648811232496109",
@@ -155652,6 +155664,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/zuGoJAs2gx080rAZmzg401041209rDjw0E040.mp4",
    "ts": 1793405557,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/472，总帧数2357；身份匹配但人脸短边不足96px的帧数472"
+  },
+  {
+   "slug": "ly-1031-b2c745",
+   "key": "weibo_search:5115212889856368",
+   "video_id": "https://f.video.weibocdn.com/u0/F8kThfDigx08kBTxKl8c01041202yOLV0E010.mp4",
+   "ts": 1793413521,
+   "error": "原始素材短边 416 < 480（526x416），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
