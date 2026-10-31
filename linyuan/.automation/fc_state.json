@@ -70936,7 +70936,104 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-08T15:30:00+08:00"
+   "publish_time": "2025-12-08T15:30:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-edfe2a",
+    "run_id": 41226898087,
+    "artifact_id": 13054592315,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d0fe0d58b6d01d1e866e04766a3c3bc191de43ff719744c763752dccd034c003",
+     "duration_sec": 1435.81,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5241602994078258"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 89%（BV16vYT6ME5s）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1361.77s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1jfxK67EhB）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 100.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/180，总帧数895；身份匹配但人脸短边不足96px的帧数180"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未就任何核心议题（如投资价值、市场判断等）发表实质性观点或结论；现有回应仅为对过往使用经历的确认，缺乏独立成篇所需的完整论述逻辑与最终判断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 632.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1125.50s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV18bpQ69E4v）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1191.23s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41226898087,
+    "artifact_id": 13054592315,
+    "name": "production-reject-ly-1031-edfe2a",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5211487054332642",
@@ -71267,7 +71364,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/372，总帧数1855；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5114668375344657",
@@ -162214,6 +162312,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/F5ws6G7Ggx08nHSwgp7G01041202jE0P0E010.mp4",
    "ts": 1793474279,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/372，总帧数1855；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1031-edfe2a",
+   "key": "weibo_search:5241602994078258",
+   "video_id": "https://f.video.weibocdn.com/o0/Xt4qfJ5Vlx08tAj29jFC01041206KD4f0E030.mp4",
+   "ts": 1793474559,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
