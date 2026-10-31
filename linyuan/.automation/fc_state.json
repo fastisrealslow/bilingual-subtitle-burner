@@ -71410,7 +71410,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配151/462，总帧数1552；身份匹配但人脸短边不足96px的帧数311",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5204309757137472",
@@ -71466,7 +71467,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4978520464033052",
@@ -71489,7 +71491,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-13T16:13:58+08:00"
+   "publish_time": "2023-12-13T16:13:58+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-0f2c2d",
+    "run_id": 41232209665,
+    "artifact_id": 13054965192,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b8d710d02506c729dfdd3bff687a3dfee1e3dd5195a335b7db4cbae58982a2de",
+     "duration_sec": 92.57,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4978520464033052"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV13QHA6DEar）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 89%（BV1Aan96CEyB）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41232209665,
+    "artifact_id": 13054965192,
+    "name": "production-reject-ly-1031-0f2c2d",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 86%（BV13QHA6DEar）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4978822938886755",
@@ -71512,7 +71551,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-14T12:15:53+08:00"
+   "publish_time": "2023-12-14T12:15:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-571ed0",
+    "run_id": 41232220412,
+    "artifact_id": 13054615487,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b8d710d02506c729dfdd3bff687a3dfee1e3dd5195a335b7db4cbae58982a2de",
+     "duration_sec": 92.57,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4978822938886755"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV13QHA6DEar）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 89%（BV1Aan96CEyB）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41232220412,
+    "artifact_id": 13054615487,
+    "name": "production-reject-ly-1031-571ed0",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 86%（BV13QHA6DEar）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -161962,6 +162038,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/saytMEQdlx08ffIodHuE01041200etjT0E010.mp4",
    "ts": 1793473243,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配151/462，总帧数1552；身份匹配但人脸短边不足96px的帧数311"
+  },
+  {
+   "slug": "ly-1031-571ed0",
+   "key": "weibo_search:4978822938886755",
+   "video_id": "https://f.video.weibocdn.com/o0/26lQDWt4lx08aUbj1Q2Q01041200DZNH0E010.mp4",
+   "ts": 1793473972,
+   "error": "与已发布内容文字指纹重复：转写片段重合 86%（BV13QHA6DEar）"
+  },
+  {
+   "slug": "ly-1031-0f2c2d",
+   "key": "weibo_search:4978520464033052",
+   "video_id": "https://f.video.weibocdn.com/o0/26lQDWt4lx08aUbj1Q2Q01041200DZNH0E010.mp4",
+   "ts": 1793473973,
+   "error": "与已发布内容文字指纹重复：转写片段重合 86%（BV13QHA6DEar）"
   }
  ],
  "reviewed_third_video_0910": {
