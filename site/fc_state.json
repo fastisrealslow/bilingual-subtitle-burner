@@ -71208,7 +71208,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-06-19T17:11:20+08:00"
+   "publish_time": "2024-06-19T17:11:20+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-062c85",
+    "run_id": 41229417431,
+    "artifact_id": 13055231776,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cd600ecce903175dec9cea4333da73e047348562058d033b7d3cd490b70ef506",
+     "duration_sec": 1331.53,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5047026207167928"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对‘选择这个时点的原因，跟股市现在的目前的情况是不是有这些不谋而合之处啊？'这一核心问题给出实质性回答或判断。句 2 仅表达了在高位不会说话的假设性态度，但未说明当前是否处于高位、为何在此时点发言的具体原因，也未解释与股市情况的关联。句 3 的‘重出江湖’是主观感受描述，不构成对提问的回答。因此，该片段缺少嘉宾针对核心问题的完整观点表达，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配740/962，总帧数1106；身份匹配但人脸短边不足96px的帧数13"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 107.63s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41229417431,
+    "artifact_id": 13055231776,
+    "name": "production-reject-ly-1031-062c85",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5158118959612963",
@@ -162527,6 +162584,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/J6sxKy6Ylx08aULf2Tt6010412007cKj0E010.mp4",
    "ts": 1793474761,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1031-062c85",
+   "key": "weibo_search:5047026207167928",
+   "video_id": "https://f.video.weibocdn.com/o0/DPasiJRQlx08fLYjhXPG01041209FGSl0E040.mp4",
+   "ts": 1793475161,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
   }
  ],
  "reviewed_third_video_0910": {
