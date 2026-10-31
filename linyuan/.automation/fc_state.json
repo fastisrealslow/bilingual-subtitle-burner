@@ -33714,13 +33714,13 @@
    "publish_time": "2024-04-23T11:57:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1017-49600e",
-    "run_id": 39409468463,
-    "artifact_id": 12258802912,
+    "run_id": 39064329945,
+    "artifact_id": 12113295714,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我跟别人的那种思维方式是完全不一样的，就他思维这种操作体系，思维方式的不一致，导致我们操作体制也是完全不一致，对吧？\", \"suspect_quote\": \"操作体系，思维方式的不一致，导致我们操作体制也是\", \"kind\": \"unintelligible_term\", \"reason\": \"‘操作体系’与后文‘操作体制’用词不一致且含义不明，疑似识别错误；‘对吧？’为口语填充，非疑点。\"}, {\"sentence_id\": 1, \"quote\": \"这里边为了控制风险，我们首先是吧买入和持有是分开的。\", \"suspect_"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我跟别人的那种思维方式是完全不一样的，就他思维这种操作体系，思维方式的不一致，导致我们操作体制也是完全不一致，对吧？\", \"suspect_quote\": \"操作体系，思维方式的不一致，导致我们操作体制也是\", \"kind\": \"unintelligible_term\", \"reason\": \"‘操作体系’与后文‘操作体制’用词不一致且含义模糊，疑似识别错误；‘对吧？’为口语填充，非疑点。\"}, {\"sentence_id\": 1, \"quote\": \"这里边为了控制风险，我们首先是吧买入和持有是分开的。\", \"suspect_"
      }
     ]
    },
@@ -33770,8 +33770,8 @@
    "publish_time": "2026-10-16T09:08:26+00:00",
    "production_failure_summary": {
     "slug": "ly-1017-a94b3e",
-    "run_id": 39409481427,
-    "artifact_id": 12258878064,
+    "run_id": 39058652952,
+    "artifact_id": 12111061601,
     "accepted": 0,
     "failures": [
      {
@@ -46125,17 +46125,17 @@
    "publish_time": "2026-10-18T14:16:38+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-efeb96",
-    "run_id": 40084537591,
-    "artifact_id": 12556997464,
+    "run_id": 39147157863,
+    "artifact_id": 12143952620,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“"
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
      },
      {
       "stage": "part-quality",
-      "reason": "整段取景预检：源 94.34s，原始画面不足以保留完整人脸及头顶余量"
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
      }
     ]
    },
@@ -156397,7 +156397,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793365638,
- "rule_recovery_page": 9,
+ "rule_recovery_page": 10,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
