@@ -69893,7 +69893,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-02T17:52:01+08:00"
+   "publish_time": "2026-01-02T17:52:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-ad2a68",
+    "run_id": 41220672992,
+    "artifact_id": 13050340909,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a52f674cd43f09b2d246ef4cfa001894e60b0b096523b8b13c1622be4eecc7e4",
+     "duration_sec": 51.78,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5250698428287205"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41220672992,
+    "artifact_id": 13050340909,
+    "name": "production-reject-ly-1031-ad2a68",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5167989657702547",
@@ -160195,6 +160228,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/kLnEWaZClx08tk5xFj6M010412004xHI0E010.mp4",
    "ts": 1793460948,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1031-ad2a68",
+   "key": "weibo_search:5250698428287205",
+   "video_id": "https://f.video.weibocdn.com/u0/JJIvBeD4gx08ubsvvIFa01041200dnwn0E010.mp4",
+   "ts": 1793465297,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
