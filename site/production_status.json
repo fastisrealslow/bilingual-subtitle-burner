@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793461598,
+  "updated_at": 1793461740,
   "inventory_updated_at": 1793461593,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 69,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 158,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 157,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,16 +185,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793461596,
+    "updated_at": 1793461739,
     "records": 14086,
     "video_records": 11804,
-    "initial_candidates": 247,
-    "duration_eligible_records": 158,
-    "candidate_count": 158,
-    "known_duration_candidates": 158,
+    "initial_candidates": 246,
+    "duration_eligible_records": 157,
+    "candidate_count": 157,
+    "known_duration_candidates": 157,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2151,
+      "already_attempted_or_cooling": 2152,
       "speaker_unconfirmed": 7774,
       "no_video": 2282,
       "clip_title": 1296,
@@ -207,14 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5167763689570926",
-        "title": "【#林园现身茅台国际大酒店#，大批股东围观合影，有股东直呼“存钱不如买茅台” 】 #聚焦茅台股东大会# 5月18日，贵州",
-        "source": "weibo_search",
-        "author": "财经记者圈",
-        "url": "https://m.weibo.cn/detail/5167763689570926",
-        "duration_sec": 31.0
-      },
       {
         "key": "weibo_search:5360014583926069",
         "title": "#昕礽果复利增长价值亿亿金    天玉专访“民间股神”林园，林园再次强调生意的本质是垄断。20261019 http:/",
@@ -1489,13 +1481,13 @@
     "complete": 167,
     "failed": 1617,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 85,
     "ready": 17,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 3
+    "retry_queued": 2,
+    "running": 4
   },
   "tasks": [
     {
@@ -36252,14 +36244,14 @@
     },
     {
       "slug": "ly-1031-5fcedd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793460985,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793462560,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -36267,6 +36259,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41215659792",
       "run_started_at": "2026-10-31T15:36:25Z",
       "run_updated_at": "2026-10-31T15:44:40Z"
+    },
+    {
+      "slug": "ly-1031-8712b8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793461697,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41216586695,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41216586695",
+      "run_started_at": "2026-10-31T15:48:17Z",
+      "run_updated_at": "2026-10-31T15:48:21Z"
     }
   ],
   "runs": {
@@ -53132,6 +53142,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41215659792",
       "run_number": 3241,
       "display_title": "中文源出片 · ly-1031-5fcedd"
+    },
+    "ly-1031-8712b8": {
+      "id": 41216586695,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T15:48:17Z",
+      "updated_at": "2026-10-31T15:48:21Z",
+      "run_started_at": "2026-10-31T15:48:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41216586695",
+      "run_number": 3242,
+      "display_title": "中文源出片 · ly-1031-8712b8"
     },
     "ly-1031-2918a3": {
       "id": 41214145472,
