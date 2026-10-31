@@ -72499,7 +72499,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-18T18:45:35+08:00"
+   "publish_time": "2025-12-18T18:45:35+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-5c61fd",
+    "run_id": 41235620736,
+    "artifact_id": 13055993963,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e14fcdd994d04332c05ea4ce5fd7b94bf3ebf55ea113b3c85f09642e829a3995",
+     "duration_sec": 529.95,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5245276090533283"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：目标嘉宾为“林园”，识别为“林源”。\"}, {\"sentence_id\": 11, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"uni"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41235620736,
+    "artifact_id": 13055993963,
+    "name": "production-reject-ly-1031-5c61fd",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：目标嘉宾为“林园”，识别为“林源”。\"}, {\"sentence_id\": 11, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：目标嘉宾为“林园”，识别为“林元”。\"}, {\"sentence_id\": 13, \"quote\": \"一九九零年至一九九二年，年，大量收购深井星、琼林源等原市股，股票上市后市值仅千万元。\", \"suspect_quote\": \"深井星、琼林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：疑似应为“深发展”或特定股票简称，识别为不存在的“深井星”及人名化“琼林源”。\"}, {\"sentence_id\": 54, \"quote\": \"然而，股神的光环终归无法长久，原因就在于申国投和林园创立的信托产品。\", \"suspect_quote\": \"申国投\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：结合上下文应为机构名（如“申银万国”或特定信托公司），识别为不存在的“申国投”。\"}, {\"sentence_id\": 67, \"quote\": \"二零一一年九月二十日，申国投林源信托产品净值为一百六十八点六二，创出历史新高。\", \"suspect_quote\": \"申国投林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：机构名与人名粘连，应为“申银万国·林园”或类似结构，识别为“申国投林源”。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5254392145772996",
@@ -72668,7 +72701,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配391/759，总帧数1838；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5182997644969857",
@@ -72753,7 +72787,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5309771122479864",
@@ -72799,7 +72834,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-11-23T18:28:57+08:00"
+   "publish_time": "2023-11-23T18:28:57+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-944bf4",
+    "run_id": 41237179852,
+    "artifact_id": 13055959120,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f534c4987d2d19c5dc94e98aaf5845fafd2df6daa553f0c1edab7eb7224eca15",
+     "duration_sec": 40.24,
+     "resolution": {
+      "width": 576,
+      "height": 768,
+      "short_edge": 576
+     },
+     "source_url": "https://m.weibo.cn/detail/4971306677175927"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/180，总帧数899；身份匹配但人脸短边不足96px的帧数155"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41237179852,
+    "artifact_id": 13055959120,
+    "name": "production-reject-ly-1031-944bf4",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/180，总帧数899；身份匹配但人脸短边不足96px的帧数155",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4582110205052968",
@@ -72832,7 +72900,8 @@
    },
    "last_error": "原始素材短边 368 < 480（368x640），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5214549334564594",
@@ -163487,6 +163556,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/3YmaXcRolx08n9Lato8g01041200r22e0E010.mp4",
    "ts": 1793477305,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配391/759，总帧数1838；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1031-944bf4",
+   "key": "weibo_search:4971306677175927",
+   "video_id": "https://f.video.weibocdn.com/o0/r4XilSR5lx08aoSDMeO40104120060b10E010.mp4",
+   "ts": 1793477788,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/180，总帧数899；身份匹配但人脸短边不足96px的帧数155"
+  },
+  {
+   "slug": "ly-1031-5c61fd",
+   "key": "weibo_search:5245276090533283",
+   "video_id": "https://f.video.weibocdn.com/o0/d5pnsouLlx08tQJ9adC001041202SqJ20E020.mp4",
+   "ts": 1793477792,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"二零一一年初冬的下午，在北京一家证券营业部的大户室里，林源没有想象中的那样冷傲，而是很随和。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：目标嘉宾为“林园”，识别为“林源”。\"}, {\"sentence_id\": 11, \"quote\": \"凭借着年轻人的无畏和对金钱的敏锐直觉，再加上股票在当时还是稀缺资源，林元在股市里的财富不断增值，创造了一个个的神话。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：目标嘉宾为“林园”，识别为“林元”。\"}, {\"sentence_id\": 13, \"quote\": \"一九九零年至一九九二年，年，大量收购深井星、琼林源等原市股，股票上市后市值仅千万元。\", \"suspect_quote\": \"深井星、琼林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：疑似应为“深发展”或特定股票简称，识别为不存在的“深井星”及人名化“琼林源”。\"}, {\"sentence_id\": 54, \"quote\": \"然而，股神的光环终归无法长久，原因就在于申国投和林园创立的信托产品。\", \"suspect_quote\": \"申国投\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：结合上下文应为机构名（如“申银万国”或特定信托公司），识别为不存在的“申国投”。\"}, {\"sentence_id\": 67, \"quote\": \"二零一一年九月二十日，申国投林源信托产品净值为一百六十八点六二，创出历史新高。\", \"suspect_quote\": \"申国投林源\", \"kind\": \"unintelligible_term\", \"reason\": \"专名错写：机构名与人名粘连，应为“申银万国·林园”或类似结构，识别为“申国投林源”。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
