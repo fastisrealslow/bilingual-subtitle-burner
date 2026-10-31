@@ -68477,7 +68477,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-03-14T15:49:18+08:00"
+   "publish_time": "2021-03-14T15:49:18+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-5f469e",
+    "run_id": 41195949635,
+    "artifact_id": 13040204424,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "53b7259a21f0331a7ceea4716a1f82ad17d4fda0b7f705d40d11eec6cb876750",
+     "duration_sec": 678.39,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4614676841501520"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41195949635,
+    "artifact_id": 13040204424,
+    "name": "production-reject-ly-1031-5f469e",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4646600780024510",
@@ -68544,7 +68585,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]，confidence=0.896，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2861, 2: 0.3211, 3: 0.3027, 4: 0.1661, 5: 0.3146, 6: 0.2187, 7: 0.3357, 8: 0.2504, 9: 0.2316, 10: 0.2975, 11: 0.2448, 12: 0.3067, 13: 0.2511, 14: 0.2361, 15: 0.2269, 16: 0.348, 17: 0.3382, 18: 0.4604}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4550267625013366",
@@ -158244,6 +158286,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/jtn7MMjfgx08pcewZMEE01041200Q3zv0E010.mp4",
    "ts": 1793446338,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]，confidence=0.896，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2861, 2: 0.3211, 3: 0.3027, 4: 0.1661, 5: 0.3146, 6: 0.2187, 7: 0.3357, 8: 0.2504, 9: 0.2316, 10: 0.2975, 11: 0.2448, 12: 0.3067, 13: 0.2511, 14: 0.2361, 15: 0.2269, 16: 0.348, 17: 0.3382, 18: 0.4604}"
+  },
+  {
+   "slug": "ly-1031-5f469e",
+   "key": "weibo_search:4614676841501520",
+   "video_id": "https://f.video.weibocdn.com/o5GeOF9Alx07L5dip5UI01041204xHcX0E020.mp4",
+   "ts": 1793447004,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
