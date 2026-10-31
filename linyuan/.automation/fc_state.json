@@ -31572,17 +31572,17 @@
    "publish_time": "2025-11-11T13:03:33+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-a04f78",
-    "run_id": 38588907309,
-    "artifact_id": 11907848387,
+    "run_id": 39038824999,
+    "artifact_id": 12103551912,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'应为口语重复或口吃（如'给你一个'），但连续两个'给'字连用且无停顿标记，导致语义不通顺，属于无法解释的具体词语污染。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_te"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但现在房子给给你个电视机，你觉得它是个钱吗？\", \"suspect_quote\": \"给给你个电视机\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'给给你'在口语中无意义，结合上下文应为'给你一个'或'给你'，但自动识别将连读或口误误作重复名词。\"}, {\"sentence_id\": 1, \"quote\": \"给你去搬，你就没人去搬。\", \"suspect_quote\": \"你就没人去搬\", \"kind\": \"unintelligible_term\", \"reason\":"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"李贝总是调研了很多地产企业\", \"kind\": \"unintelligible_term\", \"reason\": \"“李贝”疑似为人名识别错误，结合上下文语境（林园访谈），极大概率应为“李录”（Value Investors Club 创始人、巴菲特合伙人）。\"}, {\"sentence_id\": 14, \"quote\": \"现在大家可能还把房子作为一个资产，再过几年，大"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"李贝总是调研了很多地产企业，然后他说：如果这个公司结过两年结算的是今年的，它的利润表会大幅改善，甚至是一个十倍的增长。\", \"suspect_quote\": \"如果这个公司结过两年结算的是今年的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘结过两年’与‘结算的是今年的’在时间逻辑上存在明显矛盾或表述不清，属于含义不明的关键数字/时间描述，可能影响理解。\"}, {\"sentence_id\": 14, \"quote\": \"现在大家可能还把房子作为一个资产，再过几年，大多"
      }
     ]
    },
@@ -31631,8 +31631,8 @@
    "publish_time": "2025-11-12T06:28:17+00:00",
    "production_failure_summary": {
     "slug": "ly-1014-4dfa13",
-    "run_id": 38586744797,
-    "artifact_id": 11907687649,
+    "run_id": 39039066791,
+    "artifact_id": 12103850435,
     "accepted": 0,
     "failures": [
      {
@@ -35106,17 +35106,33 @@
    "recovery_origin_run_id": 39411448572,
    "production_failure_summary": {
     "slug": "ly-story-7884c0eb85",
-    "run_id": 39411448572,
-    "artifact_id": 12261341268,
+    "run_id": 39046394552,
+    "artifact_id": 12106715507,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个这个，不是说能力，还有这个，特别是对对一些。\", \"suspect_quote\": \"对对一些\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似错写或口吃导致的语义不明，'对对一些'在金融语境下无明确指代，既非标准否定词也非清晰数字范围，属于含义不明的关键短语。\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"有很多看啊，比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"几块钱的是五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在歧义，'是五六块钱'中的'是'字在此处作为口语连接词使用，但'五六块钱'指代模糊（是约数还是具体区间？），且与前文'几块钱'的对比逻辑在字幕中不够清晰，可能影响对价格判断的理解。\"}]"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'放放回到'不符合中文语法逻辑，应为'放回'或'放回到'，多出的'放'字导致语义不通。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是最头疼的是，就是我回不到那个年代了，那个年代的快快乐，我现在是是没"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"好的，那如果今天把您放放回到二十多岁，手里只有几万块钱积蓄，站在二零二六年的这一个节点，您觉得您自己还能够再造一次当年的辉煌吗？\", \"suspect_quote\": \"放放回到\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似口吃或识别冗余，但结合上下文“把您放回到”语义通顺，此处“放放”极可能是口语重复而非错别字；若严格按“无法解释的具体词语”标准，此处在口语中可接受，暂不列为疑点。\"}, {\"sentence_id\": 1, \"quote\": \"我自己觉得是没问题，因为我现在也是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"我也我虽然不不没投这个东西。\", \"suspect_quote\": \"我也我虽然不不没投这个东西。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘不不没’存在多重否定叠加且无明确逻辑指向，属于含义不明的关键否定结构，需指出原文实际否定字‘不、没’的混乱组合。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
      }
     ]
    },
@@ -160859,7 +160875,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793451766,
- "rule_recovery_page": 10,
+ "rule_recovery_page": 1,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
