@@ -69442,7 +69442,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5302058989128520",
@@ -69768,7 +69769,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-28T09:09:44+08:00"
+   "publish_time": "2025-11-28T09:09:44+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41215283153,
+    "artifact_id": 13047642744,
+    "name": "source-reject-ly-1031-43a720",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -160022,6 +160033,13 @@
    "video_id": "https://f.video.weibocdn.com/002U56jEgx07J6jHW8jK01041209Wlvn0E040.mp4",
    "ts": 1793460673,
    "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+  },
+  {
+   "slug": "ly-1031-43a720",
+   "key": "weibo_search:5237883416088861",
+   "video_id": "https://f.video.weibocdn.com/o0/kLnEWaZClx08tk5xFj6M010412004xHI0E010.mp4",
+   "ts": 1793460948,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
