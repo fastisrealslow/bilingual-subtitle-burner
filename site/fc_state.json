@@ -68331,7 +68331,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-03-21T15:34:02+08:00"
+   "publish_time": "2021-03-21T15:34:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-c98da5",
+    "run_id": 41186990989,
+    "artifact_id": 13038603797,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b00304412228dd277c87fd49c77d05a45dd0663bc380fbe0275b7bdd31cf1f89",
+     "duration_sec": 1972.91,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4617209714575734"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈以新\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈以新'无法确认为有效人名或行业术语，疑似语音转写错误。\"}, {\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reaso"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配503/672，总帧数840；身份匹配但人脸短边不足96px的帧数78"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配3/452，总帧数2244；身份匹配但人脸短边不足96px的帧数449"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41186990989,
+    "artifact_id": 13038603797,
+    "name": "production-reject-ly-1031-c98da5",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈以新\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈以新'无法确认为有效人名或行业术语，疑似语音转写错误。\"}, {\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国巨'在此语境下含义不明，疑似语音转写错误。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/m0n9WJ2qlx08udSEy27e010412072x6R0E030.mp4",
@@ -157943,6 +157996,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/QdarRqXrlx08tNAW4mAg01041206yNW40E030.mp4",
    "ts": 1793437291,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1031-c98da5",
+   "key": "weibo_search:4617209714575734",
+   "video_id": "https://f.video.weibocdn.com/Zhp8Y8D2lx07Lgmto7yg010412037n7S0E020.mp4",
+   "ts": 1793441298,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈以新\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'陈以新'无法确认为有效人名或行业术语，疑似语音转写错误。\"}, {\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"国巨\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'国巨'在此语境下含义不明，疑似语音转写错误。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
