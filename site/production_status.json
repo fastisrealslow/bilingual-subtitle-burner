@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793489765,
+  "updated_at": 1793489892,
   "inventory_updated_at": 1793489762,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 72,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 105,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 103,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793489764,
+    "updated_at": 1793489891,
     "records": 14297,
     "video_records": 12001,
-    "initial_candidates": 213,
-    "duration_eligible_records": 105,
-    "candidate_count": 105,
-    "known_duration_candidates": 105,
+    "initial_candidates": 211,
+    "duration_eligible_records": 103,
+    "candidate_count": 103,
+    "known_duration_candidates": 103,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7814,
-      "already_attempted_or_cooling": 2339,
+      "already_attempted_or_cooling": 2341,
       "no_video": 2296,
       "clip_title": 1298,
       "unrelated": 73,
@@ -207,22 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4670382084198132",
-        "title": "大佬林园：2014年不是牛市，是硬来的。上证指数新高只是时间问题\n#林园炒股秘籍# #私募大佬林园怒怼投资者# #盛夏理",
-        "source": "weibo_search",
-        "author": "模型预测",
-        "url": "https://m.weibo.cn/detail/4670382084198132",
-        "duration_sec": 52.0
-      },
-      {
-        "key": "weibo_search:5249542410209480",
-        "title": "林园：我也发现，我现在应该是离上上台阶不远了，我自己知道，这冥冥之中，你要说这个市场我不知道，那也是假话，2021年我最",
-        "source": "weibo_search",
-        "author": "用户7010019442",
-        "url": "https://m.weibo.cn/detail/5249542410209480",
-        "duration_sec": 106.0
-      },
       {
         "key": "weibo_search:5198474211492319",
         "title": "林园：我结合世界股市的这个规律，股市上涨的时间只有5%，下跌的时间或者盘整的时间95%啊，所以我没有别的办法，我就始终 ",
@@ -1063,7 +1047,7 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1688,
+    "failed": 1689,
     "paused": 5,
     "interrupted": 7,
     "excluded": 27,
@@ -1071,7 +1055,7 @@
     "ready": 18,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -37304,8 +37288,8 @@
     },
     {
       "slug": "ly-1031-90e3a5",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793489424,
         "failed": null,
@@ -37318,15 +37302,15 @@
       "run_id": 41252806135,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252806135",
       "run_started_at": "2026-10-31T23:30:23Z",
-      "run_updated_at": "2026-10-31T23:30:28Z"
+      "run_updated_at": "2026-10-31T23:36:54Z"
     },
     {
       "slug": "ly-1031-fa6c06",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1247, 2: 0.2301, 3: 0.0662, 4: 0.2076, 5: 0.2224, 6: 0.1139, 7: 0.079, 8: 0.1811, 9: 0.1085, 10: 0.114, 11: 0.1945, 12: 0.2385, 13: 0.1633, 14: 0.1321, 15: 0.2526, 16: 0.1233, 17: 0.1121, 18: 0.1749}",
       "signature": {
         "ts": 1793489432,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37337,6 +37321,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252817892",
       "run_started_at": "2026-10-31T23:30:32Z",
       "run_updated_at": "2026-10-31T23:33:55Z"
+    },
+    {
+      "slug": "ly-1031-b1c7dd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793489843,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41253303840,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253303840",
+      "run_started_at": "2026-10-31T23:37:23Z",
+      "run_updated_at": "2026-10-31T23:37:27Z"
+    },
+    {
+      "slug": "ly-1031-25c519",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793489850,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41253311371,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253311371",
+      "run_started_at": "2026-10-31T23:37:30Z",
+      "run_updated_at": "2026-10-31T23:37:34Z"
     }
   ],
   "runs": {
@@ -55105,12 +55125,34 @@
       "run_number": 3339,
       "display_title": "中文源出片 · ly-1031-fa6c06"
     },
-    "ly-1031-90e3a5": {
-      "id": 41252806135,
+    "ly-1031-25c519": {
+      "id": 41253311371,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-31T23:37:30Z",
+      "updated_at": "2026-10-31T23:37:34Z",
+      "run_started_at": "2026-10-31T23:37:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253311371",
+      "run_number": 3341,
+      "display_title": "中文源出片 · ly-1031-25c519"
+    },
+    "ly-1031-b1c7dd": {
+      "id": 41253303840,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T23:37:23Z",
+      "updated_at": "2026-10-31T23:37:27Z",
+      "run_started_at": "2026-10-31T23:37:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253303840",
+      "run_number": 3340,
+      "display_title": "中文源出片 · ly-1031-b1c7dd"
+    },
+    "ly-1031-90e3a5": {
+      "id": 41252806135,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T23:30:23Z",
-      "updated_at": "2026-10-31T23:30:28Z",
+      "updated_at": "2026-10-31T23:36:54Z",
       "run_started_at": "2026-10-31T23:30:23Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252806135",
       "run_number": 3338,
