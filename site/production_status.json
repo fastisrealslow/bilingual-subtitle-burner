@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793446910,
+  "updated_at": 1793447075,
   "inventory_updated_at": 1793446904,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 65,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 154,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 153,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793446908,
+    "updated_at": 1793447073,
     "records": 13979,
     "video_records": 11697,
-    "initial_candidates": 233,
-    "duration_eligible_records": 154,
-    "candidate_count": 154,
-    "known_duration_candidates": 154,
+    "initial_candidates": 232,
+    "duration_eligible_records": 153,
+    "candidate_count": 153,
+    "known_duration_candidates": 153,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7759,
-      "already_attempted_or_cooling": 2087,
+      "already_attempted_or_cooling": 2088,
       "no_video": 2282,
       "clip_title": 1281,
       "unrelated": 73,
@@ -207,22 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4649398325478694",
-        "title": "【私募大佬林园被#茅台#  “伤透了心”，现身#五粮液股东大会# 欲购1000箱？】6月18日，五粮液举行2020年年度",
-        "source": "weibo_search",
-        "author": "全景网",
-        "url": "https://m.weibo.cn/detail/4649398325478694",
-        "duration_sec": 54.0
-      },
-      {
-        "key": "weibo_search:4578827164455294",
-        "title": "【林园投资董事长林园：我个人判断，现在是牛市的初期，大家赶紧来炒股！】在#2020雪球嘉年华#现场，林园投资董事长林园表",
-        "source": "weibo_search",
-        "author": "全景网",
-        "url": "https://m.weibo.cn/detail/4578827164455294",
-        "duration_sec": 56.0
-      },
       {
         "key": "weibo_search:4646841926291581",
         "title": "【林园自称持有茅台2%的股份，“顶级凡尔赛”还是“吹牛大王”？】近日，贵州茅台召开2020年度股东大会。东方港湾董事长、",
@@ -437,6 +421,14 @@
         "source": "weibo_search",
         "author": "价值投资日志",
         "url": "https://m.weibo.cn/detail/4578864291913469",
+        "duration_sec": 56.0
+      },
+      {
+        "key": "weibo_search:4578827164455294",
+        "title": "【林园投资董事长林园：我个人判断，现在是牛市的初期，大家赶紧来炒股！】在#2020雪球嘉年华#现场，林园投资董事长林园表",
+        "source": "weibo_search",
+        "author": "全景网",
+        "url": "https://m.weibo.cn/detail/4578827164455294",
         "duration_sec": 56.0
       },
       {
@@ -1455,14 +1447,15 @@
   },
   "counts": {
     "complete": 166,
-    "failed": 1603,
+    "failed": 1604,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 26,
     "experiment_fallback": 83,
     "ready": 15,
     "validation_failed": 2,
     "retry_queued": 1,
+    "awaiting_validation": 1,
     "running": 5
   },
   "tasks": [
@@ -35734,8 +35727,8 @@
     },
     {
       "slug": "ly-1031-5bcfb2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "awaiting_validation",
+      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
       "signature": {
         "ts": 1793442727,
         "failed": null,
@@ -35748,7 +35741,7 @@
       "run_id": 41193138532,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41193138532",
       "run_started_at": "2026-10-31T10:32:06Z",
-      "run_updated_at": "2026-10-31T10:32:10Z"
+      "run_updated_at": "2026-10-31T11:42:59Z"
     },
     {
       "slug": "ly-1031-db75a8",
@@ -35842,11 +35835,11 @@
     },
     {
       "slug": "ly-1031-5f469e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1793445197,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35911,6 +35904,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41197297322",
       "run_started_at": "2026-10-31T11:32:50Z",
       "run_updated_at": "2026-10-31T11:33:48Z"
+    },
+    {
+      "slug": "ly-1031-15d3f5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793447034,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41198063940,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41198063940",
+      "run_started_at": "2026-10-31T11:43:54Z",
+      "run_updated_at": "2026-10-31T11:44:04Z"
     }
   ],
   "runs": {
@@ -52546,17 +52557,6 @@
       "run_number": 3220,
       "display_title": "中文源出片 · ly-1031-519b35"
     },
-    "ly-1031-9aa2c9": {
-      "id": 41197297322,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-10-31T11:32:50Z",
-      "updated_at": "2026-10-31T11:33:48Z",
-      "run_started_at": "2026-10-31T11:32:50Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41197297322",
-      "run_number": 3221,
-      "display_title": "中文源出片 · ly-1031-9aa2c9"
-    },
     "ly-1031-5f469e": {
       "id": 41195949635,
       "status": "completed",
@@ -52567,6 +52567,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41195949635",
       "run_number": 3218,
       "display_title": "中文源出片 · ly-1031-5f469e"
+    },
+    "ly-1031-15d3f5": {
+      "id": 41198063940,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T11:43:54Z",
+      "updated_at": "2026-10-31T11:44:04Z",
+      "run_started_at": "2026-10-31T11:43:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41198063940",
+      "run_number": 3222,
+      "display_title": "中文源出片 · ly-1031-15d3f5"
+    },
+    "ly-1031-9aa2c9": {
+      "id": 41197297322,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T11:32:50Z",
+      "updated_at": "2026-10-31T11:33:48Z",
+      "run_started_at": "2026-10-31T11:32:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41197297322",
+      "run_number": 3221,
+      "display_title": "中文源出片 · ly-1031-9aa2c9"
     },
     "ly-1031-4c3c7c": {
       "id": 41195597569,
@@ -52603,10 +52625,10 @@
     },
     "ly-1031-5bcfb2": {
       "id": 41193138532,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-10-31T10:32:06Z",
-      "updated_at": "2026-10-31T10:32:10Z",
+      "updated_at": "2026-10-31T11:42:59Z",
       "run_started_at": "2026-10-31T10:32:06Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41193138532",
       "run_number": 3212,
