@@ -66963,7 +66963,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5115212889856368",
@@ -66996,7 +66997,8 @@
    },
    "last_error": "原始素材短边 416 < 480（526x416），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4648811232496109",
@@ -67068,7 +67070,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-16T15:00:00+08:00"
+   "publish_time": "2026-06-16T15:00:00+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41159990850,
+    "artifact_id": 13027435407,
+    "name": "source-reject-ly-1031-e8c5a1",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -155720,6 +155732,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/F8kThfDigx08kBTxKl8c01041202yOLV0E010.mp4",
    "ts": 1793413521,
    "error": "原始素材短边 416 < 480（526x416），画质不达标"
+  },
+  {
+   "slug": "ly-1031-e8c5a1",
+   "key": "weibo_search:5310449140367448",
+   "video_id": "https://f.video.weibocdn.com/o0/X6Er7Z4Alx08ysaJ7OS40104120frux00E060.mp4",
+   "ts": 1793415612,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
