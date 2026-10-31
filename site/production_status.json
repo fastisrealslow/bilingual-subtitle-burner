@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793404913,
+  "updated_at": 1793405159,
   "inventory_updated_at": 1793404909,
   "continuity": {
     "daily_target": 4,
@@ -177,7 +177,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793404912,
+    "updated_at": 1793405157,
     "records": 13750,
     "video_records": 11508,
     "initial_candidates": 185,
@@ -1071,15 +1071,15 @@
   },
   "counts": {
     "complete": 163,
-    "failed": 1575,
+    "failed": 1577,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 24,
     "experiment_fallback": 68,
     "ready": 16,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "running": 4
+    "retry_queued": 2,
+    "running": 5
   },
   "tasks": [
     {
@@ -34593,24 +34593,6 @@
       "run_updated_at": "2026-10-30T23:32:35Z"
     },
     {
-      "slug": "ly-1030-b304d6",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793402862,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793404016,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41144603334,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41144603334",
-      "run_started_at": "2026-10-30T23:27:42Z",
-      "run_updated_at": "2026-10-30T23:29:29Z"
-    },
-    {
       "slug": "ly-1030-fbb76d",
       "status": "retry_queued",
       "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
@@ -34684,11 +34666,11 @@
     },
     {
       "slug": "ly-1030-1cfd26",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "工作流步骤失败，未形成素材不合格结论：render",
       "signature": {
         "ts": 1793404424,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -34702,11 +34684,11 @@
     },
     {
       "slug": "ly-1030-2a602b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 合流文件 ffprobe 失败：[mov,mp4,m4a,3gp,3g2,mj2 @ 0x55a72c674700] moov atom not found\n/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.mp4: Inv",
       "signature": {
         "ts": 1793404747,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -34717,6 +34699,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41147611169",
       "run_started_at": "2026-10-30T23:59:07Z",
       "run_updated_at": "2026-10-31T00:00:37Z"
+    },
+    {
+      "slug": "ly-1030-b304d6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793405115,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41148201974,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41148201974",
+      "run_started_at": "2026-10-31T00:05:14Z",
+      "run_updated_at": "2026-10-31T00:05:18Z"
     }
   ],
   "runs": {
@@ -50803,14 +50803,14 @@
       "display_title": "中文源出片 · ly-1030-280191"
     },
     "ly-1030-b304d6": {
-      "id": 41144603334,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-30T23:27:42Z",
-      "updated_at": "2026-10-30T23:29:29Z",
-      "run_started_at": "2026-10-30T23:27:42Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41144603334",
-      "run_number": 3164,
+      "id": 41148201974,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T00:05:14Z",
+      "updated_at": "2026-10-31T00:05:18Z",
+      "run_started_at": "2026-10-31T00:05:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41148201974",
+      "run_number": 3171,
       "display_title": "中文源出片 · ly-1030-b304d6"
     },
     "ly-1030-ddad09": {
