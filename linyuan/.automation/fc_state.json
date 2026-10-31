@@ -74130,7 +74130,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-10-31T21:58:04+08:00"
+   "publish_time": "2024-10-31T21:58:04+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-1f4d0c",
+    "run_id": 41252161562,
+    "artifact_id": 13062162662,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "aaffa443769d492d4cdf5fca529629aec125d0aa4ae5f122e423a6b333a8ccca",
+     "duration_sec": 535.41,
+     "resolution": {
+      "width": 1568,
+      "height": 886,
+      "short_edge": 886
+     },
+     "source_url": "https://m.weibo.cn/detail/5095658342849623"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41252161562,
+    "artifact_id": 13062162662,
+    "name": "production-reject-ly-1031-1f4d0c",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4984707291285794",
@@ -74254,7 +74287,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5314214987565488",
@@ -74311,7 +74345,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-08-15T09:02:03+08:00"
+   "publish_time": "2021-08-15T09:02:03+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-b1c7dd",
+    "run_id": 41253303840,
+    "artifact_id": 13062427380,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "55380692d03d2791045f595fdd5ee1eedca1fc0f5f1850a4f2538b87250eac84",
+     "duration_sec": 51.9,
+     "resolution": {
+      "width": 720,
+      "height": 1080,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4670382084198132"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41253303840,
+    "artifact_id": 13062427380,
+    "name": "production-reject-ly-1031-b1c7dd",
+    "retained": true
+   },
+   "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5249542410209480",
@@ -165087,6 +165154,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/FUbC6Vw3lx08rGr2RR4Q01041200yYik0E010.mp4",
    "ts": 1793490101,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1031-b1c7dd",
+   "key": "weibo_search:4670382084198132",
+   "video_id": "https://f.video.weibocdn.com/Y1hx9o7Xlx07P2mKZf6M01041200c6Np0E010.mp4",
+   "ts": 1793490406,
+   "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+  },
+  {
+   "slug": "ly-1031-1f4d0c",
+   "key": "weibo_search:5095658342849623",
+   "video_id": "https://f.video.weibocdn.com/u0/RJFYvruwgx08jec9MOPS01041203xxKd0E020.mp4",
+   "ts": 1793490408,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
