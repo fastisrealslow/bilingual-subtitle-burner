@@ -46125,17 +46125,17 @@
    "publish_time": "2026-10-18T14:16:38+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-efeb96",
-    "run_id": 39147157863,
-    "artifact_id": 12143952620,
+    "run_id": 40084537591,
+    "artifact_id": 12556997464,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“"
      },
      {
       "stage": "part-quality",
-      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
+      "reason": "整段取景预检：源 94.34s，原始画面不足以保留完整人脸及头顶余量"
      }
     ]
    },
@@ -156599,7 +156599,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793365638,
- "rule_recovery_page": 5,
+ "rule_recovery_page": 6,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
