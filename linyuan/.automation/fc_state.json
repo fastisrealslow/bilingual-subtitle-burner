@@ -73324,7 +73324,80 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-31T01:22:28+00:00"
+   "publish_time": "2026-10-31T01:22:28+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-2deb29",
+    "run_id": 41246771404,
+    "artifact_id": 13061472100,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e0c5165bff61b0e5a979ea1fab00423ed55f3dbb369b3c9fe2c7a4aa4b4a6c9b",
+     "duration_sec": 867.22,
+     "resolution": {
+      "width": 1920,
+      "height": 930,
+      "short_edge": 930
+     },
+     "source_url": "https://www.bilibili.com/video/BV1exxk61E9i"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1018/1428，总帧数2047；身份匹配但人脸短边不足96px的帧数139"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2131/3062，总帧数4654；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 92%（BV1vbxk6CEEL）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配126/402，总帧数1378；身份匹配但人脸短边不足96px的帧数153"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配392/637，总帧数1222；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 50%（BV1MZxN6FEEs）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配438/607，总帧数842；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.8876582278481012, 0.00425531914893617, 0.9984177215189873, 0.05106382978723404)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配136/491，总帧数1774；身份匹配但人脸短边不足96px的帧数146"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配294/466，总帧数859；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配526/718，总帧数955；身份匹配但人脸短边不足96px的帧数160"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41246771404,
+    "artifact_id": 13061472100,
+    "name": "production-reject-ly-1031-2deb29",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1018/1428，总帧数2047；身份匹配但人脸短边不足96px的帧数139",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5167947054057360",
@@ -164455,6 +164528,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/rgRU7n0Ggx08z5ZNwRDy01041200SvXY0E010.mp4",
    "ts": 1793488561,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/844，总帧数4218；身份匹配但人脸短边不足96px的帧数790"
+  },
+  {
+   "slug": "ly-1031-2deb29",
+   "key": "bilibili_search:BV1exxk61E9i",
+   "video_id": "BV1exxk61E9i",
+   "ts": 1793488571,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1018/1428，总帧数2047；身份匹配但人脸短边不足96px的帧数139"
   }
  ],
  "reviewed_third_video_0910": {
