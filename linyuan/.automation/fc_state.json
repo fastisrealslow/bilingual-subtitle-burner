@@ -73285,7 +73285,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 57%（BV1MZxN6FEEs）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4608241189260611",
@@ -74006,7 +74007,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5316534721587638",
@@ -74029,7 +74031,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-03T10:01:57+08:00"
+   "publish_time": "2026-07-03T10:01:57+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-81300f",
+    "run_id": 41251857683,
+    "artifact_id": 13061438783,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c82df4a5e9f6a00d76ffb6f2d436c704ec2a40610062f51d38e587a98e3113c0",
+     "duration_sec": 129.29,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/5316534721587638"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 87.83s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41251857683,
+    "artifact_id": 13061438783,
+    "name": "production-reject-ly-1031-81300f",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 87.83s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5215193983615260",
@@ -164869,6 +164904,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/YzUHpfV6lx08blQijTTW010412002HQV0E010.mp4",
    "ts": 1793489377,
    "error": "原始素材短边 400 < 480（676x400），画质不达标"
+  },
+  {
+   "slug": "ly-1031-81300f",
+   "key": "weibo_search:5316534721587638",
+   "video_id": "https://f.video.weibocdn.com/u0/6Wvg07IPgx08yUmENZRS01041200cZTQ0E010.mp4",
+   "ts": 1793489387,
+   "error": "整段取景预检：源 87.83s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
