@@ -37654,17 +37654,13 @@
    "recovery_origin_run_id": 39876029370,
    "production_failure_summary": {
     "slug": "ly-story-9c88bea169",
-    "run_id": 39803440656,
-    "artifact_id": 12441140498,
+    "run_id": 39889888595,
+    "artifact_id": 12475383118,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用频率的语境下，“睡觉就一天吃三次”存在严重的语义逻辑矛盾。正常服药行为发生在“睡觉前”或“醒来后”，而非“睡觉时”。此处极可能是将口语中的时间状语（如“睡前”）误识别为名词“睡觉”，导致动作发生的时间点与常识冲突，属于无法解释的错\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"我吃了这个药啊，整个我感觉舒服很多，睡觉就一天吃三次。\", \"suspect_quote\": \"睡觉就一天吃三次\", \"kind\": \"unintelligible_term\", \"reason\": \"在描述服用胶囊类药物的语境下，“一天吃三次”极大概率是识别错误，将“一次吃三粒”误识为频率。若按字面理解为每天服药 24 次，则与常规用药逻辑及上下文（调节身体、治疗失眠）严重冲突，属于含义不明的关键数字/用法描述。”}, {\"}]"
      },
      {
       "stage": "part-quality",
@@ -37672,7 +37668,7 @@
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那么，因为我这个人啊，就说话就是以最坏的打算，所以我就赶紧让他们赶紧把那个跟头那个事儿停了，啊。\", \"suspect_quote\": \"跟头那个事儿\", \"kind\": \"unintelligible_term\", \"reason\": \"“跟头”在金融语境下无明确含义，疑似将“跟投”误识别为“跟头”，属于关键动词/名词的错写，影响对业务行为（停止跟投）的理解。\"}]"
+      "reason": "选段原画仍有原字幕或免责声明"
      }
     ]
    },
@@ -54242,109 +54238,13 @@
    "recovery_origin_run_id": 39835364910,
    "production_failure_summary": {
     "slug": "ly-story-99ddef2e4b",
-    "run_id": 40824893139,
-    "artifact_id": 12880185464,
+    "run_id": 39835364910,
+    "artifact_id": 12451555391,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"你的过去也是今天一实心，那个明天实心那个。\", \"suspect_quote\": \"今天一实心\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘今天一实心’语义不通，无法确定是否为人名、术语或口语表达，需音频核验。\"}, {\"sentence_id\": 5, \"quote\": \"北京大概零几年的时候，这个这个二零零零年左右，突然吃饸饹血，满街的人都跟我说饸饹血。\", \"suspect_quote\": \"吃饸饹血\", \"kind\": \"unintelligible_term\""
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1fHn167EUf）"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已发布内容文字指纹重复：转写片段重合 84%（BV184pb6oEQu）"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Zia96FEuE）"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "整段取景预检：源 3131.83s，原始画面不足以保留完整人脸及头顶余量"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾回答：片段中仅有主持人提问（编号 0），未包含嘉宾对‘投资心态’分享的任何实质性回应、理由或结论，属于必要论述被切断的情况。；原文问题：[]"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1J3Y76vEXY）"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在句子 0 被主持人提问后，未在后续句子中形成针对该问题的独立判断或结论。句子 1 和 2 是对肥胖与疾病关系的泛化陈述，并非对‘其他选股’的具体回答；句子 3 直接切换话题至消费领域，导致关于医药选股的讨论在缺乏明确结论的情况下中断。因此，该片段无法构成一个完整的观点表达。；原文问题：[]"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "与已发布内容文字指纹重复：转写片段重合 46%（BV1MztC6CEFf）"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "成片动态窗口目标人物不足5/6帧：4/6"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "成片动态窗口目标人物不足5/6帧：4/6"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 8, \"quote\": \"能有百分之二一，我都愿意去，下重手去试了。\", \"suspect_quote\": \"能有百分之二一\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表述存在识别疑点：‘百分之二一’在口语中极可能为‘百分之二十’的误识（将‘十’误作‘二十一’或‘二一’），导致数值含义不明。需指出原文实际出现的数字‘百分之二一’，因其不符合常规比例表达习惯且易引发歧义。”}]}**注：其他句子中的口语\"}]"
      }
     ]
    },
@@ -159935,7 +159835,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793426701,
- "rule_recovery_page": 7,
+ "rule_recovery_page": 8,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
