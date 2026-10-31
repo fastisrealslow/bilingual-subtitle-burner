@@ -73323,7 +73323,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1XUxz6AE8J",
@@ -73402,7 +73403,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4607070097899768",
@@ -73448,7 +73450,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-04-02T07:27:36+08:00"
+   "publish_time": "2021-04-02T07:27:36+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-4937ee",
+    "run_id": 41246761792,
+    "artifact_id": 13058759902,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0e7b9cc4a13d795405d2102d7dea56f7097c70d0840d5aff1bd7eeb094bcf0d8",
+     "duration_sec": 82.41,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4621435953742764"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配662/1147，总帧数2420；身份匹配但人脸短边不足96px的帧数485"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41246761792,
+    "artifact_id": 13058759902,
+    "name": "production-reject-ly-1031-4937ee",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配662/1147，总帧数2420；身份匹配但人脸短边不足96px的帧数485",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1exxk61E9i",
@@ -164103,6 +164138,13 @@
    "video_id": "https://f.video.weibocdn.com/0024cxtugx07KS1AeQeb01041200PQys0E010.mp4",
    "ts": 1793484410,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1031-4937ee",
+   "key": "weibo_search:4621435953742764",
+   "video_id": "https://f.video.weibocdn.com/002TcYiNgx07LyXK3Shy01041200rGVE0E010.mp4",
+   "ts": 1793485330,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配662/1147，总帧数2420；身份匹配但人脸短边不足96px的帧数485"
   }
  ],
  "reviewed_third_video_0910": {
