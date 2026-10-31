@@ -73134,7 +73134,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-02-24T21:36:19+08:00"
+   "publish_time": "2021-02-24T21:36:19+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-39d0af",
+    "run_id": 41246339224,
+    "artifact_id": 13060267944,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a57eff55b4a76e4a23040e8da3609b08c6bffd196ddcce7b41be74fdf6968f19",
+     "duration_sec": 898.91,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4608241189260611"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾林园全程未对主持人的反思问题给出实质性观点回答，仅以个人性格和他人评价作为回应，属于无明确判断的叙述；结尾部分为主持人总结与升华，非嘉宾原话结论，因此无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1322/2058，总帧数3679；身份匹配但人脸短边不足96px的帧数288"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41246339224,
+    "artifact_id": 13060267944,
+    "name": "production-reject-ly-1031-39d0af",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾林园全程未对主持人的反思问题给出实质性观点回答，仅以个人性格和他人评价作为回应，属于无明确判断的叙述；结尾部分为主持人总结与升华，非嘉宾原话结论，因此无法构成独立成片的完整表达。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4765486821411233",
@@ -73191,7 +73228,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-02-21T16:02:48+08:00"
+   "publish_time": "2021-02-21T16:02:48+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-fa04b8",
+    "run_id": 41246357220,
+    "artifact_id": 13060407937,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f2d84f71ba0686260b100da9383df558ad98bc092e986f61a6e4fa0904ca57b0",
+     "duration_sec": 898.8,
+     "resolution": {
+      "width": 1440,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4607070097899768"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对核心问题（是否反思）的明确判断或实质性解释，回答被主持人的串场和无关评价打断，无法构成完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配237/946，总帧数3540；身份匹配但人脸短边不足96px的帧数607"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41246357220,
+    "artifact_id": 13060407937,
+    "name": "production-reject-ly-1031-fa04b8",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对核心问题（是否反思）的明确判断或实质性解释，回答被主持人的串场和无关评价打断，无法构成完整表达。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4621435953742764",
@@ -164027,6 +164101,20 @@
    "video_id": "https://f.video.weibocdn.com/002TcYiNgx07LyXK3Shy01041200rGVE0E010.mp4",
    "ts": 1793485330,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配662/1147，总帧数2420；身份匹配但人脸短边不足96px的帧数485"
+  },
+  {
+   "slug": "ly-1031-fa04b8",
+   "key": "weibo_search:4607070097899768",
+   "video_id": "https://f.video.weibocdn.com/j14iZpurlx07KxJwI4QM01041204sclv0E020.mp4",
+   "ts": 1793486311,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对核心问题（是否反思）的明确判断或实质性解释，回答被主持人的串场和无关评价打断，无法构成完整表达。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1031-39d0af",
+   "key": "weibo_search:4608241189260611",
+   "video_id": "https://f.video.weibocdn.com/003eZN2bgx07KxcQ3Ju701041207Cn1S0E030.mp4",
+   "ts": 1793486311,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾林园全程未对主持人的反思问题给出实质性观点回答，仅以个人性格和他人评价作为回应，属于无明确判断的叙述；结尾部分为主持人总结与升华，非嘉宾原话结论，因此无法构成独立成片的完整表达。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
