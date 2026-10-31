@@ -67469,7 +67469,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1762/2602，总帧数4198；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5249828364750145",
@@ -67492,7 +67493,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-31T08:14:42+08:00"
+   "publish_time": "2025-12-31T08:14:42+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-36d51b",
+    "run_id": 41174600000,
+    "artifact_id": 13034486788,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "4fd41173c608331e148c5e6612ca9df1e76e8d063e9bf07e51327481ce4d90c0",
+     "duration_sec": 2436.05,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5249828364750145"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41174600000,
+    "artifact_id": 13034486788,
+    "name": "production-reject-ly-1031-36d51b",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5304402380590284",
@@ -67515,7 +67549,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-30T22:32:21+08:00"
+   "publish_time": "2026-05-30T22:32:21+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-0b5e1c",
+    "run_id": 41174607514,
+    "artifact_id": 13034243121,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f564208e4de855f6c34a371c0c57005162157c7a055f8e1fad2960f9166f2b0e",
+     "duration_sec": 1444.51,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5304402380590284"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面的人脸不在信息流中心安全区"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面的人脸不在信息流中心安全区"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1402/1998，总帧数2978；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.9034810126582279, 0.0425531914893617, 0.9588607594936709, 0.11914893617021277)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.9034810126582279, 0.07446808510638298, 0.9572784810126582, 0.14893617021276595)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41174607514,
+    "artifact_id": 13034243121,
+    "name": "production-reject-ly-1031-0b5e1c",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场原画封面的人脸不在信息流中心安全区",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5307444339413815",
@@ -156742,6 +156837,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/dYFKg7OZlx08zhtYL9lC01041204q1Rf0E020.mp4",
    "ts": 1793429985,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1762/2602，总帧数4198；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1031-0b5e1c",
+   "key": "weibo_search:5304402380590284",
+   "video_id": "https://f.video.weibocdn.com/o0/V6VaadfIlx08y1gk10Gk01041209Kh7R0E040.mp4",
+   "ts": 1793431119,
+   "error": "封面生成/人物/角标复检失败：现场原画封面的人脸不在信息流中心安全区"
+  },
+  {
+   "slug": "ly-1031-36d51b",
+   "key": "weibo_search:5249828364750145",
+   "video_id": "https://f.video.weibocdn.com/o0/fEvgAjoFlx08u77hELTq01041209kvsX0E040.mp4",
+   "ts": 1793431120,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
