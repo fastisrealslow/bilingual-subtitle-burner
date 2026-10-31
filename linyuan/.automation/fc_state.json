@@ -66575,7 +66575,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-29T11:47:50+08:00"
+   "publish_time": "2026-06-29T11:47:50+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-533325",
+    "run_id": 41145485252,
+    "artifact_id": 13021678642,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "70ad5c8c7f21955aa6d25cade4c07efd81d969d8ab91fcbb9d4547899b9a8b46",
+     "duration_sec": 546.64,
+     "resolution": {
+      "width": 720,
+      "height": 1488,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5315111817584092"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41145485252,
+    "artifact_id": 13021678642,
+    "name": "production-reject-ly-1030-533325",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5300409242752301",
@@ -66675,7 +66712,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4406581838186064",
@@ -66705,7 +66743,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5172253509289324",
@@ -155010,6 +155049,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/1Aoe0vGqlx08xlpLLILC01041201rgnt0E010.mp4",
    "ts": 1793404707,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1030-533325",
+   "key": "weibo_search:5315111817584092",
+   "video_id": "https://f.video.weibocdn.com/u0/Ej1jNhgxgx08yKRYIm9G01041203LWYi0E020.mp4",
+   "ts": 1793405320,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
