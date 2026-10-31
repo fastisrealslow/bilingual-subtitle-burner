@@ -66933,7 +66933,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-01-01T11:28:02+08:00"
+   "publish_time": "2025-01-01T11:28:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-e928e7",
+    "run_id": 41155310915,
+    "artifact_id": 13028057654,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8af7d398fba9a7906daf58b6e596e9a9c34a5d8b0e9dbe20eb592d6a768f9185",
+     "duration_sec": 3134.46,
+     "resolution": {
+      "width": 1920,
+      "height": 886,
+      "short_edge": 886
+     },
+     "source_url": "https://m.weibo.cn/detail/5117967836388239"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：嘉宾从第 2 句开始明确表达观点（'我考虑确实是公司的质地'），并一直论述到第 22 句（'到牛市中期，我可能又再炒一些没涨的，好的再加大'），构成了完整的投资逻辑链条。虽然中间有口吃、重复和少量识别不清的词（如'低欧的'应为'低估的'，'欣欣速管'疑似'兴欣速管'或特定公司名但语境可通），但这些属于口语特征而非切断论述。第 0 句是主持人提问，不应纳入 claim_range。；原文问题：[[\"我那时候，比如说熊市的时候，我判断不不清楚它是牛市，我一定是三大块，一大块是低欧的、难收的。\", \"原文'低欧的、难收的'疑似识别错误，结合上下文应为'低估的、难收的'或类似表述，但"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41155310915,
+    "artifact_id": 13028057654,
+    "name": "production-reject-ly-1031-e928e7",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5172253509289324",
@@ -67021,7 +67078,92 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-16T20:27:10+08:00"
+   "publish_time": "2021-06-16T20:27:10+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-da3879",
+    "run_id": 41159521610,
+    "artifact_id": 13028758593,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d390bcf93cbae8441f387829ccb03792fa26906fcecc17baf7e86b42221b8276",
+     "duration_sec": 3066.17,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4648811232496109"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：回答在句 4 结束于‘您没有做这个刚需’后，句 5-7 虽涉及新话题（粮油食品），但句 8 明显为新的提问开启，且句 7 后半段包含主持人自我介绍打断逻辑流，导致对‘零食行业’的完整论证被切断，无法独立成片。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空，因为句子 1 和 2 虽为嘉宾回答，但未形成清晰、完整的独立判断（如具体策略、明确结论或可验证观点），仅属泛泛而谈；句子 0 为主持人提问，不可纳入 claim_range。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1WGpv6hEqL）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配397/693，总帧数1476；身份匹配但人脸短边不足96px的帧数174"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配700/955，总帧数1270；身份匹配但人脸短边不足96px的帧数169"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配249/497，总帧数1236；身份匹配但人脸短边不足96px的帧数239"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/224，总帧数1116；身份匹配但人脸短边不足96px的帧数224"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/247，总帧数1234；身份匹配但人脸短边不足96px的帧数247"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41159521610,
+    "artifact_id": 13028758593,
+    "name": "production-reject-ly-1031-da3879",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/QRGUieQ9lx08qJ4Do3O0010412087ioG0E030.mp4",
@@ -67080,7 +67222,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5307444339413815",
@@ -155913,6 +156056,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/WBb9MnGGlx08uWRqDWA0010412092jIt0E040.mp4",
    "ts": 1793420162,
    "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+  },
+  {
+   "slug": "ly-1031-da3879",
+   "key": "weibo_search:4648811232496109",
+   "video_id": "https://f.video.weibocdn.com/i8EFRx0qlx07NvifLARi0104120aZph80E040.mp4",
+   "ts": 1793420170,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1031-e928e7",
+   "key": "weibo_search:5117967836388239",
+   "video_id": "https://f.video.weibocdn.com/u0/vsqyEZgVgx0882j5V0WA0104120bOgvk0E050.mp4",
+   "ts": 1793420171,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
   }
  ],
  "reviewed_third_video_0910": {
