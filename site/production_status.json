@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793490026,
+  "updated_at": 1793490180,
   "inventory_updated_at": 1793490019,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 72,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 103,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 102,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793490024,
+    "updated_at": 1793490179,
     "records": 14297,
     "video_records": 12001,
-    "initial_candidates": 211,
-    "duration_eligible_records": 103,
-    "candidate_count": 103,
-    "known_duration_candidates": 103,
+    "initial_candidates": 210,
+    "duration_eligible_records": 102,
+    "candidate_count": 102,
+    "known_duration_candidates": 102,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7814,
-      "already_attempted_or_cooling": 2341,
+      "already_attempted_or_cooling": 2342,
       "no_video": 2296,
       "clip_title": 1298,
       "unrelated": 73,
@@ -207,14 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5198474211492319",
-        "title": "林园：我结合世界股市的这个规律，股市上涨的时间只有5%，下跌的时间或者盘整的时间95%啊，所以我没有别的办法，我就始终 ",
-        "source": "weibo_search",
-        "author": "用户7010019442",
-        "url": "https://m.weibo.cn/detail/5198474211492319",
-        "duration_sec": 35.0
-      },
       {
         "key": "weibo_search:5273239816244922",
         "title": "投资大佬林园2007年讲座金句！他判断牛市末期的信号是什么？当赚钱最容易的人都觉得炒股来钱更快时，市场就危险了。这个比喻",
@@ -1047,15 +1039,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1689,
+    "failed": 1690,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 18,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -37288,11 +37280,11 @@
     },
     {
       "slug": "ly-1031-90e3a5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793489424,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37357,6 +37349,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253311371",
       "run_started_at": "2026-10-31T23:37:30Z",
       "run_updated_at": "2026-10-31T23:37:34Z"
+    },
+    {
+      "slug": "ly-1031-a31612",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793490138,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41253632198,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253632198",
+      "run_started_at": "2026-10-31T23:42:17Z",
+      "run_updated_at": "2026-10-31T23:42:22Z"
     }
   ],
   "runs": {
@@ -55135,6 +55145,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252806135",
       "run_number": 3338,
       "display_title": "中文源出片 · ly-1031-90e3a5"
+    },
+    "ly-1031-a31612": {
+      "id": 41253632198,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T23:42:17Z",
+      "updated_at": "2026-10-31T23:42:22Z",
+      "run_started_at": "2026-10-31T23:42:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253632198",
+      "run_number": 3342,
+      "display_title": "中文源出片 · ly-1031-a31612"
     },
     "ly-1031-25c519": {
       "id": 41253311371,
