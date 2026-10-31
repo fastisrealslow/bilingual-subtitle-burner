@@ -37528,17 +37528,17 @@
    "publish_time": "2026-10-17T05:21:02+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-13a2c9",
-    "run_id": 39864415088,
-    "artifact_id": 12467807098,
+    "run_id": 39885958339,
+    "artifact_id": 12474210619,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是‘TCL'的误识别（多字且字母组合异常），属于无法解释的具体词语/疑似错写的专有名词。\"}, {\"sentence_id\": 15, \"quote\": \"因为我那时候持有长虹，这发展发展，两个公司都不在。\", "
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是对‘TCL'的误听/误识（多音字或发音相似导致），属于无法解释的具体词语疑点。\"}]"
      },
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"比如说腾讯，别人给我说的是，应该就是很便宜，几块钱的是五六块钱。\", \"suspect_quote\": \"五六块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"原文中'五六块钱'为口语化的模糊数字范围，非精确数值冲突或否定错误，但作为关键价格描述存在识别歧义（是五块六还是五到六？），需指出具体数字表述不清。\"}]"
+      "reason": "封面生成/人物/角标复检失败：现场原画封面存在黑色填充边"
      }
     ]
    },
@@ -37596,13 +37596,13 @@
    "publish_time": "2021-08-31T15:25:11+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-a4bea9",
-    "run_id": 39870682612,
-    "artifact_id": 12467210636,
+    "run_id": 39888617974,
+    "artifact_id": 12473453635,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"只有一只股票啊，深发展，我们就关关注深发展。\", \"suspect_quote\": \"关关注\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，应为“关注”或“关心”，多出的“关”字导致语义不通。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\", \"kind\": \"unintelligible_term\", \"reason\": \"金融领域无“四会"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"他就挂了两百万，我记得是几兄弟，是潮州人啊，当时是开商场的，传说就挂在那里，谁都不敢去买。\", \"suspect_quote\": \"几兄弟\", \"kind\": \"unintelligible_term\", \"reason\": \"该词在金融或日常语境中无明确含义，疑似识别错误（可能为“几亿”、“几十亿”或其他数字/量词的误识），属于无法解释的具体词语。\"}, {\"sentence_id\": 3, \"quote\": \"因为当时是四会交易，就是黑板上写在那里啊，你谁要了就把这个辞了。\", \"suspect_quote\": \"四会交易\""
      }
     ]
    },
@@ -37854,13 +37854,21 @@
    "publish_time": "2026-10-17T05:14:20+00:00",
    "production_failure_summary": {
     "slug": "ly-1022-abeb50",
-    "run_id": 39896517167,
-    "artifact_id": 12477682253,
+    "run_id": 39888629731,
+    "artifact_id": 12475754660,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"我说以前啊，过去比如说十年前，白酒的股息率也就不到百分之一，大概百分之零点八、百分之零点七几的百分。\", \"suspect_quote\": \"百分之零点八、百分之零点七几的百分\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字表达存在明显识别疑点：‘百分之零点七几’中‘几’字在口语中通常指代不确定范围，但此处紧接‘的百分’，导致数值单位不完整（缺少‘之一’或‘之十’等后缀），且‘零点七几’与后文‘不到百分之一’的逻辑衔接因单位缺失而模糊。此外，‘百分之零点八\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那个时候它风头很强，一大堆长虹、康佳、TCATCA是后来的，是吧？\", \"suspect_quote\": \"TCATCA\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误：'TCATCA' 并非已知企业或行业术语，结合上下文‘一大堆长虹、康佳’及后文‘华强’，此处极可能是对‘TCL'的误听/误识（多音字或发音相似导致），属于无法解释的具体词语疑点。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：故事标题尚未通过对象和理由检查，保留重试；不回退到其他话题摘句"
      }
     ]
    },
@@ -156641,7 +156649,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793365638,
- "rule_recovery_page": 7,
+ "rule_recovery_page": 8,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
