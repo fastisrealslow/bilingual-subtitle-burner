@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793465526,
+  "updated_at": 1793465666,
   "inventory_updated_at": 1793465520,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 69,
     "active_or_recovering_sources": 6,
-    "waiting_candidates": 155,
+    "waiting_candidates": 154,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,16 +185,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793465524,
+    "updated_at": 1793465664,
     "records": 14086,
     "video_records": 11804,
-    "initial_candidates": 244,
-    "duration_eligible_records": 155,
-    "candidate_count": 155,
-    "known_duration_candidates": 155,
+    "initial_candidates": 243,
+    "duration_eligible_records": 154,
+    "candidate_count": 154,
+    "known_duration_candidates": 154,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2154,
+      "already_attempted_or_cooling": 2155,
       "speaker_unconfirmed": 7774,
       "no_video": 2282,
       "clip_title": 1296,
@@ -207,14 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5056076028576691",
-        "title": "林园说，现在的机会比2008年更大！#股市大家谈##股票##投资##财经# http://t.cn/A6QkzH58 ​",
-        "source": "weibo_search",
-        "author": "葵哥作板",
-        "url": "https://m.weibo.cn/detail/5056076028576691",
-        "duration_sec": 105.0
-      },
       {
         "key": "weibo_search:5331551161162312",
         "title": "林园：在89 年携带 8000 元入市，1992 年资产突破 1000 万，2006 年个人资产达到 20 亿。\n\n20",
@@ -1465,13 +1457,13 @@
     "complete": 167,
     "failed": 1618,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 8,
     "excluded": 27,
     "experiment_fallback": 86,
     "ready": 17,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 5
+    "retry_queued": 2,
+    "running": 4
   },
   "tasks": [
     {
@@ -36228,8 +36220,8 @@
     },
     {
       "slug": "ly-1031-c5811e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793462441,
         "failed": null,
@@ -36242,7 +36234,7 @@
       "run_id": 41217560946,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41217560946",
       "run_started_at": "2026-10-31T16:00:41Z",
-      "run_updated_at": "2026-10-31T16:00:45Z"
+      "run_updated_at": "2026-10-31T16:53:51Z"
     },
     {
       "slug": "ly-story-31135b0052",
@@ -36282,14 +36274,14 @@
     },
     {
       "slug": "ly-1031-5fcedd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793465041,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793467380,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -36300,8 +36292,8 @@
     },
     {
       "slug": "ly-1031-8712b8",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793465335,
         "failed": null,
@@ -36314,7 +36306,25 @@
       "run_id": 41221482373,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41221482373",
       "run_started_at": "2026-10-31T16:48:55Z",
-      "run_updated_at": "2026-10-31T16:49:23Z"
+      "run_updated_at": "2026-10-31T16:52:37Z"
+    },
+    {
+      "slug": "ly-1031-759aa6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793465624,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41221863236,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41221863236",
+      "run_started_at": "2026-10-31T16:53:44Z",
+      "run_updated_at": "2026-10-31T16:54:02Z"
     }
   ],
   "runs": {
@@ -53203,12 +53213,23 @@
       "run_number": 3246,
       "display_title": "中文源出片 · ly-1031-5fcedd"
     },
-    "ly-1031-8712b8": {
-      "id": 41221482373,
+    "ly-1031-759aa6": {
+      "id": 41221863236,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-31T16:53:44Z",
+      "updated_at": "2026-10-31T16:54:02Z",
+      "run_started_at": "2026-10-31T16:53:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41221863236",
+      "run_number": 3248,
+      "display_title": "中文源出片 · ly-1031-759aa6"
+    },
+    "ly-1031-8712b8": {
+      "id": 41221482373,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T16:48:55Z",
-      "updated_at": "2026-10-31T16:49:23Z",
+      "updated_at": "2026-10-31T16:52:37Z",
       "run_started_at": "2026-10-31T16:48:55Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41221482373",
       "run_number": 3247,
@@ -53227,10 +53248,10 @@
     },
     "ly-1031-c5811e": {
       "id": 41217560946,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T16:00:41Z",
-      "updated_at": "2026-10-31T16:00:45Z",
+      "updated_at": "2026-10-31T16:53:51Z",
       "run_started_at": "2026-10-31T16:00:41Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41217560946",
       "run_number": 3243,
