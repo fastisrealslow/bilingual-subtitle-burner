@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793447230,
+  "updated_at": 1793447354,
   "inventory_updated_at": 1793447224,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 66,
     "active_or_recovering_sources": 6,
-    "waiting_candidates": 153,
+    "waiting_candidates": 152,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793447228,
+    "updated_at": 1793447352,
     "records": 13979,
     "video_records": 11697,
-    "initial_candidates": 232,
-    "duration_eligible_records": 153,
-    "candidate_count": 153,
-    "known_duration_candidates": 153,
+    "initial_candidates": 231,
+    "duration_eligible_records": 152,
+    "candidate_count": 152,
+    "known_duration_candidates": 152,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7759,
-      "already_attempted_or_cooling": 2088,
+      "already_attempted_or_cooling": 2089,
       "no_video": 2282,
       "clip_title": 1281,
       "unrelated": 73,
@@ -207,14 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4646841926291581",
-        "title": "【林园自称持有茅台2%的股份，“顶级凡尔赛”还是“吹牛大王”？】近日，贵州茅台召开2020年度股东大会。东方港湾董事长、",
-        "source": "weibo_search",
-        "author": "独行侠陶大叔",
-        "url": "https://m.weibo.cn/detail/4646841926291581",
-        "duration_sec": 73.0
-      },
       {
         "key": "weibo_search:5248079092781823",
         "title": "林园2008年10月金融危机时接受采访！#林园##金融##金融##基金##基金##投资##投资##经济##经济# htt",
@@ -1447,7 +1439,7 @@
   },
   "counts": {
     "complete": 166,
-    "failed": 1604,
+    "failed": 1605,
     "paused": 5,
     "interrupted": 6,
     "excluded": 26,
@@ -35906,11 +35898,11 @@
     },
     {
       "slug": "ly-1031-15d3f5",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[1]，scan_same=[3, 18]，scan_different=[2, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.1321, 3: 0.771, 4: 0.2272, 5: 0.104, 6: 0.0766, 7: 0.0595, 8: 0.1633, 9: 0.0477, 11: 0.037, 12: 0.1875, 13: 0.0056, 14: -0.0273, 15: 0.0258, 16: 0.0443, 18: 0.4105}",
       "signature": {
         "ts": 1793447034,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35920,7 +35912,25 @@
       "run_id": 41198063940,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41198063940",
       "run_started_at": "2026-10-31T11:43:54Z",
-      "run_updated_at": "2026-10-31T11:44:04Z"
+      "run_updated_at": "2026-10-31T11:46:25Z"
+    },
+    {
+      "slug": "ly-1031-9fc10d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793447313,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41198382862,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41198382862",
+      "run_started_at": "2026-10-31T11:48:32Z",
+      "run_updated_at": "2026-10-31T11:48:44Z"
     }
   ],
   "runs": {
@@ -52578,12 +52588,23 @@
       "run_number": 3212,
       "display_title": "中文源出片 · ly-1031-5bcfb2"
     },
-    "ly-1031-15d3f5": {
-      "id": 41198063940,
+    "ly-1031-9fc10d": {
+      "id": 41198382862,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-10-31T11:48:32Z",
+      "updated_at": "2026-10-31T11:48:44Z",
+      "run_started_at": "2026-10-31T11:48:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41198382862",
+      "run_number": 3223,
+      "display_title": "中文源出片 · ly-1031-9fc10d"
+    },
+    "ly-1031-15d3f5": {
+      "id": 41198063940,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-10-31T11:43:54Z",
-      "updated_at": "2026-10-31T11:44:04Z",
+      "updated_at": "2026-10-31T11:46:25Z",
       "run_started_at": "2026-10-31T11:43:54Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41198063940",
       "run_number": 3222,
