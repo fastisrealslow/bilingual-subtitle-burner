@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793420120,
+  "updated_at": 1793420267,
   "inventory_updated_at": 1793420117,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 63,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 128,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 124,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,16 +185,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793420119,
+    "updated_at": 1793420266,
     "records": 13800,
     "video_records": 11550,
-    "initial_candidates": 206,
-    "duration_eligible_records": 128,
-    "candidate_count": 128,
-    "known_duration_candidates": 128,
+    "initial_candidates": 202,
+    "duration_eligible_records": 124,
+    "candidate_count": 124,
+    "known_duration_candidates": 124,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2031,
+      "already_attempted_or_cooling": 2035,
       "speaker_unconfirmed": 7707,
       "no_video": 2250,
       "clip_title": 1269,
@@ -230,38 +230,6 @@
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5306010644513208",
         "duration_sec": 899.0
-      },
-      {
-        "key": "weibo_search:4787619101675972",
-        "title": "2017雪球嘉年华林园： “在选股上我们要选择确定性高的，就是将来一定赚钱的。未来20年什么行业一定能赚钱？我认为是保命",
-        "source": "weibo_search",
-        "author": "藕花深处有暗香盈袖",
-        "url": "https://m.weibo.cn/detail/4787619101675972",
-        "duration_sec": 1972.0
-      },
-      {
-        "key": "weibo_search:4787455398252037",
-        "title": "//@高宇飚:2017雪球嘉年华林园： “在选股上我们要选择确定性高的，就是将来一定赚钱的。未来20年什么行业一定能赚钱",
-        "source": "weibo_search",
-        "author": "云汐宝贝111",
-        "url": "https://m.weibo.cn/detail/4787455398252037",
-        "duration_sec": 1972.0
-      },
-      {
-        "key": "weibo_search:4787413123860074",
-        "title": "//@高宇飚:2017雪球嘉年华林园： “在选股上我们要选择确定性高的，就是将来一定赚钱的。未来20年什么行业一定能赚钱",
-        "source": "weibo_search",
-        "author": "焕然一新99485",
-        "url": "https://m.weibo.cn/detail/4787413123860074",
-        "duration_sec": 1972.0
-      },
-      {
-        "key": "weibo_search:4787395567026851",
-        "title": "2017雪球嘉年华林园： “在选股上我们要选择确定性高的，就是将来一定赚钱的。未来20年什么行业一定能赚钱？我认为是保命",
-        "source": "weibo_search",
-        "author": "高宇飚",
-        "url": "https://m.weibo.cn/detail/4787395567026851",
-        "duration_sec": 1972.0
       },
       {
         "key": "weibo_search:5180798806266439",
@@ -1247,14 +1215,15 @@
   },
   "counts": {
     "complete": 164,
-    "failed": 1583,
+    "failed": 1586,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 6,
     "excluded": 26,
     "experiment_fallback": 75,
     "ready": 14,
     "validation_failed": 2,
-    "retry_queued": 1
+    "retry_queued": 2,
+    "running": 4
   },
   "tasks": [
     {
@@ -34967,11 +34936,11 @@
     },
     {
       "slug": "ly-1031-e928e7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸",
       "signature": {
         "ts": 1793409950,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35021,11 +34990,11 @@
     },
     {
       "slug": "ly-1031-da3879",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1793413206,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35075,14 +35044,14 @@
     },
     {
       "slug": "ly-1031-2d37fd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793415655,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793421063,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -35093,11 +35062,11 @@
     },
     {
       "slug": "ly-1031-f4cd14",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
       "signature": {
         "ts": 1793415663,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35108,6 +35077,78 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41162502890",
       "run_started_at": "2026-10-31T03:01:03Z",
       "run_updated_at": "2026-10-31T04:13:23Z"
+    },
+    {
+      "slug": "ly-1031-1520e0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793420201,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41167898164,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167898164",
+      "run_started_at": "2026-10-31T04:16:40Z",
+      "run_updated_at": "2026-10-31T04:16:51Z"
+    },
+    {
+      "slug": "ly-1031-0dde48",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793420208,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41167905971,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167905971",
+      "run_started_at": "2026-10-31T04:16:48Z",
+      "run_updated_at": "2026-10-31T04:16:51Z"
+    },
+    {
+      "slug": "ly-1031-3f77d4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793420216,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41167914909,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167914909",
+      "run_started_at": "2026-10-31T04:16:56Z",
+      "run_updated_at": "2026-10-31T04:17:00Z"
+    },
+    {
+      "slug": "ly-1031-595dca",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793420225,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41167924884,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167924884",
+      "run_started_at": "2026-10-31T04:17:05Z",
+      "run_updated_at": "2026-10-31T04:17:09Z"
     }
   ],
   "runs": {
@@ -51445,6 +51486,50 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41162502890",
       "run_number": 3185,
       "display_title": "中文源出片 · ly-1031-f4cd14"
+    },
+    "ly-1031-595dca": {
+      "id": 41167924884,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T04:17:05Z",
+      "updated_at": "2026-10-31T04:17:09Z",
+      "run_started_at": "2026-10-31T04:17:05Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167924884",
+      "run_number": 3189,
+      "display_title": "中文源出片 · ly-1031-595dca"
+    },
+    "ly-1031-3f77d4": {
+      "id": 41167914909,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T04:16:56Z",
+      "updated_at": "2026-10-31T04:17:00Z",
+      "run_started_at": "2026-10-31T04:16:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167914909",
+      "run_number": 3188,
+      "display_title": "中文源出片 · ly-1031-3f77d4"
+    },
+    "ly-1031-0dde48": {
+      "id": 41167905971,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T04:16:48Z",
+      "updated_at": "2026-10-31T04:16:51Z",
+      "run_started_at": "2026-10-31T04:16:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167905971",
+      "run_number": 3187,
+      "display_title": "中文源出片 · ly-1031-0dde48"
+    },
+    "ly-1031-1520e0": {
+      "id": 41167898164,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T04:16:40Z",
+      "updated_at": "2026-10-31T04:16:51Z",
+      "run_started_at": "2026-10-31T04:16:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41167898164",
+      "run_number": 3186,
+      "display_title": "中文源出片 · ly-1031-1520e0"
     }
   }
 }
