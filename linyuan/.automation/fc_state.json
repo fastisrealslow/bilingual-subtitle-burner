@@ -67526,7 +67526,8 @@
    },
    "last_error": "动态取景连续2.03秒缺少人脸",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5304402380590284",
@@ -67610,7 +67611,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场原画封面的人脸不在信息流中心安全区",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5307444339413815",
@@ -67691,7 +67693,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/tVAYEBs9gx07SbQJOiYw01041203oTPD0E020.mp4",
@@ -67740,7 +67743,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-12-17T20:18:43+08:00"
+   "publish_time": "2020-12-17T20:18:43+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41180135755,
+    "artifact_id": 13034497973,
+    "name": "source-reject-ly-1031-5468d5",
+    "retained": true
+   },
+   "last_error": "原始素材短边 240 < 480（320x240），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4651140287824161",
@@ -67763,7 +67776,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-23T06:42:01+08:00"
+   "publish_time": "2021-06-23T06:42:01+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41180144329,
+    "artifact_id": 13034338792,
+    "name": "source-reject-ly-1031-9ea6df",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（636x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5305398217148373",
@@ -156920,6 +156943,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/fEvgAjoFlx08u77hELTq01041209kvsX0E040.mp4",
    "ts": 1793431120,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1031-9ea6df",
+   "key": "weibo_search:4651140287824161",
+   "video_id": "https://f.video.weibocdn.com/4wji1bGnlx07NFHEuySY01041202kFlI0E010.mp4",
+   "ts": 1793431372,
+   "error": "原始素材短边 360 < 480（636x360），画质不达标"
+  },
+  {
+   "slug": "ly-1031-5468d5",
+   "key": "weibo_search:4583216902049425",
+   "video_id": "https://f.video.weibocdn.com/iAog0K6ulx07IQjwrf4A01041201X1PP0E010.mp4",
+   "ts": 1793431372,
+   "error": "原始素材短边 240 < 480（320x240），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
