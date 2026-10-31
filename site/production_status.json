@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793445869,
+  "updated_at": 1793445979,
   "inventory_updated_at": 1793445865,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 65,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 156,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 154,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793445867,
+    "updated_at": 1793445978,
     "records": 13979,
     "video_records": 11697,
-    "initial_candidates": 235,
-    "duration_eligible_records": 156,
-    "candidate_count": 156,
-    "known_duration_candidates": 156,
+    "initial_candidates": 233,
+    "duration_eligible_records": 154,
+    "candidate_count": 154,
+    "known_duration_candidates": 154,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7759,
-      "already_attempted_or_cooling": 2085,
+      "already_attempted_or_cooling": 2087,
       "no_video": 2282,
       "clip_title": 1281,
       "unrelated": 73,
@@ -207,14 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5180798806266439",
-        "title": "//@巴芒心经:【片仔癀股东大会：余军发言】  尊敬的片仔癀管理层，大家好！我是来自深圳的一家投资机构，我叫余军。  2",
-        "source": "weibo_search",
-        "author": "片仔癀扫地僧",
-        "url": "https://m.weibo.cn/detail/5180798806266439",
-        "duration_sec": 100.0
-      },
       {
         "key": "weibo_search:4649398325478694",
         "title": "【私募大佬林园被#茅台#  “伤透了心”，现身#五粮液股东大会# 欲购1000箱？】6月18日，五粮液举行2020年年度",
@@ -350,14 +342,6 @@
         "author": "修鑫1469",
         "url": "https://m.weibo.cn/detail/5319908671622193",
         "duration_sec": 193.0
-      },
-      {
-        "key": "weibo_search:5180810450963559",
-        "title": "//@片仔癀扫地僧://@巴芒心经:【片仔癀股东大会：余军发言】  尊敬的片仔癀管理层，大家好！我是来自深圳的一家投资机",
-        "source": "weibo_search",
-        "author": "成成和琦琦",
-        "url": "https://m.weibo.cn/detail/5180810450963559",
-        "duration_sec": 100.0
       },
       {
         "key": "weibo_search:4578161444786742",
@@ -1471,15 +1455,16 @@
   },
   "counts": {
     "complete": 166,
-    "failed": 1601,
+    "failed": 1602,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 26,
     "experiment_fallback": 83,
     "ready": 15,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -35894,11 +35879,11 @@
     },
     {
       "slug": "ly-1031-f85d20",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 11, 12]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.01, 2: 0.0232, 3: 0.0263, 4: 0.0725, 5: 0.2003, 6: 0.0747, 11: 0.186, 12: 0.2548}",
       "signature": {
         "ts": 1793445536,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -35909,6 +35894,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41196339972",
       "run_started_at": "2026-10-31T11:18:56Z",
       "run_updated_at": "2026-10-31T11:22:31Z"
+    },
+    {
+      "slug": "ly-1031-519b35",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793445938,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41196808295,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41196808295",
+      "run_started_at": "2026-10-31T11:25:37Z",
+      "run_updated_at": "2026-10-31T11:25:37Z"
     }
   ],
   "runs": {
@@ -52543,6 +52546,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41196339972",
       "run_number": 3219,
       "display_title": "中文源出片 · ly-1031-f85d20"
+    },
+    "ly-1031-519b35": {
+      "id": 41196808295,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-31T11:25:37Z",
+      "updated_at": "2026-10-31T11:25:37Z",
+      "run_started_at": "2026-10-31T11:25:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41196808295",
+      "run_number": 3220,
+      "display_title": "中文源出片 · ly-1031-519b35"
     },
     "ly-1031-5f469e": {
       "id": 41195949635,
