@@ -70469,7 +70469,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-31T13:30:43+08:00"
+   "publish_time": "2025-12-31T13:30:43+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-3012b7",
+    "run_id": 41225069624,
+    "artifact_id": 13052041637,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f309a3f9e594aa69bdf4bc26d4ad8bacc53f8e9dab306f8d9e65273ad61023c0",
+     "duration_sec": 84.92,
+     "resolution": {
+      "width": 720,
+      "height": 926,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5249907898187883"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41225069624,
+    "artifact_id": 13052041637,
+    "name": "production-reject-ly-1031-3012b7",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5205373889548072",
@@ -70525,7 +70558,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 62%（BV16Gbs6GEgv）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/e2ijewlmgx08yNdfMd5m0104120gUu2w0E060.mp4",
@@ -70607,7 +70641,8 @@
    },
    "last_error": "原始素材短边 400 < 480（718x400），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4963317741260042",
@@ -160991,6 +161026,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/o8w3jPBXgx08r16miE7e01041200afCk0E010.mp4",
    "ts": 1793468476,
    "error": "与已发布内容文字指纹重复：转写片段重合 62%（BV16Gbs6GEgv）"
+  },
+  {
+   "slug": "ly-1031-3012b7",
+   "key": "weibo_search:5249907898187883",
+   "video_id": "https://f.video.weibocdn.com/o0/wehwTvqGlx08uaQngP4s01041200jHBL0E010.mp4",
+   "ts": 1793468742,
+   "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）"
   }
  ],
  "reviewed_third_video_0910": {
