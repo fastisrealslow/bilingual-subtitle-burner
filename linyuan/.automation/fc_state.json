@@ -67996,7 +67996,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 84%（BV1MEe46yE8F）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5244564463163016",
@@ -68042,7 +68043,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-12-06T10:56:42+08:00"
+   "publish_time": "2019-12-06T10:56:42+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-4998ff",
+    "run_id": 41180417937,
+    "artifact_id": 13036585434,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a048d676a742250a7680a9c488eec34baa556ef24758c144f2b14c306f274d85",
+     "duration_sec": 1262.98,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4446455240452550"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 94%（BV1RCn76bE4M）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1910/2979，总帧数5342；身份匹配但人脸短边不足96px的帧数1069"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/671，总帧数3353；身份匹配但人脸短边不足96px的帧数671"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41180417937,
+    "artifact_id": 13036585434,
+    "name": "production-reject-ly-1031-4998ff",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 94%（BV1RCn76bE4M）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5273154646704767",
@@ -157646,6 +157688,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/x06bBKMhlx08y7lFCFB601041203MY8R0E020.mp4",
    "ts": 1793434137,
    "error": "与已发布内容文字指纹重复：转写片段重合 84%（BV1MEe46yE8F）"
+  },
+  {
+   "slug": "ly-1031-4998ff",
+   "key": "weibo_search:4446455240452550",
+   "video_id": "https://f.video.weibocdn.com/002oZIF6lx07z8NZQV5m0104120ha5RQ0E070.mp4",
+   "ts": 1793434661,
+   "error": "与已发布内容文字指纹重复：转写片段重合 94%（BV1RCn76bE4M）"
   }
  ],
  "reviewed_third_video_0910": {
