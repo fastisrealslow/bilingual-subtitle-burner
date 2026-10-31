@@ -66370,7 +66370,52 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2022-11-01T18:15:05+08:00"
+   "publish_time": "2022-11-01T18:15:05+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1030-b4ffc5",
+    "run_id": 41141244981,
+    "artifact_id": 13022051345,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "930e65f7c676a9c80efb6f952a382b26b66acb1ebc90411aa67e3a6e1e41c1e1",
+     "duration_sec": 4850.51,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4831059088507213"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/472，总帧数2357；身份匹配但人脸短边不足96px的帧数472"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配6/211，总帧数1020；身份匹配但人脸短边不足96px的帧数164"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/259，总帧数1294；身份匹配但人脸短边不足96px的帧数259"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41141244981,
+    "artifact_id": 13022051345,
+    "name": "production-reject-ly-1030-b4ffc5",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/472，总帧数2357；身份匹配但人脸短边不足96px的帧数472",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5291660070358685",
@@ -66612,7 +66657,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5300409242752301",
@@ -155079,6 +155125,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/Ej1jNhgxgx08yKRYIm9G01041203LWYi0E020.mp4",
    "ts": 1793405320,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1030-b4ffc5",
+   "key": "weibo_search:4831059088507213",
+   "video_id": "https://f.video.weibocdn.com/u0/zuGoJAs2gx080rAZmzg401041209rDjw0E040.mp4",
+   "ts": 1793405557,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/472，总帧数2357；身份匹配但人脸短边不足96px的帧数472"
   }
  ],
  "reviewed_third_video_0910": {
