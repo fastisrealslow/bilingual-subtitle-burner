@@ -44,6 +44,8 @@ def test_each_field_keeps_same_claim_uncertainty(subject, obj, modal, field):
     ('企业有风险', '企业可能没有风险。'),
     ('企业有风险', '企业可能有风险投资。'),
     ('企业有风险', '企业可能有风险。企业确实有风险。'),
+    ('企业有风险', '企业可能有风险。企业有风险，市场也许有机会。'),
+    ('企业有风险', '企业可能有风险。市场可能有机会，但企业确实有风险。'),
     ('企业有风险', '不能说企业有风险。'),
 ])
 def test_normal_counterexamples(copy, source):

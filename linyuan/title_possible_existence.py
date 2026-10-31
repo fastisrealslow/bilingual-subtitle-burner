@@ -26,9 +26,15 @@ def error(title, cover, source):
             if not any(uncertain.search(c.strip()) for c in clauses):
                 continue
             affirmative = re.compile(re.escape(subject) + r'(?:已经|确实|本来|也|还)?有' + re.escape(obj) + tail + end)
-            independent = any(affirmative.search(c.strip()) and
-                              not re.search(hedge + r'|不能说|不是说|并非|没有|不认为', sentence)
-                              for sentence in sentences for c in re.split(r'[，,：:]', sentence))
+            independent = False
+            for sentence in sentences:
+                prefix = ''
+                for c in re.split(r'[，,：:]', sentence):
+                    if (affirmative.search(c.strip())
+                            and not re.search(hedge + r'|不能说|不是说|并非|没有|不认为', c)
+                            and not re.search(r'如果|假如|假设|要是|一旦', prefix)):
+                        independent = True
+                    prefix += c
             if not independent:
                 return '原文只说同一对象可能存在；标题和封面须各自保留可能性，不能把可能有写成确定有'
     return None
