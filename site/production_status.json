@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793460914,
+  "updated_at": 1793461025,
   "inventory_updated_at": 1793460911,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 69,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 161,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 158,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,16 +185,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793460913,
+    "updated_at": 1793461025,
     "records": 14086,
     "video_records": 11804,
-    "initial_candidates": 250,
-    "duration_eligible_records": 161,
-    "candidate_count": 161,
-    "known_duration_candidates": 161,
+    "initial_candidates": 247,
+    "duration_eligible_records": 158,
+    "candidate_count": 158,
+    "known_duration_candidates": 158,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2148,
+      "already_attempted_or_cooling": 2151,
       "speaker_unconfirmed": 7774,
       "no_video": 2282,
       "clip_title": 1296,
@@ -207,30 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5167989657702547",
-        "title": "#茅台股东大会#【林园现身茅台国际大酒店，大批股东围观合影，有股东直呼“存钱不如买茅台”】\n\n5月18日，贵州茅台酒股份",
-        "source": "weibo_search",
-        "author": "中访网微博",
-        "url": "https://m.weibo.cn/detail/5167989657702547",
-        "duration_sec": 31.0
-      },
-      {
-        "key": "weibo_search:5167943765199868",
-        "title": "#茅台股东大会#【林园现身茅台国际大酒店，大批股东围观合影，有股东直呼“存钱不如买茅台”】\n\n5月18日，贵州茅台酒股份",
-        "source": "weibo_search",
-        "author": "中访网微博",
-        "url": "https://m.weibo.cn/detail/5167943765199868",
-        "duration_sec": 31.0
-      },
-      {
-        "key": "weibo_search:5167942968544790",
-        "title": "#茅台股东大会#【林园现身茅台国际大酒店，大批股东围观合影，有股东直呼“存钱不如买茅台”】\n\n5月18日，贵州茅台酒股份",
-        "source": "weibo_search",
-        "author": "酒业小密探",
-        "url": "https://m.weibo.cn/detail/5167942968544790",
-        "duration_sec": 31.0
-      },
       {
         "key": "weibo_search:5167763689570926",
         "title": "【#林园现身茅台国际大酒店#，大批股东围观合影，有股东直呼“存钱不如买茅台” 】 #聚焦茅台股东大会# 5月18日，贵州",
@@ -1511,15 +1487,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1616,
+    "failed": 1617,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 85,
     "ready": 17,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -36258,11 +36234,11 @@
     },
     {
       "slug": "ly-1031-43a720",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1793460710,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -36273,6 +36249,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41215283153",
       "run_started_at": "2026-10-31T15:31:49Z",
       "run_updated_at": "2026-10-31T15:33:40Z"
+    },
+    {
+      "slug": "ly-1031-5fcedd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793460985,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41215659792,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41215659792",
+      "run_started_at": "2026-10-31T15:36:25Z",
+      "run_updated_at": "2026-10-31T15:36:29Z"
     }
   ],
   "runs": {
@@ -53127,6 +53121,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41215283153",
       "run_number": 3240,
       "display_title": "中文源出片 · ly-1031-43a720"
+    },
+    "ly-1031-5fcedd": {
+      "id": 41215659792,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T15:36:25Z",
+      "updated_at": "2026-10-31T15:36:29Z",
+      "run_started_at": "2026-10-31T15:36:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41215659792",
+      "run_number": 3241,
+      "display_title": "中文源出片 · ly-1031-5fcedd"
     },
     "ly-1031-2918a3": {
       "id": 41214145472,
