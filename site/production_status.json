@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793486690,
+  "updated_at": 1793486834,
   "inventory_updated_at": 1793486683,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 72,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 114,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 112,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793486688,
+    "updated_at": 1793486832,
     "records": 14297,
     "video_records": 12001,
-    "initial_candidates": 222,
-    "duration_eligible_records": 114,
-    "candidate_count": 114,
-    "known_duration_candidates": 114,
+    "initial_candidates": 220,
+    "duration_eligible_records": 112,
+    "candidate_count": 112,
+    "known_duration_candidates": 112,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7822,
-      "already_attempted_or_cooling": 2322,
+      "already_attempted_or_cooling": 2324,
       "no_video": 2296,
       "clip_title": 1298,
       "unrelated": 73,
@@ -207,22 +207,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5089771145399398",
-        "title": "林园：对宏观行业的把握是全球第一！投资长寿的企业！喜欢赚钱多、现金流充沛的公司，跟“有钱”的公司打交道不会错，就是要“傍",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5089771145399398",
-        "duration_sec": 425.0
-      },
-      {
-        "key": "weibo_search:5092671333074278",
-        "title": "林园：人到了五十岁了就能够明显感觉到身体不行了，力不从心，你现在和年轻人谈健康保健养生，他们都不感兴趣，但作为投资人现在",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5092671333074278",
-        "duration_sec": 159.0
-      },
       {
         "key": "weibo_search:5215193983615260",
         "title": "被迫买入科技股！林园坦言：“愁到睡不着”\n“中国巴菲特”林园完整路演回放http://t.cn/A6k3Bxom\n林园最",
@@ -544,6 +528,14 @@
         "duration_sec": 200.0
       },
       {
+        "key": "weibo_search:5098572041424196",
+        "title": "2011年12月27日CCTV采访林园总“投资就是垄断，买错了三年也要回到那个高位上去[威武][威武] http://t",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/5098572041424196",
+        "duration_sec": 587.0
+      },
+      {
         "key": "weibo_search:5225975784932444",
         "title": "2015-10-23（3）\n林园：投资需要判断公司的真正价值，需要考虑当下位置的回本期。\n人口减少对于绝大多数行业都会有",
         "source": "weibo_search",
@@ -566,14 +558,6 @@
         "author": "会计员小波",
         "url": "https://m.weibo.cn/detail/5331049829632867",
         "duration_sec": 159.0
-      },
-      {
-        "key": "weibo_search:5098572041424196",
-        "title": "2011年12月27日CCTV采访林园总“投资就是垄断，买错了三年也要回到那个高位上去[威武][威武] http://t",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5098572041424196",
-        "duration_sec": 587.0
       },
       {
         "key": "weibo_search:5207923571821968",
@@ -1135,15 +1119,16 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1678,
+    "failed": 1679,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 18,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 4
+    "retry_queued": 3,
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -36872,14 +36857,14 @@
     },
     {
       "slug": "ly-1031-87bf8a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793477076,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793487649,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -37214,11 +37199,11 @@
     },
     {
       "slug": "ly-1031-c81121",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[2]，scan_same=[]，scan_different=[13]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{13: 0.0514}",
       "signature": {
         "ts": 1793486354,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37229,6 +37214,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249145399",
       "run_started_at": "2026-10-31T22:39:13Z",
       "run_updated_at": "2026-10-31T22:42:34Z"
+    },
+    {
+      "slug": "ly-1031-89693c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793486789,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41249671567,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249671567",
+      "run_started_at": "2026-10-31T22:46:29Z",
+      "run_updated_at": "2026-10-31T22:46:39Z"
+    },
+    {
+      "slug": "ly-1031-2bddb3",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793486795,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41249678550,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249678550",
+      "run_started_at": "2026-10-31T22:46:35Z",
+      "run_updated_at": "2026-10-31T22:46:35Z"
     }
   ],
   "runs": {
@@ -54876,6 +54897,39 @@
       "run_number": 3326,
       "display_title": "中文源出片 · ly-1031-c81121"
     },
+    "ly-1031-87bf8a": {
+      "id": 41237170145,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-31T20:04:36Z",
+      "updated_at": "2026-10-31T22:43:02Z",
+      "run_started_at": "2026-10-31T20:04:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41237170145",
+      "run_number": 3304,
+      "display_title": "中文源出片 · ly-1031-87bf8a"
+    },
+    "ly-1031-2bddb3": {
+      "id": 41249678550,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-10-31T22:46:35Z",
+      "updated_at": "2026-10-31T22:46:35Z",
+      "run_started_at": "2026-10-31T22:46:35Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249678550",
+      "run_number": 3328,
+      "display_title": "中文源出片 · ly-1031-2bddb3"
+    },
+    "ly-1031-89693c": {
+      "id": 41249671567,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T22:46:29Z",
+      "updated_at": "2026-10-31T22:46:39Z",
+      "run_started_at": "2026-10-31T22:46:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41249671567",
+      "run_number": 3327,
+      "display_title": "中文源出片 · ly-1031-89693c"
+    },
     "ly-1031-761878": {
       "id": 41249136205,
       "status": "in_progress",
@@ -54919,17 +54973,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41246001372",
       "run_number": 3317,
       "display_title": "中文源出片 · ly-1031-941764"
-    },
-    "ly-1031-87bf8a": {
-      "id": 41237170145,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-31T20:04:36Z",
-      "updated_at": "2026-10-31T22:43:02Z",
-      "run_started_at": "2026-10-31T20:04:36Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41237170145",
-      "run_number": 3304,
-      "display_title": "中文源出片 · ly-1031-87bf8a"
     }
   }
 }
