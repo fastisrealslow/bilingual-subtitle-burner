@@ -74340,7 +74340,8 @@
    },
    "last_error": "整段取景预检：源 26.57s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5198474211492319",
@@ -74481,7 +74482,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-03-05T22:43:27+08:00"
+   "publish_time": "2026-03-05T22:43:27+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-858f43",
+    "run_id": 41253978028,
+    "artifact_id": 13062587828,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f9a61547c1ad57454a502d574eeb28adc6e91dc5a6f4a2f689bf7aba37dd6c09",
+     "duration_sec": 102.05,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5273239816244922"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41253978028,
+    "artifact_id": 13062587828,
+    "name": "production-reject-ly-1031-858f43",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5265944723327083",
@@ -74504,7 +74538,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-02-13T19:35:21+08:00"
+   "publish_time": "2026-02-13T19:35:21+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41254256794,
+    "artifact_id": 13062707131,
+    "name": "source-reject-ly-1031-139e31",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -165255,6 +165299,20 @@
    "video_id": "http://f.video.weibocdn.com/o0/pOJLAtI1lx08u7DJWZBm01041200RE3J0E010.mp4",
    "ts": 1793490659,
    "error": "整段取景预检：源 26.57s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1031-139e31",
+   "key": "weibo_search:5265944723327083",
+   "video_id": "https://f.video.weibocdn.com/o0/WUc7fWghlx08vjDevaQo01041200k6ek0E010.mp4",
+   "ts": 1793490947,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1031-858f43",
+   "key": "weibo_search:5273239816244922",
+   "video_id": "https://f.video.weibocdn.com/o0/VCkRcplXlx08vPJXJk2s01041200l06w0E010.mp4",
+   "ts": 1793490947,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
