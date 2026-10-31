@@ -67888,7 +67888,104 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-16T19:37:50+08:00"
+   "publish_time": "2025-12-16T19:37:50+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-2796df",
+    "run_id": 41180410361,
+    "artifact_id": 13036334285,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a2f5950842474ca15ab675dac39a807318ce9385bbbea1535c8216a500c73a96",
+     "duration_sec": 1579.96,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5244564463163016"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配294/424，总帧数648；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1031/1471，总帧数2198；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2446/3088，总帧数3206；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配294/424，总帧数648；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话中主持人提问（句 0）后，嘉宾的回答（句 1-6）未形成对‘关注什么’的明确判断，而是转向叙述市场现象和个人离场事实，属于论述被切断或缺乏核心观点支撑；结尾句 6 提及五粮液未卖是补充细节，并非对初始问题的回答结论。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未就主持人提出的‘第一桶金买深发展赚一百万’这一具体判断给出明确肯定或否定结论，仅以模糊口语和背景解释带过，导致核心观点缺失。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1217/1959，总帧数3708；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1071/1807，总帧数3679；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1031/1471，总帧数2198；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 仅包含嘉宾对特定时期持股状态的陈述，未涵盖其对‘为何放弃’的核心解释逻辑；reasoning_range 虽覆盖撤出与保留原始股的对比，但缺乏对‘供应量增加导致市场下跌风险’这一关键因果链的完整呈现（句 2、3 被主持人打断且非连续），导致观点支撑不完整。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配10/228，总帧数1087；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41180410361,
+    "artifact_id": 13036334285,
+    "name": "production-reject-ly-1031-2796df",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4446455240452550",
@@ -68066,7 +68163,8 @@
    },
    "last_error": "原始素材短边 360 < 480（636x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4550267625013366",
@@ -157668,6 +157766,13 @@
    "video_id": "https://f.video.weibocdn.com/WoWW36Rklx07JksNgzNm01041202lVHU0E010.mp4",
    "ts": 1793435372,
    "error": "原始素材短边 360 < 480（636x360），画质不达标"
+  },
+  {
+   "slug": "ly-1031-2796df",
+   "key": "weibo_search:5244564463163016",
+   "video_id": "https://f.video.weibocdn.com/o0/QdarRqXrlx08tNAW4mAg01041206yNW40E030.mp4",
+   "ts": 1793437291,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
