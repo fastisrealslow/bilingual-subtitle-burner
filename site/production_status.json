@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793490603,
+  "updated_at": 1793490734,
   "inventory_updated_at": 1793490596,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 72,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 101,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 100,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793490601,
+    "updated_at": 1793490733,
     "records": 14297,
     "video_records": 12001,
-    "initial_candidates": 209,
-    "duration_eligible_records": 101,
-    "candidate_count": 101,
-    "known_duration_candidates": 101,
+    "initial_candidates": 208,
+    "duration_eligible_records": 100,
+    "candidate_count": 100,
+    "known_duration_candidates": 100,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7814,
-      "already_attempted_or_cooling": 2343,
+      "already_attempted_or_cooling": 2344,
       "no_video": 2296,
       "clip_title": 1298,
       "unrelated": 73,
@@ -208,20 +208,20 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:5265944723327083",
-        "title": "投资大佬林园在浙大演讲时放出豪言，目标是80岁成为中国首富！他直言，靠投入赚钱的地产和银行都不正常，自己的投资逻辑是基于",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5265944723327083",
-        "duration_sec": 83.0
-      },
-      {
         "key": "weibo_search:5261934207440938",
         "title": "投资是赌博吗？林园说NO！他的核心标准是寻找“赚钱机器”——未来三年盈利能被自己算清楚的公司。他认为95%的公司都做不到",
         "source": "weibo_search",
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5261934207440938",
         "duration_sec": 84.0
+      },
+      {
+        "key": "weibo_search:5295833580832853",
+        "title": "【高清修复版】林园语录：2007年7月5日，资本人物专访林园总的投资传奇故事......#专业视频创作季# #圣叹财经#",
+        "source": "weibo_search",
+        "author": "圣叹财经",
+        "url": "https://m.weibo.cn/detail/5295833580832853",
+        "duration_sec": 1780.0
       },
       {
         "key": "bilibili_search:BV1fC41137qE",
@@ -520,19 +520,19 @@
         "duration_sec": 159.0
       },
       {
-        "key": "weibo_search:5295833580832853",
-        "title": "【高清修复版】林园语录：2007年7月5日，资本人物专访林园总的投资传奇故事......#专业视频创作季# #圣叹财经#",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5295833580832853",
-        "duration_sec": 1780.0
-      },
-      {
         "key": "weibo_search:5115170772222387",
         "title": "2008年10月26日林园接受采访，当时全世界金融危机。#财经# #投资# #a股#  http://t.cn/A6u2",
         "source": "weibo_search",
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5115170772222387",
+        "duration_sec": 1006.0
+      },
+      {
+        "key": "weibo_search:5212649715140961",
+        "title": "2008年10月26日林园接受采访，当时全世界金融危机，a股从6124点跌破2000点，非常适合现阶段的a股和你，建议收",
+        "source": "weibo_search",
+        "author": "圣叹财经",
+        "url": "https://m.weibo.cn/detail/5212649715140961",
         "duration_sec": 1006.0
       },
       {
@@ -622,14 +622,6 @@
         "author": "科迈GenMedi",
         "url": "https://m.weibo.cn/detail/5227879998950469",
         "duration_sec": 191.0
-      },
-      {
-        "key": "weibo_search:5212649715140961",
-        "title": "2008年10月26日林园接受采访，当时全世界金融危机，a股从6124点跌破2000点，非常适合现阶段的a股和你，建议收",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5212649715140961",
-        "duration_sec": 1006.0
       },
       {
         "key": "weibo_search:4981527346415548",
@@ -1031,15 +1023,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1692,
+    "failed": 1693,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 18,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -37308,11 +37300,11 @@
     },
     {
       "slug": "ly-1031-25c519",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 26.57s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1793489850,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37377,6 +37369,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253978028",
       "run_started_at": "2026-10-31T23:47:25Z",
       "run_updated_at": "2026-10-31T23:47:29Z"
+    },
+    {
+      "slug": "ly-1031-139e31",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793490694,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41254256794,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41254256794",
+      "run_started_at": "2026-10-31T23:51:34Z",
+      "run_updated_at": "2026-10-31T23:51:37Z"
     }
   ],
   "runs": {
@@ -55177,6 +55187,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253303840",
       "run_number": 3340,
       "display_title": "中文源出片 · ly-1031-b1c7dd"
+    },
+    "ly-1031-139e31": {
+      "id": 41254256794,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T23:51:34Z",
+      "updated_at": "2026-10-31T23:51:37Z",
+      "run_started_at": "2026-10-31T23:51:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41254256794",
+      "run_number": 3345,
+      "display_title": "中文源出片 · ly-1031-139e31"
     },
     "ly-1031-858f43": {
       "id": 41253978028,
