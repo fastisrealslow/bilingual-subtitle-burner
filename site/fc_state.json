@@ -33309,8 +33309,8 @@
    "publish_time": "2023-02-20T07:23:46+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-090b2c",
-    "run_id": 39165124416,
-    "artifact_id": 12151335285,
+    "run_id": 39401611972,
+    "artifact_id": 12255581190,
     "accepted": 0,
     "failures": [
      {
@@ -33391,13 +33391,13 @@
    "publish_time": "2026-10-18T09:00:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-4ef92b",
-    "run_id": 39165116358,
-    "artifact_id": 12150905700,
+    "run_id": 39403135365,
+    "artifact_id": 12256252817,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"到今天这些企业，咱们看康佳的飞世、华强，这都非常厉害，也是这个市场的热门。\", \"suspect_quote\": \"康佳的飞世、华强\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似错写或识别错误的专有名词。'飞世'在康佳集团语境下无对应知名实体（可能为误识，原意可能是某具体部门、产品系列或人名，但无法确认），且与'华强'并列时结构不明，属于含义不明的关键指代。\"}]"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"到今天这些企业，咱们看康佳的飞世、华强，这都非常厉害，也是这个市场的热门。\", \"suspect_quote\": \"康佳的飞世、华强\", \"kind\": \"unintelligible_term\", \"reason\": \"“飞世”疑似识别错误，康佳集团旗下并无知名子公司或品牌名为“飞世”，该词在商业语境下无明确指代，极可能是将“飞亚达”、“飞利浦”或其他名称误识，属于无法解释的具体词语疑点。\"}]"
      }
     ]
    },
@@ -46123,17 +46123,17 @@
    "publish_time": "2026-10-18T14:16:38+00:00",
    "production_failure_summary": {
     "slug": "ly-1018-efeb96",
-    "run_id": 40084537591,
-    "artifact_id": 12556997464,
+    "run_id": 39403151241,
+    "artifact_id": 12256469541,
     "accepted": 0,
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"您是怎么看待于AI对于医药的这个行业的影响，会对您的投资会有所有所呃改变吗？\", \"suspect_quote\": \"所有所呃\", \"kind\": \"unintelligible_term\", \"reason\": \"“所有所”为无意义重复，“呃”为填充词，疑似将“有所”误识别或插入冗余字符。\"}, {\"sentence_id\": 1, \"quote\": \"他对诊断学啊，嗯，人更加便捷。\", \"suspect_quote\": \"他对诊断学啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“"
+      "reason": "独立文字识别疑点审核不可用：Text plausibility reviewer returned invalid evidence: 数字或否定疑点必须摘录实际的数字或否定字，不能把一般口语重复归入此类"
      },
      {
       "stage": "part-quality",
-      "reason": "整段取景预检：源 94.34s，原始画面不足以保留完整人脸及头顶余量"
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"嗯，对，应该是这个图上有问题，有所。\", \"suspect_quote\": \"图上有问题\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别错误，将口语中的指代或模糊表达误识为具体名词。结合上下文（讨论乙肝治疗），此处极可能为“这个”、“这里”或特定术语的误听，导致含义不明且无法解释。\"}]"
      }
     ]
    },
@@ -159436,7 +159436,7 @@
  },
  "source_refresh_requested_at": 1793316519,
  "inventory_refresh_requested_at": 1793426701,
- "rule_recovery_page": 9,
+ "rule_recovery_page": 10,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
