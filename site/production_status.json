@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793489330,
+  "updated_at": 1793489476,
   "inventory_updated_at": 1793489325,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 72,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 107,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 105,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793489329,
+    "updated_at": 1793489474,
     "records": 14297,
     "video_records": 12001,
-    "initial_candidates": 215,
-    "duration_eligible_records": 107,
-    "candidate_count": 107,
-    "known_duration_candidates": 107,
+    "initial_candidates": 213,
+    "duration_eligible_records": 105,
+    "candidate_count": 105,
+    "known_duration_candidates": 105,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 7822,
-      "already_attempted_or_cooling": 2329,
+      "speaker_unconfirmed": 7814,
+      "already_attempted_or_cooling": 2339,
       "no_video": 2296,
       "clip_title": 1298,
       "unrelated": 73,
@@ -208,44 +208,12 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:5214832615229785",
-        "title": "林园：片仔癀跌了几年就受不了，卖了去买房要是片仔癀从400涨到4000大家肯定不会卖。片仔癀2006年40多元买的没几年",
-        "source": "weibo_search",
-        "author": "吕安广",
-        "url": "https://m.weibo.cn/detail/5214832615229785",
-        "duration_sec": 67.0
-      },
-      {
-        "key": "weibo_search:5314214987565488",
-        "title": "林园:同仁堂科技和同仁堂股份应该协同发展。刚才见董事长我还在说这个事，就把这个安宫做好。这安宫的一些适应症，实际上要适应",
-        "source": "weibo_search",
-        "author": "吕安广",
-        "url": "https://m.weibo.cn/detail/5314214987565488",
-        "duration_sec": 548.0
-      },
-      {
         "key": "weibo_search:4670382084198132",
         "title": "大佬林园：2014年不是牛市，是硬来的。上证指数新高只是时间问题\n#林园炒股秘籍# #私募大佬林园怒怼投资者# #盛夏理",
         "source": "weibo_search",
         "author": "模型预测",
         "url": "https://m.weibo.cn/detail/4670382084198132",
         "duration_sec": 52.0
-      },
-      {
-        "key": "weibo_search:5319842718811089",
-        "title": "林园：绝对不碰的行业[并不简单][并不简单][并不简单] http://t.cn/AXKqL6qe ​​​",
-        "source": "weibo_search",
-        "author": "桂哥猎手VIP777",
-        "url": "https://m.weibo.cn/detail/5319842718811089",
-        "duration_sec": 119.0
-      },
-      {
-        "key": "weibo_search:5292465815028632",
-        "title": "林园：人生只需要一次机会，抓住两次就成巴菲特！ [并不简单][并不简单][并不简单] http://t.cn/AXxe0",
-        "source": "weibo_search",
-        "author": "桂哥猎手VIP777",
-        "url": "https://m.weibo.cn/detail/5292465815028632",
-        "duration_sec": 27.0
       },
       {
         "key": "weibo_search:5249542410209480",
@@ -278,6 +246,22 @@
         "author": "圣叹财经",
         "url": "https://m.weibo.cn/detail/5265944723327083",
         "duration_sec": 83.0
+      },
+      {
+        "key": "weibo_search:5319842718811089",
+        "title": "林园：绝对不碰的行业[并不简单][并不简单][并不简单] http://t.cn/AXKqL6qe ​​​",
+        "source": "weibo_search",
+        "author": "桂哥猎手VIP777",
+        "url": "https://m.weibo.cn/detail/5319842718811089",
+        "duration_sec": 119.0
+      },
+      {
+        "key": "weibo_search:5292465815028632",
+        "title": "林园：人生只需要一次机会，抓住两次就成巴菲特！ [并不简单][并不简单][并不简单] http://t.cn/AXxe0",
+        "source": "weibo_search",
+        "author": "桂哥猎手VIP777",
+        "url": "https://m.weibo.cn/detail/5292465815028632",
+        "duration_sec": 27.0
       },
       {
         "key": "bilibili_search:BV1fC41137qE",
@@ -1079,15 +1063,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1685,
+    "failed": 1688,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 18,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 3
+    "retry_queued": 3,
+    "running": 5
   },
   "tasks": [
     {
@@ -37230,11 +37214,11 @@
     },
     {
       "slug": "ly-1031-81300f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 87.83s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1793488615,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37248,14 +37232,14 @@
     },
     {
       "slug": "ly-1031-347432",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793488857,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793491178,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -37284,11 +37268,11 @@
     },
     {
       "slug": "ly-1031-8c8c6d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 400 < 480（676x400），画质不达标",
       "signature": {
         "ts": 1793489135,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37302,11 +37286,11 @@
     },
     {
       "slug": "ly-1031-33223c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 438 < 480（684x438），画质不达标",
       "signature": {
         "ts": 1793489143,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37317,6 +37301,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252489960",
       "run_started_at": "2026-10-31T23:25:43Z",
       "run_updated_at": "2026-10-31T23:27:49Z"
+    },
+    {
+      "slug": "ly-1031-90e3a5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793489424,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41252806135,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252806135",
+      "run_started_at": "2026-10-31T23:30:23Z",
+      "run_updated_at": "2026-10-31T23:30:28Z"
+    },
+    {
+      "slug": "ly-1031-fa6c06",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793489432,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41252817892,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252817892",
+      "run_started_at": "2026-10-31T23:30:32Z",
+      "run_updated_at": "2026-10-31T23:30:38Z"
     }
   ],
   "runs": {
@@ -55073,6 +55093,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252479653",
       "run_number": 3336,
       "display_title": "中文源出片 · ly-1031-8c8c6d"
+    },
+    "ly-1031-fa6c06": {
+      "id": 41252817892,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T23:30:32Z",
+      "updated_at": "2026-10-31T23:30:38Z",
+      "run_started_at": "2026-10-31T23:30:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252817892",
+      "run_number": 3339,
+      "display_title": "中文源出片 · ly-1031-fa6c06"
+    },
+    "ly-1031-90e3a5": {
+      "id": 41252806135,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-10-31T23:30:23Z",
+      "updated_at": "2026-10-31T23:30:28Z",
+      "run_started_at": "2026-10-31T23:30:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41252806135",
+      "run_number": 3338,
+      "display_title": "中文源出片 · ly-1031-90e3a5"
     },
     "ly-1031-1f4d0c": {
       "id": 41252161562,
