@@ -68413,7 +68413,55 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-25T14:12:38+08:00"
+   "publish_time": "2026-05-25T14:12:38+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-289236",
+    "run_id": 41195589155,
+    "artifact_id": 13042158648,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1de86ee598e0dedc13f77cd7f3bbea4b545ed2ad77fc0e3644823885a8279bb5",
+     "duration_sec": 2489.63,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5302464687112372"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/526，总帧数2628；身份匹配但人脸短边不足96px的帧数526"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/340，总帧数1697；身份匹配但人脸短边不足96px的帧数340"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/213，总帧数1061；身份匹配但人脸短边不足96px的帧数211"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/653，总帧数3262；身份匹配但人脸短边不足96px的帧数653"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/231，总帧数1152；身份匹配但人脸短边不足96px的帧数223"
+     }
+    ]
+   },
+   "source_check_report_id": 13042158648,
+   "source_check_run_id": 41195589155,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793451102
   },
   {
    "key": "weibo_search:5201747494047424",
@@ -68887,7 +68935,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5278132719584345",
