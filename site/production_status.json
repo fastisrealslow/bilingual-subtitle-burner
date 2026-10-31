@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793447075,
-  "inventory_updated_at": 1793446904,
+  "updated_at": 1793447230,
+  "inventory_updated_at": 1793447224,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 65,
-    "active_or_recovering_sources": 7,
+    "verified_daily_stock": 66,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 153,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 65,
+      "verified_stock_snapshot": 66,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 13,
-        "landscape": 52
+        "portrait": 16,
+        "landscape": 50
       },
-      "full_schedule_days": 4,
-      "required_week_shortfall": 8,
+      "full_schedule_days": 5,
+      "required_week_shortfall": 5,
       "required_week_shortfall_by_layout": {
-        "portrait": 8,
+        "portrait": 5,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -185,7 +185,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793447073,
+    "updated_at": 1793447228,
     "records": 13979,
     "video_records": 11697,
     "initial_candidates": 232,
@@ -1434,14 +1434,14 @@
     ]
   },
   "inventory": {
-    "verified_live": 65,
+    "verified_live": 66,
     "verified_audio_card": 0,
-    "verified_landscape": 52,
-    "verified_portrait": 13,
+    "verified_landscape": 50,
+    "verified_portrait": 16,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 65,
+    "daily_mix_usable": 66,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -1452,10 +1452,9 @@
     "interrupted": 6,
     "excluded": 26,
     "experiment_fallback": 83,
-    "ready": 15,
+    "ready": 16,
     "validation_failed": 2,
     "retry_queued": 1,
-    "awaiting_validation": 1,
     "running": 5
   },
   "tasks": [
@@ -35727,8 +35726,8 @@
     },
     {
       "slug": "ly-1031-5bcfb2",
-      "status": "awaiting_validation",
-      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1793442727,
         "failed": null,
@@ -52568,6 +52567,17 @@
       "run_number": 3218,
       "display_title": "中文源出片 · ly-1031-5f469e"
     },
+    "ly-1031-5bcfb2": {
+      "id": 41193138532,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-31T10:32:06Z",
+      "updated_at": "2026-10-31T11:42:59Z",
+      "run_started_at": "2026-10-31T10:32:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41193138532",
+      "run_number": 3212,
+      "display_title": "中文源出片 · ly-1031-5bcfb2"
+    },
     "ly-1031-15d3f5": {
       "id": 41198063940,
       "status": "in_progress",
@@ -52622,17 +52632,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41194314120",
       "run_number": 3214,
       "display_title": "中文源出片 · ly-1031-ca5dda"
-    },
-    "ly-1031-5bcfb2": {
-      "id": 41193138532,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-10-31T10:32:06Z",
-      "updated_at": "2026-10-31T11:42:59Z",
-      "run_started_at": "2026-10-31T10:32:06Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41193138532",
-      "run_number": 3212,
-      "display_title": "中文源出片 · ly-1031-5bcfb2"
     }
   }
 }
