@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793516965,
+  "updated_at": 1793517154,
   "inventory_updated_at": 1793516962,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 76,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 54,
+    "active_or_recovering_sources": 11,
+    "waiting_candidates": 50,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,18 +193,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793516965,
+    "updated_at": 1793517154,
     "records": 14504,
     "video_records": 12200,
-    "initial_candidates": 163,
-    "duration_eligible_records": 54,
-    "candidate_count": 54,
-    "known_duration_candidates": 54,
+    "initial_candidates": 159,
+    "duration_eligible_records": 50,
+    "candidate_count": 50,
+    "known_duration_candidates": 50,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1310,
-      "speaker_unconfirmed": 7884,
-      "already_attempted_or_cooling": 2497,
+      "speaker_unconfirmed": 7883,
+      "already_attempted_or_cooling": 2502,
       "no_video": 2304,
       "unrelated": 74,
       "reference_only": 206,
@@ -215,38 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5308709221700127",
-        "title": "桂哥评：林园现在63岁。到73岁，83岁，93岁又不一样。林园还真的是价值投资到代表人物，真正践行价值投资！\n===\n【",
-        "source": "weibo_search",
-        "author": "桂哥猎手VIP777",
-        "url": "https://m.weibo.cn/detail/5308709221700127",
-        "duration_sec": 48.0
-      },
-      {
-        "key": "weibo_search:5260567809886986",
-        "title": "【#白酒板块大涨四个原因# 】#林园称喝白酒的人会更多# 分析人士表示，白酒板块大涨主要有四个原因：一是从商业航天、存储",
-        "source": "weibo_search",
-        "author": "小葵花枫帅",
-        "url": "https://m.weibo.cn/detail/5260567809886986",
-        "duration_sec": 28.0
-      },
-      {
-        "key": "weibo_search:5260553937490676",
-        "title": "【#白酒板块大涨四个原因# 】#林园称喝白酒的人会更多# 分析人士表示，白酒板块大涨主要有四个原因：一是从商业航天、存储",
-        "source": "weibo_search",
-        "author": "华夏时报",
-        "url": "https://m.weibo.cn/detail/5260553937490676",
-        "duration_sec": 28.0
-      },
-      {
-        "key": "weibo_search:5260487425265115",
-        "title": "【#白酒板块大涨四个原因#】#林园称喝白酒的人会更多# 分析人士表示，白酒板块大涨主要有四个原因：一是从商业航天、存储芯",
-        "source": "weibo_search",
-        "author": "中国经营报",
-        "url": "https://m.weibo.cn/detail/5260487425265115",
-        "duration_sec": 28.0
-      },
       {
         "key": "bilibili_search:BV1dacNzfErd",
         "title": "【林园】林园谈自己炒股怎么选择好公司，赚钱机器这种好公司的标准",
@@ -663,15 +631,15 @@
   },
   "counts": {
     "complete": 169,
-    "failed": 1764,
+    "failed": 1765,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 7,
     "excluded": 31,
     "experiment_fallback": 97,
     "ready": 19,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 3
+    "retry_queued": 5,
+    "running": 6
   },
   "tasks": [
     {
@@ -38380,11 +38348,11 @@
     },
     {
       "slug": "ly-1101-4de7b4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793516157,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -38398,14 +38366,14 @@
     },
     {
       "slug": "ly-1101-c5ad8d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793516447,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793517942,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -38416,14 +38384,14 @@
     },
     {
       "slug": "ly-1101-86ee65",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793516456,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793517934,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -38434,14 +38402,14 @@
     },
     {
       "slug": "ly-1101-294fab",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793516464,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793517925,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -38452,14 +38420,14 @@
     },
     {
       "slug": "ly-1101-0a96d1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793516791,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793517917,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -38488,8 +38456,8 @@
     },
     {
       "slug": "ly-1101-2884f4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793516805,
         "failed": null,
@@ -38502,7 +38470,7 @@
       "run_id": 41283458362,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283458362",
       "run_started_at": "2026-11-01T07:06:45Z",
-      "run_updated_at": "2026-11-01T07:06:49Z"
+      "run_updated_at": "2026-11-01T07:11:38Z"
     },
     {
       "slug": "ly-1101-e47ee7",
@@ -38521,6 +38489,78 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283466684",
       "run_started_at": "2026-11-01T07:06:53Z",
       "run_updated_at": "2026-11-01T07:06:57Z"
+    },
+    {
+      "slug": "ly-1101-a3224c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793517111,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41283812125,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283812125",
+      "run_started_at": "2026-11-01T07:11:51Z",
+      "run_updated_at": "2026-11-01T07:11:55Z"
+    },
+    {
+      "slug": "ly-1101-cdc826",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793517119,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41283821266,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283821266",
+      "run_started_at": "2026-11-01T07:11:59Z",
+      "run_updated_at": "2026-11-01T07:12:02Z"
+    },
+    {
+      "slug": "ly-1101-caea92",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793517126,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41283830429,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283830429",
+      "run_started_at": "2026-11-01T07:12:06Z",
+      "run_updated_at": "2026-11-01T07:12:10Z"
+    },
+    {
+      "slug": "ly-1101-4795f1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793517135,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41283839736,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283839736",
+      "run_started_at": "2026-11-01T07:12:14Z",
+      "run_updated_at": "2026-11-01T07:12:18Z"
     }
   ],
   "runs": {
@@ -57257,6 +57297,61 @@
       "run_number": 3428,
       "display_title": "中文源出片 · ly-1101-4de7b4"
     },
+    "ly-1101-0a96d1": {
+      "id": 41283442718,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-01T07:06:30Z",
+      "updated_at": "2026-11-01T07:08:15Z",
+      "run_started_at": "2026-11-01T07:06:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283442718",
+      "run_number": 3432,
+      "display_title": "中文源出片 · ly-1101-0a96d1"
+    },
+    "ly-1101-4795f1": {
+      "id": 41283839736,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T07:12:14Z",
+      "updated_at": "2026-11-01T07:12:18Z",
+      "run_started_at": "2026-11-01T07:12:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283839736",
+      "run_number": 3439,
+      "display_title": "中文源出片 · ly-1101-4795f1"
+    },
+    "ly-1101-caea92": {
+      "id": 41283830429,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T07:12:06Z",
+      "updated_at": "2026-11-01T07:12:10Z",
+      "run_started_at": "2026-11-01T07:12:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283830429",
+      "run_number": 3438,
+      "display_title": "中文源出片 · ly-1101-caea92"
+    },
+    "ly-1101-cdc826": {
+      "id": 41283821266,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T07:11:59Z",
+      "updated_at": "2026-11-01T07:12:02Z",
+      "run_started_at": "2026-11-01T07:11:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283821266",
+      "run_number": 3437,
+      "display_title": "中文源出片 · ly-1101-cdc826"
+    },
+    "ly-1101-a3224c": {
+      "id": 41283812125,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T07:11:51Z",
+      "updated_at": "2026-11-01T07:11:55Z",
+      "run_started_at": "2026-11-01T07:11:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283812125",
+      "run_number": 3436,
+      "display_title": "中文源出片 · ly-1101-a3224c"
+    },
     "ly-1101-e47ee7": {
       "id": 41283466684,
       "status": "in_progress",
@@ -57270,10 +57365,10 @@
     },
     "ly-1101-2884f4": {
       "id": 41283458362,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T07:06:45Z",
-      "updated_at": "2026-11-01T07:06:49Z",
+      "updated_at": "2026-11-01T07:11:38Z",
       "run_started_at": "2026-11-01T07:06:45Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283458362",
       "run_number": 3434,
@@ -57289,17 +57384,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283450841",
       "run_number": 3433,
       "display_title": "中文源出片 · ly-1101-20616e"
-    },
-    "ly-1101-0a96d1": {
-      "id": 41283442718,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-01T07:06:30Z",
-      "updated_at": "2026-11-01T07:08:15Z",
-      "run_started_at": "2026-11-01T07:06:30Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41283442718",
-      "run_number": 3432,
-      "display_title": "中文源出片 · ly-1101-0a96d1"
     }
   }
 }
