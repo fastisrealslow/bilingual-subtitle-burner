@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793502716,
+  "updated_at": 1793502889,
   "inventory_updated_at": 1793502711,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 74,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 127,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 126,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,18 +193,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793502714,
+    "updated_at": 1793502888,
     "records": 14433,
     "video_records": 12130,
-    "initial_candidates": 235,
-    "duration_eligible_records": 127,
-    "candidate_count": 127,
-    "known_duration_candidates": 127,
+    "initial_candidates": 234,
+    "duration_eligible_records": 126,
+    "candidate_count": 126,
+    "known_duration_candidates": 126,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1306,
       "speaker_unconfirmed": 7859,
-      "already_attempted_or_cooling": 2384,
+      "already_attempted_or_cooling": 2385,
       "no_video": 2303,
       "unrelated": 74,
       "reference_only": 206,
@@ -215,22 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5036101589008472",
-        "title": "【完整版】2023年片仔癀股东大会林园总讲话完整版[威武][威武][威武] http://t.cn/A6HiWpYW ​",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5036101589008472",
-        "duration_sec": 538.0
-      },
-      {
-        "key": "weibo_search:4809553579610503",
-        "title": "【股神林园独家秘籍第三部】金融资产300万以上的投资者才有机会听到的股神内容【2022-09-01路演第三部】精彩分享[",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4809553579610503",
-        "duration_sec": 1079.0
-      },
       {
         "key": "weibo_search:4815455854006910",
         "title": "【深圳林园投资有限公司董事长林园：过去一年白酒板块属于正常调整，对后市持乐观态度】\n\n9月19日，由中国上市公司协会、成",
@@ -600,6 +584,22 @@
         "duration_sec": 73.0
       },
       {
+        "key": "weibo_search:4809553579610503",
+        "title": "【股神林园独家秘籍第三部】金融资产300万以上的投资者才有机会听到的股神内容【2022-09-01路演第三部】精彩分享[",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/4809553579610503",
+        "duration_sec": 1079.0
+      },
+      {
+        "key": "weibo_search:5098572041424196",
+        "title": "2011年12月27日CCTV采访林园总“投资就是垄断，买错了三年也要回到那个高位上去[威武][威武] http://t",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/5098572041424196",
+        "duration_sec": 587.0
+      },
+      {
         "key": "weibo_search:5036393644690793",
         "title": "#昕礽果复利增长价值亿亿金# 林园总2024年05月20日片仔癀2023年度股东大会发言完整版#得中药龙头者得天下##a",
         "source": "weibo_search",
@@ -718,14 +718,6 @@
         "author": "会计员小波",
         "url": "https://m.weibo.cn/detail/5331049829632867",
         "duration_sec": 159.0
-      },
-      {
-        "key": "weibo_search:5098572041424196",
-        "title": "2011年12月27日CCTV采访林园总“投资就是垄断，买错了三年也要回到那个高位上去[威武][威武] http://t",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5098572041424196",
-        "duration_sec": 587.0
       },
       {
         "key": "weibo_search:5298896582742508",
@@ -1249,13 +1241,13 @@
     "complete": 168,
     "failed": 1706,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 30,
     "experiment_fallback": 91,
     "ready": 19,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 4
+    "retry_queued": 2,
+    "running": 5
   },
   "tasks": [
     {
@@ -37848,14 +37840,14 @@
     },
     {
       "slug": "ly-1101-514683",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793502344,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793503713,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -37863,6 +37855,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41267769368",
       "run_started_at": "2026-11-01T03:05:44Z",
       "run_updated_at": "2026-11-01T03:09:58Z"
+    },
+    {
+      "slug": "ly-1101-e07bc5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793502849,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41268346195,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41268346195",
+      "run_started_at": "2026-11-01T03:14:09Z",
+      "run_updated_at": "2026-11-01T03:14:16Z"
     }
   ],
   "runs": {
@@ -55839,6 +55849,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41267769368",
       "run_number": 3360,
       "display_title": "中文源出片 · ly-1101-514683"
+    },
+    "ly-1101-e07bc5": {
+      "id": 41268346195,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T03:14:09Z",
+      "updated_at": "2026-11-01T03:14:16Z",
+      "run_started_at": "2026-11-01T03:14:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41268346195",
+      "run_number": 3361,
+      "display_title": "中文源出片 · ly-1101-e07bc5"
     },
     "ly-story-8454e153c9": {
       "id": 41267275572,
