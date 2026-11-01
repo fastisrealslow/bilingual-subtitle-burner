@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793501221,
+  "updated_at": 1793501376,
   "inventory_updated_at": 1793501214,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 73,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 132,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 131,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,18 +193,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793501218,
+    "updated_at": 1793501374,
     "records": 14433,
     "video_records": 12130,
-    "initial_candidates": 240,
-    "duration_eligible_records": 132,
-    "candidate_count": 132,
-    "known_duration_candidates": 132,
+    "initial_candidates": 239,
+    "duration_eligible_records": 131,
+    "candidate_count": 131,
+    "known_duration_candidates": 131,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1306,
       "speaker_unconfirmed": 7859,
-      "already_attempted_or_cooling": 2379,
+      "already_attempted_or_cooling": 2380,
       "no_video": 2303,
       "unrelated": 74,
       "reference_only": 206,
@@ -215,14 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1pnxW6TEF7",
-        "title": "林园最新专访：这几年根本没有真正的牛市",
-        "source": "bilibili_search",
-        "author": "迦南长老",
-        "url": "https://www.bilibili.com/video/BV1pnxW6TEF7",
-        "duration_sec": 873.0
-      },
       {
         "key": "weibo_search:4781279004855468",
         "title": "【贵州茅台股东大会结束，私募大佬但斌林园出席】财联社6月16日电，贵州茅台2021年年度股东大会下午在茅台国际大酒店召开",
@@ -1287,15 +1279,15 @@
   },
   "counts": {
     "complete": 168,
-    "failed": 1704,
+    "failed": 1705,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 30,
     "experiment_fallback": 90,
     "ready": 19,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -37816,11 +37808,11 @@
     },
     {
       "slug": "ly-1101-00b20e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1793500900,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37831,6 +37823,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41266239168",
       "run_started_at": "2026-11-01T02:41:40Z",
       "run_updated_at": "2026-11-01T02:44:37Z"
+    },
+    {
+      "slug": "ly-1101-d4fbec",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793501335,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41266700671,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41266700671",
+      "run_started_at": "2026-11-01T02:48:54Z",
+      "run_updated_at": "2026-11-01T02:49:05Z"
     }
   ],
   "runs": {
@@ -55774,6 +55784,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41266239168",
       "run_number": 3356,
       "display_title": "中文源出片 · ly-1101-00b20e"
+    },
+    "ly-1101-d4fbec": {
+      "id": 41266700671,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T02:48:54Z",
+      "updated_at": "2026-11-01T02:49:05Z",
+      "run_started_at": "2026-11-01T02:48:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41266700671",
+      "run_number": 3357,
+      "display_title": "中文源出片 · ly-1101-d4fbec"
     },
     "ly-1101-22784e": {
       "id": 41262872572,
