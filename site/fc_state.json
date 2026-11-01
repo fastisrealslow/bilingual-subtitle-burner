@@ -83200,7 +83200,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"他说是，但是他说他他自己炒的结果是，去年十七万到。\", \"suspect_quote\": \"十七万到\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值识别不完整，'十七万到'后缺失具体数字或单位，无法确认是'十七万到一百多万'还是其他数值。\"}, {\"sentence_id\": 11, \"quote\": \"我十七万变到一百零八万。\", \"suspect_quote\": \"一百零八万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值存在识别污染，'一百零八万'与上下文口语表达（如'十七万变到...'）可能存在数字粘连或误读，需核实是否为'一百多万'或其他精确数值。\"}, {\"sentence_id\": 24, \"quote\": \"这，罗杰是不是说两千点股市风险？\", \"suspect_quote\": \"两千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"专名或数值识别存疑，'两千点'是否为罗杰·林园提及的具体点位需结合原音确认，可能存在数字误识。\"}, {\"sentence_id\": 26, \"quote\": \"今天到四千点了。\", \"suspect_quote\": \"四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值识别存疑，'四千点'是否为当前股市点位或特定时间点需核实，可能存在数字误读。\"}, {\"sentence_id\": 27, \"quote\": \"哎，我们不排除中中国这个股市还会跌到两千点，但是到两千点到四千点，这卖了股票的人听到他话的人，那么你你说他心里怎么说想了呢？\", \"suspect_quote\": \"两千点到四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值范围识别存疑，'两千点到四千点'是否为连续区间或特定点位需结合原音确认，可能存在数字粘连或误读。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5137542670450902",
@@ -83246,7 +83247,100 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-07-01T23:00:54+08:00"
+   "publish_time": "2025-07-01T23:00:54+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-17655a",
+    "run_id": 41321353045,
+    "artifact_id": 13092242382,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b2f48e175f9bd1e15c8d625fd009cb3d3ecf8451312bba5271a18723e257ca71",
+     "duration_sec": 1767.16,
+     "resolution": {
+      "width": 1004,
+      "height": 620,
+      "short_edge": 620
+     },
+     "source_url": "https://m.weibo.cn/detail/5183734405141079"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 686.67s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1130.93s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 92%（BV12mxy6uEVj）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 941.50s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1351.70s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1708.97s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41321353045,
+    "artifact_id": 13092242382,
+    "name": "production-reject-ly-1101-17655a",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5176298294479331",
@@ -176578,6 +176672,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/bgVf4ZYIlx08qzui6qpW01041207u6oF0E030.mp4",
    "ts": 1793551676,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"他说是，但是他说他他自己炒的结果是，去年十七万到。\", \"suspect_quote\": \"十七万到\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值识别不完整，'十七万到'后缺失具体数字或单位，无法确认是'十七万到一百多万'还是其他数值。\"}, {\"sentence_id\": 11, \"quote\": \"我十七万变到一百零八万。\", \"suspect_quote\": \"一百零八万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值存在识别污染，'一百零八万'与上下文口语表达（如'十七万变到...'）可能存在数字粘连或误读，需核实是否为'一百多万'或其他精确数值。\"}, {\"sentence_id\": 24, \"quote\": \"这，罗杰是不是说两千点股市风险？\", \"suspect_quote\": \"两千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"专名或数值识别存疑，'两千点'是否为罗杰·林园提及的具体点位需结合原音确认，可能存在数字误识。\"}, {\"sentence_id\": 26, \"quote\": \"今天到四千点了。\", \"suspect_quote\": \"四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值识别存疑，'四千点'是否为当前股市点位或特定时间点需核实，可能存在数字误读。\"}, {\"sentence_id\": 27, \"quote\": \"哎，我们不排除中中国这个股市还会跌到两千点，但是到两千点到四千点，这卖了股票的人听到他话的人，那么你你说他心里怎么说想了呢？\", \"suspect_quote\": \"两千点到四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值范围识别存疑，'两千点到四千点'是否为连续区间或特定点位需结合原音确认，可能存在数字粘连或误读。\"}]"
+  },
+  {
+   "slug": "ly-1101-17655a",
+   "key": "weibo_search:5183734405141079",
+   "video_id": "https://f.video.weibocdn.com/o0/6YAiYoVplx08ptRfLG7601041204WvjI0E020.mp4",
+   "ts": 1793552644,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
