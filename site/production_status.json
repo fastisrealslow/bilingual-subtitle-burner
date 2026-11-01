@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793563742,
+  "updated_at": 1793563880,
   "inventory_updated_at": 1793563735,
   "continuity": {
     "daily_target": 4,
@@ -193,7 +193,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793563741,
+    "updated_at": 1793563879,
     "records": 14865,
     "video_records": 12535,
     "initial_candidates": 135,
@@ -230,15 +230,15 @@
   },
   "counts": {
     "complete": 171,
-    "failed": 1867,
+    "failed": 1868,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 34,
     "experiment_fallback": 101,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 7,
-    "running": 3
+    "retry_queued": 8,
+    "running": 2
   },
   "tasks": [
     {
@@ -40179,14 +40179,14 @@
     },
     {
       "slug": "ly-1101-7bb2ca",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793563295,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793564702,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -40215,11 +40215,11 @@
     },
     {
       "slug": "ly-1101-7ead91",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1003, 2: 0.1898, 3: 0.1869, 4: 0.1506, 5: 0.1817, 6: 0.1419, 7: 0.1762, 8: 0.1668, 9: 0.2381, 10: 0.1932, 11: 0.2057, 12: 0.314, 13: 0.17, 14: 0.1409, 15: 0.079, 16: 0.0063, 17: 0.1939, 18: 0.1618}",
       "signature": {
         "ts": 1793563583,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40229,7 +40229,7 @@
       "run_id": 41345111619,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41345111619",
       "run_started_at": "2026-11-01T20:06:23Z",
-      "run_updated_at": "2026-11-01T20:06:27Z"
+      "run_updated_at": "2026-11-01T20:09:01Z"
     }
   ],
   "runs": {
@@ -60288,10 +60288,10 @@
     },
     "ly-1101-7ead91": {
       "id": 41345111619,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T20:06:23Z",
-      "updated_at": "2026-11-01T20:06:27Z",
+      "updated_at": "2026-11-01T20:09:01Z",
       "run_started_at": "2026-11-01T20:06:23Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41345111619",
       "run_number": 3577,
