@@ -77560,7 +77560,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5182637628460086",
@@ -77791,7 +77792,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5314208738842409",
@@ -77814,7 +77816,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-26T23:59:19+08:00"
+   "publish_time": "2026-06-26T23:59:19+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41279131817,
+    "artifact_id": 13072422003,
+    "name": "source-reject-ly-1101-e1360d",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2218, 2: 0.1251, 3: 0.1127, 4: 0.1197, 5: 0.0879, 6: 0.1789, 7: 0.1743, 8: 0.0742, 9: 0.1111, 10: 0.1153, 11: 0.1341, 12: 0.2231, 13: 0.1124, 14: 0.0821, 15: 0.0901, 16: 0.1048, 17: 0.1559, 18: 0.1888}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5305165873678103",
@@ -77837,7 +77849,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-02T01:06:12+08:00"
+   "publish_time": "2026-06-02T01:06:12+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-7c30c9",
+    "run_id": 41279141447,
+    "artifact_id": 13072927799,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "4093360a5cf6884ba0279dbd0c235c62e295ca0856ce7aad5d49e255c7697a97",
+     "duration_sec": 765.13,
+     "resolution": {
+      "width": 1388,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5305165873678103"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41279141447,
+    "artifact_id": 13072927799,
+    "name": "production-reject-ly-1101-7c30c9",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1EiLu6eEWz",
@@ -77893,7 +77946,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -169789,6 +169843,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/27Q7dv4Egx08y4zxGysE01041202aiSY0E010.mp4",
    "ts": 1793513700,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1101-7c30c9",
+   "key": "weibo_search:5305165873678103",
+   "video_id": "https://f.video.weibocdn.com/u0/WSCutRxcgx08y6kdfuSc01041203WIx00E020.mp4",
+   "ts": 1793514522,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1101-e1360d",
+   "key": "weibo_search:5314208738842409",
+   "video_id": "https://f.video.weibocdn.com/u0/qlS3xhwigx08yK7TSK6A01041205vOkz0E020.mp4",
+   "ts": 1793514523,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2218, 2: 0.1251, 3: 0.1127, 4: 0.1197, 5: 0.0879, 6: 0.1789, 7: 0.1743, 8: 0.0742, 9: 0.1111, 10: 0.1153, 11: 0.1341, 12: 0.2231, 13: 0.1124, 14: 0.0821, 15: 0.0901, 16: 0.1048, 17: 0.1559, 18: 0.1888}"
   }
  ],
  "reviewed_third_video_0910": {
