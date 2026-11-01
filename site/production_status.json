@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793533931,
+  "updated_at": 1793534007,
   "inventory_updated_at": 1793533928,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 78,
     "active_or_recovering_sources": 7,
-    "waiting_candidates": 7,
+    "waiting_candidates": 6,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793533930,
+    "updated_at": 1793534006,
     "records": 14631,
     "video_records": 12327,
-    "initial_candidates": 116,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 115,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 6,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2568,
+      "already_attempted_or_cooling": 2569,
       "clip_title": 1366,
       "speaker_unconfirmed": 7935,
       "no_video": 2304,
@@ -215,14 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1qmiPBYEdm",
-        "title": "林园说投资组合 一个成长一个派息 市场趋势向上的话需要胆大",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1qmiPBYEdm",
-        "duration_sec": 62.0
-      },
       {
         "key": "bilibili_search:BV12BBaBcEVX",
         "title": "林园谈白酒 茅台酒的市场空间还很大 人的需求最终还会回到嘴巴上，享乐成瘾性的东西在未来还是有需求",
@@ -287,7 +279,7 @@
   },
   "counts": {
     "complete": 170,
-    "failed": 1827,
+    "failed": 1828,
     "paused": 5,
     "interrupted": 5,
     "excluded": 31,
@@ -39318,11 +39310,11 @@
     },
     {
       "slug": "ly-1101-a85842",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标",
       "signature": {
         "ts": 1793533802,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -39332,7 +39324,25 @@
       "run_id": 41303633477,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41303633477",
       "run_started_at": "2026-11-01T11:50:02Z",
-      "run_updated_at": "2026-11-01T11:50:06Z"
+      "run_updated_at": "2026-11-01T11:51:59Z"
+    },
+    {
+      "slug": "ly-1101-a64582",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793533993,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41303865892,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41303865892",
+      "run_started_at": "2026-11-01T11:53:12Z",
+      "run_updated_at": "2026-11-01T11:53:16Z"
     }
   ],
   "runs": {
@@ -58773,12 +58783,23 @@
       "run_number": 3497,
       "display_title": "中文源出片 · ly-1101-e53c27"
     },
-    "ly-1101-a85842": {
-      "id": 41303633477,
+    "ly-1101-a64582": {
+      "id": 41303865892,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-01T11:53:12Z",
+      "updated_at": "2026-11-01T11:53:16Z",
+      "run_started_at": "2026-11-01T11:53:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41303865892",
+      "run_number": 3516,
+      "display_title": "中文源出片 · ly-1101-a64582"
+    },
+    "ly-1101-a85842": {
+      "id": 41303633477,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T11:50:02Z",
-      "updated_at": "2026-11-01T11:50:06Z",
+      "updated_at": "2026-11-01T11:51:59Z",
       "run_started_at": "2026-11-01T11:50:02Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41303633477",
       "run_number": 3515,
