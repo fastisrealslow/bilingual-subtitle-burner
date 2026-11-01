@@ -79667,7 +79667,96 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-02-13T18:39:08+08:00"
+   "publish_time": "2026-02-13T18:39:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-f060ea",
+    "run_id": 41285640753,
+    "artifact_id": 13075703588,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9745b6e34ab4920a704b8ed324c10a1b2accad4aec33a00af63fe024e231de90",
+     "duration_sec": 867.73,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5265930575416039"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 767.67s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/209，总帧数1044；身份匹配但人脸短边不足96px的帧数164"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少明确的肯定或否定结论（如‘可行’、‘不可行’或‘取决于条件’），且‘可惜啊’属于情绪表达而非对可行性的实质论证；‘必须走这个’虽暗示必要性，但未直接回应‘是否可行’的提问，导致观点不完整。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 342.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 133.73s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 402.07s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：reasoning_present；完整性理由：缺少对观点的具体论述或例子支撑，仅有一句简短否定判断，虽可独立成片但表达略显单薄，不过符合‘不要求严密论证’的剪辑标准。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 543.20s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/192，总帧数958；身份匹配但人脸短边不足96px的帧数192"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/216，总帧数1078；身份匹配但人脸短边不足96px的帧数216"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾的实际判断内容；claim_range 为空，无法构成独立成片所需的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/176，总帧数878；身份匹配但人脸短边不足96px的帧数176"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/228，总帧数1138；身份匹配但人脸短边不足96px的帧数228"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/126，总帧数629；身份匹配但人脸短边不足96px的帧数126"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41285640753,
+    "artifact_id": 13075703588,
+    "name": "production-reject-ly-1101-f060ea",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 767.67s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5261894212653193",
@@ -172395,6 +172484,13 @@
    "video_id": "BV1bTxx69ESx",
    "ts": 1793520232,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1101-f060ea",
+   "key": "weibo_search:5265930575416039",
+   "video_id": "https://f.video.weibocdn.com/o0/q0pZNMHclx08vjDsFZD201041203gvao0E020.mp4",
+   "ts": 1793521268,
+   "error": "整段取景预检：源 767.67s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
