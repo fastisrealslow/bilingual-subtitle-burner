@@ -77185,7 +77185,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 57%（BV19xpy6kER3）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1FvLu6NEFK",
@@ -77208,7 +77209,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-28T02:59:00+00:00"
+   "publish_time": "2026-05-28T02:59:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-1c2d3e",
+    "run_id": 41276817244,
+    "artifact_id": 13071672678,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "5edc6f24fa056ab5c07c8862b7cbb480f7ecbfcee4f8c1a3b58e6924f30bc73b",
+     "duration_sec": 107.07,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1FvLu6NEFK"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"我们难的时候啊，七八年，我都想出。\", \"suspect_quote\": \"七八年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中“七八年”可能是模糊概数，也可能是具体年份（如 2007-2008 或 1978-1979），无法确定实体时需复核；且前句未提供明确时间锚点，存在识别污染风险。\"}, {\"sentence_id\": 4, \"quote\": \"最近就是我找了一个大叔有多困难。\", \"suspect_quote\": \"找了一个大叔有多困难\", \"kind\""
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41276817244,
+    "artifact_id": 13071672678,
+    "name": "production-reject-ly-1101-1c2d3e",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"我们难的时候啊，七八年，我都想出。\", \"suspect_quote\": \"七八年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中“七八年”可能是模糊概数，也可能是具体年份（如 2007-2008 或 1978-1979），无法确定实体时需复核；且前句未提供明确时间锚点，存在识别污染风险。\"}, {\"sentence_id\": 4, \"quote\": \"最近就是我找了一个大叔有多困难。\", \"suspect_quote\": \"找了一个大叔有多困难\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“大叔”疑似将人名或机构名误识别为普通称谓，且“有多困难”语义不通顺，存在专名错写或句子截断污染。\"}, {\"sentence_id\": 5, \"quote\": \"我们也是一个宋仓户啊，一时间七八年时间，别人还给我借，他们觉得了，搞来搞去，跟现在的融资融券差不多，借，但是最后到第七年、第八年的时候，我借了，当兼职。\", \"suspect_quote\": \"宋仓户\", \"kind\": \"unintelligible_term\", \"reason\": \"“宋仓户”非通用词或行业术语，疑似将“空仓户”或其他专有名词误识别，存在专名错写污染。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 5, \"quote\": \"我们也是一个宋仓户啊，一时间七八年时间，别人还给我借，他们觉得了，搞来搞去，跟现在的融资融券差不多，借，但是最后到第七年、第八年的时候，我借了，当兼职。\", \"suspect_quote\": \"第七年、第八年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"前后文时间线混乱（前句提“七八年”），此处又出现具体年份，数字与上下文逻辑矛盾，需核实是否为识别污染。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4655999749984101",
@@ -77231,7 +77265,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-07-06T16:31:47+08:00"
+   "publish_time": "2021-07-06T16:31:47+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-4ea6fa",
+    "run_id": 41277107331,
+    "artifact_id": 13071214559,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3428eaac19a7d35833f95ec5db2936430bf2aeee0c124a7dfdadd78e18a27cee",
+     "duration_sec": 73.52,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4655999749984101"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41277107331,
+    "artifact_id": 13071214559,
+    "name": "production-reject-ly-1101-4ea6fa",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5263671255108343",
@@ -168669,6 +168736,20 @@
    "video_id": "BV1joLK6pEgv",
    "ts": 1793511204,
    "error": "与已发布内容文字指纹重复：转写片段重合 57%（BV19xpy6kER3）"
+  },
+  {
+   "slug": "ly-1101-4ea6fa",
+   "key": "weibo_search:4655999749984101",
+   "video_id": "https://f.video.weibocdn.com/8x0zgJpalx07O15KpQzC01041200OWsQ0E010.mp4",
+   "ts": 1793511737,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1101-1c2d3e",
+   "key": "bilibili_search:BV1FvLu6NEFK",
+   "video_id": "BV1FvLu6NEFK",
+   "ts": 1793511737,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"我们难的时候啊，七八年，我都想出。\", \"suspect_quote\": \"七八年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中“七八年”可能是模糊概数，也可能是具体年份（如 2007-2008 或 1978-1979），无法确定实体时需复核；且前句未提供明确时间锚点，存在识别污染风险。\"}, {\"sentence_id\": 4, \"quote\": \"最近就是我找了一个大叔有多困难。\", \"suspect_quote\": \"找了一个大叔有多困难\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“大叔”疑似将人名或机构名误识别为普通称谓，且“有多困难”语义不通顺，存在专名错写或句子截断污染。\"}, {\"sentence_id\": 5, \"quote\": \"我们也是一个宋仓户啊，一时间七八年时间，别人还给我借，他们觉得了，搞来搞去，跟现在的融资融券差不多，借，但是最后到第七年、第八年的时候，我借了，当兼职。\", \"suspect_quote\": \"宋仓户\", \"kind\": \"unintelligible_term\", \"reason\": \"“宋仓户”非通用词或行业术语，疑似将“空仓户”或其他专有名词误识别，存在专名错写污染。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 5, \"quote\": \"我们也是一个宋仓户啊，一时间七八年时间，别人还给我借，他们觉得了，搞来搞去，跟现在的融资融券差不多，借，但是最后到第七年、第八年的时候，我借了，当兼职。\", \"suspect_quote\": \"第七年、第八年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"前后文时间线混乱（前句提“七八年”），此处又出现具体年份，数字与上下文逻辑矛盾，需核实是否为识别污染。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
