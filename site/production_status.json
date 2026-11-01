@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793534150,
+  "updated_at": 1793534266,
   "inventory_updated_at": 1793534146,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 78,
     "active_or_recovering_sources": 7,
-    "waiting_candidates": 6,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793534149,
+    "updated_at": 1793534266,
     "records": 14631,
     "video_records": 12327,
-    "initial_candidates": 115,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 114,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2569,
+      "already_attempted_or_cooling": 2570,
       "clip_title": 1366,
       "speaker_unconfirmed": 7935,
       "no_video": 2304,
@@ -215,14 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV12BBaBcEVX",
-        "title": "林园谈白酒 茅台酒的市场空间还很大 人的需求最终还会回到嘴巴上，享乐成瘾性的东西在未来还是有需求",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV12BBaBcEVX",
-        "duration_sec": 105.0
-      },
       {
         "key": "bilibili_search:BV1rQBoBtEC8",
         "title": "林园：我的赚钱方法是对的；回避那些互联网和热门概念股；我抓住制造业的本质人的必需，回避风险",
@@ -279,7 +271,7 @@
   },
   "counts": {
     "complete": 170,
-    "failed": 1828,
+    "failed": 1829,
     "paused": 5,
     "interrupted": 5,
     "excluded": 31,
@@ -39328,11 +39320,11 @@
     },
     {
       "slug": "ly-1101-a64582",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1793533993,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -39342,7 +39334,25 @@
       "run_id": 41303865892,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41303865892",
       "run_started_at": "2026-11-01T11:53:12Z",
-      "run_updated_at": "2026-11-01T11:53:16Z"
+      "run_updated_at": "2026-11-01T11:55:05Z"
+    },
+    {
+      "slug": "ly-1101-013e53",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793534251,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41304178488,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41304178488",
+      "run_started_at": "2026-11-01T11:57:30Z",
+      "run_updated_at": "2026-11-01T11:57:34Z"
     }
   ],
   "runs": {
@@ -58794,12 +58804,23 @@
       "run_number": 3515,
       "display_title": "中文源出片 · ly-1101-a85842"
     },
-    "ly-1101-a64582": {
-      "id": 41303865892,
+    "ly-1101-013e53": {
+      "id": 41304178488,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-01T11:57:30Z",
+      "updated_at": "2026-11-01T11:57:34Z",
+      "run_started_at": "2026-11-01T11:57:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41304178488",
+      "run_number": 3517,
+      "display_title": "中文源出片 · ly-1101-013e53"
+    },
+    "ly-1101-a64582": {
+      "id": 41303865892,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T11:53:12Z",
-      "updated_at": "2026-11-01T11:53:16Z",
+      "updated_at": "2026-11-01T11:55:05Z",
       "run_started_at": "2026-11-01T11:53:12Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41303865892",
       "run_number": 3516,
