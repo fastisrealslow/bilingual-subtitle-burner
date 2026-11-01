@@ -75937,7 +75937,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5319842718811089",
@@ -76029,7 +76030,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-01T15:48:02+08:00"
+   "publish_time": "2026-07-01T15:48:02+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41271421813,
+    "artifact_id": 13069556498,
+    "name": "source-reject-ly-1101-9fa2f8",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[3, 5]，scan_same=[8, 11]，scan_different=[1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 16, 17, 18]，confidence=0.772，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1797, 2: 0.3139, 3: 0.1379, 4: 0.1411, 5: 0.1124, 6: 0.1881, 7: 0.1726, 8: 0.3709, 9: 0.1596, 10: 0.1633, 11: 0.3851, 12: 0.3095, 13: 0.1613, 14: 0.14, 15: 0.3567, 16: 0.1539, 17: 0.1307, 18: 0.1097}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5037703827556195",
@@ -167297,6 +167308,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/QUn5NdZigx08raREgvmE01041200hFfI0E010.mp4",
    "ts": 1793505634,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1101-9fa2f8",
+   "key": "weibo_search:5315897040308089",
+   "video_id": "https://f.video.weibocdn.com/o0/zN8acTvklx08yRyAMFyM01041200oK7T0E010.mp4",
+   "ts": 1793505895,
+   "error": "人物不一致或无法确认：林园；initial_same=[3, 5]，scan_same=[8, 11]，scan_different=[1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 16, 17, 18]，confidence=0.772，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1797, 2: 0.3139, 3: 0.1379, 4: 0.1411, 5: 0.1124, 6: 0.1881, 7: 0.1726, 8: 0.3709, 9: 0.1596, 10: 0.1633, 11: 0.3851, 12: 0.3095, 13: 0.1613, 14: 0.14, 15: 0.3567, 16: 0.1539, 17: 0.1307, 18: 0.1097}"
   }
  ],
  "reviewed_third_video_0910": {
