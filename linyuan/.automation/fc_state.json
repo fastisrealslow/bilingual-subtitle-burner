@@ -73619,7 +73619,96 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-06T13:08:23+08:00"
+   "publish_time": "2026-06-06T13:08:23+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1031-761878",
+    "run_id": 41249136205,
+    "artifact_id": 13062733539,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e2bb64f9c57d16711ac29a2d568de878e0c8de0b22802171afbe009a35f38cdc",
+     "duration_sec": 1772.96,
+     "resolution": {
+      "width": 1436,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5306797172458002"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 442.37s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配326/826，总帧数2498；身份匹配但人脸短边不足96px的帧数500"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV12mxy6uEVj）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1653.73s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出来源二维码（含裁切残留定位图案）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配536/1110，总帧数2866；身份匹配但人脸短边不足96px的帧数574"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1379.60s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/147，总帧数730；身份匹配但人脸短边不足96px的帧数147"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1045.23s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 685.63s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41249136205,
+    "artifact_id": 13062733539,
+    "name": "production-reject-ly-1031-761878",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 442.37s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5319160206984523",
@@ -74515,7 +74604,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5265944723327083",
@@ -74548,7 +74638,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5295833580832853",
@@ -165336,6 +165427,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/VCkRcplXlx08vPJXJk2s01041200l06w0E010.mp4",
    "ts": 1793490947,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1031-761878",
+   "key": "weibo_search:5306797172458002",
+   "video_id": "https://f.video.weibocdn.com/u0/zXMKvEZKgx08ydvnqyuQ0104120aZnSP0E040.mp4",
+   "ts": 1793491746,
+   "error": "整段取景预检：源 442.37s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
