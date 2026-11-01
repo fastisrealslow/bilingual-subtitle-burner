@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793572868,
-  "inventory_updated_at": 1793572714,
+  "updated_at": 1793573524,
+  "inventory_updated_at": 1793573517,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 86,
-    "active_or_recovering_sources": 5,
+    "verified_daily_stock": 85,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 86,
+      "verified_stock_snapshot": 85,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 19,
-        "landscape": 67
+        "portrait": 20,
+        "landscape": 65
       },
       "full_schedule_days": 6,
-      "required_week_shortfall": 2,
+      "required_week_shortfall": 1,
       "required_week_shortfall_by_layout": {
-        "portrait": 2,
+        "portrait": 1,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -193,7 +193,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793572866,
+    "updated_at": 1793573522,
     "records": 14890,
     "video_records": 12556,
     "initial_candidates": 135,
@@ -217,14 +217,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 86,
+    "verified_live": 85,
     "verified_audio_card": 0,
-    "verified_landscape": 67,
-    "verified_portrait": 19,
+    "verified_landscape": 65,
+    "verified_portrait": 20,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 86,
+    "daily_mix_usable": 85,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -232,13 +232,13 @@
     "complete": 171,
     "failed": 1875,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 6,
     "excluded": 34,
     "experiment_fallback": 102,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -40215,8 +40215,8 @@
     },
     {
       "slug": "ly-1101-18ab48",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793572803,
         "failed": null,
@@ -40229,7 +40229,7 @@
       "run_id": 41358273627,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41358273627",
       "run_started_at": "2026-11-01T22:40:03Z",
-      "run_updated_at": "2026-11-01T22:40:07Z"
+      "run_updated_at": "2026-11-01T22:50:12Z"
     },
     {
       "slug": "ly-story-07e2a18eec",
@@ -60329,17 +60329,6 @@
       "run_number": 3585,
       "display_title": "中文源出片 · ly-1101-ad718f"
     },
-    "ly-1101-18ab48": {
-      "id": 41358273627,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-01T22:40:03Z",
-      "updated_at": "2026-11-01T22:40:07Z",
-      "run_started_at": "2026-11-01T22:40:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41358273627",
-      "run_number": 3588,
-      "display_title": "中文源出片 · ly-1101-18ab48"
-    },
     "ly-1101-c59851": {
       "id": 41351379334,
       "status": "completed",
@@ -60405,6 +60394,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41358284561",
       "run_number": 3589,
       "display_title": "中文源出片 · ly-story-07e2a18eec"
+    },
+    "ly-1101-18ab48": {
+      "id": 41358273627,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-01T22:40:03Z",
+      "updated_at": "2026-11-01T22:50:12Z",
+      "run_started_at": "2026-11-01T22:40:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41358273627",
+      "run_number": 3588,
+      "display_title": "中文源出片 · ly-1101-18ab48"
     }
   }
 }
