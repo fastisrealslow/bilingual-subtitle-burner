@@ -75133,7 +75133,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/163，总帧数814；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4622958900806559",
@@ -75262,7 +75263,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-04-26T16:55:37+08:00"
+   "publish_time": "2024-04-26T16:55:37+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41266239168,
+    "artifact_id": 13067471170,
+    "name": "source-reject-ly-1101-00b20e",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -166430,6 +166441,13 @@
    "video_id": "https://f.video.weibocdn.com/ClyNaDtnlx07NMuNlqDm01041205YUVI0E030.mp4",
    "ts": 1793500852,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/163，总帧数814；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1101-00b20e",
+   "key": "weibo_search:5027453309027495",
+   "video_id": "https://f.video.weibocdn.com/u0/YbGQ7Dt3gx08eo0hg6oo01041202lZAM0E010.mp4",
+   "ts": 1793501285,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
