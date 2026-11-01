@@ -79381,7 +79381,72 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2022-09-03T09:59:53+08:00"
+   "publish_time": "2022-09-03T09:59:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-36c7ca",
+    "run_id": 41284358439,
+    "artifact_id": 13076308177,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a88fd306beefbc0c4aea67932473b87ad905e6eb30edcc833814a231e983012b",
+     "duration_sec": 1079.66,
+     "resolution": {
+      "width": 1080,
+      "height": 1674,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4809553579610503"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾明确声明未关注该话题（'我也没没注意，没注意，没留意这个东西'），导致核心问题被回避而非回答。后续内容虽包含行业分析，但因缺乏对初始问题的回应，不构成完整的观点表达，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少具体的投资判断或观点阐述，仅有对过去立场的确认而无实质内容支撑。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未给出针对‘基金分红’情境下的明确操作建议（即未回答‘选择分红买入新基金呢，还是说继续长期持有呢？'这一核心问题），仅澄清了概念并给出了关于股票分红的判断，导致原问题的完整表达被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 为空，因主持人提问（句 0）被排除，且嘉宾后续话语中无清晰、完整的投资判断或结论性陈述；句 1-2 为表达困惑与重复问题，句 3-5 虽提及关键词但属口语化碎片，未构成有效观点。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41284358439,
+    "artifact_id": 13076308177,
+    "name": "production-reject-ly-1101-36c7ca",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5262627746088152",
@@ -79680,7 +79745,56 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-09-29T15:26:06+08:00"
+   "publish_time": "2025-09-29T15:26:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-d9c68f",
+    "run_id": 41285656230,
+    "artifact_id": 13076975068,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "145c3b646ba28364428e85394ffe07a91055b7d0290bc6e4ae185371fcb50182",
+     "duration_sec": 1006.38,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5216234859398891"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 965.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 477.53s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 189.23s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 815.87s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41285656230,
+    "artifact_id": 13076975068,
+    "name": "production-reject-ly-1101-d9c68f",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1bTxx69ESx",
@@ -79819,7 +79933,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167942968544790",
@@ -79862,7 +79977,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167752928300787",
@@ -79905,7 +80021,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Kaxs6UEoX",
@@ -79928,7 +80045,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-01T06:25:44+00:00"
+   "publish_time": "2026-11-01T06:25:44+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41288907024,
+    "artifact_id": 13076541641,
+    "name": "source-reject-ly-1101-04b412",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5209315329967960",
@@ -172589,6 +172716,27 @@
    "video_id": "https://f.video.weibocdn.com/o0/q0pZNMHclx08vjDsFZD201041203gvao0E020.mp4",
    "ts": 1793521268,
    "error": "整段取景预检：源 767.67s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1101-04b412",
+   "key": "bilibili_search:BV1Kaxs6UEoX",
+   "video_id": "BV1Kaxs6UEoX",
+   "ts": 1793522061,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1101-d9c68f",
+   "key": "weibo_search:5216234859398891",
+   "video_id": "https://f.video.weibocdn.com/o0/J7tifbg1lx08rMUfmfxK01041209FLXR0E040.mp4",
+   "ts": 1793522062,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1101-36c7ca",
+   "key": "weibo_search:4809553579610503",
+   "video_id": "https://f.video.weibocdn.com/u0/1XhQUGezgx07YUWrCq6I01041203oyDa0E020.mp4",
+   "ts": 1793522068,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
