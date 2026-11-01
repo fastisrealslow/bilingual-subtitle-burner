@@ -1385,6 +1385,9 @@ def unsupported_trade_directive_error(title,cover,transcript):
     pattern=re.compile(r'(?P<prefix>'+negative+'|'+positive+r')'
         r'(?:(?:轻易|再|去|继续|随便|盲目)){0,3}(?P<action>'+actions+r')')
     aliases={'投资':'投','买入':'买','卖出':'卖'}
+    invitation=re.compile(r'(?P<permission>(?:可以|不妨)(?:去)?)?'
+        r'(?:尝试|试着)(?:去)?(?P<action>'+actions+r')'
+        r'[^，。！？；：\n]{0,16}')
     def commands(text):
         result={}
         for match in pattern.finditer(str(text or '')):
@@ -1398,6 +1401,26 @@ def unsupported_trade_directive_error(title,cover,transcript):
                       3 if prefix.startswith('千万') or prefix in ('赶紧','马上','快') else 2)
             key=(negative_action,aliases.get(match['action'],match['action']))
             result[key]=max(result.get(key,0),strength)
+        for match in invitation.finditer(str(text or '')):
+            # A general invitation to try something cannot support a newly
+            # supplied trading action. Require an actual permissive invitation
+            # or sentence-final exhortative 吧, not a historical attempt.
+            tail=match.group().rstrip('、 ')
+            after=str(text)[match.end():]
+            if not match['permission'] and not tail.endswith('吧'):
+                continue
+            if after.startswith(('？','?')) or tail.endswith(('吗','么','呢')):
+                continue
+            clause=re.split(r'[，。！？；：\n]',str(text)[:match.start()])[-1]
+            historical_or_negative=re.search(
+                r'当时|那时|以前|曾经|过去|昨天|去年|'
+                r'不要|不能|不应|不该|别|没有|没|未|是否|能否|不$',clause)
+            personal=re.search(r'我|我们|他|她',clause)
+            explicit_advice=re.search(r'(?:我|我们)建议(?:大家|你们|你)?$',clause)
+            if historical_or_negative or (personal and not explicit_advice):
+                continue
+            key=(False,aliases.get(match['action'],match['action']))
+            result[key]=max(result.get(key,0),1)
         return result
     supported=commands(transcript)
     for text in (title,cover):
