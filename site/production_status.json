@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793493459,
+  "updated_at": 1793493580,
   "inventory_updated_at": 1793493454,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 73,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 98,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 97,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793493458,
+    "updated_at": 1793493578,
     "records": 14327,
     "video_records": 12026,
-    "initial_candidates": 206,
-    "duration_eligible_records": 98,
-    "candidate_count": 98,
-    "known_duration_candidates": 98,
+    "initial_candidates": 205,
+    "duration_eligible_records": 97,
+    "candidate_count": 97,
+    "known_duration_candidates": 97,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7820,
-      "already_attempted_or_cooling": 2364,
+      "already_attempted_or_cooling": 2365,
       "no_video": 2301,
       "clip_title": 1299,
       "unrelated": 73,
@@ -256,22 +256,6 @@
         "duration_sec": 27.0
       },
       {
-        "key": "weibo_search:5037703827556195",
-        "title": "#昕礽果复利增长价值亿亿金# 2011年林园总访谈，聊赚钱机器。#得中药龙头者得天下##a股创世纪万点大牛市##品牌中药",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5037703827556195",
-        "duration_sec": 575.0
-      },
-      {
-        "key": "weibo_search:5298898920277695",
-        "title": "#昕礽果复利增长价值亿亿金# 林园总聊品牌中药疗效与未来趋势空间2023#得中药龙头者得天下# http://t.cn/",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5298898920277695",
-        "duration_sec": 924.0
-      },
-      {
         "key": "weibo_search:5315890180788196",
         "title": "林园总分享，自己吃片仔H的心得…\n#片仔癀 ##财经##股市 #林园# http://t.cn/AXo2btyD ​​​",
         "source": "weibo_search",
@@ -286,6 +270,22 @@
         "author": "价值投资和科技股投资",
         "url": "https://m.weibo.cn/detail/5315897040308089",
         "duration_sec": 85.0
+      },
+      {
+        "key": "weibo_search:5037703827556195",
+        "title": "#昕礽果复利增长价值亿亿金# 2011年林园总访谈，聊赚钱机器。#得中药龙头者得天下##a股创世纪万点大牛市##品牌中药",
+        "source": "weibo_search",
+        "author": "昕礽果复利增长",
+        "url": "https://m.weibo.cn/detail/5037703827556195",
+        "duration_sec": 575.0
+      },
+      {
+        "key": "weibo_search:5298898920277695",
+        "title": "#昕礽果复利增长价值亿亿金# 林园总聊品牌中药疗效与未来趋势空间2023#得中药龙头者得天下# http://t.cn/",
+        "source": "weibo_search",
+        "author": "昕礽果复利增长",
+        "url": "https://m.weibo.cn/detail/5298898920277695",
+        "duration_sec": 924.0
       },
       {
         "key": "weibo_search:5294259751355129",
@@ -366,14 +366,6 @@
         "author": "加仓多吉丿",
         "url": "https://m.weibo.cn/detail/4655999749984101",
         "duration_sec": 73.0
-      },
-      {
-        "key": "weibo_search:4652683447239666",
-        "title": "2016-07-07牛人课堂-林园采访。 http://t.cn/A6fqcbL0 ​​​",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4652683447239666",
-        "duration_sec": 3590.0
       },
       {
         "key": "bilibili_search:BV1MSpN69EcN",
@@ -1007,15 +999,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1699,
+    "failed": 1700,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 19,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -37302,11 +37294,11 @@
     },
     {
       "slug": "ly-1031-3451a1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
       "signature": {
         "ts": 1793490438,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37443,6 +37435,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41256474435",
       "run_started_at": "2026-11-01T00:22:37Z",
       "run_updated_at": "2026-11-01T00:22:41Z"
+    },
+    {
+      "slug": "ly-1101-716062",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793493541,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41257665148,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41257665148",
+      "run_started_at": "2026-11-01T00:39:01Z",
+      "run_updated_at": "2026-11-01T00:39:05Z"
     }
   ],
   "runs": {
@@ -55310,6 +55320,28 @@
       "run_number": 3349,
       "display_title": "中文源出片 · ly-1101-26c1da"
     },
+    "ly-1031-3451a1": {
+      "id": 41253969941,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-31T23:47:17Z",
+      "updated_at": "2026-11-01T00:35:52Z",
+      "run_started_at": "2026-10-31T23:47:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253969941",
+      "run_number": 3343,
+      "display_title": "中文源出片 · ly-1031-3451a1"
+    },
+    "ly-1101-716062": {
+      "id": 41257665148,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T00:39:01Z",
+      "updated_at": "2026-11-01T00:39:05Z",
+      "run_started_at": "2026-11-01T00:39:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41257665148",
+      "run_number": 3351,
+      "display_title": "中文源出片 · ly-1101-716062"
+    },
     "ly-1101-5cafe6": {
       "id": 41256474435,
       "status": "in_progress",
@@ -55331,17 +55363,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41254563254",
       "run_number": 3346,
       "display_title": "中文源出片 · ly-1031-87da70"
-    },
-    "ly-1031-3451a1": {
-      "id": 41253969941,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-10-31T23:47:17Z",
-      "updated_at": "2026-11-01T00:35:52Z",
-      "run_started_at": "2026-10-31T23:47:17Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41253969941",
-      "run_number": 3343,
-      "display_title": "中文源出片 · ly-1031-3451a1"
     },
     "ly-1031-87bf8a": {
       "id": 41250949924,
