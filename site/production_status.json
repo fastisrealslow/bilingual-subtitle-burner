@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793559593,
+  "updated_at": 1793559730,
   "inventory_updated_at": 1793559586,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 85,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 29,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 27,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793559591,
+    "updated_at": 1793559729,
     "records": 14806,
     "video_records": 12476,
-    "initial_candidates": 153,
-    "duration_eligible_records": 29,
-    "candidate_count": 29,
-    "known_duration_candidates": 11,
+    "initial_candidates": 151,
+    "duration_eligible_records": 27,
+    "candidate_count": 27,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 18,
     "excluded": {
-      "already_attempted_or_cooling": 2632,
+      "already_attempted_or_cooling": 2634,
       "clip_title": 1366,
       "speaker_unconfirmed": 7982,
       "no_video": 2330,
@@ -215,22 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1vUJS6HEQZ",
-        "title": "林园仍看好白酒龙茅台 2026.10采访 怎么看段永平抱着茅台跟国内任何基金打赌，股神林园说 那个赌约赌的是常识，他说的",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1vUJS6HEQZ",
-        "duration_sec": 109.0
-      },
-      {
-        "key": "bilibili_search:BV1z2xs6MEK4",
-        "title": "股神林园的经典语录，林园谈自己的人生感悟 发言整理，投资知识学习，向股神林园学习他的投资思想",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1z2xs6MEK4",
-        "duration_sec": 105.0
-      },
       {
         "key": "weibo_search:4544035845309157",
         "title": "//@亿帆风顺就好:我要2017年知道林园，现在早就翻几倍了//@南京股侠123:感恩 王老师 林园总 ！两位注意身体，",
@@ -254,6 +238,22 @@
         "author": "价值成长的天空一追求复合增长",
         "url": "https://m.weibo.cn/detail/5136340253671599",
         "duration_sec": 186.0
+      },
+      {
+        "key": "bilibili_search:BV1Ydxp6WEpA",
+        "title": "市场最大的风险是什么？林园：大多数公司的风险是巨大的，因为这个市场能赚钱的公司太少——这是市场最大的风险，它和点位的关系",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1Ydxp6WEpA",
+        "duration_sec": 52.0
+      },
+      {
+        "key": "bilibili_search:BV1Hrxs6kEz6",
+        "title": "股神林园的经典语录，林园谈股票投资中的等待与耐心 发言整理，投资知识学习，向股神林园学习他的投资思想",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1Hrxs6kEz6",
+        "duration_sec": 119.0
       },
       {
         "key": "weibo_search:5137016045701986",
@@ -424,22 +424,6 @@
         "duration_sec": 57.0
       },
       {
-        "key": "bilibili_search:BV1Ydxp6WEpA",
-        "title": "市场最大的风险是什么？林园：大多数公司的风险是巨大的，因为这个市场能赚钱的公司太少——这是市场最大的风险，它和点位的关系",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Ydxp6WEpA",
-        "duration_sec": 52.0
-      },
-      {
-        "key": "bilibili_search:BV1Hrxs6kEz6",
-        "title": "股神林园的经典语录，林园谈股票投资中的等待与耐心 发言整理，投资知识学习，向股神林园学习他的投资思想",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Hrxs6kEz6",
-        "duration_sec": 119.0
-      },
-      {
         "key": "bilibili_search:BV1vDxp6oEJa",
         "title": "股神林园 早期采访视频 股票买了不卖的原因",
         "source": "bilibili_search",
@@ -463,15 +447,15 @@
   },
   "counts": {
     "complete": 171,
-    "failed": 1853,
+    "failed": 1854,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 34,
     "experiment_fallback": 100,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 3
+    "retry_queued": 2,
+    "running": 5
   },
   "tasks": [
     {
@@ -39908,11 +39892,11 @@
     },
     {
       "slug": "ly-1101-a648dc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1793557514,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40070,14 +40054,14 @@
     },
     {
       "slug": "ly-1101-a894a7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793559327,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793560536,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -40103,6 +40087,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41339089525",
       "run_started_at": "2026-11-01T18:55:36Z",
       "run_updated_at": "2026-11-01T18:55:40Z"
+    },
+    {
+      "slug": "ly-1101-7774ea",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793559684,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41339580686,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41339580686",
+      "run_started_at": "2026-11-01T19:01:24Z",
+      "run_updated_at": "2026-11-01T19:01:28Z"
+    },
+    {
+      "slug": "ly-1101-1b272c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793559691,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41339590396,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41339590396",
+      "run_started_at": "2026-11-01T19:01:30Z",
+      "run_updated_at": "2026-11-01T19:01:34Z"
     }
   ],
   "runs": {
@@ -59938,6 +59958,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41339076720",
       "run_number": 3549,
       "display_title": "中文源出片 · ly-1101-a894a7"
+    },
+    "ly-1101-1b272c": {
+      "id": 41339590396,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T19:01:30Z",
+      "updated_at": "2026-11-01T19:01:34Z",
+      "run_started_at": "2026-11-01T19:01:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41339590396",
+      "run_number": 3552,
+      "display_title": "中文源出片 · ly-1101-1b272c"
+    },
+    "ly-1101-7774ea": {
+      "id": 41339580686,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T19:01:24Z",
+      "updated_at": "2026-11-01T19:01:28Z",
+      "run_started_at": "2026-11-01T19:01:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41339580686",
+      "run_number": 3551,
+      "display_title": "中文源出片 · ly-1101-7774ea"
     },
     "ly-1101-61082f": {
       "id": 41339089525,
