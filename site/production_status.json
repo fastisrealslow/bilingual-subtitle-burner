@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793558597,
+  "updated_at": 1793558768,
   "inventory_updated_at": 1793558590,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 85,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 38,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 36,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793558595,
+    "updated_at": 1793558767,
     "records": 14806,
     "video_records": 12476,
-    "initial_candidates": 162,
-    "duration_eligible_records": 38,
-    "candidate_count": 38,
-    "known_duration_candidates": 20,
+    "initial_candidates": 160,
+    "duration_eligible_records": 36,
+    "candidate_count": 36,
+    "known_duration_candidates": 18,
     "unknown_duration_candidates": 18,
     "excluded": {
-      "already_attempted_or_cooling": 2623,
+      "already_attempted_or_cooling": 2625,
       "clip_title": 1366,
       "speaker_unconfirmed": 7982,
       "no_video": 2330,
@@ -215,22 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4487526096157621",
-        "title": "#世界佛教之论坛#【楞严经讲记】第一卷正宗分☆12(2019年最新版)\n\n111.       【佛告阿难：如汝所言，身",
-        "source": "weibo_search",
-        "author": "大乘妙法莲华经12",
-        "url": "https://m.weibo.cn/detail/4487526096157621",
-        "duration_sec": 213.0
-      },
-      {
-        "key": "weibo_search:4907404120822004",
-        "title": "【林园 】五粮液2022年度股东大会的发言[鲜花][鲜花] http://t.cn/A6pUPJfu ​​​",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4907404120822004",
-        "duration_sec": 378.0
-      },
       {
         "key": "weibo_search:4525827410752632",
         "title": "片仔癀：中药龙头，国宝名药，世界唯一，稀缺、垄断，成瘾，嘴巴、刚需，观赏股，国家名片。中药股指数牛市刚刚开始2020年是",
@@ -358,14 +342,6 @@
         "author": "金属风暴李凡",
         "url": "https://m.weibo.cn/detail/4428326237817103",
         "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:4417599607305305",
-        "title": "#股票# 2017年12月9日，#林园# 应邀在雪球嘉年华大会上做主题演讲时指出，未来三十年他只投治疗糖尿病高血压心脏病",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4417599607305305",
-        "duration_sec": 57.0
       },
       {
         "key": "weibo_search:4413268237528921",
@@ -496,6 +472,14 @@
         "duration_sec": 0
       },
       {
+        "key": "weibo_search:4417599607305305",
+        "title": "#股票# 2017年12月9日，#林园# 应邀在雪球嘉年华大会上做主题演讲时指出，未来三十年他只投治疗糖尿病高血压心脏病",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4417599607305305",
+        "duration_sec": 57.0
+      },
+      {
         "key": "bilibili_search:BV1Ydxp6WEpA",
         "title": "市场最大的风险是什么？林园：大多数公司的风险是巨大的，因为这个市场能赚钱的公司太少——这是市场最大的风险，它和点位的关系",
         "source": "bilibili_search",
@@ -535,15 +519,15 @@
   },
   "counts": {
     "complete": 171,
-    "failed": 1847,
+    "failed": 1848,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 34,
     "experiment_fallback": 100,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 6
   },
   "tasks": [
     {
@@ -40052,11 +40036,11 @@
     },
     {
       "slug": "ly-1101-68d67a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 320 < 480（640x320），画质不达标",
       "signature": {
         "ts": 1793558359,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40067,6 +40051,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41337724364",
       "run_started_at": "2026-11-01T18:39:19Z",
       "run_updated_at": "2026-11-01T18:41:14Z"
+    },
+    {
+      "slug": "ly-1101-f9e7e4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793558718,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41338219494,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338219494",
+      "run_started_at": "2026-11-01T18:45:18Z",
+      "run_updated_at": "2026-11-01T18:45:22Z"
+    },
+    {
+      "slug": "ly-1101-69aa97",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793558726,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41338231441,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338231441",
+      "run_started_at": "2026-11-01T18:45:25Z",
+      "run_updated_at": "2026-11-01T18:45:29Z"
     }
   ],
   "runs": {
@@ -59825,6 +59845,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41337724364",
       "run_number": 3544,
       "display_title": "中文源出片 · ly-1101-68d67a"
+    },
+    "ly-1101-69aa97": {
+      "id": 41338231441,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T18:45:25Z",
+      "updated_at": "2026-11-01T18:45:29Z",
+      "run_started_at": "2026-11-01T18:45:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338231441",
+      "run_number": 3546,
+      "display_title": "中文源出片 · ly-1101-69aa97"
+    },
+    "ly-1101-f9e7e4": {
+      "id": 41338219494,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T18:45:18Z",
+      "updated_at": "2026-11-01T18:45:22Z",
+      "run_started_at": "2026-11-01T18:45:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338219494",
+      "run_number": 3545,
+      "display_title": "中文源出片 · ly-1101-f9e7e4"
     },
     "ly-1101-cf6196": {
       "id": 41337714147,
