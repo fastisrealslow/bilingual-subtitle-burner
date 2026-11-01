@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793528248,
+  "updated_at": 1793528394,
   "inventory_updated_at": 1793528242,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 78,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 12,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 11,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,18 +193,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793528247,
+    "updated_at": 1793528393,
     "records": 14513,
     "video_records": 12209,
-    "initial_candidates": 121,
-    "duration_eligible_records": 12,
-    "candidate_count": 12,
-    "known_duration_candidates": 12,
+    "initial_candidates": 120,
+    "duration_eligible_records": 11,
+    "candidate_count": 11,
+    "known_duration_candidates": 11,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1310,
       "speaker_unconfirmed": 7890,
-      "already_attempted_or_cooling": 2542,
+      "already_attempted_or_cooling": 2543,
       "no_video": 2304,
       "unrelated": 74,
       "reference_only": 206,
@@ -215,22 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5304197421467421",
-        "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2010.03.12﹣湖北卫视﹣\n\n人一生最重要的两个字是：认知。认知，是高",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5304197421467421",
-        "duration_sec": 1038.0
-      },
-      {
-        "key": "weibo_search:5304283311374921",
-        "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2018.07.20﹣第一财经中国经营者\n\n人一生最重要的两个字是：认知。认",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5304283311374921",
-        "duration_sec": 741.0
-      },
       {
         "key": "weibo_search:5232276545994836",
         "title": "2024年10月15日（3），林园：我们不考虑中药集采的问题，我们考虑的关键是它是不是有效？它的受众群体是不是在变大？这",
@@ -264,20 +248,20 @@
         "duration_sec": 53.0
       },
       {
+        "key": "weibo_search:5304283311374921",
+        "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2018.07.20﹣第一财经中国经营者\n\n人一生最重要的两个字是：认知。认",
+        "source": "weibo_search",
+        "author": "昕礽果复利增长",
+        "url": "https://m.weibo.cn/detail/5304283311374921",
+        "duration_sec": 741.0
+      },
+      {
         "key": "weibo_search:5304278006892903",
         "title": "#昕礽果复利增长价值亿亿金# 林园经典采访﹣2018.07.20﹣第一财经中国经营者\n\n人一生最重要的两个字是：认知。认",
         "source": "weibo_search",
         "author": "昕礽果复利增长",
         "url": "https://m.weibo.cn/detail/5304278006892903",
         "duration_sec": 741.0
-      },
-      {
-        "key": "weibo_search:5103471575174990",
-        "title": "#昕礽果复利增长价值亿亿金# 2019年9月18日，林园在申万宏源证券演讲，精选！\n\n#得中药龙头者得天下# 医药行业将",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5103471575174990",
-        "duration_sec": 280.0
       },
       {
         "key": "weibo_search:5085015090137061",
@@ -294,6 +278,14 @@
         "author": "价值成长的天空一追求复合增长",
         "url": "https://m.weibo.cn/detail/5209378359345480",
         "duration_sec": 21.0
+      },
+      {
+        "key": "weibo_search:5103471575174990",
+        "title": "#昕礽果复利增长价值亿亿金# 2019年9月18日，林园在申万宏源证券演讲，精选！\n\n#得中药龙头者得天下# 医药行业将",
+        "source": "weibo_search",
+        "author": "昕礽果复利增长",
+        "url": "https://m.weibo.cn/detail/5103471575174990",
+        "duration_sec": 280.0
       },
       {
         "key": "weibo_search:5304590243203619",
@@ -327,15 +319,15 @@
   },
   "counts": {
     "complete": 170,
-    "failed": 1804,
+    "failed": 1805,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 31,
     "experiment_fallback": 98,
     "ready": 20,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -38818,11 +38810,11 @@
     },
     {
       "slug": "ly-1101-012cdf",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1334，总帧数2395；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1793526809,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -38905,6 +38897,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41296562503",
       "run_started_at": "2026-11-01T10:13:53Z",
       "run_updated_at": "2026-11-01T10:13:56Z"
+    },
+    {
+      "slug": "ly-1101-dcb7cb",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793528350,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41296959539,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41296959539",
+      "run_started_at": "2026-11-01T10:19:10Z",
+      "run_updated_at": "2026-11-01T10:19:14Z"
     }
   ],
   "runs": {
@@ -58059,6 +58069,28 @@
       "run_number": 3483,
       "display_title": "中文源出片 · ly-1101-012cdf"
     },
+    "ly-1101-79e0fd": {
+      "id": 41292425651,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-01T09:16:44Z",
+      "updated_at": "2026-11-01T10:14:57Z",
+      "run_started_at": "2026-11-01T09:16:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41292425651",
+      "run_number": 3475,
+      "display_title": "中文源出片 · ly-1101-79e0fd"
+    },
+    "ly-1101-dcb7cb": {
+      "id": 41296959539,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T10:19:10Z",
+      "updated_at": "2026-11-01T10:19:14Z",
+      "run_started_at": "2026-11-01T10:19:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41296959539",
+      "run_number": 3488,
+      "display_title": "中文源出片 · ly-1101-dcb7cb"
+    },
     "ly-story-10df862718": {
       "id": 41296562503,
       "status": "in_progress",
@@ -58113,17 +58145,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41294604010",
       "run_number": 3481,
       "display_title": "中文源出片 · ly-1101-f604d8"
-    },
-    "ly-1101-79e0fd": {
-      "id": 41292425651,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-01T09:16:44Z",
-      "updated_at": "2026-11-01T10:14:57Z",
-      "run_started_at": "2026-11-01T09:16:44Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41292425651",
-      "run_number": 3475,
-      "display_title": "中文源出片 · ly-1101-79e0fd"
     }
   }
 }
