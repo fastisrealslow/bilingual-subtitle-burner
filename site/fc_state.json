@@ -80361,7 +80361,56 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-09-19T18:00:01+08:00"
+   "publish_time": "2025-09-19T18:00:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-f49fa4",
+    "run_id": 41289476957,
+    "artifact_id": 13077634906,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d44398618b0d61628833ab82e6d3b4d816ec06333ee81dc589157222b69903d8",
+     "duration_sec": 1006.19,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5212649715140961"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 477.47s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 965.27s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 189.07s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 815.77s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41289476957,
+    "artifact_id": 13077634906,
+    "name": "production-reject-ly-1101-f49fa4",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 477.47s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4789658523274205",
@@ -80615,7 +80664,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5039897691556184",
@@ -173496,6 +173546,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/H1JiDLZ2lx08qvb2BH1601041200mzzq0E010.mp4",
    "ts": 1793525173,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1101-f49fa4",
+   "key": "weibo_search:5212649715140961",
+   "video_id": "https://f.video.weibocdn.com/o0/7BLS7Frhlx08rujTMu1O0104120beqZZ0E040.mp4",
+   "ts": 1793525477,
+   "error": "整段取景预检：源 477.47s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
