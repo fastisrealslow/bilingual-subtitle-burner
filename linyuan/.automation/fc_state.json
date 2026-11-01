@@ -85113,8 +85113,8 @@
    "publish_time": "2023-12-04T16:51:09+08:00",
    "production_failure_summary": {
     "slug": "ly-1101-18ab48",
-    "run_id": 41353037200,
-    "artifact_id": 13102461409,
+    "run_id": 41358273627,
+    "artifact_id": 13104890417,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -85170,11 +85170,13 @@
      }
     ]
    },
-   "source_check_report_id": 13102461409,
-   "source_check_run_id": 41353037200,
+   "source_check_report_id": 13104890417,
+   "source_check_run_id": 41358273627,
    "last_error": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 1, \"addressee\": \"林远\", \"target\": false}]",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "video_id": "https://f.video.weibocdn.com/o0/eNFdw6sqlx08wT5Gysdy0104120h4yv00E070.mp4",
@@ -85246,7 +85248,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-01T14:35:00+00:00"
+   "publish_time": "2026-11-01T14:35:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-86fcca",
+    "run_id": 41358308128,
+    "artifact_id": 13104910295,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "241d91b65b6871c0bb981527281f8ffbae308c5919b18c54e88bb919803a87a8",
+     "duration_sec": 81.04,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Xdxp6WEpG"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 49.12s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41358308128,
+    "artifact_id": 13104910295,
+    "name": "production-reject-ly-1101-86fcca",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 49.12s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -178723,6 +178758,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/EDV2wEz6lx08wyjFoOQM01041201XQCH0E010.mp4",
    "ts": 1793563801,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1003, 2: 0.1898, 3: 0.1869, 4: 0.1506, 5: 0.1817, 6: 0.1419, 7: 0.1762, 8: 0.1668, 9: 0.2381, 10: 0.1932, 11: 0.2057, 12: 0.314, 13: 0.17, 14: 0.1409, 15: 0.079, 16: 0.0063, 17: 0.1939, 18: 0.1618}"
+  },
+  {
+   "slug": "ly-1101-86fcca",
+   "key": "bilibili_search:BV1Xdxp6WEpG",
+   "video_id": "BV1Xdxp6WEpG",
+   "ts": 1793573575,
+   "error": "整段取景预检：源 49.12s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
