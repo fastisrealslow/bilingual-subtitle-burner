@@ -82304,7 +82304,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-09-30T09:53:08+08:00"
+   "publish_time": "2023-09-30T09:53:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-4f01da",
+    "run_id": 41302147733,
+    "artifact_id": 13081094336,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "48b494d2e7d1b76d5798cddf70a249913f36e4e2ef3567f13a8c36ee45c68cfa",
+     "duration_sec": 30.26,
+     "resolution": {
+      "width": 1256,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4951607924229099"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：主持人提问（句 0、1）属于采访引导，非嘉宾观点；嘉宾回答（句 2、3）虽解释了现状，但未形成对‘哪些行业’或‘什么收获’的明确结论，属于未回答新问题结尾的情况，无法独立成片表达完整观点。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41302147733,
+    "artifact_id": 13081094336,
+    "name": "production-reject-ly-1101-4f01da",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：主持人提问（句 0、1）属于采访引导，非嘉宾观点；嘉宾回答（句 2、3）虽解释了现状，但未形成对‘哪些行业’或‘什么收获’的明确结论，属于未回答新问题结尾的情况，无法独立成片表达完整观点。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1rrxs6kEkR",
@@ -82337,7 +82370,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1RDxp6oEsT",
@@ -175227,6 +175261,13 @@
    "video_id": "BV1rrxs6kEkR",
    "ts": 1793533128,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1101-4f01da",
+   "key": "weibo_search:4951607924229099",
+   "video_id": "https://f.video.weibocdn.com/u0/6WxKcFcggx0890b7DrG80104120077vR0E010.mp4",
+   "ts": 1793533371,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：主持人提问（句 0、1）属于采访引导，非嘉宾观点；嘉宾回答（句 2、3）虽解释了现状，但未形成对‘哪些行业’或‘什么收获’的明确结论，属于未回答新问题结尾的情况，无法独立成片表达完整观点。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
