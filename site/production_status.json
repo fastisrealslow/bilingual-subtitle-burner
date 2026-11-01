@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793492204,
+  "updated_at": 1793492321,
   "inventory_updated_at": 1793492198,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 73,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 97,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 96,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -185,17 +185,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793492202,
+    "updated_at": 1793492319,
     "records": 14297,
     "video_records": 12001,
-    "initial_candidates": 205,
-    "duration_eligible_records": 97,
-    "candidate_count": 97,
-    "known_duration_candidates": 97,
+    "initial_candidates": 204,
+    "duration_eligible_records": 96,
+    "candidate_count": 96,
+    "known_duration_candidates": 96,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 7814,
-      "already_attempted_or_cooling": 2347,
+      "already_attempted_or_cooling": 2348,
       "no_video": 2296,
       "clip_title": 1298,
       "unrelated": 73,
@@ -382,14 +382,6 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1N8Vc6UEyj",
         "duration_sec": 60.0
-      },
-      {
-        "key": "weibo_search:4863972437661525",
-        "title": "//@最爱股神林园://@做只安静孤独的乌龟:无V寒冬，坚守价值！林园最新(2022.9.1直播视频。分享给林粉们）",
-        "source": "weibo_search",
-        "author": "阮Qui",
-        "url": "https://m.weibo.cn/detail/4863972437661525",
-        "duration_sec": 3264.0
       },
       {
         "key": "weibo_search:4587025744790113",
@@ -999,15 +991,15 @@
   },
   "counts": {
     "complete": 167,
-    "failed": 1697,
+    "failed": 1698,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 27,
     "experiment_fallback": 93,
     "ready": 19,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -37384,11 +37376,11 @@
     },
     {
       "slug": "ly-1101-b84f04",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[1, 5]，scan_same=[4, 18]，scan_different=[1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]，confidence=0.767，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1255, 2: 0.3172, 3: 0.3441, 4: 0.3632, 5: 0.2097, 6: 0.0761, 7: 0.2672, 8: 0.0892, 9: -0.0034, 10: 0.0455, 11: 0.1831, 12: -0.0865, 13: 0.3045, 14: 0.2261, 15: 0.269, 16: 0.1032, 17: 0.3078, 18: 0.3852}",
       "signature": {
         "ts": 1793492051,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -37399,6 +37391,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41255844547",
       "run_started_at": "2026-11-01T00:14:10Z",
       "run_updated_at": "2026-11-01T00:16:10Z"
+    },
+    {
+      "slug": "ly-1101-26c1da",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793492281,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41256133515,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41256133515",
+      "run_started_at": "2026-11-01T00:18:01Z",
+      "run_updated_at": "2026-11-01T00:18:04Z"
     }
   ],
   "runs": {
@@ -55254,6 +55264,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41255844547",
       "run_number": 3348,
       "display_title": "中文源出片 · ly-1101-b84f04"
+    },
+    "ly-1101-26c1da": {
+      "id": 41256133515,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T00:18:01Z",
+      "updated_at": "2026-11-01T00:18:04Z",
+      "run_started_at": "2026-11-01T00:18:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41256133515",
+      "run_number": 3349,
+      "display_title": "中文源出片 · ly-1101-26c1da"
     },
     "ly-1031-87da70": {
       "id": 41254563254,
