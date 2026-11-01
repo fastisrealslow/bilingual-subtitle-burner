@@ -78827,7 +78827,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167942968544790",
@@ -79024,7 +79025,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-12-22T09:02:18+08:00"
+   "publish_time": "2024-12-22T09:02:18+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41283458362,
+    "artifact_id": 13074238417,
+    "name": "source-reject-ly-1101-2884f4",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{18: -0.1176}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5279585772244378",
@@ -171196,6 +171207,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/UQYjRctUlx08uVzqX0vK01041200gJS30E010.mp4",
    "ts": 1793517296,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1101-2884f4",
+   "key": "weibo_search:5114307283519491",
+   "video_id": "http://f.video.weibocdn.com/o0/bMbT8ZSvlx08kyhwRGDS01041201BW4Z0E010.mp4",
+   "ts": 1793517302,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{18: -0.1176}"
   }
  ],
  "reviewed_third_video_0910": {
