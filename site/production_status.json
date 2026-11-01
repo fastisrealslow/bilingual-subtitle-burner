@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793538944,
-  "inventory_updated_at": 1793538786,
+  "updated_at": 1793539811,
+  "inventory_updated_at": 1793539804,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 80,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 1,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 18,
-        "landscape": 62
+        "portrait": 19,
+        "landscape": 61
       },
       "full_schedule_days": 6,
-      "required_week_shortfall": 3,
+      "required_week_shortfall": 2,
       "required_week_shortfall_by_layout": {
-        "portrait": 3,
+        "portrait": 2,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -193,19 +193,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793538943,
-    "records": 14631,
-    "video_records": 12327,
-    "initial_candidates": 109,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1793539809,
+    "records": 14675,
+    "video_records": 12355,
+    "initial_candidates": 111,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2575,
+      "already_attempted_or_cooling": 2594,
       "clip_title": 1366,
-      "speaker_unconfirmed": 7934,
-      "no_video": 2304,
+      "speaker_unconfirmed": 7941,
+      "no_video": 2320,
       "unrelated": 74,
       "reference_only": 203,
       "noise": 30,
@@ -214,13 +214,30 @@
       "too_short": 79,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:4548963794944308",
+        "title": "2017年底雪球嘉年华上主持人问：你啥时候卖出贵州茅台？现在这个价位还能不能买茅台？林园：买入和持有是两个系统，从200",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4548963794944308",
+        "duration_sec": 84.0
+      },
+      {
+        "key": "weibo_search:4801202435393127",
+        "title": "风轻云淡[音乐] 所以说，买股不焐股，永远白辛苦！☯   满仓全仓全部身价+甚至加融资 [悠闲] [高考锦鲤][锦鲤] ",
+        "source": "weibo_search",
+        "author": "33画生",
+        "url": "https://m.weibo.cn/detail/4801202435393127",
+        "duration_sec": 125.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 80,
     "verified_audio_card": 0,
-    "verified_landscape": 62,
-    "verified_portrait": 18,
+    "verified_landscape": 61,
+    "verified_portrait": 19,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -232,13 +249,12 @@
     "complete": 171,
     "failed": 1836,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 6,
     "excluded": 34,
     "experiment_fallback": 95,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -39387,8 +39403,8 @@
     },
     {
       "slug": "ly-1101-eecfae",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793538928,
         "failed": null,
@@ -39401,7 +39417,7 @@
       "run_id": 41310375829,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41310375829",
       "run_started_at": "2026-11-01T13:15:27Z",
-      "run_updated_at": "2026-11-01T13:15:31Z"
+      "run_updated_at": "2026-11-01T13:28:06Z"
     }
   ],
   "runs": {
@@ -58976,10 +58992,10 @@
     },
     "ly-1101-eecfae": {
       "id": 41310375829,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T13:15:27Z",
-      "updated_at": "2026-11-01T13:15:31Z",
+      "updated_at": "2026-11-01T13:28:06Z",
       "run_started_at": "2026-11-01T13:15:27Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41310375829",
       "run_number": 3524,
