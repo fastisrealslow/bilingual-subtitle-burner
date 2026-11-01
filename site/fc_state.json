@@ -81782,7 +81782,76 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-05-30T14:18:08+08:00"
+   "publish_time": "2026-05-30T14:18:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-e53c27",
+    "run_id": 41298947574,
+    "artifact_id": 13082044063,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a11cf509fd5c0f1f799f7cebbf29e4c63dddfb62c04432d64bdf293ea17bdef7",
+     "duration_sec": 741.04,
+     "resolution": {
+      "width": 1832,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5304278006892903"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/163，总帧数811；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/122，总帧数606；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配78/628，总帧数2748；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配348/915，总帧数2830；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配167/741，总帧数2866；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配776/1132，总帧数1778；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配12/156，总帧数718；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配58/346，总帧数1438；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41298947574,
+    "artifact_id": 13082044063,
+    "name": "production-reject-ly-1101-e53c27",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5103471575174990",
@@ -82337,7 +82406,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：主持人提问（句 0、1）属于采访引导，非嘉宾观点；嘉宾回答（句 2、3）虽解释了现状，但未形成对‘哪些行业’或‘什么收获’的明确结论，属于未回答新问题结尾的情况，无法独立成片表达完整观点。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1rrxs6kEkR",
@@ -82394,7 +82464,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-01T04:32:00+00:00"
+   "publish_time": "2026-11-01T04:32:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-f969dc",
+    "run_id": 41302854259,
+    "artifact_id": 13082118577,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "51c3b67a72d1b261d128f5dc78aa4de2dedcc5c141c70af9385720112cf81b74",
+     "duration_sec": 42.0,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1RDxp6oEsT"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41302854259,
+    "artifact_id": 13082118577,
+    "name": "production-reject-ly-1101-f969dc",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1wXuj65EXY",
@@ -175268,6 +175371,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/6WxKcFcggx0890b7DrG80104120077vR0E010.mp4",
    "ts": 1793533371,
    "error": "完整观点验收未通过：complete_argument；完整性理由：主持人提问（句 0、1）属于采访引导，非嘉宾观点；嘉宾回答（句 2、3）虽解释了现状，但未形成对‘哪些行业’或‘什么收获’的明确结论，属于未回答新问题结尾的情况，无法独立成片表达完整观点。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1101-f969dc",
+   "key": "bilibili_search:BV1RDxp6oEsT",
+   "video_id": "BV1RDxp6oEsT",
+   "ts": 1793533749,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1101-e53c27",
+   "key": "weibo_search:5304278006892903",
+   "video_id": "https://f.video.weibocdn.com/u0/ST8T6Aingx08y2pWub9S01041204yRyl0E020.mp4",
+   "ts": 1793533756,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
