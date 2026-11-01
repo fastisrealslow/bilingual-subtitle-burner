@@ -83680,7 +83680,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-10-21T17:37:24+08:00"
+   "publish_time": "2024-10-21T17:37:24+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-cf6196",
+    "run_id": 41337714147,
+    "artifact_id": 13095769247,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "03a8211b3ea3bf3436a67e616463a63573c480244e4d0d02af6c1636e8d418c4",
+     "duration_sec": 55.36,
+     "resolution": {
+      "width": 540,
+      "height": 1200,
+      "short_edge": 540
+     },
+     "source_url": "https://m.weibo.cn/detail/5091968866584227"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "源视频比选段短0.100秒，须重新核对音视频边界"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41337714147,
+    "artifact_id": 13095769247,
+    "name": "production-reject-ly-1101-cf6196",
+    "retained": true
+   },
+   "last_error": "源视频比选段短0.100秒，须重新核对音视频边界",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4500420518703570",
@@ -83713,7 +83746,8 @@
    },
    "last_error": "原始素材短边 320 < 480（640x320），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4487526096157621",
@@ -83736,7 +83770,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-03-28T18:57:38+08:00"
+   "publish_time": "2020-03-28T18:57:38+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41338219494,
+    "artifact_id": 13096356068,
+    "name": "source-reject-ly-1101-f9e7e4",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4907404120822004",
@@ -83759,7 +83803,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-05-31T10:23:00+08:00"
+   "publish_time": "2023-05-31T10:23:00+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41338231441,
+    "artifact_id": 13096356040,
+    "name": "source-reject-ly-1101-69aa97",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -177103,6 +177157,27 @@
    "video_id": "https://f.video.weibocdn.com/mGlhIZs1lx07CYkjgUwE010412009gJp0E010.mp4",
    "ts": 1793558670,
    "error": "原始素材短边 320 < 480（640x320），画质不达标"
+  },
+  {
+   "slug": "ly-1101-69aa97",
+   "key": "weibo_search:4907404120822004",
+   "video_id": "https://f.video.weibocdn.com/u0/HHjpZPFXgx085RCvYiha01041200zlK80E010.mp4",
+   "ts": 1793559003,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1101-f9e7e4",
+   "key": "weibo_search:4487526096157621",
+   "video_id": "https://f.video.weibocdn.com/003ns3gHgx07C3zBnsYw01041200QY4H0E010.mp4",
+   "ts": 1793559004,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1101-cf6196",
+   "key": "weibo_search:5091968866584227",
+   "video_id": "https://f.video.weibocdn.com/o0/5GHArZHBlx08iXXGB1a00104120056wC0E010.mp4",
+   "ts": 1793559005,
+   "error": "源视频比选段短0.100秒，须重新核对音视频边界"
   }
  ],
  "reviewed_third_video_0910": {
