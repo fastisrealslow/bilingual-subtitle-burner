@@ -81150,8 +81150,8 @@
    "publish_time": "2023-12-04T19:12:54+08:00",
    "production_failure_summary": {
     "slug": "ly-1101-19774e",
-    "run_id": 41293174736,
-    "artifact_id": 13078227789,
+    "run_id": 41296552931,
+    "artifact_id": 13079872609,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -81263,11 +81263,13 @@
      }
     ]
    },
-   "source_check_report_id": 13078227789,
-   "source_check_run_id": 41293174736,
+   "source_check_report_id": 13079872609,
+   "source_check_run_id": 41296552931,
    "last_error": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 2, \"addressee\": \"林远\", \"target\": false}]",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "video_id": "https://f.video.weibocdn.com/u0/UtQbmSoJgx08eNsKuyH601041205yPS70E020.mp4",
@@ -81344,7 +81346,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-11-12T21:50:01+08:00"
+   "publish_time": "2025-11-12T21:50:01+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41297289743,
+    "artifact_id": 13079518486,
+    "name": "source-reject-ly-1101-6e386c",
+    "retained": true
+   },
+   "last_error": "原始素材短边 432 < 480（732x432），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -174069,6 +174081,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/SKPfHJHvlx08sC1lqprW01041200BzgE0E010.mp4",
    "ts": 1793528298,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1334，总帧数2395；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1101-6e386c",
+   "key": "weibo_search:5232276545994836",
+   "video_id": "http://f.video.weibocdn.com/o0/eSTm8TAnlx08sVvIxzKU010412007o420E010.mp4",
+   "ts": 1793528875,
+   "error": "原始素材短边 432 < 480（732x432），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
