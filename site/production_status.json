@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793532204,
+  "updated_at": 1793532361,
   "inventory_updated_at": 1793532198,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 78,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 16,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 13,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793532203,
+    "updated_at": 1793532360,
     "records": 14631,
     "video_records": 12327,
-    "initial_candidates": 125,
-    "duration_eligible_records": 16,
-    "candidate_count": 16,
-    "known_duration_candidates": 16,
+    "initial_candidates": 122,
+    "duration_eligible_records": 13,
+    "candidate_count": 13,
+    "known_duration_candidates": 13,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2559,
+      "already_attempted_or_cooling": 2562,
       "clip_title": 1366,
       "speaker_unconfirmed": 7935,
       "no_video": 2304,
@@ -216,28 +216,12 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:5094846131603341",
-        "title": "林园：这调研那调研，最后可能都是错的，方向都没搞对，那也不行！真正的好公司我们就抓大方向，具体的好坏财务上都有，学五年财",
+        "key": "weibo_search:4951607924229099",
+        "title": "林园:最近调研了哪些行业或公司?@你不知道的乐游 @乐游养生 http://t.cn/A6O1ITik ​​​",
         "source": "weibo_search",
         "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5094846131603341",
-        "duration_sec": 606.0
-      },
-      {
-        "key": "weibo_search:4697566732878155",
-        "title": "林园：这调研那调研，最后可能都是错的，方向都没搞对，那也不行！真正的好公司我们就抓大方向，具体的好坏财务上都有，学五年财",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4697566732878155",
-        "duration_sec": 606.0
-      },
-      {
-        "key": "weibo_search:5095962987465422",
-        "title": "需求端是不是在扩大，需求很重要，方向选对了吗？                 林园：这调研那调研，最后可能都是错的，方",
-        "source": "weibo_search",
-        "author": "用户7010019442",
-        "url": "https://m.weibo.cn/detail/5095962987465422",
-        "duration_sec": 606.0
+        "url": "https://m.weibo.cn/detail/4951607924229099",
+        "duration_sec": 30.0
       },
       {
         "key": "bilibili_search:BV1rrxs6kEkR",
@@ -254,14 +238,6 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1RDxp6oEsT",
         "duration_sec": 43.0
-      },
-      {
-        "key": "weibo_search:4951607924229099",
-        "title": "林园:最近调研了哪些行业或公司?@你不知道的乐游 @乐游养生 http://t.cn/A6O1ITik ​​​",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4951607924229099",
-        "duration_sec": 30.0
       },
       {
         "key": "bilibili_search:BV1wXuj65EXY",
@@ -359,7 +335,7 @@
   },
   "counts": {
     "complete": 170,
-    "failed": 1818,
+    "failed": 1820,
     "paused": 5,
     "interrupted": 6,
     "excluded": 31,
@@ -367,7 +343,7 @@
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -39174,8 +39150,8 @@
     },
     {
       "slug": "ly-1101-865729",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793531745,
         "failed": null,
@@ -39188,15 +39164,15 @@
       "run_id": 41301096298,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301096298",
       "run_started_at": "2026-11-01T11:15:45Z",
-      "run_updated_at": "2026-11-01T11:15:48Z"
+      "run_updated_at": "2026-11-01T11:24:57Z"
     },
     {
       "slug": "ly-1101-dcb7cb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 音视频尾部差异不在安全修复范围：保留1026.28s，裁切12.46s",
       "signature": {
         "ts": 1793532045,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -39228,11 +39204,11 @@
     },
     {
       "slug": "ly-1101-33be35",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1793532062,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -39242,7 +39218,61 @@
       "run_id": 41301498041,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301498041",
       "run_started_at": "2026-11-01T11:21:02Z",
-      "run_updated_at": "2026-11-01T11:21:06Z"
+      "run_updated_at": "2026-11-01T11:22:58Z"
+    },
+    {
+      "slug": "ly-1101-7034ee",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793532329,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41301818155,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301818155",
+      "run_started_at": "2026-11-01T11:25:28Z",
+      "run_updated_at": "2026-11-01T11:25:33Z"
+    },
+    {
+      "slug": "ly-1101-4d8ae5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793532336,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41301826599,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301826599",
+      "run_started_at": "2026-11-01T11:25:36Z",
+      "run_updated_at": "2026-11-01T11:25:41Z"
+    },
+    {
+      "slug": "ly-1101-6b1cc7",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793532345,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41301836431,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301836431",
+      "run_started_at": "2026-11-01T11:25:44Z",
+      "run_updated_at": "2026-11-01T11:25:48Z"
     }
   ],
   "runs": {
@@ -58584,12 +58614,56 @@
       "run_number": 3502,
       "display_title": "中文源出片 · ly-1101-7e0a1b"
     },
-    "ly-1101-33be35": {
-      "id": 41301498041,
+    "ly-1101-dcb7cb": {
+      "id": 41301478195,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-01T11:20:45Z",
+      "updated_at": "2026-11-01T11:22:33Z",
+      "run_started_at": "2026-11-01T11:20:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301478195",
+      "run_number": 3504,
+      "display_title": "中文源出片 · ly-1101-dcb7cb"
+    },
+    "ly-1101-6b1cc7": {
+      "id": 41301836431,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-01T11:25:44Z",
+      "updated_at": "2026-11-01T11:25:48Z",
+      "run_started_at": "2026-11-01T11:25:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301836431",
+      "run_number": 3509,
+      "display_title": "中文源出片 · ly-1101-6b1cc7"
+    },
+    "ly-1101-4d8ae5": {
+      "id": 41301826599,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T11:25:36Z",
+      "updated_at": "2026-11-01T11:25:41Z",
+      "run_started_at": "2026-11-01T11:25:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301826599",
+      "run_number": 3508,
+      "display_title": "中文源出片 · ly-1101-4d8ae5"
+    },
+    "ly-1101-7034ee": {
+      "id": 41301818155,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T11:25:28Z",
+      "updated_at": "2026-11-01T11:25:33Z",
+      "run_started_at": "2026-11-01T11:25:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301818155",
+      "run_number": 3507,
+      "display_title": "中文源出片 · ly-1101-7034ee"
+    },
+    "ly-1101-33be35": {
+      "id": 41301498041,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T11:21:02Z",
-      "updated_at": "2026-11-01T11:21:06Z",
+      "updated_at": "2026-11-01T11:22:58Z",
       "run_started_at": "2026-11-01T11:21:02Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301498041",
       "run_number": 3506,
@@ -58606,23 +58680,12 @@
       "run_number": 3505,
       "display_title": "中文源出片 · ly-1101-4bccc0"
     },
-    "ly-1101-dcb7cb": {
-      "id": 41301478195,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-01T11:20:45Z",
-      "updated_at": "2026-11-01T11:22:33Z",
-      "run_started_at": "2026-11-01T11:20:45Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301478195",
-      "run_number": 3504,
-      "display_title": "中文源出片 · ly-1101-dcb7cb"
-    },
     "ly-1101-865729": {
       "id": 41301096298,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T11:15:45Z",
-      "updated_at": "2026-11-01T11:15:48Z",
+      "updated_at": "2026-11-01T11:24:57Z",
       "run_started_at": "2026-11-01T11:15:45Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41301096298",
       "run_number": 3503,
