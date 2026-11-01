@@ -83496,7 +83496,84 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-01T13:22:52+00:00"
+   "publish_time": "2026-11-01T13:22:52+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-6d1065",
+    "run_id": 41331208454,
+    "artifact_id": 13095516001,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0628facc72ebf7107664ed635d4ed8d3d3438dbba065d01a43935bb8d0a676ba",
+     "duration_sec": 868.36,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Eaxx6qE6h"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 60.07s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 804.93s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 571.83s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 448.10s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 57%（BV1MZxN6FEEs）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 250.63s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1vbxk6CEEL）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41331208454,
+    "artifact_id": 13095516001,
+    "name": "production-reject-ly-1101-6d1065",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -176819,6 +176896,13 @@
    "video_id": "https://f.video.weibocdn.com/003jVJv0gx07EAVUgoA001041202TjPr0E020.mp4",
    "ts": 1793553104,
    "error": "清理后预计短边 366 < 480"
+  },
+  {
+   "slug": "ly-1101-6d1065",
+   "key": "bilibili_search:BV1Eaxx6qE6h",
+   "video_id": "BV1Eaxx6qE6h",
+   "ts": 1793557462,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
