@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793539811,
+  "updated_at": 1793539961,
   "inventory_updated_at": 1793539804,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 80,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793539809,
+    "updated_at": 1793539960,
     "records": 14675,
     "video_records": 12355,
-    "initial_candidates": 111,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 109,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2594,
+      "already_attempted_or_cooling": 2596,
       "clip_title": 1366,
       "speaker_unconfirmed": 7941,
       "no_video": 2320,
@@ -214,24 +214,7 @@
       "too_short": 79,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:4548963794944308",
-        "title": "2017年底雪球嘉年华上主持人问：你啥时候卖出贵州茅台？现在这个价位还能不能买茅台？林园：买入和持有是两个系统，从200",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4548963794944308",
-        "duration_sec": 84.0
-      },
-      {
-        "key": "weibo_search:4801202435393127",
-        "title": "风轻云淡[音乐] 所以说，买股不焐股，永远白辛苦！☯   满仓全仓全部身价+甚至加融资 [悠闲] [高考锦鲤][锦鲤] ",
-        "source": "weibo_search",
-        "author": "33画生",
-        "url": "https://m.weibo.cn/detail/4801202435393127",
-        "duration_sec": 125.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 80,
@@ -247,14 +230,15 @@
   },
   "counts": {
     "complete": 171,
-    "failed": 1836,
+    "failed": 1837,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 34,
     "experiment_fallback": 95,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 1
+    "retry_queued": 1,
+    "running": 2
   },
   "tasks": [
     {
@@ -39403,11 +39387,11 @@
     },
     {
       "slug": "ly-1101-eecfae",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
       "signature": {
         "ts": 1793538928,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -39418,6 +39402,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41310375829",
       "run_started_at": "2026-11-01T13:15:27Z",
       "run_updated_at": "2026-11-01T13:28:06Z"
+    },
+    {
+      "slug": "ly-1101-97d659",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793539941,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41311740439,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41311740439",
+      "run_started_at": "2026-11-01T13:32:21Z",
+      "run_updated_at": "2026-11-01T13:32:25Z"
+    },
+    {
+      "slug": "ly-1101-b6c447",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793539947,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41311749767,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41311749767",
+      "run_started_at": "2026-11-01T13:32:27Z",
+      "run_updated_at": "2026-11-01T13:32:31Z"
     }
   ],
   "runs": {
@@ -59000,6 +59020,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41310375829",
       "run_number": 3524,
       "display_title": "中文源出片 · ly-1101-eecfae"
+    },
+    "ly-1101-b6c447": {
+      "id": 41311749767,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T13:32:27Z",
+      "updated_at": "2026-11-01T13:32:31Z",
+      "run_started_at": "2026-11-01T13:32:27Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41311749767",
+      "run_number": 3526,
+      "display_title": "中文源出片 · ly-1101-b6c447"
+    },
+    "ly-1101-97d659": {
+      "id": 41311740439,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T13:32:21Z",
+      "updated_at": "2026-11-01T13:32:25Z",
+      "run_started_at": "2026-11-01T13:32:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41311740439",
+      "run_number": 3525,
+      "display_title": "中文源出片 · ly-1101-97d659"
     }
   }
 }
