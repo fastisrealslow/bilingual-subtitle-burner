@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793558891,
+  "updated_at": 1793559088,
   "inventory_updated_at": 1793558888,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 85,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 36,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 32,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793558890,
+    "updated_at": 1793559087,
     "records": 14806,
     "video_records": 12476,
-    "initial_candidates": 160,
-    "duration_eligible_records": 36,
-    "candidate_count": 36,
-    "known_duration_candidates": 18,
+    "initial_candidates": 156,
+    "duration_eligible_records": 32,
+    "candidate_count": 32,
+    "known_duration_candidates": 14,
     "unknown_duration_candidates": 18,
     "excluded": {
-      "already_attempted_or_cooling": 2625,
+      "already_attempted_or_cooling": 2629,
       "clip_title": 1366,
       "speaker_unconfirmed": 7982,
       "no_video": 2330,
@@ -215,30 +215,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4525827410752632",
-        "title": "片仔癀：中药龙头，国宝名药，世界唯一，稀缺、垄断，成瘾，嘴巴、刚需，观赏股，国家名片。中药股指数牛市刚刚开始2020年是",
-        "source": "weibo_search",
-        "author": "敢不敢再简单点儿",
-        "url": "https://m.weibo.cn/detail/4525827410752632",
-        "duration_sec": 205.0
-      },
-      {
-        "key": "weibo_search:4525635844068276",
-        "title": "片仔癀：中药龙头，国宝名药，世界唯一，稀缺、垄断，成瘾，嘴巴、刚需，观赏股，国家名片。中药股指数牛市刚刚开始2020年是",
-        "source": "weibo_search",
-        "author": "名字是吉祥",
-        "url": "https://m.weibo.cn/detail/4525635844068276",
-        "duration_sec": 205.0
-      },
-      {
-        "key": "weibo_search:4524907117428043",
-        "title": "片仔癀：中药龙头，国宝名药，世界唯一，稀缺、垄断，成瘾，嘴巴、刚需，观赏股，国家名片。中药股指数牛市刚刚开始2020年是",
-        "source": "weibo_search",
-        "author": "乾添富",
-        "url": "https://m.weibo.cn/detail/4524907117428043",
-        "duration_sec": 205.0
-      },
       {
         "key": "weibo_search:5086794194354681",
         "title": "林园：第四次机会比前三次更大，比2007年那波牛市还要大，到了这个时候就是比胆大的时候，如果机会没抓住，就等于零。 ht",
@@ -278,14 +254,6 @@
         "author": "健康快乐富足的Susan",
         "url": "https://m.weibo.cn/detail/4544035845309157",
         "duration_sec": 25.0
-      },
-      {
-        "key": "weibo_search:4525625572910172",
-        "title": "//@只买独门生意:片仔癀：中药龙头，国宝名药，世界唯一，稀缺、垄断，成瘾，嘴巴、刚需，观赏股，国家名片。中药股指数牛市",
-        "source": "weibo_search",
-        "author": "笑妍_15972",
-        "url": "https://m.weibo.cn/detail/4525625572910172",
-        "duration_sec": 205.0
       },
       {
         "key": "weibo_search:4486026066485378",
@@ -519,15 +487,15 @@
   },
   "counts": {
     "complete": 171,
-    "failed": 1848,
+    "failed": 1851,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 34,
     "experiment_fallback": 100,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -40018,11 +39986,11 @@
     },
     {
       "slug": "ly-1101-cf6196",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "源视频比选段短0.100秒，须重新核对音视频边界",
       "signature": {
         "ts": 1793558351,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40054,11 +40022,11 @@
     },
     {
       "slug": "ly-1101-f9e7e4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1793558718,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40068,15 +40036,15 @@
       "run_id": 41338219494,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338219494",
       "run_started_at": "2026-11-01T18:45:18Z",
-      "run_updated_at": "2026-11-01T18:45:22Z"
+      "run_updated_at": "2026-11-01T18:47:21Z"
     },
     {
       "slug": "ly-1101-69aa97",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1793558726,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40087,6 +40055,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338231441",
       "run_started_at": "2026-11-01T18:45:25Z",
       "run_updated_at": "2026-11-01T18:47:09Z"
+    },
+    {
+      "slug": "ly-1101-0e13c0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793559042,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41338682786,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338682786",
+      "run_started_at": "2026-11-01T18:50:41Z",
+      "run_updated_at": "2026-11-01T18:50:45Z"
+    },
+    {
+      "slug": "ly-1101-02d455",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793559049,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41338691621,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338691621",
+      "run_started_at": "2026-11-01T18:50:48Z",
+      "run_updated_at": "2026-11-01T18:50:52Z"
     }
   ],
   "runs": {
@@ -59857,17 +59861,6 @@
       "run_number": 3546,
       "display_title": "中文源出片 · ly-1101-69aa97"
     },
-    "ly-1101-f9e7e4": {
-      "id": 41338219494,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-01T18:45:18Z",
-      "updated_at": "2026-11-01T18:45:22Z",
-      "run_started_at": "2026-11-01T18:45:18Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338219494",
-      "run_number": 3545,
-      "display_title": "中文源出片 · ly-1101-f9e7e4"
-    },
     "ly-1101-cf6196": {
       "id": 41337714147,
       "status": "completed",
@@ -59878,6 +59871,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41337714147",
       "run_number": 3543,
       "display_title": "中文源出片 · ly-1101-cf6196"
+    },
+    "ly-1101-02d455": {
+      "id": 41338691621,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T18:50:48Z",
+      "updated_at": "2026-11-01T18:50:52Z",
+      "run_started_at": "2026-11-01T18:50:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338691621",
+      "run_number": 3548,
+      "display_title": "中文源出片 · ly-1101-02d455"
+    },
+    "ly-1101-0e13c0": {
+      "id": 41338682786,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-01T18:50:41Z",
+      "updated_at": "2026-11-01T18:50:45Z",
+      "run_started_at": "2026-11-01T18:50:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338682786",
+      "run_number": 3547,
+      "display_title": "中文源出片 · ly-1101-0e13c0"
+    },
+    "ly-1101-f9e7e4": {
+      "id": 41338219494,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-01T18:45:18Z",
+      "updated_at": "2026-11-01T18:47:21Z",
+      "run_started_at": "2026-11-01T18:45:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41338219494",
+      "run_number": 3545,
+      "display_title": "中文源出片 · ly-1101-f9e7e4"
     },
     "ly-story-179125d674": {
       "id": 41337703125,
