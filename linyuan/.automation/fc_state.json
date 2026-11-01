@@ -80337,7 +80337,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5212649715140961",
@@ -80663,7 +80664,44 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-26T12:33:04+08:00"
+   "publish_time": "2025-10-26T12:33:04+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-c2e0a1",
+    "run_id": 41291739284,
+    "artifact_id": 13076939876,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1e19712404547f6f13aa9ccc166a447412a330bc35712fa986913885b2a4f092",
+     "duration_sec": 223.9,
+     "resolution": {
+      "width": 888,
+      "height": 496,
+      "short_edge": 496
+     },
+     "source_url": "https://m.weibo.cn/detail/5225975784932444"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 72.13s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41291739284,
+    "artifact_id": 13076939876,
+    "name": "production-reject-ly-1101-c2e0a1",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5198417798367433",
@@ -173364,6 +173402,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/AhaF4Fgvlx08kC5a0rr201041203xm7d0E020.mp4",
    "ts": 1793524563,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1101-c2e0a1",
+   "key": "weibo_search:5225975784932444",
+   "video_id": "https://f.video.weibocdn.com/o0/E4PydM7flx08sr9a9XoA01041200vsaP0E010.mp4",
+   "ts": 1793524853,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
