@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793540479,
+  "updated_at": 1793540576,
   "inventory_updated_at": 1793540472,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 80,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -193,7 +193,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793540477,
+    "updated_at": 1793540575,
     "records": 14675,
     "video_records": 12355,
     "initial_candidates": 109,
@@ -232,13 +232,12 @@
     "complete": 171,
     "failed": 1838,
     "paused": 5,
-    "interrupted": 5,
+    "interrupted": 6,
     "excluded": 34,
     "experiment_fallback": 95,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -39405,8 +39404,8 @@
     },
     {
       "slug": "ly-1101-97d659",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793539941,
         "failed": null,
@@ -39419,7 +39418,7 @@
       "run_id": 41311740439,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41311740439",
       "run_started_at": "2026-11-01T13:32:21Z",
-      "run_updated_at": "2026-11-01T13:32:25Z"
+      "run_updated_at": "2026-11-01T13:42:00Z"
     },
     {
       "slug": "ly-1101-b6c447",
@@ -59034,10 +59033,10 @@
     },
     "ly-1101-97d659": {
       "id": 41311740439,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T13:32:21Z",
-      "updated_at": "2026-11-01T13:32:25Z",
+      "updated_at": "2026-11-01T13:42:00Z",
       "run_started_at": "2026-11-01T13:32:21Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41311740439",
       "run_number": 3525,
