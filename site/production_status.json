@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793563496,
+  "updated_at": 1793563627,
   "inventory_updated_at": 1793563493,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 85,
     "active_or_recovering_sources": 10,
-    "waiting_candidates": 1,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -193,16 +193,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793563495,
+    "updated_at": 1793563626,
     "records": 14865,
     "video_records": 12535,
-    "initial_candidates": 136,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 135,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2689,
+      "already_attempted_or_cooling": 2690,
       "clip_title": 1366,
       "speaker_unconfirmed": 8001,
       "no_video": 2330,
@@ -214,16 +214,7 @@
       "too_short": 105,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5283352599072322",
-        "title": "刘纪鹏对话杨德龙：从伯克希尔与茅台股东会，看价值投资的全球实践#财经##炒股##财经##林园##股票财经##金融##财经",
-        "source": "weibo_search",
-        "author": "复利财务自由",
-        "url": "https://m.weibo.cn/detail/5283352599072322",
-        "duration_sec": 316.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 85,
@@ -239,7 +230,7 @@
   },
   "counts": {
     "complete": 171,
-    "failed": 1866,
+    "failed": 1867,
     "paused": 5,
     "interrupted": 6,
     "excluded": 34,
@@ -40188,8 +40179,8 @@
     },
     {
       "slug": "ly-1101-7bb2ca",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793563295,
         "failed": null,
@@ -40202,15 +40193,15 @@
       "run_id": 41344695429,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41344695429",
       "run_started_at": "2026-11-01T20:01:35Z",
-      "run_updated_at": "2026-11-01T20:01:39Z"
+      "run_updated_at": "2026-11-01T20:06:05Z"
     },
     {
       "slug": "ly-1101-583651",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 228 < 480（452x228），画质不达标",
       "signature": {
         "ts": 1793563301,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40221,6 +40212,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41344704144",
       "run_started_at": "2026-11-01T20:01:41Z",
       "run_updated_at": "2026-11-01T20:03:33Z"
+    },
+    {
+      "slug": "ly-1101-7ead91",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793563583,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41345111619,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41345111619",
+      "run_started_at": "2026-11-01T20:06:23Z",
+      "run_updated_at": "2026-11-01T20:06:27Z"
     }
   ],
   "runs": {
@@ -60266,12 +60275,23 @@
       "run_number": 3576,
       "display_title": "中文源出片 · ly-1101-583651"
     },
-    "ly-1101-7bb2ca": {
-      "id": 41344695429,
+    "ly-1101-7ead91": {
+      "id": 41345111619,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-01T20:06:23Z",
+      "updated_at": "2026-11-01T20:06:27Z",
+      "run_started_at": "2026-11-01T20:06:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41345111619",
+      "run_number": 3577,
+      "display_title": "中文源出片 · ly-1101-7ead91"
+    },
+    "ly-1101-7bb2ca": {
+      "id": 41344695429,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-01T20:01:35Z",
-      "updated_at": "2026-11-01T20:01:39Z",
+      "updated_at": "2026-11-01T20:06:05Z",
       "run_started_at": "2026-11-01T20:01:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41344695429",
       "run_number": 3575,
