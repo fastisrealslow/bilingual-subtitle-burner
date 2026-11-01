@@ -82951,7 +82951,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-09-14T07:49:06+08:00"
+   "publish_time": "2020-09-14T07:49:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-97d659",
+    "run_id": 41311740439,
+    "artifact_id": 13086226586,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "01fe80c667ced163ccd636334609bfe50d0626eb46bec561f783f2a036d433d8",
+     "duration_sec": 84.47,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4548963794944308"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中嘉宾从解释买入历史（句 2-9）过渡到对当前价位的判断（句 10-12），逻辑连贯；句 13‘抖音’为无关噪音或口误，不影响核心观点完整性，可视为自然结尾前的冗余。；原文问题：[[\"超过四十块的茅台，您就一直。\", \"句子'超过四十块的茅台，您就一直。'语义不完整，似为口误或中断，但结合上下文（句 6‘一直持有到今天’）可推断其意为‘超过四十块就不买’，不影响整体理解，无需标记为严重歧义；若严格遵循‘不得自行改写’\"]]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41311740439,
+    "artifact_id": 13086226586,
+    "name": "production-reject-ly-1101-97d659",
+    "retained": true
+   },
+   "last_error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中嘉宾从解释买入历史（句 2-9）过渡到对当前价位的判断（句 10-12），逻辑连贯；句 13‘抖音’为无关噪音或口误，不影响核心观点完整性，可视为自然结尾前的冗余。；原文问题：[[\"超过四十块的茅台，您就一直。\", \"句子'超过四十块的茅台，您就一直。'语义不完整，似为口误或中断，但结合上下文（句 6‘一直持有到今天’）可推断其意为‘超过四十块就不买’，不影响整体理解，无需标记为严重歧义；若严格遵循‘不得自行改写’\"]]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4801202435393127",
@@ -82984,7 +83017,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -176258,6 +176292,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/vSMfCbLFgx07YcQj5PW0010412012E7H0E010.mp4",
    "ts": 1793540256,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1101-97d659",
+   "key": "weibo_search:4548963794944308",
+   "video_id": "https://f.video.weibocdn.com/004zqoHagx07GpZ6aY7e01041200lRg10E010.mp4",
+   "ts": 1793540769,
+   "error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中嘉宾从解释买入历史（句 2-9）过渡到对当前价位的判断（句 10-12），逻辑连贯；句 13‘抖音’为无关噪音或口误，不影响核心观点完整性，可视为自然结尾前的冗余。；原文问题：[[\"超过四十块的茅台，您就一直。\", \"句子'超过四十块的茅台，您就一直。'语义不完整，似为口误或中断，但结合上下文（句 6‘一直持有到今天’）可推断其意为‘超过四十块就不买’，不影响整体理解，无需标记为严重歧义；若严格遵循‘不得自行改写’\"]]"
   }
  ],
  "reviewed_third_video_0910": {
