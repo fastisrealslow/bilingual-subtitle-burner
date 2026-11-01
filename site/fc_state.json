@@ -77043,7 +77043,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1MSpN69EcN",
@@ -77089,7 +77090,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-26T05:55:43+00:00"
+   "publish_time": "2026-05-26T05:55:43+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-0207ca",
+    "run_id": 41276098399,
+    "artifact_id": 13071023298,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e40b156cc1a0e7371f9d5b6d4a023adb7cbb6ae64a4b50e3c8f7923bc987f4ca",
+     "duration_sec": 59.07,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1N8Vc6UEyj"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中'除非你进入十点'存在明显语义不通和实体识别疑点（股市语境下通常指‘十倍’收益或特定门槛，‘十点’不符合逻辑），属于影响理解的同音/听音歧义，需标记 audio_issues。；原文问题：[[\"基本上百分之九十五以上的人都非常难，除非你进入十点，很重要。\", \"除非你进入十点\"]]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41276098399,
+    "artifact_id": 13071023298,
+    "name": "production-reject-ly-1101-0207ca",
+    "retained": true
+   },
+   "last_error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中'除非你进入十点'存在明显语义不通和实体识别疑点（股市语境下通常指‘十倍’收益或特定门槛，‘十点’不符合逻辑），属于影响理解的同音/听音歧义，需标记 audio_issues。；原文问题：[[\"基本上百分之九十五以上的人都非常难，除非你进入十点，很重要。\", \"除非你进入十点\"]]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5298896582742508",
@@ -168483,6 +168517,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/CcIb6urMlx08rmWSqj1C01041200bewI0E010.mp4",
    "ts": 1793510279,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1101-0207ca",
+   "key": "bilibili_search:BV1N8Vc6UEyj",
+   "video_id": "BV1N8Vc6UEyj",
+   "ts": 1793510587,
+   "error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中'除非你进入十点'存在明显语义不通和实体识别疑点（股市语境下通常指‘十倍’收益或特定门槛，‘十点’不符合逻辑），属于影响理解的同音/听音歧义，需标记 audio_issues。；原文问题：[[\"基本上百分之九十五以上的人都非常难，除非你进入十点，很重要。\", \"除非你进入十点\"]]"
   }
  ],
  "reviewed_third_video_0910": {
