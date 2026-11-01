@@ -76483,7 +76483,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-21T23:22:14+08:00"
+   "publish_time": "2023-12-21T23:22:14+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-7640cf",
+    "run_id": 41273105184,
+    "artifact_id": 13071680854,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f6a7f677234d3da95dd6df7eb02a61430bab8e669aba97624c1b77697bc426a4",
+     "duration_sec": 1647.32,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4981527346415548"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配273/424，总帧数751；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1181/2789，总帧数8035；身份匹配但人脸短边不足96px的帧数1"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41273105184,
+    "artifact_id": 13071680854,
+    "name": "production-reject-ly-1101-7640cf",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5260739634006877",
@@ -76910,7 +76971,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-10-30T14:59:00+00:00"
+   "publish_time": "2026-10-30T14:59:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-abe08a",
+    "run_id": 41276086565,
+    "artifact_id": 13071730776,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9548cfc9a56905b5d02c512353d2da12be255419f3d3342d7ca072cfa57f360f",
+     "duration_sec": 121.0,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1MSpN69EcN"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：该片段包含完整的观点（产品好、有效、独特）、理由（个人服用经历、血压控制数据、口感对比）及结论（长期服用没问题），虽口语化严重（如‘骗仔货’、‘深血’等疑似识别错误），但核心论述逻辑闭环，未出现指代不明或必要论述被切断的情况。；原文问题：[[\"嗯，林总，我想问一下骗仔货。\", \"‘骗仔货’语义不通，结合上下文语境（询问产品功效）及发音相似度，极大概率是‘降压药’的语音识别错误，严重影响对讨论对象的理解。\"], [\"你需要的这个，深血啊，降血啊，它都会。\", \"‘深血啊’明显为‘高血压’的语音识别错误，属于关键医学术语错别字，若不修正会导致读者误解产品功能。\"]]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41276086565,
+    "artifact_id": 13071730776,
+    "name": "production-reject-ly-1101-abe08a",
+    "retained": true
+   },
+   "last_error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：该片段包含完整的观点（产品好、有效、独特）、理由（个人服用经历、血压控制数据、口感对比）及结论（长期服用没问题），虽口语化严重（如‘骗仔货’、‘深血’等疑似识别错误），但核心论述逻辑闭环，未出现指代不明或必要论述被切断的情况。；原文问题：[[\"嗯，林总，我想问一下骗仔货。\", \"‘骗仔货’语义不通，结合上下文语境（询问产品功效）及发音相似度，极大概率是‘降压药’的语音识别错误，严重影响对讨论对象的理解。\"], [\"你需要的这个，深血啊，降血啊，它都会。\", \"‘深血啊’明显为‘高血压’的语音识别错误，属于关键医学术语错别字，若不修正会导致读者误解产品功能。\"]]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1N8Vc6UEyj",
@@ -76966,7 +77060,8 @@
    },
    "last_error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中'除非你进入十点'存在明显语义不通和实体识别疑点（股市语境下通常指‘十倍’收益或特定门槛，‘十点’不符合逻辑），属于影响理解的同音/听音歧义，需标记 audio_issues。；原文问题：[[\"基本上百分之九十五以上的人都非常难，除非你进入十点，很重要。\", \"除非你进入十点\"]]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5298896582742508",
@@ -76996,7 +77091,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5298898920277695",
@@ -168443,6 +168539,20 @@
    "video_id": "BV1N8Vc6UEyj",
    "ts": 1793510587,
    "error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话中'除非你进入十点'存在明显语义不通和实体识别疑点（股市语境下通常指‘十倍’收益或特定门槛，‘十点’不符合逻辑），属于影响理解的同音/听音歧义，需标记 audio_issues。；原文问题：[[\"基本上百分之九十五以上的人都非常难，除非你进入十点，很重要。\", \"除非你进入十点\"]]"
+  },
+  {
+   "slug": "ly-1101-abe08a",
+   "key": "bilibili_search:BV1MSpN69EcN",
+   "video_id": "BV1MSpN69EcN",
+   "ts": 1793510895,
+   "error": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：该片段包含完整的观点（产品好、有效、独特）、理由（个人服用经历、血压控制数据、口感对比）及结论（长期服用没问题），虽口语化严重（如‘骗仔货’、‘深血’等疑似识别错误），但核心论述逻辑闭环，未出现指代不明或必要论述被切断的情况。；原文问题：[[\"嗯，林总，我想问一下骗仔货。\", \"‘骗仔货’语义不通，结合上下文语境（询问产品功效）及发音相似度，极大概率是‘降压药’的语音识别错误，严重影响对讨论对象的理解。\"], [\"你需要的这个，深血啊，降血啊，它都会。\", \"‘深血啊’明显为‘高血压’的语音识别错误，属于关键医学术语错别字，若不修正会导致读者误解产品功能。\"]]"
+  },
+  {
+   "slug": "ly-1101-7640cf",
+   "key": "weibo_search:4981527346415548",
+   "video_id": "https://f.video.weibocdn.com/u0/sTNIbBPGgx08b7RiAR6E01041207kq390E030.mp4",
+   "ts": 1793510903,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
   }
  ],
  "reviewed_third_video_0910": {
