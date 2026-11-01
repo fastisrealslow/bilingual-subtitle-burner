@@ -81013,7 +81013,52 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-31T18:39:44+08:00"
+   "publish_time": "2025-10-31T18:39:44+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-012cdf",
+    "run_id": 41295057972,
+    "artifact_id": 13079302322,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8bac777c54390659b2ebb50172b2da17e4f5171c715047974b7e3d4ff82700d4",
+     "duration_sec": 191.37,
+     "resolution": {
+      "width": 616,
+      "height": 484,
+      "short_edge": 484
+     },
+     "source_url": "https://m.weibo.cn/detail/5227879998950469"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1334，总帧数2395；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配578/876，总帧数1488；身份匹配但人脸短边不足96px的帧数73"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配321/452，总帧数654；身份匹配但人脸短边不足96px的帧数74"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答停留在叙述背景故事层面，未形成针对‘何时开始’和‘原因是什么’的实质性观点或结论。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41295057972,
+    "artifact_id": 13079302322,
+    "name": "production-reject-ly-1101-012cdf",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1334，总帧数2395；身份匹配但人脸短边不足96px的帧数0",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5036618582853563",
@@ -173957,6 +174002,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/tR3cWkfNgx08f2lm8bx601041201LIdx0E010.mp4",
    "ts": 1793527607,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.064, 3: 0.0822, 5: 0.1688, 6: 0.1198, 7: 0.1441, 8: 0.1408, 10: 0.1889, 11: 0.1405, 12: 0.1385, 13: -0.0163, 14: 0.1599, 15: 0.0474, 16: 0.2143, 17: 0.1078, 18: 0.0837}"
+  },
+  {
+   "slug": "ly-1101-012cdf",
+   "key": "weibo_search:5227879998950469",
+   "video_id": "https://f.video.weibocdn.com/o0/SKPfHJHvlx08sC1lqprW01041200BzgE0E010.mp4",
+   "ts": 1793528298,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1334，总帧数2395；身份匹配但人脸短边不足96px的帧数0"
   }
  ],
  "reviewed_third_video_0910": {
