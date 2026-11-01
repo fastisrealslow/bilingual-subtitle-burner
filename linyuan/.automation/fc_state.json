@@ -81638,7 +81638,8 @@
    },
    "last_error": "动态取景连续2.03秒缺少人脸",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5304278006892903",
@@ -82056,7 +82057,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4531931184890031",
@@ -82205,7 +82207,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-01T06:39:35+00:00"
+   "publish_time": "2026-11-01T06:39:35+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41302527706,
+    "artifact_id": 13081318325,
+    "name": "source-reject-ly-1101-75ce6d",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -175042,6 +175054,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/qfdrmvFYgx08y2roj7Fu01041204yRup0E020.mp4",
    "ts": 1793532861,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1101-75ce6d",
+   "key": "bilibili_search:BV1rrxs6kEkR",
+   "video_id": "BV1rrxs6kEkR",
+   "ts": 1793533128,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
