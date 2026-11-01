@@ -83148,7 +83148,8 @@
    },
    "last_error": "原始素材短边 360 < 480（598x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5198727977373111",
@@ -83204,7 +83205,8 @@
    },
    "last_error": "原始素材短边 360 < 480（598x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5069074897829911",
@@ -83237,7 +83239,8 @@
    },
    "last_error": "原始素材短边 360 < 480（598x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5199099902035513",
@@ -83260,7 +83263,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-08-13T08:37:54+08:00"
+   "publish_time": "2025-08-13T08:37:54+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-72e65a",
+    "run_id": 41321332712,
+    "artifact_id": 13091580619,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "130a5440fa6d2fd487da2e4c9738b8f6172ffe8e08595412d496096d63189a9a",
+     "duration_sec": 2447.15,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5199099902035513"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"他说是，但是他说他他自己炒的结果是，去年十七万到。\", \"suspect_quote\": \"十七万到\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值识别不完整，'十七万到'后缺失具体数字或单位，无法确认是'十七万到一百多万'还是其他数值。\"}, {\"sentence_id\": 11, \"quote\": \"我十七万变到一百零八万。\", \"suspect_quote\": \"一百零八万\", \"kind\": \"ambiguous_number_or_negation\","
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41321332712,
+    "artifact_id": 13091580619,
+    "name": "production-reject-ly-1101-72e65a",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"他说是，但是他说他他自己炒的结果是，去年十七万到。\", \"suspect_quote\": \"十七万到\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值识别不完整，'十七万到'后缺失具体数字或单位，无法确认是'十七万到一百多万'还是其他数值。\"}, {\"sentence_id\": 11, \"quote\": \"我十七万变到一百零八万。\", \"suspect_quote\": \"一百零八万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值存在识别污染，'一百零八万'与上下文口语表达（如'十七万变到...'）可能存在数字粘连或误读，需核实是否为'一百多万'或其他精确数值。\"}, {\"sentence_id\": 24, \"quote\": \"这，罗杰是不是说两千点股市风险？\", \"suspect_quote\": \"两千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"专名或数值识别存疑，'两千点'是否为罗杰·林园提及的具体点位需结合原音确认，可能存在数字误识。\"}, {\"sentence_id\": 26, \"quote\": \"今天到四千点了。\", \"suspect_quote\": \"四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值识别存疑，'四千点'是否为当前股市点位或特定时间点需核实，可能存在数字误读。\"}, {\"sentence_id\": 27, \"quote\": \"哎，我们不排除中中国这个股市还会跌到两千点，但是到两千点到四千点，这卖了股票的人听到他话的人，那么你你说他心里怎么说想了呢？\", \"suspect_quote\": \"两千点到四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值范围识别存疑，'两千点到四千点'是否为连续区间或特定点位需结合原音确认，可能存在数字粘连或误读。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5137542670450902",
@@ -176608,6 +176644,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/GSQAimHJgx08hi1FxADu01041206rEwa0E030.mp4",
    "ts": 1793546819,
    "error": "原始素材短边 360 < 480（598x360），画质不达标"
+  },
+  {
+   "slug": "ly-1101-72e65a",
+   "key": "weibo_search:5199099902035513",
+   "video_id": "https://f.video.weibocdn.com/o0/bgVf4ZYIlx08qzui6qpW01041207u6oF0E030.mp4",
+   "ts": 1793551676,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"他说是，但是他说他他自己炒的结果是，去年十七万到。\", \"suspect_quote\": \"十七万到\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值识别不完整，'十七万到'后缺失具体数字或单位，无法确认是'十七万到一百多万'还是其他数值。\"}, {\"sentence_id\": 11, \"quote\": \"我十七万变到一百零八万。\", \"suspect_quote\": \"一百零八万\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额数值存在识别污染，'一百零八万'与上下文口语表达（如'十七万变到...'）可能存在数字粘连或误读，需核实是否为'一百多万'或其他精确数值。\"}, {\"sentence_id\": 24, \"quote\": \"这，罗杰是不是说两千点股市风险？\", \"suspect_quote\": \"两千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"专名或数值识别存疑，'两千点'是否为罗杰·林园提及的具体点位需结合原音确认，可能存在数字误识。\"}, {\"sentence_id\": 26, \"quote\": \"今天到四千点了。\", \"suspect_quote\": \"四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值识别存疑，'四千点'是否为当前股市点位或特定时间点需核实，可能存在数字误读。\"}, {\"sentence_id\": 27, \"quote\": \"哎，我们不排除中中国这个股市还会跌到两千点，但是到两千点到四千点，这卖了股票的人听到他话的人，那么你你说他心里怎么说想了呢？\", \"suspect_quote\": \"两千点到四千点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数值范围识别存疑，'两千点到四千点'是否为连续区间或特定点位需结合原音确认，可能存在数字粘连或误读。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
