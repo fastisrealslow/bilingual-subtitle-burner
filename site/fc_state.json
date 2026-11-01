@@ -84844,7 +84844,71 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-12-04T16:51:09+08:00"
+   "publish_time": "2023-12-04T16:51:09+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-18ab48",
+    "run_id": 41344686482,
+    "artifact_id": 13100617262,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "097580ccbf358af4a431e7083a64e526201065d40a1567c93894ccc32550f3c8",
+     "duration_sec": 1788.94,
+     "resolution": {
+      "width": 720,
+      "height": 1556,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4975268332832759"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 1, \"addressee\": \"林远\", \"target\": false}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 2, \"addressee\": \"林远\", \"target\": false}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.2425531914893617, 0.04113924050632911, 0.2978723404255319)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段以主持人提问开场，嘉宾回应仅停留在背景介绍和举例（如巴菲特名字玩笑），未形成针对‘怎么看’这一核心问题的明确观点、判断或结论。结尾句‘我觉得这是错的’虽表达态度，但未说明错在何处，缺乏完整论证闭环，属于未回答新问题的情况。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 818.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 946.10s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 616.53s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 195.93s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "source_check_report_id": 13100617262,
+   "source_check_run_id": 41344686482,
+   "last_error": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 1, \"addressee\": \"林远\", \"target\": false}]",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793568362
   },
   {
    "key": "weibo_search:5242298100091670",
