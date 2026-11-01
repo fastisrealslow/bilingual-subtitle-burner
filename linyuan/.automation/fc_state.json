@@ -76312,7 +76312,60 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2022-08-17T14:41:24+08:00"
+   "publish_time": "2022-08-17T14:41:24+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-6f922c",
+    "run_id": 41272079863,
+    "artifact_id": 13071370967,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9e566af2c8c846860f402431eb53ea9688e7288f2df6e6001265c4f3132b0e8d",
+     "duration_sec": 704.12,
+     "resolution": {
+      "width": 1410,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4803463831096187"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 85%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1174/1735，总帧数2803；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配676/920，总帧数1219；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配340/615，总帧数1370；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 285.87s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41272079863,
+    "artifact_id": 13071370967,
+    "name": "production-reject-ly-1101-6f922c",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 85%（BV1AZxv6rEpG）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1j8xW6cE8V",
@@ -168078,6 +168131,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/qbgqSNZzgx08y3NfOoXS010412032sdA0E020.mp4",
    "ts": 1793508319,
    "error": "完整观点验收未通过：complete_argument；完整性理由：原话中嘉宾林园未对任何投资相关话题发表观点或结论，仅回答了关于个人行踪的提问，缺乏构成独立成片所需的完整表达核心（即嘉宾的投资判断或解释）。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1101-6f922c",
+   "key": "weibo_search:4803463831096187",
+   "video_id": "https://f.video.weibocdn.com/o0/eygaWRCMlx07Yu8G8Rvi01041204vKm70E020.mp4",
+   "ts": 1793509314,
+   "error": "与已发布内容文字指纹重复：转写片段重合 85%（BV1AZxv6rEpG）"
   }
  ],
  "reviewed_third_video_0910": {
