@@ -82402,7 +82402,35 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-09T09:05:00+00:00"
+   "publish_time": "2026-08-09T09:05:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-eecfae",
+    "run_id": 41302861763,
+    "artifact_id": 13083016153,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a9aa3ba02a10e89d91e424954d231b39c6b4fc8661147986e9e3bd6f72c4a4ea",
+     "duration_sec": 92.3,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1wXuj65EXY"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     }
+    ]
+   },
+   "source_check_report_id": 13083016153,
+   "source_check_run_id": 41302861763,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793535611
   },
   {
    "key": "bilibili_search:BV1zdigBHESB",
@@ -82425,7 +82453,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-31T18:55:12+00:00"
+   "publish_time": "2025-12-31T18:55:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-006fd5",
+    "run_id": 41303624817,
+    "artifact_id": 13082138787,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "82f44e36e7d7e53199c0f8af011ccf1e51d558e47048594fcaa79122a00f4628",
+     "duration_sec": 101.57,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1zdigBHESB"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/476，总帧数2375；身份匹配但人脸短边不足96px的帧数271"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41303624817,
+    "artifact_id": 13082138787,
+    "name": "production-reject-ly-1101-006fd5",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/476，总帧数2375；身份匹配但人脸短边不足96px的帧数271",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Fdv4BYEyL",
@@ -175418,6 +175479,13 @@
    "video_id": "BV1qmiPBYEdm",
    "ts": 1793534205,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1101-006fd5",
+   "key": "bilibili_search:BV1zdigBHESB",
+   "video_id": "BV1zdigBHESB",
+   "ts": 1793534710,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/476，总帧数2375；身份匹配但人脸短边不足96px的帧数271"
   }
  ],
  "reviewed_third_video_0910": {
