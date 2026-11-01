@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": 1793536742,
-  "inventory_updated_at": 1793536643,
+  "updated_at": 1793538316,
+  "inventory_updated_at": 1793538310,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 81,
+    "verified_daily_stock": 80,
     "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 81,
+      "verified_stock_snapshot": 80,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 21,
-        "landscape": 60
+        "portrait": 17,
+        "landscape": 63
       },
-      "full_schedule_days": 7,
-      "required_week_shortfall": 0,
+      "full_schedule_days": 5,
+      "required_week_shortfall": 4,
       "required_week_shortfall_by_layout": {
-        "portrait": 0,
+        "portrait": 4,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 1,
+    "consecutive_fallbacks": 2,
     "actual_treatment_published": 5,
     "valid_comparison_days": 1,
     "daily": [
@@ -181,19 +181,19 @@
       },
       {
         "date": "2026-11-01",
-        "published": 3,
+        "published": 4,
         "treatment": 0,
         "controls": 2,
-        "fallback": 1,
+        "fallback": 2,
         "valid_comparison": false
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "consecutive_fallbacks"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793536741,
+    "updated_at": 1793538315,
     "records": 14631,
     "video_records": 12327,
     "initial_candidates": 109,
@@ -217,24 +217,24 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 81,
+    "verified_live": 80,
     "verified_audio_card": 0,
-    "verified_landscape": 60,
-    "verified_portrait": 21,
+    "verified_landscape": 63,
+    "verified_portrait": 17,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 81,
+    "daily_mix_usable": 80,
     "target_reserve": 12,
     "publishable_now": 0
   },
   "counts": {
-    "complete": 170,
+    "complete": 171,
     "failed": 1836,
     "paused": 5,
     "interrupted": 5,
-    "excluded": 31,
-    "experiment_fallback": 99,
+    "excluded": 34,
+    "experiment_fallback": 95,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 2
@@ -30135,7 +30135,7 @@
     {
       "slug": "ly-1029-d373eb",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1793310617,
         "failed": null,
@@ -30261,7 +30261,7 @@
     {
       "slug": "ly-story-151c123a00",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793315121,
         "failed": null,
@@ -33230,13 +33230,13 @@
     },
     {
       "slug": "ly-1030-7682d2",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793387110,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -33572,8 +33572,8 @@
     },
     {
       "slug": "ly-story-3e96373b21",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793397047,
         "failed": null,
@@ -34886,8 +34886,8 @@
     },
     {
       "slug": "ly-1031-fe0c1e",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793455971,
         "failed": null,
@@ -35012,8 +35012,8 @@
     },
     {
       "slug": "ly-story-31135b0052",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793464717,
         "failed": null,
