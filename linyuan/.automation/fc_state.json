@@ -81690,7 +81690,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-11-22T11:25:04+08:00"
+   "publish_time": "2024-11-22T11:25:04+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-5d4498",
+    "run_id": 41298956490,
+    "artifact_id": 13081041338,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "bb7983e260a4f62274497d35778230e8fafd9c7133c38236f8bd2b00b25d6553",
+     "duration_sec": 280.03,
+     "resolution": {
+      "width": 1080,
+      "height": 1332,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5103471575174990"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41298956490,
+    "artifact_id": 13081041338,
+    "name": "production-reject-ly-1101-5d4498",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5304590243203619",
@@ -81713,7 +81746,48 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-05-31T10:58:51+08:00"
+   "publish_time": "2026-05-31T10:58:51+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1101-77c781",
+    "run_id": 41298965172,
+    "artifact_id": 13080608567,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b8fd04b417c5701865109e18ad771b2cfcb80bc15a48b21a256a17b146eb07ec",
+     "duration_sec": 290.37,
+     "resolution": {
+      "width": 1422,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5304590243203619"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话中嘉宾林园未对任何投资相关话题发表观点或结论，仅回答了关于个人行踪的提问，缺乏构成独立成片所需的完整表达核心（即嘉宾的投资判断或解释）。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾明确表示无法获取信息（无电脑、搞不清楚），导致核心判断缺失；后续关于‘股市规律’的论述因缺乏具体语境支撑且被前文‘不知道’打断，属于无效表达而非完整论证。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41298965172,
+    "artifact_id": 13080608567,
+    "name": "production-reject-ly-1101-77c781",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：原话中嘉宾林园未对任何投资相关话题发表观点或结论，仅回答了关于个人行踪的提问，缺乏构成独立成片所需的完整表达核心（即嘉宾的投资判断或解释）。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5292064914544241",
@@ -174503,6 +174577,20 @@
    "video_id": "http://f.video.weibocdn.com/u0/vNfbZVjygx08riJkbwmI01041200aZSu0E010.mp4",
    "ts": 1793529954,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1101-77c781",
+   "key": "weibo_search:5304590243203619",
+   "video_id": "https://f.video.weibocdn.com/u0/V1x27Bgdgx08y3NaZsk0010412032sca0E020.mp4",
+   "ts": 1793530944,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：原话中嘉宾林园未对任何投资相关话题发表观点或结论，仅回答了关于个人行踪的提问，缺乏构成独立成片所需的完整表达核心（即嘉宾的投资判断或解释）。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1101-5d4498",
+   "key": "weibo_search:5103471575174990",
+   "video_id": "https://f.video.weibocdn.com/u0/VL2a7VUfgx08jMABu6sE010412014IjG0E010.mp4",
+   "ts": 1793530945,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
