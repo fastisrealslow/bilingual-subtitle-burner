@@ -729,6 +729,10 @@ def source_payback_condition_error(title, cover, transcript):
             text = compact(copy)
             if asset not in text or not re.search(r'回本|收回.{0,4}(?:本钱|本金|成本)', text):
                 continue
+            if re.search(r'(?:不能|无法|不可能|未能|尚未).{0,4}(?:回本|收回)', text):
+                continue
+            if re.search(r'(?:什么|哪些|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)', text):
+                continue
             basis = re.search(
                 r'(?:当初|当年|早年|最初)(?:买入|购买|买的|买下)|'
                 r'(?:历史|原始|当初|当年)(?:买入)?(?:成本|本金|本钱|股价|价格)', text)
