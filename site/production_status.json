@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793601121,
-  "inventory_updated_at": 1793600743,
+  "updated_at": 1793602189,
+  "inventory_updated_at": 1793602185,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 86,
-    "active_or_recovering_sources": 8,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 51,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 20,
-        "landscape": 66
+        "portrait": 22,
+        "landscape": 64
       },
-      "full_schedule_days": 6,
-      "required_week_shortfall": 1,
+      "full_schedule_days": 7,
+      "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
-        "portrait": 1,
+        "portrait": 0,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -201,7 +201,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793601119,
+    "updated_at": 1793602188,
     "records": 15136,
     "video_records": 12776,
     "initial_candidates": 188,
@@ -636,8 +636,8 @@
   "inventory": {
     "verified_live": 86,
     "verified_audio_card": 0,
-    "verified_landscape": 66,
-    "verified_portrait": 20,
+    "verified_landscape": 64,
+    "verified_portrait": 22,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -651,11 +651,11 @@
     "paused": 5,
     "interrupted": 6,
     "excluded": 36,
-    "experiment_fallback": 101,
+    "experiment_fallback": 102,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 5,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -40956,8 +40956,8 @@
     },
     {
       "slug": "ly-1102-963410",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793600863,
         "failed": null,
@@ -40970,7 +40970,7 @@
       "run_id": 41400037943,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400037943",
       "run_started_at": "2026-11-02T06:27:43Z",
-      "run_updated_at": "2026-11-02T06:27:47Z"
+      "run_updated_at": "2026-11-02T06:47:40Z"
     }
   ],
   "runs": {
@@ -61214,12 +61214,23 @@
       "run_number": 3597,
       "display_title": "中文源出片 · ly-1102-a45618"
     },
+    "ly-1102-f912a3": {
+      "id": 41400017079,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-02T06:27:30Z",
+      "updated_at": "2026-11-02T06:30:44Z",
+      "run_started_at": "2026-11-02T06:27:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400017079",
+      "run_number": 3604,
+      "display_title": "中文源出片 · ly-1102-f912a3"
+    },
     "ly-1102-963410": {
       "id": 41400037943,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-02T06:27:43Z",
-      "updated_at": "2026-11-02T06:27:47Z",
+      "updated_at": "2026-11-02T06:47:40Z",
       "run_started_at": "2026-11-02T06:27:43Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400037943",
       "run_number": 3606,
@@ -61235,17 +61246,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400027658",
       "run_number": 3605,
       "display_title": "中文源出片 · ly-1102-3605ae"
-    },
-    "ly-1102-f912a3": {
-      "id": 41400017079,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-02T06:27:30Z",
-      "updated_at": "2026-11-02T06:30:44Z",
-      "run_started_at": "2026-11-02T06:27:30Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400017079",
-      "run_number": 3604,
-      "display_title": "中文源出片 · ly-1102-f912a3"
     },
     "ly-story-5a060021cb": {
       "id": 41400006946,
