@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793624487,
+  "updated_at": 1793624674,
   "inventory_updated_at": 1793603498,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": null,
-    "active_or_recovering_sources": 48,
+    "active_or_recovering_sources": 49,
     "waiting_candidates": 48,
     "status": "unknown",
     "quality_gates_relaxed": false,
@@ -189,7 +189,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793624485,
+    "updated_at": 1793624673,
     "records": 15142,
     "video_records": 12782,
     "initial_candidates": 185,
@@ -611,11 +611,11 @@
   },
   "counts": {
     "complete": 174,
-    "failed": 1884,
+    "failed": 1887,
     "paused": 5,
-    "interrupted": 131,
+    "interrupted": 127,
     "awaiting_validation": 42,
-    "retry_queued": 6
+    "retry_queued": 7
   },
   "tasks": [
     {
@@ -40826,11 +40826,11 @@
     },
     {
       "slug": "ly-1102-3605ae",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
       "signature": {
         "ts": 1793600857,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40934,11 +40934,11 @@
     },
     {
       "slug": "ly-1102-8f22a8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1793602946,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -40952,14 +40952,14 @@
     },
     {
       "slug": "ly-1102-2800e4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793602957,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793625390,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -40970,11 +40970,11 @@
     },
     {
       "slug": "ly-1102-ebce5f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 2158.04s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1793603584,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
