@@ -85794,7 +85794,83 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "b2b886c48f71d39b44f1cf65377a67def9a84037ecefce6ff262895e7c377db8",
    "experiment_parent_slug": "ly-1102-a45618",
-   "recovery_origin_run_id": 41374057476
+   "recovery_origin_run_id": 41374057476,
+   "production_failure_summary": {
+    "slug": "ly-story-5a060021cb",
+    "run_id": 41400006946,
+    "artifact_id": 13123230184,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b2b886c48f71d39b44f1cf65377a67def9a84037ecefce6ff262895e7c377db8",
+     "duration_sec": 2401.01,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4650534155850468"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）。请重新按原文输出全部字幕。"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"这个，这个，它的结合的这个后因，我们天天在市场里面的带着，我知道它的。\", \"suspect_quote\": \"后因\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文为口语重复与逻辑断裂，‘后因’无法对应任何已知实体或合理语义，疑似识别污染。\"}, {\"sentence_id\": 9, \"quote\": \"历久常新，靠猜测，靠经验，还东西，有很多感觉，筷子。\", \"suspect_quote\": \"筷子\", \"kind\": \"unintelligible_term\", \"reason"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 18, \"quote\": \"我就觉得这个价几千人专专好的就是买买股票，好像，就是没有判断，但没有判断的啊。\", \"suspect_quote\": \"几千人专专好的就是买买股票\", \"kind\": \"unintelligible_term\", \"reason\": \"‘几千人’与‘专专’语义不通，疑似将人名或特定称谓误识别为无意义字符；‘买买’为口语重复，但结合前文‘几千人专专’整体构成无法理解的实体污染。\"}, {\"sentence_id\": 21, \"quote\": \"嗯，你刚考虑风险，那购车我们没有考虑，就他不能考虑风险。\", \"suspect_quo"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾的回答以回忆和解释为主，未提出明确的投资判断或结论，且结尾处无总结性语句，属于自然结束而非切断。因此无法构成独立成片所需的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：完整表达已包含：1. 核心观点（无区别/画等号）；2. 理由（时机判断、大环境、具体案例）；3. 结论性解释（人气暴动、操纵失败后的市场热闹）。虽然后续有口语填充词和重复，但逻辑链条完整，未出现指代不明或论述切断。；原文问题：[[\"但是知道，他就是，呃，比如说当时有一个就是大股他把股票挂到了，挂到了深圳发展的一个大股，我是记得很清楚，反货的，他大概挂了两百多万的，是吧？\", \"‘反货的’疑似‘反转’或‘反正’的口误/听音错误，影响对‘大股把股票挂到...’这一关键事实描述的准确理解，需音频复核确认原意。\"], [\"给他大货来，就是一个大单，相当于一个大单挂的，多少钱？\", \""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答多为碎片化口语填充词或对问题的简单附和，未针对任何具体问题给出实质性结论或论证逻辑，无法构成独立成片所需的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/185，总帧数923；身份匹配但人脸短边不足96px的帧数139"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少核心观点：原话中只有市场趋势描述和时间点，未出现‘因为...所以选择’的逻辑闭环，结尾停留在无意义的语气词上，属于必要论述被切断或未完成回答。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配330/475，总帧数722；身份匹配但人脸短边不足96px的帧数145"
+     }
+    ]
+   },
+   "source_check_report_id": 13123230184,
+   "source_check_run_id": 41400006946,
+   "last_error": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）。请重新按原文输出全部字幕。",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793604450
   },
   {
    "key": "weibo_search:5054889211989641",
