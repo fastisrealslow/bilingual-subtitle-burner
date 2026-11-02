@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793603502,
+  "updated_at": 1793603625,
   "inventory_updated_at": 1793603498,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 85,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 49,
+    "active_or_recovering_sources": 10,
+    "waiting_candidates": 48,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -201,17 +201,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793603501,
+    "updated_at": 1793603624,
     "records": 15136,
     "video_records": 12776,
-    "initial_candidates": 186,
-    "duration_eligible_records": 49,
-    "candidate_count": 49,
-    "known_duration_candidates": 49,
+    "initial_candidates": 185,
+    "duration_eligible_records": 48,
+    "candidate_count": 48,
+    "known_duration_candidates": 48,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8095,
-      "already_attempted_or_cooling": 2776,
+      "already_attempted_or_cooling": 2777,
       "clip_title": 1372,
       "no_video": 2360,
       "unrelated": 76,
@@ -246,14 +246,6 @@
         "author": "前HR随笔",
         "url": "https://m.weibo.cn/detail/5070569009054227",
         "duration_sec": 30.0
-      },
-      {
-        "key": "weibo_search:4738955994726851",
-        "title": "林园2021年1月份的演讲：我不搞长线，最后炒股炒成股东了。\n\n亏了钱，心理上的损失更大，你不敢看你的账户！\n\n htt",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4738955994726851",
-        "duration_sec": 2356.0
       },
       {
         "key": "weibo_search:4592847707970171",
@@ -633,13 +625,13 @@
     "complete": 173,
     "failed": 1884,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 36,
     "experiment_fallback": 102,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 5,
-    "running": 3
+    "retry_queued": 6,
+    "running": 4
   },
   "tasks": [
     {
@@ -40814,14 +40806,14 @@
     },
     {
       "slug": "ly-story-5a060021cb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793600844,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793604450,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -40991,6 +40983,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41403725672",
       "run_started_at": "2026-11-02T07:02:36Z",
       "run_updated_at": "2026-11-02T07:02:41Z"
+    },
+    {
+      "slug": "ly-1102-ebce5f",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793603584,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41404855526,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41404855526",
+      "run_started_at": "2026-11-02T07:13:04Z",
+      "run_updated_at": "2026-11-02T07:13:08Z"
     }
   ],
   "runs": {
@@ -61256,6 +61266,28 @@
       "run_number": 3609,
       "display_title": "中文源出片 · ly-1102-aa2e96"
     },
+    "ly-story-5a060021cb": {
+      "id": 41400006946,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-02T06:27:24Z",
+      "updated_at": "2026-11-02T07:10:00Z",
+      "run_started_at": "2026-11-02T06:27:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400006946",
+      "run_number": 3603,
+      "display_title": "中文源出片 · ly-story-5a060021cb"
+    },
+    "ly-1102-ebce5f": {
+      "id": 41404855526,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-02T07:13:04Z",
+      "updated_at": "2026-11-02T07:13:08Z",
+      "run_started_at": "2026-11-02T07:13:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41404855526",
+      "run_number": 3613,
+      "display_title": "中文源出片 · ly-1102-ebce5f"
+    },
     "ly-1102-2800e4": {
       "id": 41403725672,
       "status": "in_progress",
@@ -61288,17 +61320,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400027658",
       "run_number": 3605,
       "display_title": "中文源出片 · ly-1102-3605ae"
-    },
-    "ly-story-5a060021cb": {
-      "id": 41400006946,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-02T06:27:24Z",
-      "updated_at": "2026-11-02T07:10:00Z",
-      "run_started_at": "2026-11-02T06:27:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41400006946",
-      "run_number": 3603,
-      "display_title": "中文源出片 · ly-story-5a060021cb"
     }
   }
 }
