@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793585009,
+  "updated_at": 1793585111,
   "inventory_updated_at": 1793585004,
   "continuity": {
     "daily_target": 4,
@@ -186,6 +186,14 @@
         "controls": 2,
         "fallback": 2,
         "valid_comparison": false
+      },
+      {
+        "date": "2026-11-02",
+        "published": 1,
+        "treatment": 0,
+        "controls": 1,
+        "fallback": 0,
+        "valid_comparison": false
       }
     ],
     "status": "needs_attention",
@@ -193,7 +201,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793585008,
+    "updated_at": 1793585110,
     "records": 14976,
     "video_records": 12624,
     "initial_candidates": 135,
@@ -229,12 +237,12 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 171,
+    "complete": 172,
     "failed": 1883,
     "paused": 5,
     "interrupted": 5,
-    "excluded": 34,
-    "experiment_fallback": 103,
+    "excluded": 35,
+    "experiment_fallback": 101,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 5,
@@ -33843,13 +33851,13 @@
     },
     {
       "slug": "ly-1031-6c178b",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793405351,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -34023,8 +34031,8 @@
     },
     {
       "slug": "ly-story-dc366bbbbb",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793413560,
         "failed": null,
