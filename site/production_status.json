@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793687186,
+  "updated_at": 1793687326,
   "inventory_updated_at": 1793687179,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 83,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 96,
+    "waiting_candidates": 95,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793687184,
+    "updated_at": 1793687324,
     "records": 15285,
     "video_records": 12916,
-    "initial_candidates": 235,
-    "duration_eligible_records": 96,
-    "candidate_count": 96,
-    "known_duration_candidates": 94,
+    "initial_candidates": 234,
+    "duration_eligible_records": 95,
+    "candidate_count": 95,
+    "known_duration_candidates": 93,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2812,
+      "already_attempted_or_cooling": 2813,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -382,14 +382,6 @@
         "author": "王洪股金谈",
         "url": "https://m.weibo.cn/detail/4470314463565480",
         "duration_sec": 168.0
-      },
-      {
-        "key": "weibo_search:5251634822646052",
-        "title": "2007年林园采访",
-        "source": "weibo_search",
-        "author": "养老投资人",
-        "url": "https://m.weibo.cn/detail/5251634822646052",
-        "duration_sec": 1767.0
       },
       {
         "key": "weibo_search:5167946834903625",
@@ -1015,9 +1007,9 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1899,
+    "failed": 1901,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 47,
     "experiment_fallback": 93,
     "ready": 22,
@@ -41576,11 +41568,11 @@
     },
     {
       "slug": "ly-1103-ad5e10",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 274 < 480（482x274），画质不达标",
       "signature": {
         "ts": 1793686725,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41594,11 +41586,11 @@
     },
     {
       "slug": "ly-1103-6e5a7e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始素材短边 312 < 480（620x312），画质不达标",
       "signature": {
         "ts": 1793686980,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41608,7 +41600,25 @@
       "run_id": 41589524102,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41589524102",
       "run_started_at": "2026-11-03T06:22:59Z",
-      "run_updated_at": "2026-11-03T06:23:03Z"
+      "run_updated_at": "2026-11-03T06:25:52Z"
+    },
+    {
+      "slug": "ly-1103-efbcef",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793687284,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41590056953,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41590056953",
+      "run_started_at": "2026-11-03T06:28:04Z",
+      "run_updated_at": "2026-11-03T06:28:09Z"
     }
   ],
   "runs": {
@@ -62017,12 +62027,23 @@
       "run_number": 3631,
       "display_title": "中文源出片 · ly-1103-ad5e10"
     },
-    "ly-1103-6e5a7e": {
-      "id": 41589524102,
+    "ly-1103-efbcef": {
+      "id": 41590056953,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-03T06:28:04Z",
+      "updated_at": "2026-11-03T06:28:09Z",
+      "run_started_at": "2026-11-03T06:28:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41590056953",
+      "run_number": 3633,
+      "display_title": "中文源出片 · ly-1103-efbcef"
+    },
+    "ly-1103-6e5a7e": {
+      "id": 41589524102,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T06:22:59Z",
-      "updated_at": "2026-11-03T06:23:03Z",
+      "updated_at": "2026-11-03T06:25:52Z",
       "run_started_at": "2026-11-03T06:22:59Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41589524102",
       "run_number": 3632,
