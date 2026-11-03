@@ -86535,7 +86535,67 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-09-25T19:02:35+08:00"
+   "publish_time": "2021-09-25T19:02:35+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-5ae12a",
+    "run_id": 41581924282,
+    "artifact_id": 13214120533,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e3319ad79e4b88da03e018a1b16f288b7e1ada31498fdb25b35b4d65fa83d692",
+     "duration_sec": 3684.45,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4685391116634302"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 88%（BV1pTpJ6SEbt）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"那五粮液到现在啊，我估计几十倍了，应该是三五十倍。\", \"suspect_quote\": \"三五十倍\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘三五十倍’为口语约数，但结合上下文‘几十倍了’存在数值范围重叠与表达冗余，需核实是否为‘三十到五十倍’的误转或真实口语省略。\"}, {\"sentence_id\": 8, \"quote\": \"他可能在这个可以思考一下自己为什么没有像您一样进行了，可能是同样的大倍，但是没有获得这么高的利润。\", \"suspect_quote\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答仅停留在复述问题背景和举例说明，缺乏对核心问题（五粮液和茅台是否还会产品紧俏、价格上升）的明确表态或分析，属于未回答的新问题结尾。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 5, \"quote\": \"市场，我刚才跟你说，你到去买五粮呃买买吧，五十三度的茅台你买不到。\", \"suspect_quote\": \"五十三度的茅台\", \"kind\": \"unintelligible_term\", \"reason\": \"“五十三度”不符合白酒常规度数表述（通常为 53 度），疑似将品牌名或数字误识别为度数，且后文“买不到”与高浓度描述逻辑冲突，需核实原音。\"}, {\"sentence_id\": 8, \"quote\": \"只要像茅台酒的话，每年它的产量是，至少也增长百分之三十。\", \"suspect_quote\": \"至少也增长百分之三十"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 24, \"quote\": \"你现在这网科科技这么发达，一搜索一说，盈利总按总盈利百分之呃，这个这个这个五十强。\", \"suspect_quote\": \"网科科技\", \"kind\": \"unintelligible_term\", \"reason\": \"无法确定实体，疑似将“网络”或人名误识别为“网科”，且后文“五十强”与“总盈利”搭配生硬，需核实原音。\"}, {\"sentence_id\": 24, \"quote\": \"你现在这网科科技这么发达，一搜索一说，盈利总按总盈利百分之呃，这个这个这个五十强。\", \"suspect_quote\": \"百分之呃\", \""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片动态窗口目标人物不足5/6帧：4/6"
+     }
+    ]
+   },
+   "source_check_report_id": 13214120533,
+   "source_check_run_id": 41581924282,
+   "last_error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793693351
   },
   {
    "key": "weibo_search:4629233924839719",
@@ -87486,7 +87546,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1umYA6CE8L）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4599776052518958",
@@ -87509,7 +87570,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-02-01T12:58:53+08:00"
+   "publish_time": "2021-02-01T12:58:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-d29a6d",
+    "run_id": 41597339034,
+    "artifact_id": 13213966207,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b65c11ad080d4e8c1226a21a42e33bcce88bd0d31b734e82b4514f8ed751f870",
+     "duration_sec": 183.0,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4599776052518958"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41597339034,
+    "artifact_id": 13213966207,
+    "name": "production-reject-ly-1103-d29a6d",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5228840335182583",
@@ -183235,6 +183329,13 @@
    "video_id": "https://miaopai.video.weibocdn.com/0030THPWlx07AE1gmyOk01041203OQSi0E023.mp4",
    "ts": 1793692088,
    "error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1umYA6CE8L）"
+  },
+  {
+   "slug": "ly-1103-d29a6d",
+   "key": "weibo_search:4599776052518958",
+   "video_id": "https://f.video.weibocdn.com/000o7hsJgx07JYu0iwd901041200NOYM0E010.mp4",
+   "ts": 1793692432,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
