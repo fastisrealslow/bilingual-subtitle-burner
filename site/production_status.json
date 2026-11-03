@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793694034,
+  "updated_at": 1793694174,
   "inventory_updated_at": 1793694026,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 84,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 55,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 56,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793694032,
+    "updated_at": 1793694172,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 230,
-    "duration_eligible_records": 55,
-    "candidate_count": 55,
-    "known_duration_candidates": 53,
+    "initial_candidates": 231,
+    "duration_eligible_records": 56,
+    "candidate_count": 56,
+    "known_duration_candidates": 54,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2855,
+      "already_attempted_or_cooling": 2854,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,6 +231,14 @@
       "duplicate_source": 0
     },
     "candidates": [
+      {
+        "key": "weibo_search:5167943765199868",
+        "title": "#茅台股东大会#【林园现身茅台国际大酒店，大批股东围观合影，有股东直呼“存钱不如买茅台”】\n\n5月18日，贵州茅台酒股份",
+        "source": "weibo_search",
+        "author": "中访网微博",
+        "url": "https://m.weibo.cn/detail/5167943765199868",
+        "duration_sec": 31.0
+      },
       {
         "key": "weibo_search:4509645228081152",
         "title": "#2020《红周刊》投资峰会圆桌论坛林园问答实录#@腾讯视频 http://t.cn/A62JXrCJ ​​​",
@@ -687,14 +695,14 @@
   },
   "counts": {
     "complete": 176,
-    "failed": 1919,
+    "failed": 1920,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 5,
     "excluded": 48,
     "experiment_fallback": 95,
     "ready": 21,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "running": 4
   },
   "tasks": [
@@ -41500,11 +41508,11 @@
     },
     {
       "slug": "ly-1103-1be517",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：standalone_opening；完整性理由：缺少核心观点：嘉宾未就任何议题做出判断或陈述，仅包含寒暄与身世轶事，不构成可独立成片的完整表达。；原文问题：[]",
       "signature": {
         "ts": 1793691833,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41644,14 +41652,14 @@
     },
     {
       "slug": "ly-1103-d8d1ef",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793693405,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793695896,
         "weekly_full_week": ""
       },
       "history_count": 1,
