@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793731733,
+  "updated_at": 1793731951,
   "inventory_updated_at": 1793731726,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 87,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,18 +209,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793731731,
+    "updated_at": 1793731950,
     "records": 15422,
     "video_records": 13030,
-    "initial_candidates": 176,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 175,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8110,
       "clip_title": 1396,
-      "already_attempted_or_cooling": 3000,
+      "already_attempted_or_cooling": 3001,
       "no_video": 2392,
       "unrelated": 76,
       "reference_only": 204,
@@ -230,16 +230,7 @@
       "too_short": 142,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1tnxa6uEa2",
-        "title": "财富与生活，股神林园的经典语录，林园谈股票投资中的发言整理，投资知识学习，向股神林园学习他的投资思想",
-        "source": "reference_origin_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1tnxa6uEa2",
-        "duration_sec": 92.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 87,
@@ -255,15 +246,15 @@
   },
   "counts": {
     "complete": 177,
-    "failed": 1966,
+    "failed": 1967,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 8,
     "excluded": 50,
     "experiment_fallback": 102,
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -42238,11 +42229,11 @@
     },
     {
       "slug": "ly-1103-aa3242",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"啊，新加坡了，新加坡十五代，十五比例高。\", \"suspect_quote\": \"十五代\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“十五亿”或具体比例数值误识别为“十五代”，属无法确定的实体污染。\"}, {\"sentence_id\": 6, \"quote\": \"那天宰皇怎么出去的呀？\", \"suspect_quote\": \"宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"人名/品牌名识别不清，前后文无对应实体，属专名错写。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他不知道他。\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"与句 6“宰皇”疑似同一实体，但写法不一致且无法确认正确名称，属专名污染。\"}, {\"sentence_id\": 20, \"quote\": \"我只要有书效，这就是。\", \"suspect_quote\": \"书效\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似“速效”或特定药品/术语的误识别，属行业词错写。\"}, {\"sentence_id\": 24, \"quote\": \"人家不是去安工吗？\", \"suspect_quote\": \"安工\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似机构名或人名（如“安宫”），但写法不明，属专名识别污染。\"}, {\"sentence_id\": 25, \"quote\": \"安工跟苏校有什么区别呀？\", \"suspect_quote\": \"苏校\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似机构/人名（如“苏小”或特定称谓），写法不明，属专名识别污染。\"}]",
       "signature": {
         "ts": 1793730711,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42274,8 +42265,8 @@
     },
     {
       "slug": "ly-1103-6e5775",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793731135,
         "failed": null,
@@ -42288,7 +42279,7 @@
       "run_id": 41695808164,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695808164",
       "run_started_at": "2026-11-03T18:38:55Z",
-      "run_updated_at": "2026-11-03T18:39:00Z"
+      "run_updated_at": "2026-11-03T18:50:38Z"
     },
     {
       "slug": "ly-1103-9f044b",
@@ -42310,8 +42301,8 @@
     },
     {
       "slug": "ly-1103-6735c1",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793731151,
         "failed": null,
@@ -42324,7 +42315,7 @@
       "run_id": 41695846950,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695846950",
       "run_started_at": "2026-11-03T18:39:10Z",
-      "run_updated_at": "2026-11-03T18:39:17Z"
+      "run_updated_at": "2026-11-03T18:49:54Z"
     },
     {
       "slug": "ly-1103-79f59a",
@@ -42361,6 +42352,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41696759600",
       "run_started_at": "2026-11-03T18:45:02Z",
       "run_updated_at": "2026-11-03T18:45:08Z"
+    },
+    {
+      "slug": "ly-1103-8b1164",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793731908,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41697825552,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41697825552",
+      "run_started_at": "2026-11-03T18:51:47Z",
+      "run_updated_at": "2026-11-03T18:51:52Z"
     }
   ],
   "runs": {
@@ -63671,6 +63680,28 @@
       "run_number": 3732,
       "display_title": "中文源出片 · ly-1103-9f044b"
     },
+    "ly-1103-aa3242": {
+      "id": 41694687016,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T18:31:51Z",
+      "updated_at": "2026-11-03T18:47:47Z",
+      "run_started_at": "2026-11-03T18:31:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694687016",
+      "run_number": 3729,
+      "display_title": "中文源出片 · ly-1103-aa3242"
+    },
+    "ly-1103-8b1164": {
+      "id": 41697825552,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T18:51:47Z",
+      "updated_at": "2026-11-03T18:51:52Z",
+      "run_started_at": "2026-11-03T18:51:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41697825552",
+      "run_number": 3736,
+      "display_title": "中文源出片 · ly-1103-8b1164"
+    },
     "ly-1103-3db785": {
       "id": 41696759600,
       "status": "in_progress",
@@ -63695,10 +63726,10 @@
     },
     "ly-1103-6735c1": {
       "id": 41695846950,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T18:39:10Z",
-      "updated_at": "2026-11-03T18:39:17Z",
+      "updated_at": "2026-11-03T18:49:54Z",
       "run_started_at": "2026-11-03T18:39:10Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695846950",
       "run_number": 3733,
@@ -63706,25 +63737,14 @@
     },
     "ly-1103-6e5775": {
       "id": 41695808164,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T18:38:55Z",
-      "updated_at": "2026-11-03T18:39:00Z",
+      "updated_at": "2026-11-03T18:50:38Z",
       "run_started_at": "2026-11-03T18:38:55Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695808164",
       "run_number": 3731,
       "display_title": "中文源出片 · ly-1103-6e5775"
-    },
-    "ly-1103-aa3242": {
-      "id": 41694687016,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-03T18:31:51Z",
-      "updated_at": "2026-11-03T18:47:47Z",
-      "run_started_at": "2026-11-03T18:31:51Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694687016",
-      "run_number": 3729,
-      "display_title": "中文源出片 · ly-1103-aa3242"
     },
     "ly-1103-f1f756": {
       "id": 41694646036,
