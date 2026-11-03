@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793746884,
+  "updated_at": 1793747031,
   "inventory_updated_at": 1793746877,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 88,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -209,7 +209,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793746882,
+    "updated_at": 1793747029,
     "records": 15475,
     "video_records": 13081,
     "initial_candidates": 175,
@@ -246,7 +246,7 @@
   },
   "counts": {
     "complete": 177,
-    "failed": 1981,
+    "failed": 1982,
     "paused": 5,
     "interrupted": 7,
     "excluded": 50,
@@ -254,7 +254,7 @@
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -42571,11 +42571,11 @@
     },
     {
       "slug": "ly-1103-e5f1c0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.17/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4405271289639660']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1793746600,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42607,8 +42607,8 @@
     },
     {
       "slug": "ly-1103-fe6a22",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793746619,
         "failed": null,
@@ -42621,7 +42621,7 @@
       "run_id": 41735134922,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41735134922",
       "run_started_at": "2026-11-03T22:56:59Z",
-      "run_updated_at": "2026-11-03T22:57:03Z"
+      "run_updated_at": "2026-11-03T23:01:50Z"
     },
     {
       "slug": "ly-1103-63fc57",
@@ -64148,6 +64148,17 @@
       "run_number": 3745,
       "display_title": "中文源出片 · ly-1103-5e4d6c"
     },
+    "ly-1103-e5f1c0": {
+      "id": 41735092685,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T22:56:40Z",
+      "updated_at": "2026-11-03T22:59:06Z",
+      "run_started_at": "2026-11-03T22:56:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41735092685",
+      "run_number": 3750,
+      "display_title": "中文源出片 · ly-1103-e5f1c0"
+    },
     "ly-1103-63fc57": {
       "id": 41735154090,
       "status": "in_progress",
@@ -64161,10 +64172,10 @@
     },
     "ly-1103-fe6a22": {
       "id": 41735134922,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T22:56:59Z",
-      "updated_at": "2026-11-03T22:57:03Z",
+      "updated_at": "2026-11-03T23:01:50Z",
       "run_started_at": "2026-11-03T22:56:59Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41735134922",
       "run_number": 3752,
@@ -64180,17 +64191,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41735112880",
       "run_number": 3751,
       "display_title": "中文源出片 · ly-1103-842a72"
-    },
-    "ly-1103-e5f1c0": {
-      "id": 41735092685,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-03T22:56:40Z",
-      "updated_at": "2026-11-03T22:59:06Z",
-      "run_started_at": "2026-11-03T22:56:40Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41735092685",
-      "run_number": 3750,
-      "display_title": "中文源出片 · ly-1103-e5f1c0"
     }
   }
 }
