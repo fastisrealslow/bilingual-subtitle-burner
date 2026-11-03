@@ -86621,8 +86621,8 @@
    "recovery_origin_run_id": 41374057476,
    "production_failure_summary": {
     "slug": "ly-story-5a060021cb",
-    "run_id": 41580174389,
-    "artifact_id": 13207055502,
+    "run_id": 41586900826,
+    "artifact_id": 13209510701,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -86694,11 +86694,13 @@
      }
     ]
    },
-   "source_check_report_id": 13207055502,
-   "source_check_run_id": 41580174389,
+   "source_check_report_id": 13209510701,
+   "source_check_run_id": 41586900826,
    "last_error": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）。请重新按原文输出全部字幕。",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:4755556051452193",
@@ -86755,7 +86757,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-05-04T07:53:38+08:00"
+   "publish_time": "2020-05-04T07:53:38+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41587902794,
+    "artifact_id": 13208668283,
+    "name": "source-reject-ly-1103-ba4792",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4746462582277562",
@@ -182273,6 +182285,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/L71LqoJmgx07V3B4nIkw01041203DYzy0E020.mp4",
    "ts": 1793686010,
    "error": "原始素材短边 312 < 480（620x312），画质不达标"
+  },
+  {
+   "slug": "ly-1103-ba4792",
+   "key": "weibo_search:4500767350144579",
+   "video_id": "https://f.video.weibocdn.com/004jqEvIgx07CZQYkzhS010412067qzJ0E030.mp4",
+   "ts": 1793686686,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
