@@ -86412,8 +86412,8 @@
    "publish_time": "2020-04-25T23:09:10+08:00",
    "production_failure_summary": {
     "slug": "ly-1102-2800e4",
-    "run_id": 41403725672,
-    "artifact_id": 13125493527,
+    "run_id": 41580943763,
+    "artifact_id": 13207638644,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -86428,8 +86428,12 @@
     },
     "failures": [
      {
-      "stage": "editorial-service",
-      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
      },
      {
       "stage": "part-quality",
@@ -86449,7 +86453,23 @@
      },
      {
       "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/300，总帧数1498；身份匹配但人脸短边不足96px的帧数300"
+     },
+     {
+      "stage": "part-quality",
       "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/430，总帧数2146；身份匹配但人脸短边不足96px的帧数430"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 80%（BV1umYA6CE8L）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/222，总帧数1106；身份匹配但人脸短边不足96px的帧数206"
      },
      {
       "stage": "part-quality",
@@ -86459,9 +86479,17 @@
    },
    "source_check_report_id": 13125493527,
    "source_check_run_id": 41403725672,
-   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "动态取景连续2.04秒缺少人脸",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41580943763,
+    "artifact_id": 13207638644,
+    "name": "production-reject-ly-1102-2800e4",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:4460533309126606",
@@ -181753,6 +181781,13 @@
    "video_id": "BV1uf4P6YEG8",
    "ts": 1793682589,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1808, 2: 0.0909, 3: 0.1082, 4: 0.1663, 5: 0.2036, 6: 0.144, 7: 0.1206, 8: 0.0258, 9: 0.1494, 10: 0.1778, 11: 0.1309, 12: 0.113, 13: 0.1267, 14: 0.0806, 15: 0.1251, 16: 0.1727, 17: 0.1591, 18: 0.0926}"
+  },
+  {
+   "slug": "ly-1102-2800e4",
+   "key": "weibo_search:4497736256342520",
+   "video_id": "https://f.video.weibocdn.com/tZQeouPtlx07BxDQVRQ401041203yOqs0E020.mp4",
+   "ts": 1793684948,
+   "error": "动态取景连续2.04秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
