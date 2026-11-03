@@ -91289,7 +91289,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4624484336408071",
@@ -91349,7 +91350,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1xC4G61EFy",
@@ -91409,7 +91411,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾针对核心问题的实质性判断（如‘是熊市’或‘不是熊市’），且未提供支撑该判断的理由或例子，结尾亦无完整结论性语句，属于必要论述被切断或未回答的新问题结尾。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4686326169603090",
@@ -91469,7 +91472,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4626994074223930",
@@ -91515,7 +91519,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-03T07:29:00+00:00"
+   "publish_time": "2026-11-03T07:29:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41714582603,
+    "artifact_id": 13268523658,
+    "name": "source-reject-ly-1103-c38af7",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1gtnj6DEuz",
@@ -188375,6 +188389,13 @@
    "video_id": "https://f.video.weibocdn.com/0048Wwkkgx07LMnC6zSU01041200ZqnV0E010.mp4",
    "ts": 1793738312,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-c38af7",
+   "key": "bilibili_search:BV1tHxa6BE5S",
+   "video_id": "BV1tHxa6BE5S",
+   "ts": 1793738729,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
