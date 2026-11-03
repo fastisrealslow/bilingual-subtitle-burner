@@ -88278,7 +88278,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4509645228081152",
@@ -88333,7 +88334,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-11-03T07:23:51+08:00"
+   "publish_time": "2025-11-03T07:23:51+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-f08661",
+    "run_id": 41618002502,
+    "artifact_id": 13224222822,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "efedb7d619ae38fc994e59797276550978e8ac934bd830c34e2fc5ff44b86559",
+     "duration_sec": 2251.34,
+     "resolution": {
+      "width": 1492,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5228797073031874"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段缺乏嘉宾对核心议题的判断与论述，仅包含个人背景介绍及主持人结束语，不符合独立成片要求。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41618002502,
+    "artifact_id": 13224222822,
+    "name": "production-reject-ly-1103-f08661",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：片段缺乏嘉宾对核心议题的判断与论述，仅包含个人背景介绍及主持人结束语，不符合独立成片要求。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4497631998840128",
@@ -184434,6 +184468,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/urqpJfMogx08sFuUwCCY01041208bbbA0E030.mp4",
    "ts": 1793694109,
    "error": "完整观点验收未通过：standalone_opening；完整性理由：缺少核心观点：嘉宾未就任何议题做出判断或陈述，仅包含寒暄与身世轶事，不构成可独立成片的完整表达。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1103-f08661",
+   "key": "weibo_search:5228797073031874",
+   "video_id": "https://f.video.weibocdn.com/o0/aeChPfgJlx08sGcefvbi01041207OQxU0E030.mp4",
+   "ts": 1793703760,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：片段缺乏嘉宾对核心议题的判断与论述，仅包含个人背景介绍及主持人结束语，不符合独立成片要求。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
