@@ -90110,7 +90110,43 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-11-14T17:22:39+08:00"
+   "publish_time": "2025-11-14T17:22:39+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-57527c",
+    "run_id": 41658539564,
+    "artifact_id": 13244445991,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "78975cf4b3853f914adaada0cb080308498f90320d16cb8c5a3f9624e737cb0a",
+     "duration_sec": 149.2,
+     "resolution": {
+      "width": 888,
+      "height": 874,
+      "short_edge": 874
+     },
+     "source_url": "https://m.weibo.cn/detail/5232934031721144"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配928/1170，总帧数1206；身份匹配但人脸短边不足96px的帧数218"
+     }
+    ]
+   },
+   "source_check_report_id": 13244445991,
+   "source_check_run_id": 41658539564,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793720781
   },
   {
    "key": "weibo_search:5229718307607482",
@@ -90314,7 +90350,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5084108730402683",
