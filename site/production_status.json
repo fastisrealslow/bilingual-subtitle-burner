@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793689760,
+  "updated_at": 1793689891,
   "inventory_updated_at": 1793689756,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 83,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 90,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 89,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793689759,
+    "updated_at": 1793689890,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 265,
-    "duration_eligible_records": 90,
-    "candidate_count": 90,
-    "known_duration_candidates": 88,
+    "initial_candidates": 264,
+    "duration_eligible_records": 89,
+    "candidate_count": 89,
+    "known_duration_candidates": 87,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2819,
+      "already_attempted_or_cooling": 2820,
       "speaker_unconfirmed": 8137,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,14 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5070569009054227",
-        "title": "林园称不生孩子的人做不好投资，林园建议25岁时不要读书先生孩子！\n\n林园的投资回报率不错。生孩子是本质上个人最好的人生投",
-        "source": "weibo_search",
-        "author": "前HR随笔",
-        "url": "https://m.weibo.cn/detail/5070569009054227",
-        "duration_sec": 30.0
-      },
       {
         "key": "weibo_search:4534963887935791",
         "title": "林园2003年买了1亿7000万元的茅台股份平均价23元，今天的茅台股价复权价为2026一直持有着。他创造了中国证券市场",
@@ -967,15 +959,15 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1902,
+    "failed": 1903,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 47,
     "experiment_fallback": 95,
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -41600,11 +41592,11 @@
     },
     {
       "slug": "ly-1103-93cc3f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793688752,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41669,6 +41661,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41593792925",
       "run_started_at": "2026-11-03T07:03:33Z",
       "run_updated_at": "2026-11-03T07:03:38Z"
+    },
+    {
+      "slug": "ly-1103-c6515b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793689848,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41594595354,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41594595354",
+      "run_started_at": "2026-11-03T07:10:48Z",
+      "run_updated_at": "2026-11-03T07:10:52Z"
     }
   ],
   "runs": {
@@ -62121,6 +62131,28 @@
       "run_number": 3633,
       "display_title": "中文源出片 · ly-1103-efbcef"
     },
+    "ly-1103-93cc3f": {
+      "id": 41592637033,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T06:52:31Z",
+      "updated_at": "2026-11-03T07:07:05Z",
+      "run_started_at": "2026-11-03T06:52:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41592637033",
+      "run_number": 3635,
+      "display_title": "中文源出片 · ly-1103-93cc3f"
+    },
+    "ly-1103-c6515b": {
+      "id": 41594595354,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T07:10:48Z",
+      "updated_at": "2026-11-03T07:10:52Z",
+      "run_started_at": "2026-11-03T07:10:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41594595354",
+      "run_number": 3639,
+      "display_title": "中文源出片 · ly-1103-c6515b"
+    },
     "ly-1103-480d45": {
       "id": 41593792925,
       "status": "in_progress",
@@ -62153,17 +62185,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41593198246",
       "run_number": 3636,
       "display_title": "中文源出片 · ly-1103-e5209c"
-    },
-    "ly-1103-93cc3f": {
-      "id": 41592637033,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-03T06:52:31Z",
-      "updated_at": "2026-11-03T07:07:05Z",
-      "run_started_at": "2026-11-03T06:52:31Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41592637033",
-      "run_number": 3635,
-      "display_title": "中文源出片 · ly-1103-93cc3f"
     },
     "ly-1103-5ae12a": {
       "id": 41581924282,
