@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793705027,
+  "updated_at": 1793705200,
   "inventory_updated_at": 1793705019,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 85,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 43,
+    "active_or_recovering_sources": 9,
+    "waiting_candidates": 42,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793705025,
+    "updated_at": 1793705198,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 216,
-    "duration_eligible_records": 43,
-    "candidate_count": 43,
-    "known_duration_candidates": 43,
+    "initial_candidates": 215,
+    "duration_eligible_records": 42,
+    "candidate_count": 42,
+    "known_duration_candidates": 42,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2884,
+      "already_attempted_or_cooling": 2885,
       "speaker_unconfirmed": 8121,
       "clip_title": 1386,
       "no_video": 2369,
@@ -408,20 +408,20 @@
         "duration_sec": 205.0
       },
       {
-        "key": "weibo_search:5086276491676270",
-        "title": "#昕礽果复利增长价值亿亿金# 林园总2024年10月04日国泰君安采访：连续暴涨，林园带你把握A股历史大机遇，如何把握未",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5086276491676270",
-        "duration_sec": 4976.0
-      },
-      {
         "key": "weibo_search:5084108730402683",
         "title": "#昕礽果复利增长价值亿亿金# 林园总2024年09月29日大牛市前新浪证券采访，A股创世纪大牛市，这就是让财富上大台阶的",
         "source": "weibo_search",
         "author": "昕礽果复利增长",
         "url": "https://m.weibo.cn/detail/5084108730402683",
         "duration_sec": 2673.0
+      },
+      {
+        "key": "weibo_search:5070973143356587",
+        "title": "#昕礽果复利增长价值亿亿金# 林园总2024年08月04日北大国发院演讲。\n\n#A股创世纪万点大牛市# 当下就是要投，闭",
+        "source": "weibo_search",
+        "author": "昕礽果复利增长",
+        "url": "https://m.weibo.cn/detail/5070973143356587",
+        "duration_sec": 160.0
       },
       {
         "key": "weibo_search:4467445907947131",
@@ -478,14 +478,6 @@
         "author": "科迈GenMedi",
         "url": "https://m.weibo.cn/detail/5225976099504132",
         "duration_sec": 544.0
-      },
-      {
-        "key": "weibo_search:5070973143356587",
-        "title": "#昕礽果复利增长价值亿亿金# 林园总2024年08月04日北大国发院演讲。\n\n#A股创世纪万点大牛市# 当下就是要投，闭",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5070973143356587",
-        "duration_sec": 160.0
       },
       {
         "key": "weibo_search:5230289068757051",
@@ -593,13 +585,13 @@
     "complete": 176,
     "failed": 1922,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 48,
     "experiment_fallback": 100,
     "ready": 21,
     "validation_failed": 2,
-    "retry_queued": 4,
-    "running": 3
+    "retry_queued": 5,
+    "running": 4
   },
   "tasks": [
     {
@@ -41764,14 +41756,14 @@
     },
     {
       "slug": "ly-1103-034c92",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793704837,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793706909,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -41779,6 +41771,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41626738468",
       "run_started_at": "2026-11-03T11:20:36Z",
       "run_updated_at": "2026-11-03T11:22:27Z"
+    },
+    {
+      "slug": "ly-1103-bebc3c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793705156,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41627461093,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41627461093",
+      "run_started_at": "2026-11-03T11:25:55Z",
+      "run_updated_at": "2026-11-03T11:26:00Z"
     }
   ],
   "runs": {
@@ -62560,6 +62570,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41626738468",
       "run_number": 3674,
       "display_title": "中文源出片 · ly-1103-034c92"
+    },
+    "ly-1103-bebc3c": {
+      "id": 41627461093,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T11:25:55Z",
+      "updated_at": "2026-11-03T11:26:00Z",
+      "run_started_at": "2026-11-03T11:25:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41627461093",
+      "run_number": 3675,
+      "display_title": "中文源出片 · ly-1103-bebc3c"
     },
     "ly-1103-6acbd7": {
       "id": 41626068988,
