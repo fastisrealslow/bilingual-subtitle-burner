@@ -90337,7 +90337,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5065483173498766",
@@ -90360,7 +90361,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-08-09T15:32:43+08:00"
+   "publish_time": "2024-08-09T15:32:43+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-0b7bac",
+    "run_id": 41660612605,
+    "artifact_id": 13241159402,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "92c20a536ace1f6e215ed6fe1db062956d2d3eb5f59452a3973f385faef1cc5f",
+     "duration_sec": 59.47,
+     "resolution": {
+      "width": 720,
+      "height": 724,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5065483173498766"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41660612605,
+    "artifact_id": 13241159402,
+    "name": "production-reject-ly-1103-0b7bac",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -187071,6 +187105,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/Jdm483KOlx08htyf6BeE01041200uvkZ0E010.mp4",
    "ts": 1793719109,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1103-0b7bac",
+   "key": "weibo_search:5065483173498766",
+   "video_id": "https://f.video.weibocdn.com/o0/D1Xb0D4Flx08h5nEHCFO0104120092O10E010.mp4",
+   "ts": 1793719475,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
