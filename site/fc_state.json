@@ -90454,7 +90454,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-07-05T20:59:32+08:00"
+   "publish_time": "2020-07-05T20:59:32+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-8a9443",
+    "run_id": 41665929418,
+    "artifact_id": 13249649793,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "71696aa2499c62468bcd425dbe36f502a2fffd3d8335a1a80767343c3da2a341",
+     "duration_sec": 1649.27,
+     "resolution": {
+      "width": 640,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4523433171988142"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未给出针对‘大家是否普遍乐观’这一问题的明确判断（如‘很少’或‘很多’），仅通过反问和举例暗示态度，导致核心论点缺失。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配251/402，总帧数751；身份匹配但人脸短边不足96px的帧数22"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配323/1931，总帧数8038；身份匹配但人脸短边不足96px的帧数721"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41665929418,
+    "artifact_id": 13249649793,
+    "name": "production-reject-ly-1103-8a9443",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未给出针对‘大家是否普遍乐观’这一问题的明确判断（如‘很少’或‘很多’），仅通过反问和举例暗示态度，导致核心论点缺失。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4523341175036087",
@@ -187308,6 +187361,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/ct9y5jTbgx08C5bQfmw0010412007bkF0E010.mp4",
    "ts": 1793720226,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-8a9443",
+   "key": "weibo_search:4523433171988142",
+   "video_id": "https://f.video.weibocdn.com/000MXnv4gx07EAWlhkaI01041205Kbyw0E030.mp4",
+   "ts": 1793724544,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未给出针对‘大家是否普遍乐观’这一问题的明确判断（如‘很少’或‘很多’），仅通过反问和举例暗示态度，导致核心论点缺失。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
