@@ -90963,7 +90963,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4413192766116660",
@@ -91053,7 +91054,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1910/2449，总帧数2694；身份匹配但人脸短边不足96px的帧数348",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5196928881001046",
@@ -91109,7 +91111,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4978896678424478",
@@ -91132,7 +91135,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-14T17:08:54+08:00"
+   "publish_time": "2023-12-14T17:08:54+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-3db785",
+    "run_id": 41696759600,
+    "artifact_id": 13260908047,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a935990a373cfe40d1f35da9294df91d17529f484c7c233bf30463d40a50d54b",
+     "duration_sec": 97.2,
+     "resolution": {
+      "width": 960,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4978896678424478"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4.33s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41696759600,
+    "artifact_id": 13260908047,
+    "name": "production-reject-ly-1103-3db785",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 4.33s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1tnxa6uEa2",
@@ -91165,7 +91201,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -187967,6 +188004,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/xrLpARPGlx08rNnuvfII01041200ihcd0E010.mp4",
    "ts": 1793732209,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1103-3db785",
+   "key": "weibo_search:4978896678424478",
+   "video_id": "https://f.video.weibocdn.com/u0/atZMz4FQgx08aWhQxx6M01041200kfzg0E010.mp4",
+   "ts": 1793732602,
+   "error": "整段取景预检：源 4.33s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
