@@ -90584,7 +90584,8 @@
    },
    "last_error": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未给出针对‘大家是否普遍乐观’这一问题的明确判断（如‘很少’或‘很多’），仅通过反问和举例暗示态度，导致核心论点缺失。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4513539575801560",
@@ -90607,7 +90608,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-06-08T13:45:55+08:00"
+   "publish_time": "2020-06-08T13:45:55+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-b5d323",
+    "run_id": 41672089724,
+    "artifact_id": 13254188313,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7ff9c658fc5948e9cfdd5ec0e4283bf8e1d0fa6b9ac41473aee7c51b57ae7bc5",
+     "duration_sec": 2623.93,
+     "resolution": {
+      "width": 640,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4513539575801560"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/137，总帧数680；身份匹配但人脸短边不足96px的帧数137"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/277，总帧数1381；身份匹配但人脸短边不足96px的帧数277"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/179，总帧数890；身份匹配但人脸短边不足96px的帧数179"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/95，总帧数471；身份匹配但人脸短边不足96px的帧数95"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/181，总帧数900；身份匹配但人脸短边不足96px的帧数181"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 为空，因为嘉宾全程未形成有效观点；reasoning_range 覆盖其解释原因（搞不清楚、没关注）；conclusion_range 取最后一句作为自然结尾。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/131，总帧数654；身份匹配但人脸短边不足96px的帧数131"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/103，总帧数510；身份匹配但人脸短边不足96px的帧数103"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41672089724,
+    "artifact_id": 13254188313,
+    "name": "production-reject-ly-1103-b5d323",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/137，总帧数680；身份匹配但人脸短边不足96px的帧数137",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4229384984395111",
@@ -90691,7 +90753,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -187430,6 +187493,13 @@
    "video_id": "https://f.video.weibocdn.com/000MXnv4gx07EAWlhkaI01041205Kbyw0E030.mp4",
    "ts": 1793724957,
    "error": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未给出针对‘大家是否普遍乐观’这一问题的明确判断（如‘很少’或‘很多’），仅通过反问和举例暗示态度，导致核心论点缺失。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1103-b5d323",
+   "key": "weibo_search:4513539575801560",
+   "video_id": "https://f.video.weibocdn.com/003D6hfNgx07DU4kJpq801041202ZSyK0E020.mp4",
+   "ts": 1793727470,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/137，总帧数680；身份匹配但人脸短边不足96px的帧数137"
   }
  ],
  "reviewed_third_video_0910": {
