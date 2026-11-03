@@ -90801,7 +90801,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-07-08T19:08:43+08:00"
+   "publish_time": "2019-07-08T19:08:43+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41694667332,
+    "artifact_id": 13259436383,
+    "name": "source-reject-ly-1103-4b3eb6",
+    "retained": true
+   },
+   "last_error": "原始素材短边 446 < 480（592x446），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5168121623350804",
@@ -90847,7 +90857,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-02-12T14:23:04+08:00"
+   "publish_time": "2025-02-12T14:23:04+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41694709419,
+    "artifact_id": 13261410366,
+    "name": "source-reject-ly-1103-b9e745",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[10, 17]，scan_different=[2, 6, 7, 8, 12, 13, 14, 15, 16]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: -0.0172, 6: -0.0543, 7: 0.0536, 8: -0.0024, 10: 0.5092, 12: 0.1128, 13: 0.0376, 14: -0.0023, 15: 0.2578, 16: 0.0718, 17: 0.6731}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -187593,6 +187613,20 @@
    "video_id": "https://f.video.weibocdn.com/003D6hfNgx07DU4kJpq801041202ZSyK0E020.mp4",
    "ts": 1793727470,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/137，总帧数680；身份匹配但人脸短边不足96px的帧数137"
+  },
+  {
+   "slug": "ly-1103-b9e745",
+   "key": "weibo_search:5133232175583131",
+   "video_id": "https://f.video.weibocdn.com/u0/UPtKaIsYgx08jowTotyo010412089GkR0E030.mp4",
+   "ts": 1793731078,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[10, 17]，scan_different=[2, 6, 7, 8, 12, 13, 14, 15, 16]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: -0.0172, 6: -0.0543, 7: 0.0536, 8: -0.0024, 10: 0.5092, 12: 0.1128, 13: 0.0376, 14: -0.0023, 15: 0.2578, 16: 0.0718, 17: 0.6731}"
+  },
+  {
+   "slug": "ly-1103-4b3eb6",
+   "key": "weibo_search:4391858488498717",
+   "video_id": "https://f.us.sinaimg.cn/000HHxCHlx07vgveoNnW010412037sYg0E020.mp4",
+   "ts": 1793731078,
+   "error": "原始素材短边 446 < 480（592x446），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
