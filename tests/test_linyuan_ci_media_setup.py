@@ -105,7 +105,9 @@ def test_inventory_uses_same_real_bounded_setup_before_validation():
     assert setup_index < validation_index
     assert steps[setup_index]['timeout-minutes'] == 15
     assert 'apt-get' not in steps[validation_index]['run']
-    assert doc['jobs']['inventory']['timeout-minutes'] == 35
+    # An identity-code change rechecks every retained MP4; reserve enough
+    # bounded time for that pass as well as the media-tool setup above.
+    assert doc['jobs']['inventory']['timeout-minutes'] == 60
     assert doc['concurrency'] == {'group': 'linyuan-source-inventory', 'cancel-in-progress': False}
 
 
