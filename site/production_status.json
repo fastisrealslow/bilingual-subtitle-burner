@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793690963,
+  "updated_at": 1793691128,
   "inventory_updated_at": 1793690955,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 84,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 79,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 76,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793690961,
+    "updated_at": 1793691125,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 254,
-    "duration_eligible_records": 79,
-    "candidate_count": 79,
-    "known_duration_candidates": 77,
+    "initial_candidates": 251,
+    "duration_eligible_records": 76,
+    "candidate_count": 76,
+    "known_duration_candidates": 74,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2831,
+      "already_attempted_or_cooling": 2834,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,22 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV16q4P6mEod",
-        "title": "林园：企业能否突围，靠产品竞争力",
-        "source": "bilibili_search",
-        "author": "复利财务自由",
-        "url": "https://www.bilibili.com/video/BV16q4P6mEod",
-        "duration_sec": 195.0
-      },
-      {
-        "key": "weibo_search:4592847707970171",
-        "title": "//@吕安广:林园：从2016年开始到现在一直都在买医药股。从2003年开始买茅台等白酒股算起我已经15年没有进行过买入",
-        "source": "weibo_search",
-        "author": "用户5501059494",
-        "url": "https://m.weibo.cn/detail/4592847707970171",
-        "duration_sec": 37.0
-      },
       {
         "key": "weibo_search:4467635184061443",
         "title": "建议发一个完整版的林园价值投资讲话[作揖]",
@@ -374,14 +358,6 @@
         "author": "黑超GZLMZ",
         "url": "https://m.weibo.cn/detail/4497557268771365",
         "duration_sec": 31.0
-      },
-      {
-        "key": "weibo_search:4592846521240676",
-        "title": "林园：从2016年开始到现在一直都在买医药股。从2003年开始买茅台等白酒股算起我已经15年没有进行过买入股票的行动了。",
-        "source": "weibo_search",
-        "author": "吕安广",
-        "url": "https://m.weibo.cn/detail/4592846521240676",
-        "duration_sec": 37.0
       },
       {
         "key": "weibo_search:4466908345120974",
@@ -879,7 +855,7 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1906,
+    "failed": 1907,
     "paused": 5,
     "interrupted": 6,
     "excluded": 47,
@@ -887,7 +863,7 @@
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -41602,11 +41578,11 @@
     },
     {
       "slug": "ly-1103-ea2f72",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793690322,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41638,8 +41614,8 @@
     },
     {
       "slug": "ly-1103-6b75bd",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793690788,
         "failed": null,
@@ -41652,7 +41628,43 @@
       "run_id": 41596332423,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596332423",
       "run_started_at": "2026-11-03T07:26:28Z",
-      "run_updated_at": "2026-11-03T07:26:32Z"
+      "run_updated_at": "2026-11-03T07:31:08Z"
+    },
+    {
+      "slug": "ly-1103-1258a5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793691082,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41596862779,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596862779",
+      "run_started_at": "2026-11-03T07:31:22Z",
+      "run_updated_at": "2026-11-03T07:31:26Z"
+    },
+    {
+      "slug": "ly-1103-91c929",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793691088,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41596875293,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596875293",
+      "run_started_at": "2026-11-03T07:31:28Z",
+      "run_updated_at": "2026-11-03T07:31:32Z"
     }
   ],
   "runs": {
@@ -62160,12 +62172,45 @@
       "run_number": 3638,
       "display_title": "中文源出片 · ly-1103-480d45"
     },
-    "ly-1103-6b75bd": {
-      "id": 41596332423,
+    "ly-1103-ea2f72": {
+      "id": 41595470330,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T07:18:42Z",
+      "updated_at": "2026-11-03T07:27:57Z",
+      "run_started_at": "2026-11-03T07:18:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41595470330",
+      "run_number": 3640,
+      "display_title": "中文源出片 · ly-1103-ea2f72"
+    },
+    "ly-1103-91c929": {
+      "id": 41596875293,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-03T07:31:28Z",
+      "updated_at": "2026-11-03T07:31:32Z",
+      "run_started_at": "2026-11-03T07:31:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596875293",
+      "run_number": 3644,
+      "display_title": "中文源出片 · ly-1103-91c929"
+    },
+    "ly-1103-1258a5": {
+      "id": 41596862779,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T07:31:22Z",
+      "updated_at": "2026-11-03T07:31:26Z",
+      "run_started_at": "2026-11-03T07:31:22Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596862779",
+      "run_number": 3643,
+      "display_title": "中文源出片 · ly-1103-1258a5"
+    },
+    "ly-1103-6b75bd": {
+      "id": 41596332423,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T07:26:28Z",
-      "updated_at": "2026-11-03T07:26:32Z",
+      "updated_at": "2026-11-03T07:31:08Z",
       "run_started_at": "2026-11-03T07:26:28Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596332423",
       "run_number": 3642,
@@ -62181,17 +62226,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41595483449",
       "run_number": 3641,
       "display_title": "中文源出片 · ly-1103-2f5ed4"
-    },
-    "ly-1103-ea2f72": {
-      "id": 41595470330,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-03T07:18:42Z",
-      "updated_at": "2026-11-03T07:27:57Z",
-      "run_started_at": "2026-11-03T07:18:42Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41595470330",
-      "run_number": 3640,
-      "display_title": "中文源出片 · ly-1103-ea2f72"
     },
     "ly-1103-5ae12a": {
       "id": 41581924282,
