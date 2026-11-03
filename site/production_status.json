@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793716836,
+  "updated_at": 1793717125,
   "inventory_updated_at": 1793716829,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 87,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 9,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 6,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793716834,
+    "updated_at": 1793717123,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 182,
-    "duration_eligible_records": 9,
-    "candidate_count": 9,
-    "known_duration_candidates": 9,
+    "initial_candidates": 179,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 6,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2918,
+      "already_attempted_or_cooling": 2921,
       "speaker_unconfirmed": 8121,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,38 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5226112590288038",
-        "title": "2025-10-23（5）\n林园：科技已经是主线了，趋势是向好的，至于白酒等传统行业，现在是投资的好时候，投资者需要管好",
-        "source": "weibo_search",
-        "author": "科迈GenMedi",
-        "url": "https://m.weibo.cn/detail/5226112590288038",
-        "duration_sec": 237.0
-      },
-      {
-        "key": "weibo_search:5226104141122271",
-        "title": "2025-10-23（5），林园：科技已经是主线了，趋势是向好的，至于白酒等传统行业，现在是投资的好时候，投资者需要管好",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5226104141122271",
-        "duration_sec": 237.0
-      },
-      {
-        "key": "weibo_search:5058285121570455",
-        "title": "2024.7.10，林园：白酒是我早起的投资，现在对我们来说关注的意义不大，白酒是一个永恒的行业，在一定时期内它不会消失",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5058285121570455",
-        "duration_sec": 83.0
-      },
-      {
-        "key": "weibo_search:5070973143356587",
-        "title": "#昕礽果复利增长价值亿亿金# 林园总2024年08月04日北大国发院演讲。\n\n#A股创世纪万点大牛市# 当下就是要投，闭",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5070973143356587",
-        "duration_sec": 160.0
-      },
       {
         "key": "weibo_search:5057897471413809",
         "title": "2024.7.10，林园：医药板块的核心就是三大病，三大病的直接用药和辅助治疗，西药和中药当时都有买过。\n大川个人的话，",
@@ -278,6 +246,14 @@
         "author": "大川成长价值投资",
         "url": "https://m.weibo.cn/detail/5232934031721144",
         "duration_sec": 149.0
+      },
+      {
+        "key": "weibo_search:5070973143356587",
+        "title": "#昕礽果复利增长价值亿亿金# 林园总2024年08月04日北大国发院演讲。\n\n#A股创世纪万点大牛市# 当下就是要投，闭",
+        "source": "weibo_search",
+        "author": "昕礽果复利增长",
+        "url": "https://m.weibo.cn/detail/5070973143356587",
+        "duration_sec": 160.0
       },
       {
         "key": "weibo_search:5229718307607482",
@@ -319,7 +295,7 @@
   },
   "counts": {
     "complete": 177,
-    "failed": 1946,
+    "failed": 1948,
     "paused": 5,
     "interrupted": 6,
     "excluded": 50,
@@ -327,7 +303,8 @@
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -41834,8 +41811,8 @@
     },
     {
       "slug": "ly-1103-f9bbe8",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793715635,
         "failed": null,
@@ -41848,7 +41825,7 @@
       "run_id": 41652734733,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41652734733",
       "run_started_at": "2026-11-03T14:20:35Z",
-      "run_updated_at": "2026-11-03T14:20:40Z"
+      "run_updated_at": "2026-11-03T14:43:18Z"
     },
     {
       "slug": "ly-story-4e2fe7dbf3",
@@ -41924,11 +41901,11 @@
     },
     {
       "slug": "ly-1103-ef1101",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793715999,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41942,11 +41919,11 @@
     },
     {
       "slug": "ly-1103-9ae696",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793716323,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41956,7 +41933,7 @@
       "run_id": 41654618765,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41654618765",
       "run_started_at": "2026-11-03T14:32:03Z",
-      "run_updated_at": "2026-11-03T14:32:08Z"
+      "run_updated_at": "2026-11-03T14:40:41Z"
     },
     {
       "slug": "ly-1103-12653f",
@@ -42011,6 +41988,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41655526139",
       "run_started_at": "2026-11-03T14:37:28Z",
       "run_updated_at": "2026-11-03T14:37:33Z"
+    },
+    {
+      "slug": "ly-1103-c335b2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793717063,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41656649738,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41656649738",
+      "run_started_at": "2026-11-03T14:44:23Z",
+      "run_updated_at": "2026-11-03T14:44:27Z"
+    },
+    {
+      "slug": "ly-1103-0aae64",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793717072,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41656674409,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41656674409",
+      "run_started_at": "2026-11-03T14:44:32Z",
+      "run_updated_at": "2026-11-03T14:44:37Z"
+    },
+    {
+      "slug": "ly-1103-c0fdc5",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1793717080,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41656696427,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41656696427",
+      "run_started_at": "2026-11-03T14:44:40Z",
+      "run_updated_at": "2026-11-03T14:44:40Z"
     }
   ],
   "runs": {
@@ -63079,6 +63110,39 @@
       "run_number": 3704,
       "display_title": "中文源出片 · ly-1103-2103eb"
     },
+    "ly-1103-c0fdc5": {
+      "id": 41656696427,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-11-03T14:44:40Z",
+      "updated_at": "2026-11-03T14:44:40Z",
+      "run_started_at": "2026-11-03T14:44:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41656696427",
+      "run_number": 3712,
+      "display_title": "中文源出片 · ly-1103-c0fdc5"
+    },
+    "ly-1103-0aae64": {
+      "id": 41656674409,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T14:44:32Z",
+      "updated_at": "2026-11-03T14:44:37Z",
+      "run_started_at": "2026-11-03T14:44:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41656674409",
+      "run_number": 3711,
+      "display_title": "中文源出片 · ly-1103-0aae64"
+    },
+    "ly-1103-c335b2": {
+      "id": 41656649738,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T14:44:23Z",
+      "updated_at": "2026-11-03T14:44:27Z",
+      "run_started_at": "2026-11-03T14:44:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41656649738",
+      "run_number": 3710,
+      "display_title": "中文源出片 · ly-1103-c335b2"
+    },
     "ly-1103-539cdf": {
       "id": 41655526139,
       "status": "in_progress",
@@ -63103,10 +63167,10 @@
     },
     "ly-1103-9ae696": {
       "id": 41654618765,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T14:32:03Z",
-      "updated_at": "2026-11-03T14:32:08Z",
+      "updated_at": "2026-11-03T14:40:41Z",
       "run_started_at": "2026-11-03T14:32:03Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41654618765",
       "run_number": 3706,
@@ -63125,10 +63189,10 @@
     },
     "ly-1103-f9bbe8": {
       "id": 41652734733,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T14:20:35Z",
-      "updated_at": "2026-11-03T14:20:40Z",
+      "updated_at": "2026-11-03T14:43:18Z",
       "run_started_at": "2026-11-03T14:20:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41652734733",
       "run_number": 3700,
