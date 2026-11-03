@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793686533,
+  "updated_at": 1793686766,
   "inventory_updated_at": 1793686529,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 83,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 98,
+    "waiting_candidates": 97,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793686532,
+    "updated_at": 1793686765,
     "records": 15285,
     "video_records": 12916,
-    "initial_candidates": 237,
-    "duration_eligible_records": 98,
-    "candidate_count": 98,
-    "known_duration_candidates": 96,
+    "initial_candidates": 236,
+    "duration_eligible_records": 97,
+    "candidate_count": 97,
+    "known_duration_candidates": 95,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2810,
+      "already_attempted_or_cooling": 2811,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -326,14 +326,6 @@
         "author": "梁瑞安",
         "url": "https://m.weibo.cn/detail/4467635184061443",
         "duration_sec": 160.0
-      },
-      {
-        "key": "weibo_search:5061137706257002",
-        "title": "【稀缺记录版】 2007年网易采访林园[心][心] http://t.cn/A68JnhC6 ​​​",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5061137706257002",
-        "duration_sec": 3687.0
       },
       {
         "key": "weibo_search:5020155639496934",
@@ -1031,9 +1023,9 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1897,
+    "failed": 1899,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 47,
     "experiment_fallback": 93,
     "ready": 22,
@@ -41520,11 +41512,11 @@
     },
     {
       "slug": "ly-story-5a060021cb",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）。请重新按原文输出全部字幕。",
       "signature": {
         "ts": 1793685447,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41534,7 +41526,7 @@
       "run_id": 41586900826,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41586900826",
       "run_started_at": "2026-11-03T05:57:27Z",
-      "run_updated_at": "2026-11-03T05:57:35Z"
+      "run_updated_at": "2026-11-03T06:14:36Z"
     },
     {
       "slug": "ly-1103-fd6e70",
@@ -41556,11 +41548,11 @@
     },
     {
       "slug": "ly-1103-ba4792",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1793686044,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41589,6 +41581,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41588443380",
       "run_started_at": "2026-11-03T06:12:35Z",
       "run_updated_at": "2026-11-03T06:12:39Z"
+    },
+    {
+      "slug": "ly-1103-ad5e10",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793686725,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41589078374,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41589078374",
+      "run_started_at": "2026-11-03T06:18:44Z",
+      "run_updated_at": "2026-11-03T06:18:48Z"
     }
   ],
   "runs": {
@@ -61975,6 +61985,17 @@
       "run_number": 3629,
       "display_title": "中文源出片 · ly-1103-ba4792"
     },
+    "ly-1103-ad5e10": {
+      "id": 41589078374,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T06:18:44Z",
+      "updated_at": "2026-11-03T06:18:48Z",
+      "run_started_at": "2026-11-03T06:18:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41589078374",
+      "run_number": 3631,
+      "display_title": "中文源出片 · ly-1103-ad5e10"
+    },
     "ly-1103-50dbcb": {
       "id": 41588443380,
       "status": "in_progress",
@@ -61988,10 +62009,10 @@
     },
     "ly-story-5a060021cb": {
       "id": 41586900826,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T05:57:27Z",
-      "updated_at": "2026-11-03T05:57:35Z",
+      "updated_at": "2026-11-03T06:14:36Z",
       "run_started_at": "2026-11-03T05:57:27Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41586900826",
       "run_number": 3627,
