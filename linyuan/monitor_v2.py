@@ -935,6 +935,10 @@ class WeiboSearchSource(Source):
                 "author": (s.get("user") or {}).get("screen_name", ""),
                 "extra": json.dumps({
                     "mid": mid,
+                    # Source identity hint for excluding known duplicates only;
+                    # it does not grant catalogue, media or reuse approval.
+                    "video_object_id": str((s.get("page_info") or {}).get("object_id")
+                        or media.get("object_id") or ""),
                     "raw_text": text,
                     "has_video": bool(video_url),
                     "video_url": video_url,

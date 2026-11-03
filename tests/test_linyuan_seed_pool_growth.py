@@ -184,3 +184,44 @@ def test_priority_queues_share_one_bounded_budget_and_donate_empty_slots(base,lo
     rows += [dict(mid='s'+str(i),duration=180) for i in range(short_count)]
     batch=list(G.weibo_priority_batch(rows,base/'scan.json',limit,{}))
     assert len(batch)==expected and len({r['mid'] for r in batch})==expected
+
+
+def test_cached_known_media_skips_network_but_never_adds_a_seed(base):
+    old=str(int(MID)-1)
+    (base/'weibo_seeds.json').write_text(json.dumps(dict(urls=['https://m.weibo.cn/detail/'+old],
+        verified_sources=[dict(mid=old,source_parent_id='weibo:1034:'+old,
+            video_identity_sha256=G.video_path_hash('https://cdn.example.com/known.mp4'))])))
+    lead(base,video_url='https://cdn.example.com/known.mp4?Expires=CHANGED')
+    def forbidden():raise AssertionError('Known duplicate must not consume an exact lookup')
+    report=G.grow_weibo(base,session=forbidden)
+    assert report['known_duplicate_leads']==1 and report['exact_checks']==report['added_count']==0
+    assert G.census(base)['total']==1
+
+
+def test_cached_object_identity_skips_an_alternate_stream_variant(base):
+    old=str(int(MID)-1)
+    (base/'weibo_seeds.json').write_text(json.dumps(dict(urls=['https://m.weibo.cn/detail/'+old],
+        verified_sources=[dict(mid=old,source_parent_id='weibo:1034:'+old)])))
+    lead(base,video_object_id='1034:'+old,video_url='https://cdn.example.com/another-encoding.mp4')
+    def forbidden():raise AssertionError('A known video object is the same parent')
+    assert G.grow_weibo(base,session=forbidden)['known_duplicate_leads']==1
+
+
+def test_new_cached_identity_does_not_bypass_exact_verification_or_old_backoff(base):
+    lead(base,video_object_id='1034:'+MID,video_url='https://cdn.example.com/unseen.mp4')
+    row=status();row['page_info']={}
+    report=G.grow_weibo(base,session=session({MID:row}))
+    assert report['exact_checks']==1 and report['added_count']==0
+    from hashlib import sha256
+    original=dict(mid=MID,title='林园完整访谈：我的投资经历',duration=1800,author='实际发布者')
+    assert G.lead_signature({**original,'cached_video_object_id':'new_hint'})==sha256(
+        json.dumps(original,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+
+
+def test_missing_cached_identity_does_not_match_an_unknown_saved_hash(base):
+    old=str(int(MID)-1)
+    (base/'weibo_seeds.json').write_text(json.dumps(dict(urls=['https://m.weibo.cn/detail/'+old])))
+    lead(base,old,video_url='https://cdn.example.com/')
+    lead(base)
+    report=G.grow_weibo(base,session=session({MID:status()}))
+    assert report['known_duplicate_leads']==0 and report['exact_checks']==report['added_count']==1

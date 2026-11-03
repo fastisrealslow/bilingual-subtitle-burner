@@ -21,7 +21,10 @@ WEIBO_RECHECK_SECONDS = 86400
 
 
 def lead_signature(lead):
-    return hashlib.sha256(json.dumps(lead, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    # Retain existing retry clocks when cached identity hints are added. An
+    # expiring URL or newly stored hint must not reopen unchanged bad leads.
+    identity={k:lead[k] for k in ('mid','title','duration','author') if k in lead}
+    return hashlib.sha256(json.dumps(identity, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
 
 
 def weibo_priority_batch(leads, path, limit, state):
@@ -86,7 +89,9 @@ def weibo_leads(base):
                     or extra.get('direct_dispatch') is False or extra.get('reuse_hold_reason')
                     or row['author'] in {'', '园园滚雪球', '园来滚雪球'}):
                 continue
-            leads[mid] = dict(mid=mid, title=title, duration=duration, author=row['author'])
+            leads[mid] = dict(mid=mid, title=title, duration=duration, author=row['author'],
+                cached_video_identity_sha256=video_path_hash(extra.get('video_url')),
+                cached_video_object_id=extra.get('video_object_id'))
     # Long interviews first, then shorter complete material; never claim these
     # metadata durations describe decoded/approved video.
     return sorted(leads.values(), key=lambda r: (not 1200 <= r['duration'] <= 5400, -r['duration'], r['mid']))
@@ -155,12 +160,20 @@ def grow_weibo(base=BASE, *, target=TARGET, limit=WEIBO_LIMIT, session=None):
             if str(extra.get('mid')) in ids and extra.get('video_url'):
                 seen_media.add(video_path_hash(extra['video_url']))
     discovered = weibo_leads(base)
+    # These hints may only exclude a video already in the catalogue. Every
+    # unseen identity still needs a fresh exact lookup before it can be added.
+    duplicates=[lead for lead in discovered if (
+        lead.get('cached_video_identity_sha256') and lead['cached_video_identity_sha256'] in seen_media
+        or lead.get('cached_video_object_id') and 'weibo:'+str(lead['cached_video_object_id']) in parent_ids)]
+    duplicate_mids={lead['mid'] for lead in duplicates}
     attempts = state.setdefault('weibo_attempts', {})
-    leads = [lead for lead in discovered if not (
+    unseen=[lead for lead in discovered if lead['mid'] not in duplicate_mids]
+    leads = [lead for lead in unseen if not (
         attempts.get(lead['mid'], {}).get('signature') == lead_signature(lead)
         and attempts[lead['mid']].get('next_check_at', 0) > now)]
     report.update(discovery_leads=len(discovered), eligible_checks=len(leads),
-                  deferred_checks=len(discovered)-len(leads), exact_checks=0)
+                  deferred_checks=len(unseen)-len(leads), exact_checks=0,
+                  known_duplicate_leads=len(duplicates))
     if not leads:
         return report
     try:
