@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793711825,
+  "updated_at": 1793711956,
   "inventory_updated_at": 1793711819,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 86,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 33,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 32,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793711823,
+    "updated_at": 1793711954,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 206,
-    "duration_eligible_records": 33,
-    "candidate_count": 33,
-    "known_duration_candidates": 33,
+    "initial_candidates": 205,
+    "duration_eligible_records": 32,
+    "candidate_count": 32,
+    "known_duration_candidates": 32,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2894,
+      "already_attempted_or_cooling": 2895,
       "speaker_unconfirmed": 8121,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,22 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4461047731763836",
-        "title": "【林园：目前市场处于熊末牛初阶段，投资人不能掉以轻心】\n深圳林园投资董事长、《红周刊》荣誉顾问林园在 #2020红周刊投",
-        "source": "weibo_search",
-        "author": "价值策划",
-        "url": "https://m.weibo.cn/detail/4461047731763836",
-        "duration_sec": 188.0
-      },
-      {
-        "key": "weibo_search:5223764318489451",
-        "title": "#林园称未来人没用的是享乐的#【人工智能重塑一切？#林园称未来金钱将变得毫无价值#】对于未来，深圳市林园投资董事长林园在",
-        "source": "weibo_search",
-        "author": "价值策划",
-        "url": "https://m.weibo.cn/detail/5223764318489451",
-        "duration_sec": 30.0
-      },
       {
         "key": "weibo_search:5319489015251216",
         "title": "林园：我这人就不会失败，因为我永远不买贵的东西。这是 2007 年的一段采访视频。[不愧是你][不愧是你][不愧是你] ",
@@ -342,6 +326,14 @@
         "author": "科迈GenMedi",
         "url": "https://m.weibo.cn/detail/5226112590288038",
         "duration_sec": 237.0
+      },
+      {
+        "key": "weibo_search:5223764318489451",
+        "title": "#林园称未来人没用的是享乐的#【人工智能重塑一切？#林园称未来金钱将变得毫无价值#】对于未来，深圳市林园投资董事长林园在",
+        "source": "weibo_search",
+        "author": "价值策划",
+        "url": "https://m.weibo.cn/detail/5223764318489451",
+        "duration_sec": 30.0
       },
       {
         "key": "weibo_search:5229303746791324",
@@ -513,13 +505,13 @@
     "complete": 177,
     "failed": 1930,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 50,
     "experiment_fallback": 99,
     "ready": 21,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 4
+    "retry_queued": 2,
+    "running": 5
   },
   "tasks": [
     {
@@ -41810,14 +41802,14 @@
     },
     {
       "slug": "ly-1103-7c72f0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793711335,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793713681,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -41843,6 +41835,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41642470862",
       "run_started_at": "2026-11-03T13:13:48Z",
       "run_updated_at": "2026-11-03T13:13:52Z"
+    },
+    {
+      "slug": "ly-1103-d471ac",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793711914,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41643186342,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41643186342",
+      "run_started_at": "2026-11-03T13:18:34Z",
+      "run_updated_at": "2026-11-03T13:18:38Z"
     }
   ],
   "runs": {
@@ -62701,6 +62711,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41641750634",
       "run_number": 3686,
       "display_title": "中文源出片 · ly-1103-7c72f0"
+    },
+    "ly-1103-d471ac": {
+      "id": 41643186342,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T13:18:34Z",
+      "updated_at": "2026-11-03T13:18:38Z",
+      "run_started_at": "2026-11-03T13:18:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41643186342",
+      "run_number": 3688,
+      "display_title": "中文源出片 · ly-1103-d471ac"
     },
     "ly-1103-a01a90": {
       "id": 41642470862,
