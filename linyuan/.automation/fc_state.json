@@ -87030,7 +87030,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4461110143390067",
@@ -87086,7 +87087,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5297343276782706",
@@ -87132,7 +87134,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-08-23T16:22:00+08:00"
+   "publish_time": "2024-08-23T16:22:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-c6515b",
+    "run_id": 41594595354,
+    "artifact_id": 13212545124,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3036a357d7987b0811bc6ed84e665750732ab39b06af25f046168cb6c7e3c262",
+     "duration_sec": 30.56,
+     "resolution": {
+      "width": 540,
+      "height": 960,
+      "short_edge": 540
+     },
+     "source_url": "https://m.weibo.cn/detail/5070569009054227"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41594595354,
+    "artifact_id": 13212545124,
+    "name": "production-reject-ly-1103-c6515b",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4534963887935791",
@@ -182721,6 +182756,13 @@
    "key": "weibo_search:4461634687113039",
    "video_id": "https://miaopai.video.weibocdn.com/004ke0WAlx07Abjgv5hS01041209Tg0t0E043.mp4",
    "ts": 1793690283,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-c6515b",
+   "key": "weibo_search:5070569009054227",
+   "video_id": "https://f.video.weibocdn.com/o0/wcsLAt37lx08hrIjcgSQ0104120034bj0E010.mp4",
+   "ts": 1793690740,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
