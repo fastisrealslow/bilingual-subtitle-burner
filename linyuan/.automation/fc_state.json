@@ -87525,7 +87525,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-11-03T10:15:46+08:00"
+   "publish_time": "2025-11-03T10:15:46+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-1be517",
+    "run_id": 41598248481,
+    "artifact_id": 13215246103,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "86cb493498c8e6f2029b406d75e09dc6def05e7bb0d02d16c15fd30677b66dec",
+     "duration_sec": 2251.2,
+     "resolution": {
+      "width": 1484,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5228840335182583"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少核心观点：嘉宾未就任何议题做出判断或陈述，仅包含寒暄与身世轶事，不构成可独立成片的完整表达。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41598248481,
+    "artifact_id": 13215246103,
+    "name": "production-reject-ly-1103-1be517",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：缺少核心观点：嘉宾未就任何议题做出判断或陈述，仅包含寒暄与身世轶事，不构成可独立成片的完整表达。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5070575325940645",
@@ -184090,6 +184123,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/Cp3jOpDmlx08hrEgGVgk010412005pRo0E010.mp4",
    "ts": 1793693355,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-1be517",
+   "key": "weibo_search:5228840335182583",
+   "video_id": "https://f.video.weibocdn.com/u0/urqpJfMogx08sFuUwCCY01041208bbbA0E030.mp4",
+   "ts": 1793694109,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：缺少核心观点：嘉宾未就任何议题做出判断或陈述，仅包含寒暄与身世轶事，不构成可独立成片的完整表达。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
