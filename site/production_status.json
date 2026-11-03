@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793692989,
+  "updated_at": 1793693082,
   "inventory_updated_at": 1793692981,
   "continuity": {
     "daily_target": 4,
@@ -197,9 +197,9 @@
       },
       {
         "date": "2026-11-03",
-        "published": 2,
+        "published": 3,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 1,
         "valid_comparison": false
       }
@@ -209,7 +209,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793692986,
+    "updated_at": 1793693080,
     "records": 15323,
     "video_records": 12954,
     "initial_candidates": 231,
@@ -694,13 +694,13 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 175,
+    "complete": 176,
     "failed": 1917,
     "paused": 5,
     "interrupted": 5,
-    "excluded": 47,
+    "excluded": 48,
     "experiment_fallback": 95,
-    "ready": 23,
+    "ready": 21,
     "validation_failed": 2,
     "retry_queued": 4,
     "running": 4
@@ -34974,13 +34974,13 @@
     },
     {
       "slug": "ly-1031-5bcfb2",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793442727,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -35010,8 +35010,8 @@
     },
     {
       "slug": "ly-1031-ca5dda",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793443774,
         "failed": null,
