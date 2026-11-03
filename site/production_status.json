@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793709757,
+  "updated_at": 1793709902,
   "inventory_updated_at": 1793709751,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 86,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 38,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 37,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793709755,
+    "updated_at": 1793709900,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 211,
-    "duration_eligible_records": 38,
-    "candidate_count": 38,
-    "known_duration_candidates": 38,
+    "initial_candidates": 210,
+    "duration_eligible_records": 37,
+    "candidate_count": 37,
+    "known_duration_candidates": 37,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2889,
+      "already_attempted_or_cooling": 2890,
       "speaker_unconfirmed": 8121,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,14 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5214460718618775",
-        "title": "8000元入市到千亿身家，中国“股神”林园的传奇故事！\n“中国巴菲特”林园完整路演回放http://t.cn/A6k3B",
-        "source": "weibo_search",
-        "author": "排排网",
-        "url": "https://m.weibo.cn/detail/5214460718618775",
-        "duration_sec": 104.0
-      },
       {
         "key": "weibo_search:4229382468498328",
         "title": "#春瑜会客厅#  林园2006年低位建仓，持有茅台到至今。2016年清仓银行股、保险股，如今满仓买入医药股。近期，私募排",
@@ -551,15 +543,15 @@
   },
   "counts": {
     "complete": 176,
-    "failed": 1926,
+    "failed": 1927,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 49,
     "experiment_fallback": 101,
     "ready": 21,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -41796,11 +41788,11 @@
     },
     {
       "slug": "ly-1103-034c92",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.17/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4497631998840128']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1793709494,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41811,6 +41803,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41637389514",
       "run_started_at": "2026-11-03T12:38:13Z",
       "run_updated_at": "2026-11-03T12:40:15Z"
+    },
+    {
+      "slug": "ly-1103-7c72f0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793709843,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41638197323,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41638197323",
+      "run_started_at": "2026-11-03T12:44:03Z",
+      "run_updated_at": "2026-11-03T12:44:07Z"
     }
   ],
   "runs": {
@@ -62625,6 +62635,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41637389514",
       "run_number": 3682,
       "display_title": "中文源出片 · ly-1103-034c92"
+    },
+    "ly-1103-7c72f0": {
+      "id": 41638197323,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T12:44:03Z",
+      "updated_at": "2026-11-03T12:44:07Z",
+      "run_started_at": "2026-11-03T12:44:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41638197323",
+      "run_number": 3683,
+      "display_title": "中文源出片 · ly-1103-7c72f0"
     },
     "ly-1103-06fc0b": {
       "id": 41636740651,
