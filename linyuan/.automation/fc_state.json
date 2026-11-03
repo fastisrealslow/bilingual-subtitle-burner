@@ -88896,7 +88896,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-07-28T08:03:11+08:00"
+   "publish_time": "2020-07-28T08:03:11+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-a01a90",
+    "run_id": 41642470862,
+    "artifact_id": 13234391198,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0b12eb211670f3411de242bf9ae690ab299cc1202bd295791899300821af0639",
+     "duration_sec": 572.13,
+     "resolution": {
+      "width": 626,
+      "height": 1280,
+      "short_edge": 626
+     },
+     "source_url": "https://m.weibo.cn/detail/4531572718701189"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41642470862,
+    "artifact_id": 13234391198,
+    "name": "production-reject-ly-1103-a01a90",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4461047731763836",
@@ -88919,7 +88956,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-01-15T17:22:04+08:00"
+   "publish_time": "2020-01-15T17:22:04+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-d471ac",
+    "run_id": 41643186342,
+    "artifact_id": 13234302241,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "88a8897afea9af7fcf2533f2f977e33fff56898a91bfcac437551b8b78a19b69",
+     "duration_sec": 188.87,
+     "resolution": {
+      "width": 1440,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4461047731763836"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41643186342,
+    "artifact_id": 13234302241,
+    "name": "production-reject-ly-1103-d471ac",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.04秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -185455,6 +185525,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/hTJlCQ2vlx08zf7luvT201041200d3qR0E010.mp4",
    "ts": 1793711298,
    "error": "与已发布内容文字指纹重复：转写片段重合 50%（BV1Vo4666EGM）"
+  },
+  {
+   "slug": "ly-1103-d471ac",
+   "key": "weibo_search:4461047731763836",
+   "video_id": "https://miaopai.video.weibocdn.com/002CdTYglx07Ab0NXbtS01041203ZQFF0E023.mp4",
+   "ts": 1793712710,
+   "error": "动态取景连续2.04秒缺少人脸"
+  },
+  {
+   "slug": "ly-1103-a01a90",
+   "key": "weibo_search:4531572718701189",
+   "video_id": "https://f.video.weibocdn.com/002yub66gx07FbrjOvLh01041201dHjY0E010.mp4",
+   "ts": 1793712710,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
