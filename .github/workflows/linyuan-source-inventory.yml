@@ -34,7 +34,9 @@ jobs:
   inventory:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.name != 'FC production deploy' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # A validator-code update rechecks every retained actual MP4 once. The
+    # larger reserve must fit that bounded full pass, including tool setup.
+    timeout-minutes: 60
     env:
       GH_TOKEN: ${{ github.token }}
       GITHUB_TOKEN: ${{ github.token }}
@@ -60,6 +62,7 @@ jobs:
         run: |
           python -m pytest -q tests/test_linyuan_production_status.py tests/test_linyuan_source_admission.py
           python -m pytest -q tests/test_linyuan_reserve_integrity.py
+          python -m pytest -q tests/test_linyuan_inventory_index_recovery.py tests/test_linyuan_inventory_api_retry.py
           python -m pytest -q tests/test_linyuan_runner_dispatch.py
           node --test tests/test_production_status_page.cjs
           python linyuan/source_supply.py --max-new 4

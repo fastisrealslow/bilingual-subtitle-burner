@@ -95,9 +95,10 @@ def test_upload_in_progress_and_completed_receipt_cannot_fill_reserve(monkeypatc
     assert fc.source_inventory(state,payload)['daily_mix_usable'] == 0
 
 
-def test_cached_old_file_requires_live_exact_artifact_evidence(monkeypatch):
+def test_legacy_cached_old_file_requires_live_exact_artifact_evidence(monkeypatch):
     state, payload = reserve('p', monkeypatch)
     cached = payload['artifacts']
+    cached[0].pop('run_id')  # Old snapshots need the exact-ID lookup.
     candidates = {'mother-0':state['dispatched'][0]}
     artifact = dict(id=1,name='deliver-mother-0',expired=False,
                     expires_at='2026-09-17T00:00:00Z')

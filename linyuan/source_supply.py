@@ -155,22 +155,51 @@ def find_deliveries(candidates, api, runs, previous=()):
     # the older/higher ID first. Explicit creation time decides canonicality.
     def generation(artifact):
         return (str(artifact.get('created_at') or ''),int(artifact.get('id') or 0))
-    for page in range(1, 4):
-        rows = api(f'actions/artifacts?per_page=100&page={page}').get('artifacts', [])
-        for artifact in rows:
-            slug = artifact['name'].removeprefix('deliver-')
-            if (artifact['name'].startswith('deliver-') and slug in candidates
-                    and fc.inventory_record_current(artifact)):
-                if slug not in found or generation(artifact)>generation(found[slug]):
-                    found[slug]=artifact
-        if len(rows) < 100:
-            break
+    index_error=None
+    try:
+        for page in range(1, 4):
+            rows = api(f'actions/artifacts?per_page=100&page={page}').get('artifacts', [])
+            for artifact in rows:
+                slug = artifact['name'].removeprefix('deliver-')
+                if (artifact['name'].startswith('deliver-') and slug in candidates
+                        and fc.inventory_record_current(artifact)):
+                    if slug not in found or generation(artifact)>generation(found[slug]):
+                        found[slug]=artifact
+            if len(rows) < 100:
+                break
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, urllib.error.URLError, TimeoutError) as exc:
+        # A failed repository-wide index must not block narrower, independently
+        # authenticated reads of our actual producer runs and known files.
+        # Those reads still fail closed; the old timestamp is never refreshed
+        # merely because a previous approval exists.
+        index_error=exc
+        error=getattr(exc,'stderr',b'') or b''
+        if isinstance(error,bytes):error=error.decode('utf-8',errors='replace')
+        status=re.search(r'\bHTTP (\d{3})\b',error)
+        print('Repository artifact index unavailable; verifying exact producer runs and known artifact identities; '
+              f'error_type={type(exc).__name__}; http_status={status.group(1) if status else getattr(exc,"code",None)}',file=sys.stderr)
+    run_artifacts={}
+    def artifacts_for(run_id):
+        if run_id not in run_artifacts:
+            endpoint=f'actions/runs/{int(run_id)}/artifacts'
+            response=api(endpoint)
+            rows=list(response.get('artifacts',[]))
+            total=response.get('total_count',len(rows))
+            for page in range(2,5):
+                if len(rows)>=total:break
+                response=api(endpoint+f'?per_page=30&page={page}')
+                batch=response.get('artifacts',[])
+                if not batch:raise RuntimeError('Exact producer artifact listing is incomplete')
+                rows.extend(batch)
+            if len(rows)<total:raise RuntimeError('Exact producer artifact listing exceeds bounded pages')
+            run_artifacts[run_id]=rows
+        return run_artifacts[run_id]
     for slug in candidates.keys() - found.keys():
         run = runs.get(slug) or {}
         if run.get('status') != 'completed':
             continue
         # A partial batch can upload a valid delivery even if its final job failed.
-        rows = api(f"actions/runs/{run['id']}/artifacts").get('artifacts', [])
+        rows = artifacts_for(run['id'])
         matches = [a for a in rows if a['name'] == 'deliver-' + slug and fc.inventory_record_current(a)]
         if matches:
             found[slug] = max(matches, key=generation)
@@ -180,11 +209,18 @@ def find_deliveries(candidates, api, runs, previous=()):
         slug = record.get('slug')
         if slug not in candidates or slug in found:
             continue
-        artifact = cached_artifact(api, record['artifact_id'])
+        if record.get('run_id'):
+            artifact=next((a for a in artifacts_for(record['run_id'])
+                           if int(a.get('id',0))==int(record['artifact_id'])),None)
+        else:
+            artifact = cached_artifact(api, record['artifact_id'])
         if (artifact and artifact.get('name') == 'deliver-' + slug
                 and int(artifact.get('id', 0)) == int(record['artifact_id'])
                 and fc.inventory_record_current(artifact)):
             found[slug] = artifact
+    if index_error is not None and not found:
+        # Failed discovery is not a newly verified empty reserve.
+        raise index_error
     return found
 
 
