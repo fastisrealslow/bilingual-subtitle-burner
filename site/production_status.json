@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793731025,
+  "updated_at": 1793731195,
   "inventory_updated_at": 1793731021,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 88,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 7,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,18 +209,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793731024,
+    "updated_at": 1793731194,
     "records": 15422,
     "video_records": 13030,
-    "initial_candidates": 182,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 178,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8110,
       "clip_title": 1396,
-      "already_attempted_or_cooling": 2994,
+      "already_attempted_or_cooling": 2998,
       "no_video": 2392,
       "unrelated": 76,
       "reference_only": 204,
@@ -231,38 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5216532608582825",
-        "title": "2018林园:投资股市至少需要15年才能赚够3000万。 http://t.cn/AX7SUecz ​​​",
-        "source": "weibo_search",
-        "author": "全球独一",
-        "url": "https://m.weibo.cn/detail/5216532608582825",
-        "duration_sec": 126.0
-      },
-      {
-        "key": "weibo_search:4413192766116660",
-        "title": "#证券#  #股票# 2012年夏天，#林园# 接受央视《中国经营者》栏目的采访。2007年股市最高位发行的三只深国投-",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4413192766116660",
-        "duration_sec": 391.0
-      },
-      {
-        "key": "weibo_search:5029637569381976",
-        "title": "林园说:牛市随时要来啦！牛市初期即将走完，真正的牛市就会开始！#香港股市进入技术性牛市# http://t.cn/A6H",
-        "source": "weibo_search",
-        "author": "麒炜投资",
-        "url": "https://m.weibo.cn/detail/5029637569381976",
-        "duration_sec": 93.0
-      },
-      {
-        "key": "weibo_search:5216342908339289",
-        "title": "2018林园:投资股市至少需要15年才能赚够3000万。 http://t.cn/AX7SUecz ​​​",
-        "source": "weibo_search",
-        "author": "价值成长的天空一追求复合增长",
-        "url": "https://m.weibo.cn/detail/5216342908339289",
-        "duration_sec": 126.0
-      },
       {
         "key": "weibo_search:5196928881001046",
         "title": "林园：目前的医药行业估值并不高，成长空间非常巨大，三大病的就诊量过去三年翻了一倍。现在的医药股，就是强大的品牌，婴儿的股",
@@ -303,15 +271,15 @@
   },
   "counts": {
     "complete": 177,
-    "failed": 1963,
+    "failed": 1965,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 6,
     "excluded": 50,
     "experiment_fallback": 102,
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 5
   },
   "tasks": [
     {
@@ -42268,11 +42236,11 @@
     },
     {
       "slug": "ly-1103-4b3eb6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 446 < 480（592x446），画质不达标",
       "signature": {
         "ts": 1793730704,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42304,11 +42272,11 @@
     },
     {
       "slug": "ly-1103-b9e745",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[10, 17]，scan_different=[2, 6, 7, 8, 12, 13, 14, 15, 16]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: -0.0172, 6: -0.0543, 7: 0.0536, 8: -0.0024, 10: 0.5092, 12: 0.1128, 13: 0.0376, 14: -0.0023, 15: 0.2578, 16: 0.0718, 17: 0.6731}",
       "signature": {
         "ts": 1793730719,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42318,7 +42286,61 @@
       "run_id": 41694709419,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694709419",
       "run_started_at": "2026-11-03T18:31:59Z",
-      "run_updated_at": "2026-11-03T18:32:04Z"
+      "run_updated_at": "2026-11-03T18:37:14Z"
+    },
+    {
+      "slug": "ly-1103-6e5775",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793731135,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41695808164,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695808164",
+      "run_started_at": "2026-11-03T18:38:55Z",
+      "run_updated_at": "2026-11-03T18:39:00Z"
+    },
+    {
+      "slug": "ly-1103-9f044b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793731143,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41695828273,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695828273",
+      "run_started_at": "2026-11-03T18:39:03Z",
+      "run_updated_at": "2026-11-03T18:39:07Z"
+    },
+    {
+      "slug": "ly-1103-6735c1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793731151,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41695846950,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695846950",
+      "run_started_at": "2026-11-03T18:39:10Z",
+      "run_updated_at": "2026-11-03T18:39:17Z"
     }
   ],
   "runs": {
@@ -63596,12 +63618,56 @@
       "run_number": 3724,
       "display_title": "中文源出片 · ly-1103-b5d323"
     },
-    "ly-1103-b9e745": {
-      "id": 41694709419,
+    "ly-1103-4b3eb6": {
+      "id": 41694667332,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T18:31:43Z",
+      "updated_at": "2026-11-03T18:34:25Z",
+      "run_started_at": "2026-11-03T18:31:43Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694667332",
+      "run_number": 3728,
+      "display_title": "中文源出片 · ly-1103-4b3eb6"
+    },
+    "ly-1103-6735c1": {
+      "id": 41695846950,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-03T18:39:10Z",
+      "updated_at": "2026-11-03T18:39:17Z",
+      "run_started_at": "2026-11-03T18:39:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695846950",
+      "run_number": 3733,
+      "display_title": "中文源出片 · ly-1103-6735c1"
+    },
+    "ly-1103-9f044b": {
+      "id": 41695828273,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T18:39:03Z",
+      "updated_at": "2026-11-03T18:39:07Z",
+      "run_started_at": "2026-11-03T18:39:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695828273",
+      "run_number": 3732,
+      "display_title": "中文源出片 · ly-1103-9f044b"
+    },
+    "ly-1103-6e5775": {
+      "id": 41695808164,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T18:38:55Z",
+      "updated_at": "2026-11-03T18:39:00Z",
+      "run_started_at": "2026-11-03T18:38:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41695808164",
+      "run_number": 3731,
+      "display_title": "中文源出片 · ly-1103-6e5775"
+    },
+    "ly-1103-b9e745": {
+      "id": 41694709419,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-03T18:31:59Z",
-      "updated_at": "2026-11-03T18:32:04Z",
+      "updated_at": "2026-11-03T18:37:14Z",
       "run_started_at": "2026-11-03T18:31:59Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694709419",
       "run_number": 3730,
@@ -63617,17 +63683,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694687016",
       "run_number": 3729,
       "display_title": "中文源出片 · ly-1103-aa3242"
-    },
-    "ly-1103-4b3eb6": {
-      "id": 41694667332,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-03T18:31:43Z",
-      "updated_at": "2026-11-03T18:34:25Z",
-      "run_started_at": "2026-11-03T18:31:43Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41694667332",
-      "run_number": 3728,
-      "display_title": "中文源出片 · ly-1103-4b3eb6"
     },
     "ly-1103-f1f756": {
       "id": 41694646036,
