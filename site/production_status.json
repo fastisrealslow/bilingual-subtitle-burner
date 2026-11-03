@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793684844,
+  "updated_at": 1793685032,
   "inventory_updated_at": 1793684837,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 84,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 104,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 102,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793684842,
+    "updated_at": 1793685030,
     "records": 15285,
     "video_records": 12916,
-    "initial_candidates": 243,
-    "duration_eligible_records": 104,
-    "candidate_count": 104,
-    "known_duration_candidates": 102,
+    "initial_candidates": 241,
+    "duration_eligible_records": 102,
+    "candidate_count": 102,
+    "known_duration_candidates": 100,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2804,
+      "already_attempted_or_cooling": 2806,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,14 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4513781915241742",
-        "title": "林园：2006年夏天，林园应陕西电视台《今日证券》邀请，与投资者交流",
-        "source": "weibo_search",
-        "author": "高宇飚",
-        "url": "https://m.weibo.cn/detail/4513781915241742",
-        "duration_sec": 3174.0
-      },
       {
         "key": "weibo_search:4755556051452193",
         "title": "【稀缺收藏】林园：寻找中国的巴菲特 2007年版！收藏转发！[威武][威武][给力][给力][打call][打call]",
@@ -752,14 +744,6 @@
         "duration_sec": 257.0
       },
       {
-        "key": "weibo_search:4513588440549554",
-        "title": "风物长宜放眼量：\n\n这段视频的时间是2006年夏天，林园#应陕西电视台《今日证券》邀请，与投资者交流，分享他早年的投资经",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4513588440549554",
-        "duration_sec": 3174.0
-      },
-      {
         "key": "weibo_search:4513669478064079",
         "title": "华夏银保水镜直播间——对话民间“股神”林园专场 2020.4.12 15:00\n\n（[心]本着对大家负责的态度，备注一下",
         "source": "weibo_search",
@@ -1079,15 +1063,15 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1894,
+    "failed": 1895,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 45,
     "experiment_fallback": 94,
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -41442,11 +41426,11 @@
     },
     {
       "slug": "ly-1102-2800e4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景连续2.04秒缺少人脸",
       "signature": {
         "ts": 1793681766,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41565,6 +41549,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41583884481",
       "run_started_at": "2026-11-03T05:25:59Z",
       "run_updated_at": "2026-11-03T05:26:08Z"
+    },
+    {
+      "slug": "ly-1103-a51ab4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793684988,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41586173151,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41586173151",
+      "run_started_at": "2026-11-03T05:49:48Z",
+      "run_updated_at": "2026-11-03T05:49:52Z"
     }
   ],
   "runs": {
@@ -61907,6 +61909,28 @@
       "run_number": 3616,
       "display_title": "中文源出片 · ly-story-5a060021cb"
     },
+    "ly-1102-2800e4": {
+      "id": 41580943763,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T04:56:05Z",
+      "updated_at": "2026-11-03T05:45:05Z",
+      "run_started_at": "2026-11-03T04:56:05Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41580943763",
+      "run_number": 3619,
+      "display_title": "中文源出片 · ly-1102-2800e4"
+    },
+    "ly-1103-a51ab4": {
+      "id": 41586173151,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T05:49:48Z",
+      "updated_at": "2026-11-03T05:49:52Z",
+      "run_started_at": "2026-11-03T05:49:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41586173151",
+      "run_number": 3626,
+      "display_title": "中文源出片 · ly-1103-a51ab4"
+    },
     "ly-1103-458d9b": {
       "id": 41583884481,
       "status": "in_progress",
@@ -61939,17 +61963,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41581910231",
       "run_number": 3623,
       "display_title": "中文源出片 · ly-1103-190b3d"
-    },
-    "ly-1102-2800e4": {
-      "id": 41580943763,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-03T04:56:05Z",
-      "updated_at": "2026-11-03T05:45:05Z",
-      "run_started_at": "2026-11-03T04:56:05Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41580943763",
-      "run_number": 3619,
-      "display_title": "中文源出片 · ly-1102-2800e4"
     }
   }
 }
