@@ -87315,7 +87315,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1347, 2: 0.0887, 3: 0.1058, 4: 0.1556, 5: 0.057, 6: 0.2256, 7: 0.121, 9: 0.1677, 10: 0.1764, 11: 0.1506, 12: 0.1492, 13: 0.1839, 14: 0.1038, 15: 0.1644, 16: 0.0606, 17: 0.1855, 18: 0.1385}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV16q4P6mEod",
@@ -87338,7 +87339,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-02T12:28:01+00:00"
+   "publish_time": "2026-11-02T12:28:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-1258a5",
+    "run_id": 41596862779,
+    "artifact_id": 13213266392,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "186e8b1451892c8aeba6ddb4dd69836469a26144b9b9766181c5a468550943bd",
+     "duration_sec": 194.91,
+     "resolution": {
+      "width": 1920,
+      "height": 1066,
+      "short_edge": 1066
+     },
+     "source_url": "https://www.bilibili.com/video/BV16q4P6mEod"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 69%（BV1KtnG6NEvc）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41596862779,
+    "artifact_id": 13213266392,
+    "name": "production-reject-ly-1103-1258a5",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 69%（BV1KtnG6NEvc）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4592847707970171",
@@ -87361,7 +87395,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-13T10:08:07+08:00"
+   "publish_time": "2021-01-13T10:08:07+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-91c929",
+    "run_id": 41596875293,
+    "artifact_id": 13213075832,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d7c9a5e0659fe00933c764fe9a4b90331f3b829f5f0016bee652c877f51db811",
+     "duration_sec": 37.77,
+     "resolution": {
+      "width": 544,
+      "height": 960,
+      "short_edge": 544
+     },
+     "source_url": "https://m.weibo.cn/detail/4592847707970171"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1.70s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41596875293,
+    "artifact_id": 13213075832,
+    "name": "production-reject-ly-1103-91c929",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 1.70s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4467635184061443",
@@ -182979,6 +183046,20 @@
    "video_id": "https://miaopai.video.weibocdn.com/002e0OIIlx07AxDMuUvm01041206A6R30E033.mp4",
    "ts": 1793691285,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"啊，是这样，还有就是我们券商，券商是我我我，我，就是券券商股，我以前我，自看好两个，就是确定高的券商，也是一个和国际，没有接轨的。\", \"suspect_quote\": \"和国际，没有接轨的\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“国际”疑似为专名（如某国际机构或国家）被误识别为通用词，且前后文逻辑断裂，无法确认是否指代特定实体或存在否定含义缺失。\"}, {\"sentence_id\": 10, \"quote\": \"我们的地产、银行，还有制造业，现在都是，全世界的第一了，所以我们不投，券商跟那个国外，相对来说，我们就是指的这这个差距还非常大。\", \"suspect_quote\": \"全世界的第一了\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“第一”作为序数词在口语中可能指代排名，但结合上下文“不投”，此处可能存在对“第一”的否定或特定语境误解，需核实原音确认是否表达“并非第一”或特指某领域。\"}, {\"sentence_id\": 15, \"quote\": \"啊，那么我们，比如说我们到一百四、一百五的时候，我们就把它卖了。\", \"suspect_quote\": \"一百四、一百五\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字“一百四、一百五”在可转债强赎语境下可能指代价格区间，但缺乏单位（元）或具体标的，且口语中可能存在省略或误读，需核实原音确认数值准确性。\"}, {\"sentence_id\": 17, \"quote\": \"一百零几，券商，还有这个这个这个什么，呃，银行，我就买入医药，一百零几嘛。\", \"suspect_quote\": \"一百零几嘛\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“一百零几”为模糊数字，结合上下文可能指代具体价格或代码，但缺乏明确单位或标的，需核实原音确认数值含义。\"}]"
+  },
+  {
+   "slug": "ly-1103-91c929",
+   "key": "weibo_search:4592847707970171",
+   "video_id": "https://f.video.weibocdn.com/6TkfSHzxlx07Joki2sMg010412006nHS0E010.mp4",
+   "ts": 1793691788,
+   "error": "整段取景预检：源 1.70s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1103-1258a5",
+   "key": "bilibili_search:BV16q4P6mEod",
+   "video_id": "BV16q4P6mEod",
+   "ts": 1793691788,
+   "error": "与已发布内容文字指纹重复：转写片段重合 69%（BV1KtnG6NEvc）"
   }
  ],
  "reviewed_third_video_0910": {
