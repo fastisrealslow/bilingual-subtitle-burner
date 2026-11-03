@@ -88814,7 +88814,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5321556835438048",
@@ -88837,7 +88838,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-17T06:38:02+08:00"
+   "publish_time": "2026-07-17T06:38:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-fa1ac7",
+    "run_id": 41639989396,
+    "artifact_id": 13232696982,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "be214661b9ddcf2f3fe10fb0c4b8e9c2787aafdb55aa3f724f4c1715016fa27a",
+     "duration_sec": 140.97,
+     "resolution": {
+      "width": 870,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/5321556835438048"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 50%（BV1Vo4666EGM）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41639989396,
+    "artifact_id": 13232696982,
+    "name": "production-reject-ly-1103-fa1ac7",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 50%（BV1Vo4666EGM）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -185366,6 +185400,13 @@
    "video_id": "https://f.us.sinaimg.cn/001JUDGVlx07jJo01fag01040200u4t20k010.mp4",
    "ts": 1793710949,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-fa1ac7",
+   "key": "weibo_search:5321556835438048",
+   "video_id": "https://f.video.weibocdn.com/o0/hTJlCQ2vlx08zf7luvT201041200d3qR0E010.mp4",
+   "ts": 1793711298,
+   "error": "与已发布内容文字指纹重复：转写片段重合 50%（BV1Vo4666EGM）"
   }
  ],
  "reviewed_third_video_0910": {
