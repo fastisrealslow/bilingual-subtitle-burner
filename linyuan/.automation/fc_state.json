@@ -91529,7 +91529,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1gtnj6DEuz",
@@ -91552,7 +91553,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-03T05:07:47+00:00"
+   "publish_time": "2026-11-03T05:07:47+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-cd8e0f",
+    "run_id": 41714601325,
+    "artifact_id": 13270440388,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cd0f9b6351242c9f269a7e99aae34c00cb6046175290d1417188f519e07378a3",
+     "duration_sec": 102.88,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1gtnj6DEuz"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41714601325,
+    "artifact_id": 13270440388,
+    "name": "production-reject-ly-1103-cd8e0f",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -188396,6 +188430,13 @@
    "video_id": "BV1tHxa6BE5S",
    "ts": 1793738729,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1103-cd8e0f",
+   "key": "bilibili_search:BV1gtnj6DEuz",
+   "video_id": "BV1gtnj6DEuz",
+   "ts": 1793739070,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
