@@ -89266,7 +89266,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-15T22:51:41+08:00"
+   "publish_time": "2026-07-15T22:51:41+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-d55910",
+    "run_id": 41649963604,
+    "artifact_id": 13238475406,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "efb71947fb88c97edf09026cba5e9583fd848a8aa74808afe68c6b101ef2d5bd",
+     "duration_sec": 409.9,
+     "resolution": {
+      "width": 862,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/5321077089894474"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41649963604,
+    "artifact_id": 13238475406,
+    "name": "production-reject-ly-1103-d55910",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5321017375328814",
@@ -89369,7 +89402,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-06T07:23:34+08:00"
+   "publish_time": "2025-10-06T07:23:34+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-6ca13d",
+    "run_id": 41650888831,
+    "artifact_id": 13238405975,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "5dac55a0aa145a33295d58f23fc3354781f14e4fcbb288271266d612a0012eb2",
+     "duration_sec": 30.4,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/5218650139394683"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41650888831,
+    "artifact_id": 13238405975,
+    "name": "production-reject-ly-1103-6ca13d",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1p8x86sEPh",
@@ -89392,7 +89458,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-02T04:25:00+00:00"
+   "publish_time": "2026-11-02T04:25:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41651700928,
+    "artifact_id": 13237936682,
+    "name": "source-reject-ly-1103-f6a05a",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -185969,6 +186045,27 @@
    "key": "weibo_search:4467270737102698",
    "video_id": "https://miaopai.video.weibocdn.com/000OEFlFlx07ACqiu6CQ01041203hE6X0E023.mp4",
    "ts": 1793714903,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-f6a05a",
+   "key": "bilibili_search:BV1p8x86sEPh",
+   "video_id": "BV1p8x86sEPh",
+   "ts": 1793715584,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1103-6ca13d",
+   "key": "weibo_search:5218650139394683",
+   "video_id": "https://f.video.weibocdn.com/o0/k8Tb9TyRlx08rHVlaLMQ0104120042Le0E010.mp4",
+   "ts": 1793715584,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1103-d55910",
+   "key": "weibo_search:5321077089894474",
+   "video_id": "https://f.video.weibocdn.com/o0/GXKmkYR2lx08zembei4E01041200FKr40E010.mp4",
+   "ts": 1793715585,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
