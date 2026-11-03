@@ -87372,7 +87372,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 69%（BV1KtnG6NEvc）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4592847707970171",
@@ -87428,7 +87429,8 @@
    },
    "last_error": "整段取景预检：源 1.70s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4467635184061443",
@@ -87451,7 +87453,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-02-02T21:38:15+08:00"
+   "publish_time": "2020-02-02T21:38:15+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1103-2981eb",
+    "run_id": 41597324407,
+    "artifact_id": 13212779647,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "81370a75ddb7c902703d05c34fbf803bf48efd77a6ff659323473c50244fdce0",
+     "duration_sec": 159.96,
+     "resolution": {
+      "width": 1440,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4467635184061443"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 90%（BV1umYA6CE8L）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41597324407,
+    "artifact_id": 13212779647,
+    "name": "production-reject-ly-1103-2981eb",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1umYA6CE8L）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4599776052518958",
@@ -183106,6 +183141,13 @@
    "video_id": "BV16q4P6mEod",
    "ts": 1793691788,
    "error": "与已发布内容文字指纹重复：转写片段重合 69%（BV1KtnG6NEvc）"
+  },
+  {
+   "slug": "ly-1103-2981eb",
+   "key": "weibo_search:4467635184061443",
+   "video_id": "https://miaopai.video.weibocdn.com/0030THPWlx07AE1gmyOk01041203OQSi0E023.mp4",
+   "ts": 1793692088,
+   "error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1umYA6CE8L）"
   }
  ],
  "reviewed_third_video_0910": {
