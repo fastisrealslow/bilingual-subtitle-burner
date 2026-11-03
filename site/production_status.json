@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793712631,
+  "updated_at": 1793712797,
   "inventory_updated_at": 1793712628,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 86,
     "active_or_recovering_sources": 6,
-    "waiting_candidates": 32,
+    "waiting_candidates": 31,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793712630,
+    "updated_at": 1793712796,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 205,
-    "duration_eligible_records": 32,
-    "candidate_count": 32,
-    "known_duration_candidates": 32,
+    "initial_candidates": 204,
+    "duration_eligible_records": 31,
+    "candidate_count": 31,
+    "known_duration_candidates": 31,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 2895,
+      "already_attempted_or_cooling": 2896,
       "speaker_unconfirmed": 8121,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,14 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5319489015251216",
-        "title": "林园：我这人就不会失败，因为我永远不买贵的东西。这是 2007 年的一段采访视频。[不愧是你][不愧是你][不愧是你] ",
-        "source": "weibo_search",
-        "author": "桂哥猎手VIP777",
-        "url": "https://m.weibo.cn/detail/5319489015251216",
-        "duration_sec": 193.0
-      },
       {
         "key": "weibo_search:4993639598264674",
         "title": "林园说：这次牛市行情来了，会超过2007年的那次，积极参与，人有多大胆，地就有多大产 。 http://t.cn/A6j",
@@ -256,19 +248,19 @@
         "duration_sec": 63.0
       },
       {
-        "key": "weibo_search:4467445907947131",
-        "title": "#经典阅读# 【林园：把自己变成一个机器人就能成功】\n深圳林园投资董事长、《红周刊》荣誉顾问林园在#2020红周刊投资峰",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4467445907947131",
-        "duration_sec": 116.0
-      },
-      {
         "key": "weibo_search:4467270737102698",
         "title": "#经典阅读# 【林园：把自己变成一个机器人就能成功】\n深圳林园投资董事长、《红周刊》荣誉顾问林园在#2020红周刊投资峰",
         "source": "weibo_search",
         "author": "证券市场周刊",
         "url": "https://m.weibo.cn/detail/4467270737102698",
+        "duration_sec": 116.0
+      },
+      {
+        "key": "weibo_search:4467445907947131",
+        "title": "#经典阅读# 【林园：把自己变成一个机器人就能成功】\n深圳林园投资董事长、《红周刊》荣誉顾问林园在#2020红周刊投资峰",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4467445907947131",
         "duration_sec": 116.0
       },
       {
@@ -503,9 +495,9 @@
   },
   "counts": {
     "complete": 177,
-    "failed": 1930,
+    "failed": 1932,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 50,
     "experiment_fallback": 99,
     "ready": 21,
@@ -41820,11 +41812,11 @@
     },
     {
       "slug": "ly-1103-a01a90",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793711629,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41838,11 +41830,11 @@
     },
     {
       "slug": "ly-1103-d471ac",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "动态取景连续2.04秒缺少人脸",
       "signature": {
         "ts": 1793711914,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41852,7 +41844,25 @@
       "run_id": 41643186342,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41643186342",
       "run_started_at": "2026-11-03T13:18:34Z",
-      "run_updated_at": "2026-11-03T13:18:38Z"
+      "run_updated_at": "2026-11-03T13:30:40Z"
+    },
+    {
+      "slug": "ly-1103-84c3c5",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793712745,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41645225405,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41645225405",
+      "run_started_at": "2026-11-03T13:32:24Z",
+      "run_updated_at": "2026-11-03T13:32:29Z"
     }
   ],
   "runs": {
@@ -62712,17 +62722,6 @@
       "run_number": 3686,
       "display_title": "中文源出片 · ly-1103-7c72f0"
     },
-    "ly-1103-d471ac": {
-      "id": 41643186342,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-03T13:18:34Z",
-      "updated_at": "2026-11-03T13:18:38Z",
-      "run_started_at": "2026-11-03T13:18:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41643186342",
-      "run_number": 3688,
-      "display_title": "中文源出片 · ly-1103-d471ac"
-    },
     "ly-1103-a01a90": {
       "id": 41642470862,
       "status": "completed",
@@ -62733,6 +62732,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41642470862",
       "run_number": 3687,
       "display_title": "中文源出片 · ly-1103-a01a90"
+    },
+    "ly-1103-84c3c5": {
+      "id": 41645225405,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T13:32:24Z",
+      "updated_at": "2026-11-03T13:32:29Z",
+      "run_started_at": "2026-11-03T13:32:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41645225405",
+      "run_number": 3689,
+      "display_title": "中文源出片 · ly-1103-84c3c5"
+    },
+    "ly-1103-d471ac": {
+      "id": 41643186342,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-03T13:18:34Z",
+      "updated_at": "2026-11-03T13:30:40Z",
+      "run_started_at": "2026-11-03T13:18:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41643186342",
+      "run_number": 3688,
+      "display_title": "中文源出片 · ly-1103-d471ac"
     },
     "ly-1103-f9bbe8": {
       "id": 41636720930,
