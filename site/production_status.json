@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793690549,
+  "updated_at": 1793690832,
   "inventory_updated_at": 1793690543,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 83,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 80,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 79,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793690547,
+    "updated_at": 1793690830,
     "records": 15323,
     "video_records": 12954,
-    "initial_candidates": 255,
-    "duration_eligible_records": 80,
-    "candidate_count": 80,
-    "known_duration_candidates": 78,
+    "initial_candidates": 254,
+    "duration_eligible_records": 79,
+    "candidate_count": 79,
+    "known_duration_candidates": 77,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2830,
+      "already_attempted_or_cooling": 2831,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,14 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1uf4P6YEG8:p2",
-        "title": "林园 P2 王俊的采访2 股票应长期持有，享受企业的成长和分红",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1uf4P6YEG8?p=2",
-        "duration_sec": 874.0
-      },
       {
         "key": "bilibili_search:BV16q4P6mEod",
         "title": "林园：企业能否突围，靠产品竞争力",
@@ -887,15 +879,16 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1905,
+    "failed": 1906,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 47,
     "experiment_fallback": 95,
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "awaiting_validation": 1
   },
   "tasks": [
     {
@@ -41574,8 +41567,8 @@
     },
     {
       "slug": "ly-1103-480d45",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "awaiting_validation",
+      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
       "signature": {
         "ts": 1793689414,
         "failed": null,
@@ -41588,15 +41581,15 @@
       "run_id": 41593792925,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41593792925",
       "run_started_at": "2026-11-03T07:03:33Z",
-      "run_updated_at": "2026-11-03T07:03:38Z"
+      "run_updated_at": "2026-11-03T07:26:18Z"
     },
     {
       "slug": "ly-1103-c6515b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793689848,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41643,6 +41636,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41595483449",
       "run_started_at": "2026-11-03T07:18:49Z",
       "run_updated_at": "2026-11-03T07:18:53Z"
+    },
+    {
+      "slug": "ly-1103-6b75bd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793690788,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41596332423,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596332423",
+      "run_started_at": "2026-11-03T07:26:28Z",
+      "run_updated_at": "2026-11-03T07:26:32Z"
     }
   ],
   "runs": {
@@ -62139,6 +62150,17 @@
       "run_number": 3636,
       "display_title": "中文源出片 · ly-1103-e5209c"
     },
+    "ly-1103-6b75bd": {
+      "id": 41596332423,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T07:26:28Z",
+      "updated_at": "2026-11-03T07:26:32Z",
+      "run_started_at": "2026-11-03T07:26:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41596332423",
+      "run_number": 3642,
+      "display_title": "中文源出片 · ly-1103-6b75bd"
+    },
     "ly-1103-2f5ed4": {
       "id": 41595483449,
       "status": "in_progress",
@@ -62163,10 +62185,10 @@
     },
     "ly-1103-480d45": {
       "id": 41593792925,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-11-03T07:03:33Z",
-      "updated_at": "2026-11-03T07:03:38Z",
+      "updated_at": "2026-11-03T07:26:18Z",
       "run_started_at": "2026-11-03T07:03:33Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41593792925",
       "run_number": 3638,
