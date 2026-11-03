@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793685957,
+  "updated_at": 1793686086,
   "inventory_updated_at": 1793685953,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 83,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 100,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 99,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,16 +209,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793685956,
+    "updated_at": 1793686084,
     "records": 15285,
     "video_records": 12916,
-    "initial_candidates": 239,
-    "duration_eligible_records": 100,
-    "candidate_count": 100,
-    "known_duration_candidates": 98,
+    "initial_candidates": 238,
+    "duration_eligible_records": 99,
+    "candidate_count": 99,
+    "known_duration_candidates": 97,
     "unknown_duration_candidates": 2,
     "excluded": {
-      "already_attempted_or_cooling": 2808,
+      "already_attempted_or_cooling": 2809,
       "speaker_unconfirmed": 8136,
       "clip_title": 1386,
       "no_video": 2369,
@@ -231,22 +231,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4500767350144579",
-        "title": "【林园20204月份最新直播课程，火速转搜藏】\n\n2020巴菲特股东大会之国内大咖直播课 | 林园：在他看来，如何才能做",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4500767350144579",
-        "duration_sec": 4065.0
-      },
-      {
-        "key": "weibo_search:4746462582277562",
-        "title": "【精彩回顾】\n林园采访，主要观点：\n2021年\n\n1,关于大势：还是处于牛市初期；\n2关于投资的行业：很多行业都有机会，",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4746462582277562",
-        "duration_sec": 2975.0
-      },
       {
         "key": "weibo_search:4615297581188794",
         "title": "【2016年林园：谈谈未来30年的投资方向】\n\n从2016年算起，已经过去5年了。\n\n如果把投资的时间维度放在30年甚至",
@@ -302,6 +286,22 @@
         "author": "电商獵人007",
         "url": "https://m.weibo.cn/detail/4534963887935791",
         "duration_sec": 174.0
+      },
+      {
+        "key": "weibo_search:4746462582277562",
+        "title": "【精彩回顾】\n林园采访，主要观点：\n2021年\n\n1,关于大势：还是处于牛市初期；\n2关于投资的行业：很多行业都有机会，",
+        "source": "weibo_search",
+        "author": "加仓多吉丿",
+        "url": "https://m.weibo.cn/detail/4746462582277562",
+        "duration_sec": 2975.0
+      },
+      {
+        "key": "weibo_search:4513669478064079",
+        "title": "华夏银保水镜直播间——对话民间“股神”林园专场 2020.4.12 15:00\n\n（[心]本着对大家负责的态度，备注一下",
+        "source": "weibo_search",
+        "author": "加仓多吉丿",
+        "url": "https://m.weibo.cn/detail/4513669478064079",
+        "duration_sec": 2614.0
       },
       {
         "key": "weibo_search:4466184130778229",
@@ -736,14 +736,6 @@
         "duration_sec": 257.0
       },
       {
-        "key": "weibo_search:4513669478064079",
-        "title": "华夏银保水镜直播间——对话民间“股神”林园专场 2020.4.12 15:00\n\n（[心]本着对大家负责的态度，备注一下",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4513669478064079",
-        "duration_sec": 2614.0
-      },
-      {
         "key": "weibo_search:4466908345120974",
         "title": "#经典阅读# 【林园：很多外资都是从常识性问题出发去寻找投资机会】\n深圳林园投资董事长、《红周刊》荣誉顾问林园在#202",
         "source": "weibo_search",
@@ -1047,15 +1039,15 @@
   },
   "counts": {
     "complete": 175,
-    "failed": 1896,
+    "failed": 1897,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 47,
     "experiment_fallback": 93,
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -41554,11 +41546,11 @@
     },
     {
       "slug": "ly-1103-fd6e70",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 312 < 480（620x312），画质不达标",
       "signature": {
         "ts": 1793685455,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -41569,6 +41561,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41586911677",
       "run_started_at": "2026-11-03T05:57:34Z",
       "run_updated_at": "2026-11-03T06:00:49Z"
+    },
+    {
+      "slug": "ly-1103-ba4792",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793686044,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41587902794,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41587902794",
+      "run_started_at": "2026-11-03T06:07:24Z",
+      "run_updated_at": "2026-11-03T06:07:28Z"
     }
   ],
   "runs": {
@@ -61943,6 +61953,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41586911677",
       "run_number": 3628,
       "display_title": "中文源出片 · ly-1103-fd6e70"
+    },
+    "ly-1103-ba4792": {
+      "id": 41587902794,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-03T06:07:24Z",
+      "updated_at": "2026-11-03T06:07:28Z",
+      "run_started_at": "2026-11-03T06:07:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41587902794",
+      "run_number": 3629,
+      "display_title": "中文源出片 · ly-1103-ba4792"
     },
     "ly-story-5a060021cb": {
       "id": 41586900826,
