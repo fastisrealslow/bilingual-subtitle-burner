@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793752829,
-  "inventory_updated_at": 1793752472,
+  "updated_at": 1793753064,
+  "inventory_updated_at": 1793753060,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 89,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 21,
-        "landscape": 68
+        "portrait": 22,
+        "landscape": 67
       },
       "full_schedule_days": 7,
       "required_week_shortfall": 0,
@@ -209,34 +209,43 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793752828,
-    "records": 15477,
-    "video_records": 13083,
-    "initial_candidates": 175,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1793753063,
+    "records": 15503,
+    "video_records": 13106,
+    "initial_candidates": 176,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 8141,
-      "already_attempted_or_cooling": 3015,
+      "speaker_unconfirmed": 8145,
+      "already_attempted_or_cooling": 3033,
       "noise": 34,
       "clip_title": 1399,
       "unrelated": 77,
-      "no_video": 2394,
+      "no_video": 2397,
       "reference_only": 206,
       "ai_content": 36,
       "over_limit": 33,
       "too_short": 142,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV18e411K7rA",
+        "title": "林园：新能源目前处于几分热，我也判断不了。要是能判断，我满仓梭哈！",
+        "source": "bilibili_search",
+        "author": "黄小叶叶",
+        "url": "https://www.bilibili.com/video/BV18e411K7rA",
+        "duration_sec": 150.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 89,
     "verified_audio_card": 0,
-    "verified_landscape": 68,
-    "verified_portrait": 21,
+    "verified_landscape": 67,
+    "verified_portrait": 22,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -248,13 +257,13 @@
     "complete": 177,
     "failed": 1984,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 9,
     "excluded": 50,
     "experiment_fallback": 106,
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 1
   },
   "tasks": [
     {
@@ -42661,8 +42670,8 @@
     },
     {
       "slug": "ly-1104-27939a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793752769,
         "failed": null,
@@ -42675,12 +42684,12 @@
       "run_id": 41748453459,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748453459",
       "run_started_at": "2026-11-04T00:39:29Z",
-      "run_updated_at": "2026-11-04T00:39:33Z"
+      "run_updated_at": "2026-11-04T00:42:32Z"
     },
     {
       "slug": "ly-1104-1baaa9",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793752777,
         "failed": null,
@@ -42693,12 +42702,12 @@
       "run_id": 41748470114,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748470114",
       "run_started_at": "2026-11-04T00:39:37Z",
-      "run_updated_at": "2026-11-04T00:39:41Z"
+      "run_updated_at": "2026-11-04T00:42:43Z"
     },
     {
       "slug": "ly-1104-a97578",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793752787,
         "failed": null,
@@ -42711,7 +42720,7 @@
       "run_id": 41748489603,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748489603",
       "run_started_at": "2026-11-04T00:39:47Z",
-      "run_updated_at": "2026-11-04T00:39:50Z"
+      "run_updated_at": "2026-11-04T00:42:14Z"
     }
   ],
   "runs": {
@@ -64266,10 +64275,10 @@
     },
     "ly-1104-a97578": {
       "id": 41748489603,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T00:39:47Z",
-      "updated_at": "2026-11-04T00:39:50Z",
+      "updated_at": "2026-11-04T00:42:14Z",
       "run_started_at": "2026-11-04T00:39:47Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748489603",
       "run_number": 3760,
@@ -64277,10 +64286,10 @@
     },
     "ly-1104-1baaa9": {
       "id": 41748470114,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T00:39:37Z",
-      "updated_at": "2026-11-04T00:39:41Z",
+      "updated_at": "2026-11-04T00:42:43Z",
       "run_started_at": "2026-11-04T00:39:37Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748470114",
       "run_number": 3759,
@@ -64288,10 +64297,10 @@
     },
     "ly-1104-27939a": {
       "id": 41748453459,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T00:39:29Z",
-      "updated_at": "2026-11-04T00:39:33Z",
+      "updated_at": "2026-11-04T00:42:32Z",
       "run_started_at": "2026-11-04T00:39:29Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748453459",
       "run_number": 3758,
