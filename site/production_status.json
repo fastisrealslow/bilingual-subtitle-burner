@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793753064,
+  "updated_at": 1793753217,
   "inventory_updated_at": 1793753060,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 89,
     "active_or_recovering_sources": 2,
-    "waiting_candidates": 1,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -209,17 +209,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793753063,
+    "updated_at": 1793753216,
     "records": 15503,
     "video_records": 13106,
-    "initial_candidates": 176,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 175,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8145,
-      "already_attempted_or_cooling": 3033,
+      "already_attempted_or_cooling": 3034,
       "noise": 34,
       "clip_title": 1399,
       "unrelated": 77,
@@ -230,16 +230,7 @@
       "too_short": 142,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV18e411K7rA",
-        "title": "林园：新能源目前处于几分热，我也判断不了。要是能判断，我满仓梭哈！",
-        "source": "bilibili_search",
-        "author": "黄小叶叶",
-        "url": "https://www.bilibili.com/video/BV18e411K7rA",
-        "duration_sec": 150.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 89,
@@ -255,9 +246,9 @@
   },
   "counts": {
     "complete": 177,
-    "failed": 1984,
+    "failed": 1987,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 7,
     "excluded": 50,
     "experiment_fallback": 106,
     "ready": 23,
@@ -42652,8 +42643,8 @@
     },
     {
       "slug": "ly-story-12a2d38d50",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793751386,
         "failed": null,
@@ -42666,15 +42657,15 @@
       "run_id": 41745573153,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41745573153",
       "run_started_at": "2026-11-04T00:16:26Z",
-      "run_updated_at": "2026-11-04T00:17:03Z"
+      "run_updated_at": "2026-11-04T00:46:35Z"
     },
     {
       "slug": "ly-1104-27939a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 272 < 480（364x272），画质不达标",
       "signature": {
         "ts": 1793752769,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42688,11 +42679,11 @@
     },
     {
       "slug": "ly-1104-1baaa9",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（482x360），画质不达标",
       "signature": {
         "ts": 1793752777,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42706,11 +42697,11 @@
     },
     {
       "slug": "ly-1104-a97578",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（540x360），画质不达标",
       "signature": {
         "ts": 1793752787,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42721,6 +42712,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41748489603",
       "run_started_at": "2026-11-04T00:39:47Z",
       "run_updated_at": "2026-11-04T00:42:14Z"
+    },
+    {
+      "slug": "ly-1104-76bab4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793753175,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41749297154,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41749297154",
+      "run_started_at": "2026-11-04T00:46:15Z",
+      "run_updated_at": "2026-11-04T00:46:19Z"
     }
   ],
   "runs": {
@@ -64306,12 +64315,23 @@
       "run_number": 3758,
       "display_title": "中文源出片 · ly-1104-27939a"
     },
-    "ly-story-12a2d38d50": {
-      "id": 41745573153,
+    "ly-1104-76bab4": {
+      "id": 41749297154,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-04T00:46:15Z",
+      "updated_at": "2026-11-04T00:46:19Z",
+      "run_started_at": "2026-11-04T00:46:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41749297154",
+      "run_number": 3761,
+      "display_title": "中文源出片 · ly-1104-76bab4"
+    },
+    "ly-story-12a2d38d50": {
+      "id": 41745573153,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T00:16:26Z",
-      "updated_at": "2026-11-04T00:17:03Z",
+      "updated_at": "2026-11-04T00:46:35Z",
       "run_started_at": "2026-11-04T00:16:26Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41745573153",
       "run_number": 3757,
