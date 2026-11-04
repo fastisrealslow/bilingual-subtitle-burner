@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793784660,
+  "updated_at": 1793784910,
   "inventory_updated_at": 1793784654,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 87,
-    "active_or_recovering_sources": 4,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -217,7 +217,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793784658,
+    "updated_at": 1793784909,
     "records": 15609,
     "video_records": 13201,
     "initial_candidates": 176,
@@ -254,15 +254,15 @@
   },
   "counts": {
     "complete": 180,
-    "failed": 1994,
+    "failed": 1998,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 7,
     "excluded": 52,
     "experiment_fallback": 109,
     "ready": 21,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -42903,11 +42903,11 @@
     },
     {
       "slug": "ly-1104-286936",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答被主持人的提问打断，且回答内容以条件状语开头（‘作为一个……'），缺乏对核心问题‘是否可行’的直接、完整陈述。虽然包含‘当然可行的啊’，但因其依附于前文提问且后续论述为补充说明，无法构成独立的观点证据链，不符合 claim_range 选取嘉宾实际判断的最小连续原句的要求。；原文问题：[]",
       "signature": {
         "ts": 1793780228,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -42975,8 +42975,8 @@
     },
     {
       "slug": "ly-1104-b1b791",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793783841,
         "failed": null,
@@ -42989,7 +42989,7 @@
       "run_id": 41806235136,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41806235136",
       "run_started_at": "2026-11-04T09:17:20Z",
-      "run_updated_at": "2026-11-04T09:17:24Z"
+      "run_updated_at": "2026-11-04T09:35:04Z"
     },
     {
       "slug": "ly-1104-3b5231",
@@ -43011,11 +43011,11 @@
     },
     {
       "slug": "ly-1104-f81b47",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1793784437,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -43029,11 +43029,11 @@
     },
     {
       "slug": "ly-1104-0c110e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1793784444,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -43047,11 +43047,11 @@
     },
     {
       "slug": "ly-1104-d58839",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
       "signature": {
         "ts": 1793784451,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -64847,10 +64847,10 @@
     },
     "ly-1104-b1b791": {
       "id": 41806235136,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T09:17:20Z",
-      "updated_at": "2026-11-04T09:17:24Z",
+      "updated_at": "2026-11-04T09:35:04Z",
       "run_started_at": "2026-11-04T09:17:20Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41806235136",
       "run_number": 3777,
