@@ -92324,7 +92324,72 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-07-18T07:55:43+08:00"
+   "publish_time": "2021-07-18T07:55:43+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-2615e8",
+    "run_id": 41793990841,
+    "artifact_id": 13306063334,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "618bfd1732b2f050161f07e1a271c413f8078e75da0c2cef340d4252eb52da2c",
+     "duration_sec": 1972.84,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4660218531152787"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"茅台我们的判断，因为它是陈以新的东西，还没有达到国巨的平均水平。\", \"suspect_quote\": \"陈以新\", \"kind\": \"unintelligible_term\", \"reason\": \"行业术语识别污染，疑似将人名或特定概念误转为无意义词汇\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配96/265，总帧数840；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41793990841,
+    "artifact_id": 13306063334,
+    "name": "production-reject-ly-1104-2615e8",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4454550675128129",
@@ -190501,6 +190566,13 @@
    "video_id": "http://miaopai.video.weibocdn.com/DOg1PvFilx07qdTXFyE001040205bY9U0E023",
    "ts": 1793779715,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0605, 2: -0.12, 3: -0.0962, 4: 0.1104, 5: 0.0643, 6: 0.0877, 7: 0.0328, 8: -0.0009, 9: 0.0816, 10: 0.084, 11: 0.0307, 12: 0.0933, 13: -0.0051, 14: 0.007, 15: 0.0372, 16: 0.141, 17: 0.1116, 18: 0.0742}"
+  },
+  {
+   "slug": "ly-1104-2615e8",
+   "key": "weibo_search:4660218531152787",
+   "video_id": "https://f.video.weibocdn.com/Bdc0QS5Blx07LeoyqdkI0104120bc2XX0E040.mp4",
+   "ts": 1793780719,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
