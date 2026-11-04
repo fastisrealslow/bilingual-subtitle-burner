@@ -93144,7 +93144,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-04T18:02:51+08:00"
+   "publish_time": "2026-11-04T18:02:51+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-395f71",
+    "run_id": 41833601047,
+    "artifact_id": 13324783087,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cbf2845fab35ad2c0847a559b6acef36c554180277559ba061b45f4b24e2268c",
+     "duration_sec": 29.23,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5361591841199878"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.10425531914893617, 0.11234177215189874, 0.225531914893617)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41833601047,
+    "artifact_id": 13324783087,
+    "name": "production-reject-ly-1104-395f71",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.0, 0.10425531914893617, 0.11234177215189874, 0.225531914893617)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4295869765652050",
@@ -191871,6 +191904,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/SfqZ2I70lx08C6EoL3ja01041209aMkt0E040.mp4",
    "ts": 1793797268,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[12, 15]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 16, 17, 18]，confidence=0.915，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1243, 2: 0.1664, 3: 0.0764, 4: 0.1217, 5: -0.0535, 6: -0.0171, 7: 0.1031, 8: 0.1853, 9: 0.1608, 10: 0.1646, 11: 0.0848, 12: 0.3988, 13: 0.1048, 14: 0.0901, 15: 0.5468, 16: 0.3483, 17: 0.1223, 18: 0.0973}"
+  },
+  {
+   "slug": "ly-1104-395f71",
+   "key": "weibo_search:5361591841199878",
+   "video_id": "https://f.video.weibocdn.com/u0/xgYB8Ryzgx08C6G5kpzO010412005WDB0E010.mp4",
+   "ts": 1793798098,
+   "error": "真人动态区仍有稳定来源角标：[(0.0, 0.10425531914893617, 0.11234177215189874, 0.225531914893617)]"
   }
  ],
  "reviewed_third_video_0910": {
