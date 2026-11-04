@@ -94380,7 +94380,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-09-11T19:59:03+08:00"
+   "publish_time": "2021-09-11T19:59:03+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-de4100",
+    "run_id": 41891991688,
+    "artifact_id": 13354704263,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0a628400c18e3155a030bc1a40b88b5b3c1d757852e6167c41fba74e9ed75780",
+     "duration_sec": 98.34,
+     "resolution": {
+      "width": 720,
+      "height": 1080,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4680331897081887"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出来源二维码（含裁切残留定位图案）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/438，总帧数2185；身份匹配但人脸短边不足96px的帧数438"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41891991688,
+    "artifact_id": 13354704263,
+    "name": "production-reject-ly-1104-de4100",
+    "retained": true
+   },
+   "last_error": "真人动态区检出来源二维码（含裁切残留定位图案）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -193212,6 +193249,13 @@
    "video_id": "https://f.video.weibocdn.com/2ZGriSdulx07J9zrMQR201041208ifvO0E030.mp4",
    "ts": 1793818924,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1104-de4100",
+   "key": "weibo_search:4680331897081887",
+   "video_id": "https://f.video.weibocdn.com/Q2PRaDQllx07PJNSFOAU01041200nnhW0E010.mp4",
+   "ts": 1793819728,
+   "error": "真人动态区检出来源二维码（含裁切残留定位图案）"
   }
  ],
  "reviewed_third_video_0910": {
