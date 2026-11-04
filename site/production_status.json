@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793785036,
-  "inventory_updated_at": 1793785029,
+  "updated_at": 1793785562,
+  "inventory_updated_at": 1793785555,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 87,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 17,
-        "landscape": 70
+        "portrait": 20,
+        "landscape": 67
       },
-      "full_schedule_days": 5,
-      "required_week_shortfall": 4,
+      "full_schedule_days": 6,
+      "required_week_shortfall": 1,
       "required_week_shortfall_by_layout": {
-        "portrait": 4,
+        "portrait": 1,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -217,7 +217,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793785034,
+    "updated_at": 1793785561,
     "records": 15609,
     "video_records": 13201,
     "initial_candidates": 176,
@@ -243,8 +243,8 @@
   "inventory": {
     "verified_live": 87,
     "verified_audio_card": 0,
-    "verified_landscape": 70,
-    "verified_portrait": 17,
+    "verified_landscape": 67,
+    "verified_portrait": 20,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -254,7 +254,7 @@
   },
   "counts": {
     "complete": 180,
-    "failed": 1998,
+    "failed": 1999,
     "paused": 5,
     "interrupted": 7,
     "excluded": 52,
@@ -262,7 +262,7 @@
     "ready": 21,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -42939,8 +42939,8 @@
     },
     {
       "slug": "ly-1104-b018ac",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793783823,
         "failed": null,
@@ -42953,7 +42953,7 @@
       "run_id": 41806196137,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41806196137",
       "run_started_at": "2026-11-04T09:17:03Z",
-      "run_updated_at": "2026-11-04T09:17:08Z"
+      "run_updated_at": "2026-11-04T09:43:34Z"
     },
     {
       "slug": "ly-1104-eb5b89",
@@ -42975,11 +42975,11 @@
     },
     {
       "slug": "ly-1104-b1b791",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"新加坡，十五倍，十五比例高。\", \"suspect_quote\": \"十五倍，十五比例高\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“十五倍”与“十五比例高”语义矛盾且逻辑不通，疑似将“十五亿”、“十五个”或特定行业术语误识别为倍数/比例描述，需核实原音确认具体数值及单位。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他怎么？\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"“天宰皇”组合无意义，疑似专名粘连或识别污染，需核实原音确认是否为某公司、人物或事件名称。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 23, \"quote\": \"吃安宫跟苏效有什么区别啊？\", \"suspect_quote\": \"苏效\", \"kind\": \"unintelligible_term\", \"reason\": \"再次出现“苏效”，疑似专名识别污染，需核实原音确认是否为特定药品或产品名。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
       "signature": {
         "ts": 1793783841,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -64858,10 +64858,10 @@
     },
     "ly-1104-b018ac": {
       "id": 41806196137,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T09:17:03Z",
-      "updated_at": "2026-11-04T09:17:08Z",
+      "updated_at": "2026-11-04T09:43:34Z",
       "run_started_at": "2026-11-04T09:17:03Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41806196137",
       "run_number": 3775,
