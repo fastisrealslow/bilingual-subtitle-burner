@@ -92447,7 +92447,100 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-05-29T22:07:02+08:00"
+   "publish_time": "2019-05-29T22:07:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-6df853",
+    "run_id": 41798304330,
+    "artifact_id": 13309496984,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6be96196424575683dad5d0fa59c62f3d67df9f79fea9798c3997b078b5d7b4e",
+     "duration_sec": 871.52,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4377407853110136"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/119，总帧数594；身份匹配但人脸短边不足96px的帧数119"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾对第一个问题（仿制药是否会被取代）的回答过于简略且未展开论述，随后话题突然切换至海外投资，但关于海外投资的回答同样缺乏具体方向或结论，结尾句‘过去十年是没有的’语义模糊，无法独立理解。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中缺乏嘉宾对核心问题的实质性判断。主持人提问后，嘉宾未给出明确观点，仅以模糊回应或复述问题结尾，导致表达不完整，无法独立成片。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配166/290，总帧数618；身份匹配但人脸短边不足96px的帧数124"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：回答在句 14 处戛然而止，以‘对，没钱的就募行’结束，未给出完整解释或结论，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配182/341，总帧数790；身份匹配但人脸短边不足96px的帧数159"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/147，总帧数732；身份匹配但人脸短边不足96px的帧数147"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/180，总帧数896；身份匹配但人脸短边不足96px的帧数180"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/105，总帧数524；身份匹配但人脸短边不足96px的帧数105"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/160，总帧数796；身份匹配但人脸短边不足96px的帧数160"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中仅有主持人的提问和开场白，没有任何嘉宾的回答内容，无法构成独立成片的完整表达。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41798304330,
+    "artifact_id": 13309496984,
+    "name": "production-reject-ly-1104-6df853",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/119，总帧数594；身份匹配但人脸短边不足96px的帧数119",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4372288650320436",
@@ -190575,6 +190668,13 @@
    "video_id": "https://f.video.weibocdn.com/Bdc0QS5Blx07LeoyqdkI0104120bc2XX0E040.mp4",
    "ts": 1793780719,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1104-6df853",
+   "key": "weibo_search:4377407853110136",
+   "video_id": "http://miaopai.video.weibocdn.com/hIcTdrFElx07qkhpnJU401040207T0ED0E033",
+   "ts": 1793783769,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/119，总帧数594；身份匹配但人脸短边不足96px的帧数119"
   }
  ],
  "reviewed_third_video_0910": {
