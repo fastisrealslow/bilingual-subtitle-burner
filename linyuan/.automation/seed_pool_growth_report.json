@@ -6,10 +6,10 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 825,
+      "weibo": 835,
       "bilibili": 1670
     },
-    "total": 2566,
+    "total": 2576,
     "reference_only": 1083,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -19,14 +19,14 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 835,
+      "weibo": 840,
       "bilibili": 1670
     },
-    "total": 2576,
+    "total": 2581,
     "reference_only": 1083,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 10,
+  "added_count": 5,
   "providers": {
     "bilibili": {
       "baseline": {
@@ -35,10 +35,10 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 825,
+          "weibo": 835,
           "bilibili": 1670
         },
-        "total": 2566,
+        "total": 2576,
         "reference_only": 1083,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -47,66 +47,91 @@
       "rights_approved_count": 0,
       "production_dispatch": false,
       "added_count": 0,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        }
+      ],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
+      "search_pages": {
+        "林园 春瑜会客厅": [
+          7,
+          8
+        ],
+        "林园 红周刊": [
+          7,
+          8
+        ],
+        "林园 央视": [
+          7,
+          8
+        ]
+      },
+      "verification_paused": {
+        "until": 1793822808.3559544,
+        "reason": "provider_restricted",
+        "http_status": 412,
+        "api_code": null
+      },
+      "added_bvids": [],
+      "pending_lead_count": 501,
+      "roles": {},
+      "new_long_parent_count": 0,
+      "verification": {
+        "not_verified": 1
+      },
       "after": {
         "counts": {
           "douyin": 51,
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 825,
+          "weibo": 835,
           "bilibili": 1670
         },
-        "total": 2566,
+        "total": 2576,
         "reference_only": 1083,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_paused": {
-        "until": 1793814283.30402,
-        "reason": "provider_restricted",
-        "http_status": 412,
-        "api_code": null
-      }
+      "verification_errors": {
+        "HTTPError": 1
+      },
+      "verification_http_status": {
+        "412": 1
+      },
+      "verification_api_codes": {}
     },
     "weibo": {
       "provider": "weibo",
       "target": 5000,
-      "before": 2566,
-      "added_count": 10,
+      "before": 2576,
+      "added_count": 5,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
       "errors": [
         {
           "stage": "exact_video",
-          "mid": "4655882127803732",
+          "mid": "4590030892572552",
           "error": "ValueError"
         },
         {
           "stage": "exact_video",
-          "mid": "4497632284606420",
-          "error": "SeedMetadataRejected",
-          "checks": [
-            "stable_video_identity"
-          ]
-        },
-        {
-          "stage": "exact_video",
-          "mid": "4497632766389221",
-          "error": "SeedMetadataRejected",
-          "checks": [
-            "stable_video_identity"
-          ]
-        },
-        {
-          "stage": "exact_video",
-          "mid": "5343930074006222",
+          "mid": "4719298554364888",
           "error": "ValueError"
         },
         {
           "stage": "exact_video",
-          "mid": "4497529955667900",
+          "mid": "4497532010774044",
           "error": "SeedMetadataRejected",
           "checks": [
             "stable_video_identity"
@@ -114,37 +139,53 @@
         },
         {
           "stage": "exact_video",
-          "mid": "4497632552594837",
+          "mid": "5361619095519620",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5361625138729962",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4652810891957419",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4295869765652050",
           "error": "SeedMetadataRejected",
           "checks": [
             "stable_video_identity"
           ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5158118959612963",
+          "error": "ValueError"
         }
       ],
-      "discovery_leads": 606,
-      "eligible_checks": 77,
-      "deferred_checks": 59,
+      "discovery_leads": 614,
+      "eligible_checks": 81,
+      "deferred_checks": 61,
       "exact_checks": 16,
-      "known_duplicate_leads": 470,
-      "long_checks": 3,
+      "known_duplicate_leads": 472,
+      "long_checks": 6,
       "added_mids": [
-        "4702665043085346",
-        "4647555893299600",
-        "5361591841199878",
-        "4986556933216104",
-        "5292465815028632",
-        "5335482952323832",
-        "5353282128054598",
-        "4978582387165121",
-        "4984707291285794",
-        "5215193983615260"
+        "4624129833831905",
+        "5346368244941599",
+        "5361584803418237",
+        "4285288598168343",
+        "5154612417137410"
       ],
-      "after": 2576
+      "duplicate_video_count": 3,
+      "after": 2581
     }
   },
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "remaining_to_target": 2424,
+  "remaining_to_target": 2419,
   "counting_policy": "unique_parent_video_ids_not_parts_queries_or_accepted_stock"
 }
