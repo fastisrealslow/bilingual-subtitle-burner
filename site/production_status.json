@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793772215,
+  "updated_at": 1793772580,
   "inventory_updated_at": 1793772209,
   "continuity": {
     "daily_target": 4,
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 5,
+    "consecutive_fallbacks": 6,
     "actual_treatment_published": 5,
     "valid_comparison_days": 1,
     "daily": [
@@ -205,10 +205,10 @@
       },
       {
         "date": "2026-11-04",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
@@ -217,7 +217,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793772213,
+    "updated_at": 1793772579,
     "records": 15556,
     "video_records": 13148,
     "initial_candidates": 183,
@@ -318,12 +318,12 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 178,
+    "complete": 179,
     "failed": 1989,
     "paused": 5,
     "interrupted": 6,
-    "excluded": 50,
-    "experiment_fallback": 107,
+    "excluded": 51,
+    "experiment_fallback": 105,
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1
@@ -32437,13 +32437,13 @@
     },
     {
       "slug": "ly-1030-c84eb5",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793362288,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -32653,8 +32653,8 @@
     },
     {
       "slug": "ly-story-2cffc63fdd",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793367025,
         "failed": null,
