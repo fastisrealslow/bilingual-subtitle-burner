@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793817604,
+  "updated_at": 1793817800,
   "inventory_updated_at": 1793817597,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 89,
     "active_or_recovering_sources": 7,
-    "waiting_candidates": 5,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -217,17 +217,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793817603,
+    "updated_at": 1793817798,
     "records": 15745,
     "video_records": 13310,
-    "initial_candidates": 181,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 179,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8234,
-      "already_attempted_or_cooling": 3131,
+      "already_attempted_or_cooling": 3133,
       "clip_title": 1406,
       "no_video": 2435,
       "noise": 35,
@@ -239,14 +239,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4588874036678093",
-        "title": "【林园：“消费品估值过高”的判断大概率是错的】\n有一篇研究报告中提到“不为消费品唱赞歌”，作者的意思是消费品目前的股价太",
-        "source": "weibo_search",
-        "author": "财神爱主线",
-        "url": "https://m.weibo.cn/detail/4588874036678093",
-        "duration_sec": 102.0
-      },
       {
         "key": "weibo_search:4757548073486680",
         "title": "此视频是2018年12月，马曼然和林园同台参加红周刊举办的活动。其中谈到了片仔癀，当时估值是60多倍（现在80倍左右），",
@@ -270,14 +262,6 @@
         "author": "模型预测",
         "url": "https://m.weibo.cn/detail/4680331897081887",
         "duration_sec": 98.0
-      },
-      {
-        "key": "weibo_search:4588859416121164",
-        "title": "【林园：“消费品估值过高”的判断大概率是错的】\n有一篇研究报告中提到“不为消费品唱赞歌”，作者的意思是消费品目前的股价太",
-        "source": "weibo_search",
-        "author": "证券市场周刊",
-        "url": "https://m.weibo.cn/detail/4588859416121164",
-        "duration_sec": 102.0
       }
     ]
   },
@@ -295,7 +279,7 @@
   },
   "counts": {
     "complete": 180,
-    "failed": 2018,
+    "failed": 2019,
     "paused": 5,
     "interrupted": 8,
     "excluded": 52,
@@ -43556,11 +43540,11 @@
     },
     {
       "slug": "ly-1104-a3a4a9",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793816651,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -43570,7 +43554,7 @@
       "run_id": 41886792251,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41886792251",
       "run_started_at": "2026-11-04T18:24:10Z",
-      "run_updated_at": "2026-11-04T18:24:15Z"
+      "run_updated_at": "2026-11-04T18:39:17Z"
     },
     {
       "slug": "ly-1104-bcdd33",
@@ -43607,6 +43591,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41888896609",
       "run_started_at": "2026-11-04T18:36:56Z",
       "run_updated_at": "2026-11-04T18:36:59Z"
+    },
+    {
+      "slug": "ly-1104-da289f",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793817756,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41889808797,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41889808797",
+      "run_started_at": "2026-11-04T18:42:36Z",
+      "run_updated_at": "2026-11-04T18:42:41Z"
     }
   ],
   "runs": {
@@ -65654,6 +65656,17 @@
       "run_number": 3796,
       "display_title": "中文源出片 · ly-1104-1280d5"
     },
+    "ly-1104-da289f": {
+      "id": 41889808797,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-04T18:42:36Z",
+      "updated_at": "2026-11-04T18:42:41Z",
+      "run_started_at": "2026-11-04T18:42:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41889808797",
+      "run_number": 3812,
+      "display_title": "中文源出片 · ly-1104-da289f"
+    },
     "ly-1104-584208": {
       "id": 41888896609,
       "status": "in_progress",
@@ -65678,10 +65691,10 @@
     },
     "ly-1104-a3a4a9": {
       "id": 41886792251,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-04T18:24:10Z",
-      "updated_at": "2026-11-04T18:24:15Z",
+      "updated_at": "2026-11-04T18:39:17Z",
       "run_started_at": "2026-11-04T18:24:10Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41886792251",
       "run_number": 3809,
