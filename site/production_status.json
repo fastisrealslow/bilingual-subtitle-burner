@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793797175,
+  "updated_at": 1793797322,
   "inventory_updated_at": 1793797168,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 88,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -217,7 +217,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793797174,
+    "updated_at": 1793797320,
     "records": 15637,
     "video_records": 13214,
     "initial_candidates": 176,
@@ -254,14 +254,14 @@
   },
   "counts": {
     "complete": 180,
-    "failed": 2001,
+    "failed": 2003,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "excluded": 52,
     "experiment_fallback": 111,
     "ready": 21,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "running": 2
   },
   "tasks": [
@@ -43083,11 +43083,11 @@
     },
     {
       "slug": "ly-1104-43034a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[12, 15]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 16, 17, 18]，confidence=0.915，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1243, 2: 0.1664, 3: 0.0764, 4: 0.1217, 5: -0.0535, 6: -0.0171, 7: 0.1031, 8: 0.1853, 9: 0.1608, 10: 0.1646, 11: 0.0848, 12: 0.3988, 13: 0.1048, 14: 0.0901, 15: 0.5468, 16: 0.3483, 17: 0.1223, 18: 0.0973}",
       "signature": {
         "ts": 1793796547,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -43119,11 +43119,11 @@
     },
     {
       "slug": "ly-1104-a20d97",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[12, 15]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 16, 17, 18]，confidence=0.915，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1243, 2: 0.1664, 3: 0.0764, 4: 0.1217, 5: -0.0535, 6: -0.0171, 7: 0.1031, 8: 0.1853, 9: 0.1608, 10: 0.1646, 11: 0.0848, 12: 0.3988, 13: 0.1048, 14: 0.0901, 15: 0.5468, 16: 0.3483, 17: 0.1223, 18: 0.0973}",
       "signature": {
         "ts": 1793796565,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -43173,14 +43173,14 @@
     },
     {
       "slug": "ly-1104-7f461a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793796995,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793798160,
         "weekly_full_week": ""
       },
       "history_count": 1,
