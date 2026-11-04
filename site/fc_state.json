@@ -92716,7 +92716,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-04T03:45:42+00:00"
+   "publish_time": "2026-11-04T03:45:42+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-b018ac",
+    "run_id": 41806196137,
+    "artifact_id": 13310759634,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3c85edf6949bae0af83f452e009437d856b7c523d70d5893c7fe1a54568090ab",
+     "duration_sec": 951.08,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1EoxS6BEnQ"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41806196137,
+    "artifact_id": 13310759634,
+    "name": "production-reject-ly-1104-b018ac",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1uLxX6PEhG",
@@ -92806,7 +92839,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"新加坡，十五倍，十五比例高。\", \"suspect_quote\": \"十五倍，十五比例高\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“十五倍”与“十五比例高”语义矛盾且逻辑不通，疑似将“十五亿”、“十五个”或特定行业术语误识别为倍数/比例描述，需核实原音确认具体数值及单位。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他怎么？\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"“天宰皇”组合无意义，疑似专名粘连或识别污染，需核实原音确认是否为某公司、人物或事件名称。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 23, \"quote\": \"吃安宫跟苏效有什么区别啊？\", \"suspect_quote\": \"苏效\", \"kind\": \"unintelligible_term\", \"reason\": \"再次出现“苏效”，疑似专名识别污染，需核实原音确认是否为特定药品或产品名。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4530351752353603",
@@ -191052,6 +191086,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/yUDxuFbEgx08ogUhdGNW01041202ecJf0E010.mp4",
    "ts": 1793785165,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"新加坡，十五倍，十五比例高。\", \"suspect_quote\": \"十五倍，十五比例高\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“十五倍”与“十五比例高”语义矛盾且逻辑不通，疑似将“十五亿”、“十五个”或特定行业术语误识别为倍数/比例描述，需核实原音确认具体数值及单位。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他怎么？\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"“天宰皇”组合无意义，疑似专名粘连或识别污染，需核实原音确认是否为某公司、人物或事件名称。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 23, \"quote\": \"吃安宫跟苏效有什么区别啊？\", \"suspect_quote\": \"苏效\", \"kind\": \"unintelligible_term\", \"reason\": \"再次出现“苏效”，疑似专名识别污染，需核实原音确认是否为特定药品或产品名。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
+  },
+  {
+   "slug": "ly-1104-b018ac",
+   "key": "bilibili_search:BV1EoxS6BEnQ",
+   "video_id": "BV1EoxS6BEnQ",
+   "ts": 1793785734,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
