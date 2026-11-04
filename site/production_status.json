@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793815548,
+  "updated_at": 1793815741,
   "inventory_updated_at": 1793815543,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 89,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 14,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 12,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -217,17 +217,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793815547,
+    "updated_at": 1793815740,
     "records": 15745,
     "video_records": 13310,
-    "initial_candidates": 190,
-    "duration_eligible_records": 14,
-    "candidate_count": 14,
-    "known_duration_candidates": 14,
+    "initial_candidates": 188,
+    "duration_eligible_records": 12,
+    "candidate_count": 12,
+    "known_duration_candidates": 12,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8234,
-      "already_attempted_or_cooling": 3122,
+      "already_attempted_or_cooling": 3124,
       "clip_title": 1406,
       "no_video": 2435,
       "noise": 35,
@@ -239,14 +239,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4653103380955145",
-        "title": "【#林园称片仔癀的价格会超过两瓶茅台#】近日，片仔癀价格暴涨，一粒炒至上千元仍然供不应求的消息引起了全网的关注。早在20",
-        "source": "weibo_search",
-        "author": "猫财经",
-        "url": "https://m.weibo.cn/detail/4653103380955145",
-        "duration_sec": 43.0
-      },
       {
         "key": "bilibili_search:BV12CyJYnEUm",
         "title": "林园：把握不住的我就不去参与了",
@@ -286,14 +278,6 @@
         "author": "证券市场周刊",
         "url": "https://m.weibo.cn/detail/4587583508063332",
         "duration_sec": 183.0
-      },
-      {
-        "key": "weibo_search:4653081399136776",
-        "title": "【鲸视频：#林园称片仔癀的价格会超过两瓶茅台#】近日，片仔癀价格暴涨，一粒炒至上千元仍然供不应求的消息引起了全网的关注。",
-        "source": "weibo_search",
-        "author": "鲸视频v",
-        "url": "https://m.weibo.cn/detail/4653081399136776",
-        "duration_sec": 43.0
       },
       {
         "key": "weibo_search:4588874036678093",
@@ -367,15 +351,15 @@
   },
   "counts": {
     "complete": 180,
-    "failed": 2011,
+    "failed": 2012,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 8,
     "excluded": 52,
     "experiment_fallback": 111,
     "ready": 22,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -43448,11 +43432,11 @@
     },
     {
       "slug": "ly-1104-de4dbd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793814847,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -43553,6 +43537,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41882784167",
       "run_started_at": "2026-11-04T18:01:03Z",
       "run_updated_at": "2026-11-04T18:01:37Z"
+    },
+    {
+      "slug": "ly-1104-ee28ea",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793815694,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41884087215,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41884087215",
+      "run_started_at": "2026-11-04T18:08:14Z",
+      "run_updated_at": "2026-11-04T18:08:19Z"
     }
   ],
   "runs": {
@@ -65523,6 +65525,28 @@
       "run_number": 3800,
       "display_title": "中文源出片 · ly-1104-e6acfa"
     },
+    "ly-1104-de4dbd": {
+      "id": 41881564243,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-04T17:54:07Z",
+      "updated_at": "2026-11-04T18:03:06Z",
+      "run_started_at": "2026-11-04T17:54:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41881564243",
+      "run_number": 3799,
+      "display_title": "中文源出片 · ly-1104-de4dbd"
+    },
+    "ly-1104-ee28ea": {
+      "id": 41884087215,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-04T18:08:14Z",
+      "updated_at": "2026-11-04T18:08:19Z",
+      "run_started_at": "2026-11-04T18:08:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41884087215",
+      "run_number": 3805,
+      "display_title": "中文源出片 · ly-1104-ee28ea"
+    },
     "ly-1104-e01f0f": {
       "id": 41882784167,
       "status": "in_progress",
@@ -65555,17 +65579,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41882724074",
       "run_number": 3802,
       "display_title": "中文源出片 · ly-1104-aab76b"
-    },
-    "ly-1104-de4dbd": {
-      "id": 41881564243,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-04T17:54:07Z",
-      "updated_at": "2026-11-04T18:03:06Z",
-      "run_started_at": "2026-11-04T17:54:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41881564243",
-      "run_number": 3799,
-      "display_title": "中文源出片 · ly-1104-de4dbd"
     },
     "ly-1104-1280d5": {
       "id": 41877484950,
