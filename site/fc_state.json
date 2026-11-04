@@ -93527,7 +93527,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-04T10:33:27+08:00"
+   "publish_time": "2021-01-04T10:33:27+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-de4dbd",
+    "run_id": 41881564243,
+    "artifact_id": 13349054040,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8550d9402606fa1d4c2ff3e84b10dee0002aa3d4e4cf56ce4878ff3ad8ab180c",
+     "duration_sec": 80.92,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4589592592779757"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41881564243,
+    "artifact_id": 13349054040,
+    "name": "production-reject-ly-1104-de4dbd",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4650430456137811",
@@ -93560,7 +93593,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[14]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18]，confidence=0.75，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2946, 2: 0.2066, 3: 0.3233, 4: 0.3285, 5: 0.2554, 6: 0.2877, 7: 0.2291, 8: 0.2637, 9: 0.2408, 10: 0.3061, 11: 0.2428, 12: 0.2455, 13: 0.3237, 14: 0.3632, 15: 0.238, 16: 0.2953, 17: 0.237, 18: 0.2955}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4650428309176326",
@@ -93593,7 +93627,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[14]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18]，confidence=0.75，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2946, 2: 0.2066, 3: 0.3233, 4: 0.3285, 5: 0.2554, 6: 0.2877, 7: 0.2291, 8: 0.2637, 9: 0.2408, 10: 0.3061, 11: 0.2428, 12: 0.2455, 13: 0.3237, 14: 0.3632, 15: 0.238, 16: 0.2953, 17: 0.237, 18: 0.2955}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1qxx96LEbt",
@@ -192410,6 +192445,13 @@
    "video_id": "https://f.video.weibocdn.com/0028N80igx07NyxEwSLm0104120098yX0E010.mp4",
    "ts": 1793815201,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[14]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18]，confidence=0.75，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2946, 2: 0.2066, 3: 0.3233, 4: 0.3285, 5: 0.2554, 6: 0.2877, 7: 0.2291, 8: 0.2637, 9: 0.2408, 10: 0.3061, 11: 0.2428, 12: 0.2455, 13: 0.3237, 14: 0.3632, 15: 0.238, 16: 0.2953, 17: 0.237, 18: 0.2955}"
+  },
+  {
+   "slug": "ly-1104-de4dbd",
+   "key": "weibo_search:4589592592779757",
+   "video_id": "https://f.video.weibocdn.com/NkqctyTTlx07Jbr1ILO001041204cne20E020.mp4",
+   "ts": 1793815650,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
