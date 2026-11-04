@@ -93529,7 +93529,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/143，总帧数713；身份匹配但人脸短边不足96px的帧数143",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4624186453002136",
@@ -94052,7 +94053,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4587945916379879",
@@ -94075,7 +94077,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-12-30T21:30:09+08:00"
+   "publish_time": "2020-12-30T21:30:09+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-a3a4a9",
+    "run_id": 41886792251,
+    "artifact_id": 13351654340,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "feab24b44de4b42b00df29bbed13a09f44ad4a2d69e84f936a9204c742a1e67b",
+     "duration_sec": 151.86,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4587945916379879"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41886792251,
+    "artifact_id": 13351654340,
+    "name": "production-reject-ly-1104-a3a4a9",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4587583508063332",
@@ -192918,6 +192953,13 @@
    "video_id": "https://f.video.weibocdn.com/xKcmc1r5lx07N0ofp0ww01041202z9xg0E010.mp4",
    "ts": 1793817372,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/143，总帧数713；身份匹配但人脸短边不足96px的帧数143"
+  },
+  {
+   "slug": "ly-1104-a3a4a9",
+   "key": "weibo_search:4587945916379879",
+   "video_id": "https://f.video.weibocdn.com/xX4AvyEelx07Jbq7fble01041207mija0E030.mp4",
+   "ts": 1793817703,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
