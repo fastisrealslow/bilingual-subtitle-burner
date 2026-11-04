@@ -91992,7 +91992,8 @@
    },
    "last_error": "原始素材短边 272 < 480（364x272），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4684491744610424",
@@ -92025,7 +92026,8 @@
    },
    "last_error": "原始素材短边 360 < 480（482x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4684702516776479",
@@ -92058,7 +92060,8 @@
    },
    "last_error": "原始素材短边 360 < 480（540x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV18e411K7rA",
@@ -92081,7 +92084,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-09-22T09:08:38+00:00"
+   "publish_time": "2022-09-22T09:08:38+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-76bab4",
+    "run_id": 41749297154,
+    "artifact_id": 13285604731,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "214892839a4b1f01f67f93ed1ed2bcdc8f7b532931f7b150e155fb03df4cdea9",
+     "duration_sec": 149.67,
+     "resolution": {
+      "width": 1488,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV18e411K7rA"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41749297154,
+    "artifact_id": 13285604731,
+    "name": "production-reject-ly-1104-76bab4",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -188981,6 +189017,13 @@
    "video_id": "https://f.video.weibocdn.com/evcZuA8rlx07Q2uRYYb601041203vmkB0E020.mp4",
    "ts": 1793753129,
    "error": "原始素材短边 272 < 480（364x272），画质不达标"
+  },
+  {
+   "slug": "ly-1104-76bab4",
+   "key": "bilibili_search:BV18e411K7rA",
+   "video_id": "BV18e411K7rA",
+   "ts": 1793754431,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
