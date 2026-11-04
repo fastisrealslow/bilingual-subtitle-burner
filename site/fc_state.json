@@ -92657,7 +92657,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答被主持人的提问打断，且回答内容以条件状语开头（‘作为一个……'），缺乏对核心问题‘是否可行’的直接、完整陈述。虽然包含‘当然可行的啊’，但因其依附于前文提问且后续论述为补充说明，无法构成独立的观点证据链，不符合 claim_range 选取嘉宾实际判断的最小连续原句的要求。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4454550675128129",
@@ -92772,7 +92773,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-12T10:03:05+08:00"
+   "publish_time": "2025-08-12T10:03:05+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-b1b791",
+    "run_id": 41806235136,
+    "artifact_id": 13311236965,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "307800b89f0de8c0a9cb1fa37655b2361d12f658a19c2ded61d19d7f4547c8b6",
+     "duration_sec": 321.78,
+     "resolution": {
+      "width": 544,
+      "height": 960,
+      "short_edge": 544
+     },
+     "source_url": "https://m.weibo.cn/detail/5198758955975533"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"新加坡，十五倍，十五比例高。\", \"suspect_quote\": \"十五倍，十五比例高\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“十五倍”与“十五比例高”语义矛盾且逻辑不通，疑似将“十五亿”、“十五个”或特定行业术语误识别为倍数/比例描述，需核实原音确认具体数值及单位。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他怎么？\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_te"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41806235136,
+    "artifact_id": 13311236965,
+    "name": "production-reject-ly-1104-b1b791",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"新加坡，十五倍，十五比例高。\", \"suspect_quote\": \"十五倍，十五比例高\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“十五倍”与“十五比例高”语义矛盾且逻辑不通，疑似将“十五亿”、“十五个”或特定行业术语误识别为倍数/比例描述，需核实原音确认具体数值及单位。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他怎么？\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"“天宰皇”组合无意义，疑似专名粘连或识别污染，需核实原音确认是否为某公司、人物或事件名称。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 23, \"quote\": \"吃安宫跟苏效有什么区别啊？\", \"suspect_quote\": \"苏效\", \"kind\": \"unintelligible_term\", \"reason\": \"再次出现“苏效”，疑似专名识别污染，需核实原音确认是否为特定药品或产品名。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4530351752353603",
@@ -92828,7 +92862,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4410611897592156",
@@ -92861,7 +92896,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4397268595502843",
@@ -92894,7 +92930,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -191008,6 +191045,13 @@
    "video_id": "http://miaopai.video.weibocdn.com/hIcTdrFElx07qkhpnJU401040207T0ED0E033",
    "ts": 1793784831,
    "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾的回答被主持人的提问打断，且回答内容以条件状语开头（‘作为一个……'），缺乏对核心问题‘是否可行’的直接、完整陈述。虽然包含‘当然可行的啊’，但因其依附于前文提问且后续论述为补充说明，无法构成独立的观点证据链，不符合 claim_range 选取嘉宾实际判断的最小连续原句的要求。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1104-b1b791",
+   "key": "weibo_search:5198758955975533",
+   "video_id": "https://f.video.weibocdn.com/u0/yUDxuFbEgx08ogUhdGNW01041202ecJf0E010.mp4",
+   "ts": 1793785165,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"新加坡，十五倍，十五比例高。\", \"suspect_quote\": \"十五倍，十五比例高\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“十五倍”与“十五比例高”语义矛盾且逻辑不通，疑似将“十五亿”、“十五个”或特定行业术语误识别为倍数/比例描述，需核实原音确认具体数值及单位。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡他怎么？\", \"suspect_quote\": \"天宰皇\", \"kind\": \"unintelligible_term\", \"reason\": \"“天宰皇”组合无意义，疑似专名粘连或识别污染，需核实原音确认是否为某公司、人物或事件名称。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 23, \"quote\": \"吃安宫跟苏效有什么区别啊？\", \"suspect_quote\": \"苏效\", \"kind\": \"unintelligible_term\", \"reason\": \"再次出现“苏效”，疑似专名识别污染，需核实原音确认是否为特定药品或产品名。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
   }
  ],
  "reviewed_third_video_0910": {
