@@ -94423,7 +94423,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-11-17T12:41:56+08:00"
+   "publish_time": "2023-11-17T12:41:56+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-558df7",
+    "run_id": 41896148264,
+    "artifact_id": 13356066766,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "119966a7022005711717b0faf8cac8b3552dea525060d18a1098a43642ca363c",
+     "duration_sec": 54.13,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4969045021427575"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41896148264,
+    "artifact_id": 13356066766,
+    "name": "production-reject-ly-1104-558df7",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5215771206877583",
@@ -193349,6 +193382,13 @@
    "video_id": "https://f.video.weibocdn.com/Q2PRaDQllx07PJNSFOAU01041200nnhW0E010.mp4",
    "ts": 1793819728,
    "error": "真人动态区检出来源二维码（含裁切残留定位图案）"
+  },
+  {
+   "slug": "ly-1104-558df7",
+   "key": "weibo_search:4969045021427575",
+   "video_id": "https://f.video.weibocdn.com/o0/VhXbjcVSlx08aeP6OKTS01041200bEU40E010.mp4",
+   "ts": 1793820767,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
