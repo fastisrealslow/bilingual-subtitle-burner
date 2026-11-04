@@ -94190,7 +94190,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4588874036678093",
@@ -94213,7 +94214,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-02T10:58:10+08:00"
+   "publish_time": "2021-01-02T10:58:10+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-da289f",
+    "run_id": 41889808797,
+    "artifact_id": 13352704931,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "df326ff9dfdb2747dab89a20de6e9b37e48ba45cfb4b5a8099ad21faeb20dfef",
+     "duration_sec": 102.42,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4588874036678093"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41889808797,
+    "artifact_id": 13352704931,
+    "name": "production-reject-ly-1104-da289f",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4757548073486680",
@@ -94236,7 +94270,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-04-12T21:48:34+08:00"
+   "publish_time": "2022-04-12T21:48:34+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41890686028,
+    "artifact_id": 13354855303,
+    "name": "source-reject-ly-1104-61422f",
+    "retained": true
+   },
+   "last_error": "原始素材短边 420 < 480（750x420），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -193046,6 +193090,20 @@
    "key": "weibo_search:4589901279924999",
    "video_id": "https://f.video.weibocdn.com/rrYy8s2Clx07JjhlcMYo01041204NiRT0E020.mp4",
    "ts": 1793818035,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1104-61422f",
+   "key": "weibo_search:4757548073486680",
+   "video_id": "https://f.video.weibocdn.com/o0/UUJUbVu5lx07Ve2RVlUI01041200cnpR0E010.mp4",
+   "ts": 1793818502,
+   "error": "原始素材短边 420 < 480（750x420），画质不达标"
+  },
+  {
+   "slug": "ly-1104-da289f",
+   "key": "weibo_search:4588874036678093",
+   "video_id": "https://f.video.weibocdn.com/tAzSVBcClx07JbrWtTeM01041205cERt0E020.mp4",
+   "ts": 1793818503,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
