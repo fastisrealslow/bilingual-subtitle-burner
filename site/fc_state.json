@@ -95073,7 +95073,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-05-18T22:05:13+08:00"
+   "publish_time": "2025-05-18T22:05:13+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1105-29e73a",
+    "run_id": 41988244968,
+    "artifact_id": 13397601631,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9c59256bb487718155d3cf54dfd4e92ad4f7035b19a5b8e8285fceb7887946b3",
+     "duration_sec": 321.93,
+     "resolution": {
+      "width": 620,
+      "height": 1104,
+      "short_edge": 620
+     },
+     "source_url": "https://m.weibo.cn/detail/5167775326933735"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41988244968,
+    "artifact_id": 13397601631,
+    "name": "production-reject-ly-1105-29e73a",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5123899831879084",
@@ -95096,7 +95129,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-01-17T20:19:40+08:00"
+   "publish_time": "2025-01-17T20:19:40+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1105-cb472e",
+    "run_id": 41988992330,
+    "artifact_id": 13397507262,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f3453eadfc13897079b68975cda105a1e59c71c62ad7ff2ffe14189196a7ba40",
+     "duration_sec": 346.81,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5123899831879084"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41988992330,
+    "artifact_id": 13397507262,
+    "name": "production-reject-ly-1105-cb472e",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5127754842636389",
@@ -95129,7 +95195,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17]，confidence=0.785，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2043, 2: 0.1599, 3: 0.1859, 4: 0.1895, 5: 0.225, 6: 0.0943, 7: 0.1265, 8: 0.1826, 9: 0.3551, 10: 0.2772, 16: -0.1496, 17: 0.1677, 18: 0.3863}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5166844320680870",
@@ -194840,6 +194907,20 @@
    "video_id": "https://f.video.weibocdn.com/yfQ6B6vKlx07Nl7rDYFW01041207Nff80E030.mp4",
    "ts": 1793864887,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17]，confidence=0.785，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2043, 2: 0.1599, 3: 0.1859, 4: 0.1895, 5: 0.225, 6: 0.0943, 7: 0.1265, 8: 0.1826, 9: 0.3551, 10: 0.2772, 16: -0.1496, 17: 0.1677, 18: 0.3863}"
+  },
+  {
+   "slug": "ly-1105-cb472e",
+   "key": "weibo_search:5123899831879084",
+   "video_id": "https://fb.video.weibocdn.com/o8/ewVWUGmdlx08levcHnhK01041201AQxx0E018.mp4",
+   "ts": 1793865468,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1105-29e73a",
+   "key": "weibo_search:5167775326933735",
+   "video_id": "https://f.video.weibocdn.com/o0/9RJyxjRKlx08olCdH7m001041201PxlJ0E010.mp4",
+   "ts": 1793865468,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
