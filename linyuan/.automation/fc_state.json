@@ -94808,8 +94808,8 @@
    "publish_time": "2023-12-11T08:48:00+08:00",
    "production_failure_summary": {
     "slug": "ly-1104-111712",
-    "run_id": 41935346569,
-    "artifact_id": 13375980435,
+    "run_id": 41945568941,
+    "artifact_id": 13381925529,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -94825,19 +94825,109 @@
     "failures": [
      {
       "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
      },
      {
       "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"这也不是我说的，建立金融强国，这是第一次听说的啊。\", \"suspect_quote\": \"建立金融强国\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘建设’误识别为‘建立’，或存在发音不清导致的专名错写，需核实原音确认是否为官方表述‘建设金融强国’。\"}, {\"sentence_id\": 9, \"quote\": \"我们也做了一个当下的这个，呃，代表中国大多数人收入的这个家庭啊，其实他们的收入并没有减少啊。\", \"suspect_quote\": \"代表中国大多数人收入的这个家庭\""
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中缺乏嘉宾林园的实质性观点表达，仅有主持人的话题引入和现状描述，无法构成完整回答。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：主持人提问后嘉宾回答侧重于解释估值逻辑而非直接回应‘是否可以买’，缺少明确的肯定或否定判断，属于未完整回答新问题结尾的情况。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未形成完整表达：既无针对提问的具体判断，也无支撑该判断的理由或例子，结尾仅为语气词‘嗯’，属于未回答新问题的情况。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3695.10s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配407/1091，总帧数3418；身份匹配但人脸短边不足96px的帧数684"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/490，总帧数2448；身份匹配但人脸短边不足96px的帧数490"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/375，总帧数1872；身份匹配但人脸短边不足96px的帧数375"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/340，总帧数1697；身份匹配但人脸短边不足96px的帧数340"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配48/584，总帧数2676；身份匹配但人脸短边不足96px的帧数536"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1417，总帧数2813；身份匹配但人脸短边不足96px的帧数563"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配50/503，总帧数2263；身份匹配但人脸短边不足96px的帧数453"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3508.07s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/351，总帧数1754；身份匹配但人脸短边不足96px的帧数351"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/232，总帧数1157；身份匹配但人脸短边不足96px的帧数232"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3632.00s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1000/1422，总帧数2105；身份匹配但人脸短边不足96px的帧数422"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/817，总帧数4082；身份匹配但人脸短边不足96px的帧数232"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答中虽有数字提及，但未形成对‘日常生活所需费用’这一命题的完整判断或逻辑闭环，属于表达中断或不完整。；原文问题：[]"
      }
     ]
    },
-   "source_check_report_id": 13375980435,
-   "source_check_run_id": 41935346569,
-   "last_error": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n",
+   "source_check_report_id": 13381925529,
+   "source_check_run_id": 41945568941,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "video_id": "BV1BJfHY1EC4",
