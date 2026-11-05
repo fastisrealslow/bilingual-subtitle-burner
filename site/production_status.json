@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793858782,
+  "updated_at": 1793859154,
   "inventory_updated_at": 1793858774,
   "continuity": {
     "daily_target": 4,
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 7,
+    "consecutive_fallbacks": 8,
     "actual_treatment_published": 5,
     "valid_comparison_days": 1,
     "daily": [
@@ -213,10 +213,10 @@
       },
       {
         "date": "2026-11-05",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
@@ -225,7 +225,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793858780,
+    "updated_at": 1793859152,
     "records": 15831,
     "video_records": 13391,
     "initial_candidates": 196,
@@ -406,12 +406,12 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 181,
+    "complete": 182,
     "failed": 2032,
     "paused": 5,
     "interrupted": 9,
-    "excluded": 53,
-    "experiment_fallback": 113,
+    "excluded": 54,
+    "experiment_fallback": 111,
     "ready": 24,
     "validation_failed": 2,
     "retry_queued": 1
@@ -37493,8 +37493,8 @@
     },
     {
       "slug": "ly-1101-f94b7e",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793508668,
         "failed": null,
@@ -37889,13 +37889,13 @@
     },
     {
       "slug": "ly-story-d6707ed56c",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793514574,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
