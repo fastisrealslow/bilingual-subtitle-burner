@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793919989,
+  "updated_at": 1793920184,
   "inventory_updated_at": 1793919981,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 7,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -225,16 +225,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793919987,
+    "updated_at": 1793920182,
     "records": 15936,
     "video_records": 13491,
-    "initial_candidates": 187,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 183,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3225,
+      "already_attempted_or_cooling": 3229,
       "speaker_unconfirmed": 8306,
       "clip_title": 1410,
       "no_video": 2445,
@@ -248,44 +248,12 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:5207481110238886",
-        "title": "2025-09-01，林园：#林园# \n目前我国78岁以上的人口不到3000万，#人口# \n再过25年我们统计是3亿8千",
-        "source": "weibo_search",
-        "author": "科迈GenMedi",
-        "url": "https://m.weibo.cn/detail/5207481110238886",
-        "duration_sec": 280.0
-      },
-      {
-        "key": "weibo_search:5203323858982618",
-        "title": "2025-08-22，林园：\n近几年中药企业盈利都在下降，主要还是因为前几年疫情期间拔苗助长了，市场消化不了那么多药。\n",
-        "source": "weibo_search",
-        "author": "科迈GenMedi",
-        "url": "https://m.weibo.cn/detail/5203323858982618",
-        "duration_sec": 252.0
-      },
-      {
         "key": "weibo_search:5198453748795144",
         "title": "2025.8.8，新华财经专访林园（二）：林园分享了89岁老母亲服用片仔癀的经历，表达了片仔癀所发现的未经证实却实际发现",
         "source": "weibo_search",
         "author": "茶语3000",
         "url": "https://m.weibo.cn/detail/5198453748795144",
         "duration_sec": 125.0
-      },
-      {
-        "key": "weibo_search:5207447993585476",
-        "title": "2025-09-01，林园：目前我国78岁以上的人口不到3000万，再过25年我们统计是3亿8千万，这个赛道是有1万倍的",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5207447993585476",
-        "duration_sec": 280.0
-      },
-      {
-        "key": "weibo_search:5202755058140976",
-        "title": "2025-08-22，林园：近几年中药企业的盈利都在下降，主要还是因为前几年疫情期间拔苗助长了，市场消化不了那么多药。以",
-        "source": "weibo_search",
-        "author": "大川成长价值投资",
-        "url": "https://m.weibo.cn/detail/5202755058140976",
-        "duration_sec": 252.0
       },
       {
         "key": "weibo_search:5198419253789579",
@@ -319,14 +287,14 @@
   },
   "counts": {
     "complete": 184,
-    "failed": 2062,
+    "failed": 2064,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 54,
     "experiment_fallback": 121,
     "ready": 23,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "running": 4
   },
   "tasks": [
@@ -44678,11 +44646,11 @@
     },
     {
       "slug": "ly-1105-76d96e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1793919038,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -44692,15 +44660,15 @@
       "run_id": 42124875325,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42124875325",
       "run_started_at": "2026-11-05T22:50:38Z",
-      "run_updated_at": "2026-11-05T22:50:42Z"
+      "run_updated_at": "2026-11-05T23:05:10Z"
     },
     {
       "slug": "ly-1105-69061c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793919047,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -44714,8 +44682,8 @@
     },
     {
       "slug": "ly-story-a5e95cedca",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793919392,
         "failed": null,
@@ -44728,18 +44696,18 @@
       "run_id": 42125662989,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42125662989",
       "run_started_at": "2026-11-05T22:56:32Z",
-      "run_updated_at": "2026-11-05T22:56:35Z"
+      "run_updated_at": "2026-11-05T23:08:12Z"
     },
     {
       "slug": "ly-1105-1df4ce",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1793919756,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1793920965,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -44747,6 +44715,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42126475027",
       "run_started_at": "2026-11-05T23:02:35Z",
       "run_updated_at": "2026-11-05T23:04:06Z"
+    },
+    {
+      "slug": "ly-1105-6861a0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793920128,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42127325302,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42127325302",
+      "run_started_at": "2026-11-05T23:08:48Z",
+      "run_updated_at": "2026-11-05T23:08:53Z"
+    },
+    {
+      "slug": "ly-1105-546057",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793920139,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42127347877,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42127347877",
+      "run_started_at": "2026-11-05T23:08:59Z",
+      "run_updated_at": "2026-11-05T23:09:03Z"
     }
   ],
   "runs": {
@@ -67487,17 +67491,6 @@
       "run_number": 3896,
       "display_title": "中文源出片 · ly-1105-1df4ce"
     },
-    "ly-story-a5e95cedca": {
-      "id": 42125662989,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-05T22:56:32Z",
-      "updated_at": "2026-11-05T22:56:35Z",
-      "run_started_at": "2026-11-05T22:56:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42125662989",
-      "run_number": 3895,
-      "display_title": "中文源出片 · ly-story-a5e95cedca"
-    },
     "ly-1105-69061c": {
       "id": 42124893180,
       "status": "completed",
@@ -67509,12 +67502,45 @@
       "run_number": 3894,
       "display_title": "中文源出片 · ly-1105-69061c"
     },
-    "ly-1105-76d96e": {
-      "id": 42124875325,
+    "ly-1105-546057": {
+      "id": 42127347877,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-05T23:08:59Z",
+      "updated_at": "2026-11-05T23:09:03Z",
+      "run_started_at": "2026-11-05T23:08:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42127347877",
+      "run_number": 3898,
+      "display_title": "中文源出片 · ly-1105-546057"
+    },
+    "ly-1105-6861a0": {
+      "id": 42127325302,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-05T23:08:48Z",
+      "updated_at": "2026-11-05T23:08:53Z",
+      "run_started_at": "2026-11-05T23:08:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42127325302",
+      "run_number": 3897,
+      "display_title": "中文源出片 · ly-1105-6861a0"
+    },
+    "ly-story-a5e95cedca": {
+      "id": 42125662989,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-05T22:56:32Z",
+      "updated_at": "2026-11-05T23:08:12Z",
+      "run_started_at": "2026-11-05T22:56:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42125662989",
+      "run_number": 3895,
+      "display_title": "中文源出片 · ly-story-a5e95cedca"
+    },
+    "ly-1105-76d96e": {
+      "id": 42124875325,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-05T22:50:38Z",
-      "updated_at": "2026-11-05T22:50:42Z",
+      "updated_at": "2026-11-05T23:05:10Z",
       "run_started_at": "2026-11-05T22:50:38Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42124875325",
       "run_number": 3893,
