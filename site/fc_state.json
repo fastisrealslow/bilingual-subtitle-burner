@@ -96435,7 +96435,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4977853987557406",
@@ -96458,7 +96459,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-11T20:05:37+08:00"
+   "publish_time": "2023-12-11T20:05:37+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42118331633,
+    "artifact_id": 13458140997,
+    "name": "source-reject-ly-1105-2fdb08",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0021, 2: 0.0974, 3: 0.052, 4: 0.0691, 5: 0.0785, 6: 0.0763, 7: 0.0887, 8: 0.0368, 10: 0.0667, 11: 0.044, 12: 0.0223, 13: 0.0558, 14: 0.0695, 15: 0.0208, 16: 0.0352, 18: 0.0438}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -197010,6 +197021,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/I8aTW1k9lx08rdLOzPBC01041201M0fI0E010.mp4",
    "ts": 1793916242,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1105-2fdb08",
+   "key": "weibo_search:4977853987557406",
+   "video_id": "https://f.video.weibocdn.com/u0/4qJy2FyYgx08aRHcaFKE01041202xF8t0E010.mp4",
+   "ts": 1793916735,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0021, 2: 0.0974, 3: 0.052, 4: 0.0691, 5: 0.0785, 6: 0.0763, 7: 0.0887, 8: 0.0368, 10: 0.0667, 11: 0.044, 12: 0.0223, 13: 0.0558, 14: 0.0695, 15: 0.0208, 16: 0.0352, 18: 0.0438}"
   }
  ],
  "reviewed_third_video_0910": {
