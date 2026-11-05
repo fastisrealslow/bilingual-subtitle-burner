@@ -95857,7 +95857,64 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-03-17T12:33:00+00:00"
+   "publish_time": "2023-03-17T12:33:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1105-164784",
+    "run_id": 42087482990,
+    "artifact_id": 13446053339,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9f9bd70057bec16c01ba1d783bd06b1d548bc9a8c67341e86f29748d8fff216b",
+     "duration_sec": 1844.4,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1kg4y147P4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 88%（BV19xpy6kER3）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段仅由主持人开场白构成，包含流程说明与自问环节，但嘉宾林园尚未对任何问题进行回答或表达观点，缺乏独立成片所需的实质性内容。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/569，总帧数2842；身份匹配但人脸短边不足96px的帧数569"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/535，总帧数2674；身份匹配但人脸短边不足96px的帧数535"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/377，总帧数1882；身份匹配但人脸短边不足96px的帧数377"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/942，总帧数4706；身份匹配但人脸短边不足96px的帧数942"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1047，总帧数5234；身份匹配但人脸短边不足96px的帧数1047"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42087482990,
+    "artifact_id": 13446053339,
+    "name": "production-reject-ly-1105-164784",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 88%（BV19xpy6kER3）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1V8411o7cG",
@@ -96085,7 +96142,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167933175366630",
@@ -96128,7 +96186,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167931806976043",
@@ -96171,7 +96230,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167935855527658",
@@ -96214,7 +96274,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -196745,6 +196806,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/6R2FkgIZlx08t88l2qDK01041202uU2A0E010.mp4",
    "ts": 1793905112,
    "error": "与已发布内容文字指纹重复：转写片段重合 100%（BV13vJ26eEuz）"
+  },
+  {
+   "slug": "ly-1105-164784",
+   "key": "bilibili_search:BV1kg4y147P4",
+   "video_id": "BV1kg4y147P4",
+   "ts": 1793907676,
+   "error": "与已发布内容文字指纹重复：转写片段重合 88%（BV19xpy6kER3）"
   }
  ],
  "reviewed_third_video_0910": {
