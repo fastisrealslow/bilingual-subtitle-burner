@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793916465,
+  "updated_at": 1793916823,
   "inventory_updated_at": 1793916458,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 94,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 12,
+    "waiting_candidates": 11,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -225,16 +225,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793916463,
+    "updated_at": 1793916821,
     "records": 15933,
     "video_records": 13488,
-    "initial_candidates": 192,
-    "duration_eligible_records": 12,
-    "candidate_count": 12,
-    "known_duration_candidates": 12,
+    "initial_candidates": 191,
+    "duration_eligible_records": 11,
+    "candidate_count": 11,
+    "known_duration_candidates": 11,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3219,
+      "already_attempted_or_cooling": 3220,
       "speaker_unconfirmed": 8306,
       "clip_title": 1409,
       "no_video": 2445,
@@ -247,14 +247,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5206830974239842",
-        "title": "2025年9月3日是中国人民抗日战争暨世界反法西斯战争胜利80周年纪念日。广东各地各界通过多种方式收听收看阅兵直播。#九",
-        "source": "weibo_search",
-        "author": "羊城晚报",
-        "url": "https://m.weibo.cn/detail/5206830974239842",
-        "duration_sec": 20.0
-      },
       {
         "key": "weibo_search:5209295926855498",
         "title": "2025-09-02，林园：我是各种“堂”我都有（持股），中华老字号的价格普遍都要贵一些，实际上都是消费升级。我们不要以",
@@ -359,7 +351,7 @@
   },
   "counts": {
     "complete": 184,
-    "failed": 2056,
+    "failed": 2057,
     "paused": 5,
     "interrupted": 9,
     "excluded": 54,
@@ -44592,11 +44584,11 @@
     },
     {
       "slug": "ly-1105-2fdb08",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0021, 2: 0.0974, 3: 0.052, 4: 0.0691, 5: 0.0785, 6: 0.0763, 7: 0.0887, 8: 0.0368, 10: 0.0667, 11: 0.044, 12: 0.0223, 13: 0.0558, 14: 0.0695, 15: 0.0208, 16: 0.0352, 18: 0.0438}",
       "signature": {
         "ts": 1793916281,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -44606,7 +44598,25 @@
       "run_id": 42118331633,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42118331633",
       "run_started_at": "2026-11-05T22:04:41Z",
-      "run_updated_at": "2026-11-05T22:04:45Z"
+      "run_updated_at": "2026-11-05T22:07:20Z"
+    },
+    {
+      "slug": "ly-1105-4dedd1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793916778,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42119557690,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42119557690",
+      "run_started_at": "2026-11-05T22:12:57Z",
+      "run_updated_at": "2026-11-05T22:13:01Z"
     }
   ],
   "runs": {
@@ -67248,12 +67258,23 @@
       "run_number": 3885,
       "display_title": "中文源出片 · ly-1105-95cf50"
     },
-    "ly-1105-2fdb08": {
-      "id": 42118331633,
+    "ly-1105-4dedd1": {
+      "id": 42119557690,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-05T22:12:57Z",
+      "updated_at": "2026-11-05T22:13:01Z",
+      "run_started_at": "2026-11-05T22:12:57Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42119557690",
+      "run_number": 3887,
+      "display_title": "中文源出片 · ly-1105-4dedd1"
+    },
+    "ly-1105-2fdb08": {
+      "id": 42118331633,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-05T22:04:41Z",
-      "updated_at": "2026-11-05T22:04:45Z",
+      "updated_at": "2026-11-05T22:07:20Z",
       "run_started_at": "2026-11-05T22:04:41Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42118331633",
       "run_number": 3886,
