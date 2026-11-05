@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793865831,
+  "updated_at": 1793866347,
   "inventory_updated_at": 1793865827,
   "continuity": {
     "daily_target": 4,
@@ -213,9 +213,9 @@
       },
       {
         "date": "2026-11-05",
-        "published": 2,
+        "published": 3,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 1,
         "valid_comparison": false
       }
@@ -225,7 +225,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793865830,
+    "updated_at": 1793866346,
     "records": 15852,
     "video_records": 13410,
     "initial_candidates": 178,
@@ -261,13 +261,13 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 182,
-    "failed": 2035,
+    "complete": 183,
+    "failed": 2036,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 54,
     "experiment_fallback": 115,
-    "ready": 24,
+    "ready": 23,
     "validation_failed": 2,
     "retry_queued": 3,
     "running": 2
@@ -42173,13 +42173,13 @@
     },
     {
       "slug": "ly-1103-5da961",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793722462,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -43973,11 +43973,11 @@
     },
     {
       "slug": "ly-1105-1a3905",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793864942,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -66437,6 +66437,17 @@
       "run_number": 3831,
       "display_title": "中文源出片 · ly-1105-53c7ad"
     },
+    "ly-1105-1a3905": {
+      "id": 41989885068,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-05T07:49:02Z",
+      "updated_at": "2026-11-05T08:01:47Z",
+      "run_started_at": "2026-11-05T07:49:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41989885068",
+      "run_number": 3837,
+      "display_title": "中文源出片 · ly-1105-1a3905"
+    },
     "ly-1105-005db1": {
       "id": 41991010790,
       "status": "in_progress",
@@ -66458,17 +66469,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41990996713",
       "run_number": 3840,
       "display_title": "中文源出片 · ly-1105-5ca75e"
-    },
-    "ly-1105-1a3905": {
-      "id": 41989885068,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-05T07:49:02Z",
-      "updated_at": "2026-11-05T08:01:47Z",
-      "run_started_at": "2026-11-05T07:49:02Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41989885068",
-      "run_number": 3837,
-      "display_title": "中文源出片 · ly-1105-1a3905"
     }
   }
 }
