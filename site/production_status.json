@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793916139,
+  "updated_at": 1793916326,
   "inventory_updated_at": 1793916133,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 94,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 13,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 12,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -225,16 +225,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793916137,
+    "updated_at": 1793916324,
     "records": 15933,
     "video_records": 13488,
-    "initial_candidates": 193,
-    "duration_eligible_records": 13,
-    "candidate_count": 13,
-    "known_duration_candidates": 13,
+    "initial_candidates": 192,
+    "duration_eligible_records": 12,
+    "candidate_count": 12,
+    "known_duration_candidates": 12,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3218,
+      "already_attempted_or_cooling": 3219,
       "speaker_unconfirmed": 8305,
       "clip_title": 1410,
       "no_video": 2445,
@@ -247,14 +247,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4977853987557406",
-        "title": "李蓓总林园总说的大牛市什么时候会来？\n#现在股市为20年一遇机会##A股# http://t.cn/A6l5yW4p ​",
-        "source": "weibo_search",
-        "author": "模型预测",
-        "url": "https://m.weibo.cn/detail/4977853987557406",
-        "duration_sec": 137.0
-      },
       {
         "key": "weibo_search:5206830974239842",
         "title": "2025年9月3日是中国人民抗日战争暨世界反法西斯战争胜利80周年纪念日。广东各地各界通过多种方式收听收看阅兵直播。#九",
@@ -367,15 +359,15 @@
   },
   "counts": {
     "complete": 184,
-    "failed": 2055,
+    "failed": 2056,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 54,
     "experiment_fallback": 119,
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -44582,11 +44574,11 @@
     },
     {
       "slug": "ly-1105-95cf50",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
       "signature": {
         "ts": 1793915302,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -44597,6 +44589,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42115938382",
       "run_started_at": "2026-11-05T21:48:22Z",
       "run_updated_at": "2026-11-05T21:59:53Z"
+    },
+    {
+      "slug": "ly-1105-2fdb08",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793916281,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42118331633,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42118331633",
+      "run_started_at": "2026-11-05T22:04:41Z",
+      "run_updated_at": "2026-11-05T22:04:45Z"
     }
   ],
   "runs": {
@@ -67237,6 +67247,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42115938382",
       "run_number": 3885,
       "display_title": "中文源出片 · ly-1105-95cf50"
+    },
+    "ly-1105-2fdb08": {
+      "id": 42118331633,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-05T22:04:41Z",
+      "updated_at": "2026-11-05T22:04:45Z",
+      "run_started_at": "2026-11-05T22:04:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42118331633",
+      "run_number": 3886,
+      "display_title": "中文源出片 · ly-1105-2fdb08"
     },
     "ly-1105-d86611": {
       "id": 42114897091,
