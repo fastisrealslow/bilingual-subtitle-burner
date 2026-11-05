@@ -1,19 +1,30 @@
 {
-  "run_id": "41994228914",
+  "run_id": "42043161060",
   "processed": 3,
-  "inspected": 4,
-  "historical_media_verified": 220,
-  "cache_recovery_pending": 216,
-  "pending": 267,
+  "inspected": 1,
+  "historical_media_verified": 221,
+  "cache_recovery_pending": 220,
+  "pending": 271,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
-    "new_bvids": [],
+    "status": "retry_next_run",
+    "error": "RuntimeError",
+    "new_bvids": [
+      "BV1cc4b6JEpT",
+      "BV1wZ4t6HELu"
+    ],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 4,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -2935,10 +2946,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 35,
+      "attempts": 36,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793781394.9372861,
-      "next_retry_at": 1793867794.9372861,
+      "last_attempt_at": 1793888518.716669,
+      "next_retry_at": 1793974918.716669,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6249,12 +6260,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 19,
+      "attempts": 20,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793781384.1893923,
-      "next_retry_at": 1793867784.1893923,
+      "last_attempt_at": 1793888509.6686218,
+      "next_retry_at": 1793974909.6686218,
       "download_partial_bytes": 0
     },
     "72bd5fcbae3e3d297c17": {
@@ -8427,11 +8438,11 @@
       "role": "mother",
       "family": "investor_call",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_error": null,
       "last_attempt_at": 1793835871.9052238,
       "next_retry_at": 0,
@@ -8464,11 +8475,11 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_error": null,
       "last_attempt_at": 1793861664.5270326,
       "next_retry_at": 0,
@@ -8531,11 +8542,11 @@
       "role": "mother",
       "family": "dadao_2026_06",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 0,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_attempt_at": 1793836675.355939,
       "next_retry_at": 0,
       "last_error": null,
@@ -8582,11 +8593,11 @@
       "role": "mother",
       "family": "fudan_2026_05",
       "priority": 5,
-      "status": "inspected",
+      "status": "pending",
       "attempts": 0,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": true,
-      "cache_recovery_needed": false,
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": true,
       "last_attempt_at": 1793837069.8494296,
       "next_retry_at": 0,
       "last_error": null,
@@ -8612,6 +8623,41 @@
         "production_quality": "not_evaluated"
       },
       "evidence_run_id": "41936398462"
+    },
+    "84e998b309a68753b1de": {
+      "url": "https://www.bilibili.com/video/BV1wZ4t6HELu",
+      "role": "reference",
+      "family": "unresolved",
+      "priority": 1,
+      "status": "inspected",
+      "attempts": 0,
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "last_attempt_at": 1793888490.7932644,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "b6873b64418e17bc67e87ee442668a3e024e0398ed01a916f30ce167d7ef0b37",
+        "duration_sec": 564.566,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 282.28
+          }
+        ],
+        "audio_fingerprint_count": 4538,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "42043161060"
     }
   },
   "searches": {
@@ -8695,21 +8741,24 @@
       "new_ids": []
     },
     "zhejiang_2026_01|林园 浙江大学 2026 1月9日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793827412.7630785,
-      "next_retry_at": 1793870612.7630785,
+      "next_retry_at": 1793910013.0674117,
       "found": 3,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793888413.0674117
     },
     "historical_long_leads_20261010|林园 2025 5 采访 完整版": {
       "status": "retry_wait",
       "checked_at": 1793739815.5648217,
-      "next_retry_at": 1793849012.7630785,
+      "next_retry_at": 1793931613.0674117,
       "found": 4,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1793827412.7630785
+      "last_attempt_at": 1793888413.0674117
     },
     "historical_long_leads_20261010|林园 2006 走进资本市场 完整版": {
       "status": "searched",
@@ -8721,12 +8770,12 @@
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
       "status": "retry_wait",
       "checked_at": 1793810748.3639538,
-      "next_retry_at": 1793883183.477691,
+      "next_retry_at": 1793931613.0674117,
       "found": 4,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1793861583.477691
+      "last_attempt_at": 1793888413.0674117
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
