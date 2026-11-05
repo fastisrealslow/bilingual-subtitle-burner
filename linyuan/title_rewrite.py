@@ -1423,6 +1423,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return '封面仍是主题目录；要写出这个片段的具体判断或完整问题'
     if copy_fragment(title) or copy_fragment(cover):
         return '标题或封面截成残句；补全宾语和判断，不能停在真正的、成为龙头的等半句话'
+    from title_word_boundary import source_word_boundary_error
+    boundary_issue = source_word_boundary_error(title, cover, transcript)
+    if boundary_issue:
+        return boundary_issue
     attribute_issue = subject_attribute_error(title, cover, transcript)
     if attribute_issue:
         return attribute_issue
@@ -2184,6 +2188,10 @@ def error(title, proof, transcript=None, speaker='林园'):
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'
+    from title_word_boundary import source_word_boundary_error
+    boundary_issue = source_word_boundary_error(title, proof['cover'], transcript or ''.join(evidence))
+    if boundary_issue:
+        return boundary_issue
     directive_issue=unsupported_trade_directive_error(title,proof['cover'],transcript or ''.join(evidence))
     if directive_issue:return directive_issue
     range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
