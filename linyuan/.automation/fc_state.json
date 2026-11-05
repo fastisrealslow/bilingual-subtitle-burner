@@ -96322,7 +96322,100 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-23T02:30:01+08:00"
+   "publish_time": "2025-08-23T02:30:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1105-e78d06",
+    "run_id": 42114875822,
+    "artifact_id": 13459291645,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a6349f71556c410a67840d7046c5d730da967f3fafb162d1c7fe8f481cef3a0c",
+     "duration_sec": 1801.66,
+     "resolution": {
+      "width": 620,
+      "height": 716,
+      "short_edge": 620
+     },
+     "source_url": "https://m.weibo.cn/detail/5202631201129260"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 89%（BV1UZbx68EpD）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1314/1713，总帧数1990；身份匹配但人脸短边不足96px的帧数399"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 68%（BV1HNbw6UEuv）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 82%（BV1NEbW6JEq7）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/460，总帧数2297；身份匹配但人脸短边不足96px的帧数460"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 70%（BV1ANb46dE8T）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 81%（BV1yNb46REjQ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/640，总帧数3199；身份匹配但人脸短边不足96px的帧数640"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1yNb46REjQ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 93%（BV1yNb46REjQ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/394，总帧数1967；身份匹配但人脸短边不足96px的帧数394"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 92%（BV16Gbs6GEgv）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 89%（BV1CNb46RE3R）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 87%（BV1CNb46REDq）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1ANb46dE8T）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42114875822,
+    "artifact_id": 13459291645,
+    "name": "production-reject-ly-1105-e78d06",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 89%（BV1UZbx68EpD）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5202576608073920",
@@ -96503,7 +96596,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[6]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0303, 2: 0.1048, 3: 0.1669, 4: 0.1919, 5: 0.3031, 8: 0.229, 9: 0.2817, 10: 0.1919, 11: 0.1892, 12: 0.1505, 13: 0.118, 14: 0.0894, 15: -0.0687, 16: 0.3115, 17: 0.3563, 18: 0.1534}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1KyeJe5EnF",
@@ -197092,6 +197186,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/vtxRzbTwgx08r7vZXYsg01041200fDoD0E010.mp4",
    "ts": 1793917075,
    "error": "人物不一致或无法确认：林园；initial_same=[6]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0303, 2: 0.1048, 3: 0.1669, 4: 0.1919, 5: 0.3031, 8: 0.229, 9: 0.2817, 10: 0.1919, 11: 0.1892, 12: 0.1505, 13: 0.118, 14: 0.0894, 15: -0.0687, 16: 0.3115, 17: 0.3563, 18: 0.1534}"
+  },
+  {
+   "slug": "ly-1105-e78d06",
+   "key": "weibo_search:5202631201129260",
+   "video_id": "https://f.video.weibocdn.com/o0/4kOeTMHBlx08qP1UeUJi01041205fu4t0E020.mp4",
+   "ts": 1793918240,
+   "error": "与已发布内容文字指纹重复：转写片段重合 89%（BV1UZbx68EpD）"
   }
  ],
  "reviewed_third_video_0910": {
