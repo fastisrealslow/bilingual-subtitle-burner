@@ -95258,7 +95258,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4492997527340768",
@@ -95341,7 +95342,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-05-16T01:37:34+08:00"
+   "publish_time": "2025-05-16T01:37:34+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1105-5ca75e",
+    "run_id": 41990996713,
+    "artifact_id": 13399430223,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f55f9d28f44b4dda19935d1aef14f713edf0e0c984a350f69036bc39a463576d",
+     "duration_sec": 480.8,
+     "resolution": {
+      "width": 1080,
+      "height": 1506,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5166741600863349"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41990996713,
+    "artifact_id": 13399430223,
+    "name": "production-reject-ly-1105-5ca75e",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV16vkjBQELM",
@@ -95364,7 +95398,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-01-20T11:22:13+00:00"
+   "publish_time": "2026-01-20T11:22:13+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1105-005db1",
+    "run_id": 41991010790,
+    "artifact_id": 13398722645,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b6913582f951deb1cfd26a85858187ff27aeb0474477bdcabceabd029f31c01a",
+     "duration_sec": 163.8,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV16vkjBQELM"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"二五\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间实体识别污染，'二五'无法确定是年份（2025）还是其他含义，且与上下文'话题'搭配产生歧义。\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"老灯股\", \"ki"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 41991010790,
+    "artifact_id": 13398722645,
+    "name": "production-reject-ly-1105-005db1",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"二五\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间实体识别污染，'二五'无法确定是年份（2025）还是其他含义，且与上下文'话题'搭配产生歧义。\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"老灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'老灯股'疑似'老东股'或特定术语的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"小那个小灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'小那个小灯股'存在明显的口语填充词粘连和实体错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 2, \"quote\": \"然后就关于这个老东股那个，嗯，价值投资这一块，就是估值的一个回报跟小东股的不确定性，它是是，高化爆发式爆发式的一些增长的。\", \"suspect_quote\": \"老东股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'老东股'疑似'大盘股'或特定术语的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 2, \"quote\": \"然后就关于这个老东股那个，嗯，价值投资这一块，就是估值的一个回报跟小东股的不确定性，它是是，高化爆发式爆发式的一些增长的。\", \"suspect_quote\": \"小东股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'小东股'疑似'小盘股'的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -195420,6 +195487,20 @@
    "key": "weibo_search:5166844320680870",
    "video_id": "https://f.video.weibocdn.com/o0/2PlsBR00lx08ohwa3iCA010412028Epo0E010.mp4",
    "ts": 1793866188,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1105-005db1",
+   "key": "bilibili_search:BV16vkjBQELM",
+   "video_id": "BV16vkjBQELM",
+   "ts": 1793866633,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"二五\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间实体识别污染，'二五'无法确定是年份（2025）还是其他含义，且与上下文'话题'搭配产生歧义。\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"老灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'老灯股'疑似'老东股'或特定术语的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"小那个小灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'小那个小灯股'存在明显的口语填充词粘连和实体错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 2, \"quote\": \"然后就关于这个老东股那个，嗯，价值投资这一块，就是估值的一个回报跟小东股的不确定性，它是是，高化爆发式爆发式的一些增长的。\", \"suspect_quote\": \"老东股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'老东股'疑似'大盘股'或特定术语的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 2, \"quote\": \"然后就关于这个老东股那个，嗯，价值投资这一块，就是估值的一个回报跟小东股的不确定性，它是是，高化爆发式爆发式的一些增长的。\", \"suspect_quote\": \"小东股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'小东股'疑似'小盘股'的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
+  },
+  {
+   "slug": "ly-1105-5ca75e",
+   "key": "weibo_search:5166741600863349",
+   "video_id": "https://f.video.weibocdn.com/u0/3OJdSBfegx08oh48VKhW01041206jsDV0E030.mp4",
+   "ts": 1793866633,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
