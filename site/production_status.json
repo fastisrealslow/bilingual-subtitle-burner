@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793866561,
+  "updated_at": 1793866735,
   "inventory_updated_at": 1793866553,
   "continuity": {
     "daily_target": 4,
@@ -225,7 +225,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793866559,
+    "updated_at": 1793866733,
     "records": 15852,
     "video_records": 13410,
     "initial_candidates": 178,
@@ -262,14 +262,15 @@
   },
   "counts": {
     "complete": 183,
-    "failed": 2036,
+    "failed": 2038,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 9,
     "excluded": 54,
     "experiment_fallback": 115,
     "ready": 23,
     "validation_failed": 2,
-    "retry_queued": 3
+    "retry_queued": 1,
+    "running": 2
   },
   "tasks": [
     {
@@ -43989,48 +43990,12 @@
       "run_updated_at": "2026-11-05T08:01:47Z"
     },
     {
-      "slug": "ly-1105-2d5ce3",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793864951,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793866362,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41989902483,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41989902483",
-      "run_started_at": "2026-11-05T07:49:11Z",
-      "run_updated_at": "2026-11-05T07:50:49Z"
-    },
-    {
-      "slug": "ly-1105-9e1996",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793864959,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793866356,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 41989917572,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41989917572",
-      "run_started_at": "2026-11-05T07:49:19Z",
-      "run_updated_at": "2026-11-05T07:51:17Z"
-    },
-    {
       "slug": "ly-1105-5ca75e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793865517,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -44044,11 +44009,11 @@
     },
     {
       "slug": "ly-1105-005db1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"二五\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间实体识别污染，'二五'无法确定是年份（2025）还是其他含义，且与上下文'话题'搭配产生歧义。\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"老灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'老灯股'疑似'老东股'或特定术语的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 1, \"quote\": \"因为二五年的话，其实有一个话题，叫我就老灯股和那个小那个小灯股，就是比比较火。\", \"suspect_quote\": \"小那个小灯股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'小那个小灯股'存在明显的口语填充词粘连和实体错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 2, \"quote\": \"然后就关于这个老东股那个，嗯，价值投资这一块，就是估值的一个回报跟小东股的不确定性，它是是，高化爆发式爆发式的一些增长的。\", \"suspect_quote\": \"老东股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'老东股'疑似'大盘股'或特定术语的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}, {\"sentence_id\": 2, \"quote\": \"然后就关于这个老东股那个，嗯，价值投资这一块，就是估值的一个回报跟小东股的不确定性，它是是，高化爆发式爆发式的一些增长的。\", \"suspect_quote\": \"小东股\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染，'小东股'疑似'小盘股'的误识，非有效通用词。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
       "signature": {
         "ts": 1793865524,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -44059,6 +44024,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41991010790",
       "run_started_at": "2026-11-05T07:58:44Z",
       "run_updated_at": "2026-11-05T08:14:00Z"
+    },
+    {
+      "slug": "ly-1105-9e1996",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793866684,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41993392669,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41993392669",
+      "run_started_at": "2026-11-05T08:18:04Z",
+      "run_updated_at": "2026-11-05T08:18:09Z"
+    },
+    {
+      "slug": "ly-1105-2d5ce3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793866693,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 41993410682,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41993410682",
+      "run_started_at": "2026-11-05T08:18:12Z",
+      "run_updated_at": "2026-11-05T08:18:17Z"
     }
   ],
   "runs": {
@@ -66382,25 +66383,25 @@
       "display_title": "中文源出片 · ly-1105-d44277"
     },
     "ly-1105-2d5ce3": {
-      "id": 41989902483,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-05T07:49:11Z",
-      "updated_at": "2026-11-05T07:50:49Z",
-      "run_started_at": "2026-11-05T07:49:11Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41989902483",
-      "run_number": 3838,
+      "id": 41993410682,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-05T08:18:12Z",
+      "updated_at": "2026-11-05T08:18:17Z",
+      "run_started_at": "2026-11-05T08:18:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41993410682",
+      "run_number": 3843,
       "display_title": "中文源出片 · ly-1105-2d5ce3"
     },
     "ly-1105-9e1996": {
-      "id": 41989917572,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-05T07:49:19Z",
-      "updated_at": "2026-11-05T07:51:17Z",
-      "run_started_at": "2026-11-05T07:49:19Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41989917572",
-      "run_number": 3839,
+      "id": 41993392669,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-05T08:18:04Z",
+      "updated_at": "2026-11-05T08:18:09Z",
+      "run_started_at": "2026-11-05T08:18:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41993392669",
+      "run_number": 3842,
       "display_title": "中文源出片 · ly-1105-9e1996"
     },
     "ly-1105-cb472e": {
