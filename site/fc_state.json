@@ -94637,62 +94637,6 @@
    "recovery_origin_run_id": 41877448723
   },
   {
-   "key": "weibo_search:4977683458951026",
-   "video_id": "https://f.video.weibocdn.com/o0/HPBJliCAlx08aQ9rvlHG0104120aMUCm0E040.mp4",
-   "required_presentation_version": 2,
-   "production_rules_version": 2026090604,
-   "weekly_full_week": "",
-   "output_layout": "landscape",
-   "editorial_profile": "field-story-v1",
-   "slug": "ly-1104-111712",
-   "ts": 1793835525,
-   "source_url": "https://m.weibo.cn/detail/4977683458951026",
-   "asset_url": "https://m.weibo.cn/detail/4977683458951026",
-   "title": "20231210《证券市场周刊》2024投资策略会林园专访",
-   "delay_hours": 0,
-   "source": "weibo_search",
-   "author": "咖啡豆AAA",
-   "speech_date_context": {
-    "date": null,
-    "verified": false,
-    "basis": "unknown"
-   },
-   "publish_time": "2023-12-11T08:48:00+08:00",
-   "production_failure_summary": {
-    "slug": "ly-1104-111712",
-    "run_id": 41935346569,
-    "artifact_id": 13375980435,
-    "accepted": 0,
-    "source_context": {
-     "passed": true,
-     "source_sha256": "b28e9026ef16f6a94b4c52006d0f930afc6fad463a6e9725bf3b424442144ff9",
-     "duration_sec": 3760.93,
-     "resolution": {
-      "width": 1080,
-      "height": 648,
-      "short_edge": 648
-     },
-     "source_url": "https://m.weibo.cn/detail/4977683458951026"
-    },
-    "failures": [
-     {
-      "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
-     }
-    ]
-   },
-   "source_check_report_id": 13375980435,
-   "source_check_run_id": 41935346569,
-   "last_error": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1,
-   "source_check_retry_after": 1793839674
-  },
-  {
    "key": "bilibili_search:BV1BJfHY1EC4",
    "video_id": "BV1BJfHY1EC4",
    "required_presentation_version": 2,
@@ -94769,7 +94713,8 @@
    },
    "last_error": "原始素材短边 272 < 480（368x272），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4594468739359231",
@@ -94802,7 +94747,8 @@
    },
    "last_error": "清理后预计短边 346 < 480",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4594461503391701",
@@ -94835,7 +94781,63 @@
    },
    "last_error": "清理后预计短边 346 < 480",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
+  },
+  {
+   "key": "weibo_search:4977683458951026",
+   "video_id": "https://f.video.weibocdn.com/o0/HPBJliCAlx08aQ9rvlHG0104120aMUCm0E040.mp4",
+   "required_presentation_version": 2,
+   "production_rules_version": 2026090604,
+   "weekly_full_week": "",
+   "output_layout": "landscape",
+   "editorial_profile": "field-story-v1",
+   "slug": "ly-1104-111712",
+   "ts": 1793840472,
+   "source_url": "https://m.weibo.cn/detail/4977683458951026",
+   "asset_url": "https://m.weibo.cn/detail/4977683458951026",
+   "title": "20231210《证券市场周刊》2024投资策略会林园专访",
+   "delay_hours": 0,
+   "source": "weibo_search",
+   "author": "咖啡豆AAA",
+   "speech_date_context": {
+    "date": null,
+    "verified": false,
+    "basis": "unknown"
+   },
+   "publish_time": "2023-12-11T08:48:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1104-111712",
+    "run_id": 41935346569,
+    "artifact_id": 13375980435,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b28e9026ef16f6a94b4c52006d0f930afc6fad463a6e9725bf3b424442144ff9",
+     "duration_sec": 3760.93,
+     "resolution": {
+      "width": 1080,
+      "height": 648,
+      "short_edge": 648
+     },
+     "source_url": "https://m.weibo.cn/detail/4977683458951026"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n"
+     }
+    ]
+   },
+   "source_check_report_id": 13375980435,
+   "source_check_run_id": 41935346569,
+   "last_error": "封面生成/人物/角标复检失败：OpenCV(4.14.0) /io/opencv/modules/dnn/src/onnx/onnx_importer.cpp:288: error: (-210:Unsupported format or combination of formats) Failed to parse ONNX model: /tmp/linyuan-face-models/face_recognition_sface_2021dec.onnx in function 'ONNXImporter'\n",
+   "failure_stage": "quality-service",
+   "source_check_attempts": 2
   }
  ],
  "makeup_receipts": {
