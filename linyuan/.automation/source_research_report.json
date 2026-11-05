@@ -1,10 +1,10 @@
 {
-  "run_id": "41953029428",
+  "run_id": "41982868574",
   "processed": 3,
-  "inspected": 3,
-  "historical_media_verified": 219,
+  "inspected": 4,
+  "historical_media_verified": 220,
   "cache_recovery_pending": 216,
-  "pending": 268,
+  "pending": 267,
   "audio_matches": [],
   "reference_refresh": {
     "status": "retry_next_run",
@@ -12,9 +12,40 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 4,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6334328,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 2,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -5882,13 +5913,13 @@
       "family": "fudan_2026_05",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 12,
+      "attempts": 13,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793562672.4442015,
-      "next_retry_at": 1793649072.4442015,
+      "last_attempt_at": 1793861593.5317152,
+      "next_retry_at": 1793947993.5317152,
       "download_partial_bytes": 0
     },
     "a95be35ed9c89b3c08f8": {
@@ -8052,13 +8083,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793576688.142628,
-      "next_retry_at": 1793663088.142628,
+      "last_attempt_at": 1793861666.8127747,
+      "next_retry_at": 1793948066.8127747,
       "download_partial_bytes": 0
     },
     "6d748368c92f95a3a098": {
@@ -8464,15 +8495,37 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1793576685.662556,
-      "next_retry_at": 1793598285.662556,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1793861664.5270326,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "8a1c6123f9920477c0adbe3746c837ac9963ad28fa90ae0868a1826d777db42f",
+        "duration_sec": 2158.766313,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1079.38
+          }
+        ],
+        "audio_fingerprint_count": 17415,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "41982868574"
     },
     "e2d5960d33ee56931483": {
       "url": "https://www.bilibili.com/video/BV1D64y1b7es",
@@ -8639,18 +8692,24 @@
       "new_ids": []
     },
     "investor_call|林园 投资者连线 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793812934.0792305,
-      "next_retry_at": 1793856134.0792305,
+      "next_retry_at": 1793883183.477691,
       "found": 2,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793861583.477691
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793812934.0792305,
-      "next_retry_at": 1793856134.0792305,
+      "next_retry_at": 1793883183.477691,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793861583.477691
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "retry_wait",
@@ -8697,11 +8756,14 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793810748.3639538,
-      "next_retry_at": 1793853948.3639538,
+      "next_retry_at": 1793883183.477691,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793861583.477691
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
