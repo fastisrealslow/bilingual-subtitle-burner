@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793869602,
-  "inventory_updated_at": 1793869442,
+  "updated_at": 1793870108,
+  "inventory_updated_at": 1793870103,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 94,
-    "active_or_recovering_sources": 3,
+    "verified_daily_stock": 95,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 94,
+      "verified_stock_snapshot": 95,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,7 +36,7 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 21,
+        "portrait": 22,
         "landscape": 73
       },
       "full_schedule_days": 7,
@@ -225,7 +225,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793869601,
+    "updated_at": 1793870107,
     "records": 15858,
     "video_records": 13415,
     "initial_candidates": 178,
@@ -249,14 +249,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 94,
+    "verified_live": 95,
     "verified_audio_card": 0,
     "verified_landscape": 73,
-    "verified_portrait": 21,
+    "verified_portrait": 22,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 94,
+    "daily_mix_usable": 95,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -264,13 +264,12 @@
     "complete": 183,
     "failed": 2040,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 10,
     "excluded": 54,
     "experiment_fallback": 115,
-    "ready": 23,
+    "ready": 24,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 2
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -44063,8 +44062,8 @@
     },
     {
       "slug": "ly-1105-63618c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793868833,
         "failed": null,
@@ -44077,12 +44076,12 @@
       "run_id": 41998007094,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41998007094",
       "run_started_at": "2026-11-05T08:53:53Z",
-      "run_updated_at": "2026-11-05T08:53:57Z"
+      "run_updated_at": "2026-11-05T09:12:28Z"
     },
     {
       "slug": "ly-1105-a18a51",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1793868840,
         "failed": null,
@@ -44095,7 +44094,7 @@
       "run_id": 41998021212,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41998021212",
       "run_started_at": "2026-11-05T08:53:59Z",
-      "run_updated_at": "2026-11-05T08:54:03Z"
+      "run_updated_at": "2026-11-05T09:13:34Z"
     }
   ],
   "runs": {
@@ -66508,10 +66507,10 @@
     },
     "ly-1105-a18a51": {
       "id": 41998021212,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-11-05T08:53:59Z",
-      "updated_at": "2026-11-05T08:54:03Z",
+      "updated_at": "2026-11-05T09:13:34Z",
       "run_started_at": "2026-11-05T08:53:59Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41998021212",
       "run_number": 3847,
@@ -66519,10 +66518,10 @@
     },
     "ly-1105-63618c": {
       "id": 41998007094,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-05T08:53:53Z",
-      "updated_at": "2026-11-05T08:53:57Z",
+      "updated_at": "2026-11-05T09:12:28Z",
       "run_started_at": "2026-11-05T08:53:53Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/41998007094",
       "run_number": 3846,
