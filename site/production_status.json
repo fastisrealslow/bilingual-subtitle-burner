@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793932406,
+  "updated_at": 1793932608,
   "inventory_updated_at": 1793932400,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -233,16 +233,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793932404,
+    "updated_at": 1793932606,
     "records": 15936,
     "video_records": 13491,
-    "initial_candidates": 181,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 180,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3231,
+      "already_attempted_or_cooling": 3232,
       "speaker_unconfirmed": 8306,
       "clip_title": 1410,
       "no_video": 2445,
@@ -254,16 +254,7 @@
       "too_short": 147,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:4912589426135578",
-        "title": "【#私募大佬称茅台可能创造世界奇迹#】6月13日，有“中国版巴菲特股东大会”之称的贵州茅台2022年度股东大会在贵州举行",
-        "source": "weibo_search",
-        "author": "财识App",
-        "url": "https://m.weibo.cn/detail/4912589426135578",
-        "duration_sec": 38.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 97,
@@ -286,7 +277,8 @@
     "experiment_fallback": 118,
     "ready": 23,
     "validation_failed": 2,
-    "retry_queued": 2
+    "retry_queued": 1,
+    "running": 3
   },
   "tasks": [
     {
@@ -44690,24 +44682,6 @@
       "run_updated_at": "2026-11-05T23:08:12Z"
     },
     {
-      "slug": "ly-1105-1df4ce",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793919756,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793920965,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 42126475027,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42126475027",
-      "run_started_at": "2026-11-05T23:02:35Z",
-      "run_updated_at": "2026-11-05T23:04:06Z"
-    },
-    {
       "slug": "ly-1105-6861a0",
       "status": "failed",
       "detail": "来源角标无法避开且保留完整人脸，须换取景或素材",
@@ -44796,6 +44770,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42128152836",
       "run_started_at": "2026-11-05T23:14:58Z",
       "run_updated_at": "2026-11-05T23:16:43Z"
+    },
+    {
+      "slug": "ly-1105-1df4ce",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793932551,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42151332771,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151332771",
+      "run_started_at": "2026-11-06T02:35:51Z",
+      "run_updated_at": "2026-11-06T02:35:55Z"
+    },
+    {
+      "slug": "ly-story-7bd4766b69",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793932559,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 42151345715,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151345715",
+      "run_started_at": "2026-11-06T02:35:58Z",
+      "run_updated_at": "2026-11-06T02:36:03Z"
+    },
+    {
+      "slug": "ly-1106-45f6ba",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793932567,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42151359412,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151359412",
+      "run_started_at": "2026-11-06T02:36:06Z",
+      "run_updated_at": "2026-11-06T02:36:10Z"
     }
   ],
   "runs": {
@@ -67526,14 +67554,14 @@
       "display_title": "中文源出片 · ly-1105-f6fa33"
     },
     "ly-1105-1df4ce": {
-      "id": 42126475027,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-05T23:02:35Z",
-      "updated_at": "2026-11-05T23:04:06Z",
-      "run_started_at": "2026-11-05T23:02:35Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42126475027",
-      "run_number": 3896,
+      "id": 42151332771,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T02:35:51Z",
+      "updated_at": "2026-11-06T02:35:55Z",
+      "run_started_at": "2026-11-06T02:35:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151332771",
+      "run_number": 3902,
       "display_title": "中文源出片 · ly-1105-1df4ce"
     },
     "ly-1105-69061c": {
@@ -67645,6 +67673,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42120404685",
       "run_number": 3888,
       "display_title": "中文源出片 · ly-1105-50d678"
+    },
+    "ly-1106-45f6ba": {
+      "id": 42151359412,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T02:36:06Z",
+      "updated_at": "2026-11-06T02:36:10Z",
+      "run_started_at": "2026-11-06T02:36:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151359412",
+      "run_number": 3904,
+      "display_title": "中文源出片 · ly-1106-45f6ba"
+    },
+    "ly-story-7bd4766b69": {
+      "id": 42151345715,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T02:35:58Z",
+      "updated_at": "2026-11-06T02:36:03Z",
+      "run_started_at": "2026-11-06T02:35:58Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151345715",
+      "run_number": 3903,
+      "display_title": "中文源出片 · ly-story-7bd4766b69"
     }
   }
 }
