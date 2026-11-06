@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793965062,
+  "updated_at": 1793965263,
   "inventory_updated_at": 1793965054,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 95,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 1,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -233,16 +233,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793965060,
+    "updated_at": 1793965261,
     "records": 16054,
     "video_records": 13608,
-    "initial_candidates": 182,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 181,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3322,
+      "already_attempted_or_cooling": 3323,
       "clip_title": 1402,
       "speaker_unconfirmed": 8338,
       "no_video": 2446,
@@ -254,16 +254,7 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:4717163812228401",
-        "title": "茅台推出股东平价购酒“新政”的消息热闹了几天，酒讯君从贵州茅台相关负责人处了解到根本就没这项购酒政策。\n\n茅台股东里面一",
-        "source": "weibo_search",
-        "author": "酒嗨high",
-        "url": "https://m.weibo.cn/detail/4717163812228401",
-        "duration_sec": 336.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 95,
@@ -279,9 +270,9 @@
   },
   "counts": {
     "complete": 187,
-    "failed": 2082,
+    "failed": 2085,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 9,
     "excluded": 60,
     "experiment_fallback": 116,
     "ready": 23,
@@ -45088,11 +45079,11 @@
     },
     {
       "slug": "ly-1106-f86f7d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"哎，我就是金身币，我就是金身币，你当成假的，不走去了。\", \"suspect_quote\": \"金身币\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为林园，该句自称“金身币”与已知身份严重不符，且无上下文支持此专名，疑似识别污染或口误转写错误。\"}]",
       "signature": {
         "ts": 1793964129,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45106,11 +45097,11 @@
     },
     {
       "slug": "ly-1106-a6bb9e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1793964492,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45124,11 +45115,11 @@
     },
     {
       "slug": "ly-1106-0c0aa3",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0185, 2: -0.019, 3: 0.0299, 4: 0.0784, 5: 0.0589, 6: -0.0197, 7: 0.0809, 8: 0.0272, 9: 0.0468, 10: 0.039, 11: -0.0266, 12: -0.0024, 13: -0.0335, 14: -0.0119, 15: 0.0802, 16: 0.0105, 17: 0.0368, 18: 0.024}",
       "signature": {
         "ts": 1793964891,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45138,7 +45129,25 @@
       "run_id": 42211309574,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211309574",
       "run_started_at": "2026-11-06T11:34:51Z",
-      "run_updated_at": "2026-11-06T11:34:55Z"
+      "run_updated_at": "2026-11-06T11:37:00Z"
+    },
+    {
+      "slug": "ly-1106-64ea7b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793965222,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42211969901,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211969901",
+      "run_started_at": "2026-11-06T11:40:22Z",
+      "run_updated_at": "2026-11-06T11:40:27Z"
     }
   ],
   "runs": {
@@ -68143,17 +68152,6 @@
       "run_number": 3920,
       "display_title": "中文源出片 · ly-1106-f86f7d"
     },
-    "ly-1106-0c0aa3": {
-      "id": 42211309574,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-06T11:34:51Z",
-      "updated_at": "2026-11-06T11:34:55Z",
-      "run_started_at": "2026-11-06T11:34:51Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211309574",
-      "run_number": 3922,
-      "display_title": "中文源出片 · ly-1106-0c0aa3"
-    },
     "ly-1106-a6bb9e": {
       "id": 42210475558,
       "status": "completed",
@@ -68164,6 +68162,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42210475558",
       "run_number": 3921,
       "display_title": "中文源出片 · ly-1106-a6bb9e"
+    },
+    "ly-1106-64ea7b": {
+      "id": 42211969901,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T11:40:22Z",
+      "updated_at": "2026-11-06T11:40:27Z",
+      "run_started_at": "2026-11-06T11:40:22Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211969901",
+      "run_number": 3923,
+      "display_title": "中文源出片 · ly-1106-64ea7b"
+    },
+    "ly-1106-0c0aa3": {
+      "id": 42211309574,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-06T11:34:51Z",
+      "updated_at": "2026-11-06T11:37:00Z",
+      "run_started_at": "2026-11-06T11:34:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211309574",
+      "run_number": 3922,
+      "display_title": "中文源出片 · ly-1106-0c0aa3"
     },
     "ly-1106-e3b4db": {
       "id": 42208690195,
