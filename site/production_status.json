@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793963394,
+  "updated_at": 1793963689,
   "inventory_updated_at": 1793963389,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 95,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 9,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -233,18 +233,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793963393,
+    "updated_at": 1793963687,
     "records": 16053,
     "video_records": 13607,
-    "initial_candidates": 190,
-    "duration_eligible_records": 9,
-    "candidate_count": 9,
-    "known_duration_candidates": 9,
+    "initial_candidates": 186,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 3317,
       "clip_title": 1402,
       "speaker_unconfirmed": 8338,
-      "already_attempted_or_cooling": 3313,
       "no_video": 2446,
       "noise": 38,
       "unrelated": 79,
@@ -255,38 +255,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5362315903896453",
-        "title": "【1小时完整版】林园：市场周期与人生哲学。#天玉朋友圈# #透过财经看世界# #微博视频号迎新计划# #财经# http",
-        "source": "weibo_search",
-        "author": "孙天玉_Joey",
-        "url": "https://m.weibo.cn/detail/5362315903896453",
-        "duration_sec": 3184.0
-      },
-      {
-        "key": "bilibili_search:BV1wQ4v6zEcm",
-        "title": "【1小时完整版】林园：从市场周期到人生哲学。",
-        "source": "bilibili_search",
-        "author": "天玉和她的朋友们",
-        "url": "https://www.bilibili.com/video/BV1wQ4v6zEcm",
-        "duration_sec": 3185.0
-      },
-      {
-        "key": "weibo_search:5362316910790180",
-        "title": "林园讲述30年投资经验！#热点聚焦##微博视频精选大赏##圣叹财经# http://t.cn/AXYqkJmA ​​​",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5362316910790180",
-        "duration_sec": 5178.0
-      },
-      {
-        "key": "weibo_search:4655624329888733",
-        "title": "【#林园辟谣1380亿身家# ：我就随口一说！我又不是靠乱说话赚钱的】近日，林园在访谈中回应了此前在茅台股东大会上，说“",
-        "source": "weibo_search",
-        "author": "老板说的对",
-        "url": "https://m.weibo.cn/detail/4655624329888733",
-        "duration_sec": 88.0
-      },
       {
         "key": "weibo_search:4654511580776103",
         "title": "【#林园回应1380亿身价#：我就是个精神病】近日，林园对此前自己在茅台股东大会上说的话作出回应。他在采访中称自己是胡说",
@@ -343,15 +311,15 @@
   },
   "counts": {
     "complete": 187,
-    "failed": 2077,
+    "failed": 2080,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 60,
     "experiment_fallback": 116,
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 4
   },
   "tasks": [
     {
@@ -45008,11 +44976,11 @@
     },
     {
       "slug": "ly-1106-d301ed",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0921, 2: 0.1065, 3: 0.0936, 4: 0.0552, 5: 0.0588, 6: 0.0246, 7: 0.0172, 8: -0.0459, 9: 0.031, 10: 0.0962, 11: 0.0307, 12: -0.0052, 13: 0.0535, 16: -0.0322, 18: 0.1456}",
       "signature": {
         "ts": 1793962922,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45026,11 +44994,11 @@
     },
     {
       "slug": "ly-1106-31e73f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0921, 2: 0.1065, 3: 0.0936, 4: 0.0552, 5: 0.0588, 6: 0.0246, 7: 0.0172, 8: -0.0459, 9: 0.031, 10: 0.0962, 11: 0.0307, 12: -0.0052, 13: 0.0535, 16: -0.0322, 18: 0.1456}",
       "signature": {
         "ts": 1793962929,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45044,11 +45012,11 @@
     },
     {
       "slug": "ly-1106-adc218",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]",
       "signature": {
         "ts": 1793962936,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45058,12 +45026,12 @@
       "run_id": 42207185761,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42207185761",
       "run_started_at": "2026-11-06T11:02:16Z",
-      "run_updated_at": "2026-11-06T11:02:20Z"
+      "run_updated_at": "2026-11-06T11:10:11Z"
     },
     {
       "slug": "ly-1106-2488c2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1793962943,
         "failed": null,
@@ -45076,7 +45044,79 @@
       "run_id": 42207201212,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42207201212",
       "run_started_at": "2026-11-06T11:02:23Z",
-      "run_updated_at": "2026-11-06T11:02:27Z"
+      "run_updated_at": "2026-11-06T11:10:27Z"
+    },
+    {
+      "slug": "ly-1106-86e428",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793963619,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42208655621,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208655621",
+      "run_started_at": "2026-11-06T11:13:38Z",
+      "run_updated_at": "2026-11-06T11:13:43Z"
+    },
+    {
+      "slug": "ly-1106-8ed820",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793963626,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42208671913,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208671913",
+      "run_started_at": "2026-11-06T11:13:46Z",
+      "run_updated_at": "2026-11-06T11:13:50Z"
+    },
+    {
+      "slug": "ly-1106-e3b4db",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793963635,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42208690195,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208690195",
+      "run_started_at": "2026-11-06T11:13:55Z",
+      "run_updated_at": "2026-11-06T11:13:59Z"
+    },
+    {
+      "slug": "ly-1106-9cafb0",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793963644,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42208710831,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208710831",
+      "run_started_at": "2026-11-06T11:14:04Z",
+      "run_updated_at": "2026-11-06T11:14:08Z"
     }
   ],
   "runs": {
@@ -68037,12 +68077,56 @@
       "run_number": 3912,
       "display_title": "中文源出片 · ly-1106-d301ed"
     },
-    "ly-1106-2488c2": {
-      "id": 42207201212,
+    "ly-1106-9cafb0": {
+      "id": 42208710831,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-06T11:14:04Z",
+      "updated_at": "2026-11-06T11:14:08Z",
+      "run_started_at": "2026-11-06T11:14:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208710831",
+      "run_number": 3919,
+      "display_title": "中文源出片 · ly-1106-9cafb0"
+    },
+    "ly-1106-e3b4db": {
+      "id": 42208690195,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T11:13:55Z",
+      "updated_at": "2026-11-06T11:13:59Z",
+      "run_started_at": "2026-11-06T11:13:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208690195",
+      "run_number": 3918,
+      "display_title": "中文源出片 · ly-1106-e3b4db"
+    },
+    "ly-1106-8ed820": {
+      "id": 42208671913,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T11:13:46Z",
+      "updated_at": "2026-11-06T11:13:50Z",
+      "run_started_at": "2026-11-06T11:13:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208671913",
+      "run_number": 3917,
+      "display_title": "中文源出片 · ly-1106-8ed820"
+    },
+    "ly-1106-86e428": {
+      "id": 42208655621,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T11:13:38Z",
+      "updated_at": "2026-11-06T11:13:43Z",
+      "run_started_at": "2026-11-06T11:13:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42208655621",
+      "run_number": 3916,
+      "display_title": "中文源出片 · ly-1106-86e428"
+    },
+    "ly-1106-2488c2": {
+      "id": 42207201212,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-06T11:02:23Z",
-      "updated_at": "2026-11-06T11:02:27Z",
+      "updated_at": "2026-11-06T11:10:27Z",
       "run_started_at": "2026-11-06T11:02:23Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42207201212",
       "run_number": 3915,
@@ -68050,10 +68134,10 @@
     },
     "ly-1106-adc218": {
       "id": 42207185761,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-06T11:02:16Z",
-      "updated_at": "2026-11-06T11:02:20Z",
+      "updated_at": "2026-11-06T11:10:11Z",
       "run_started_at": "2026-11-06T11:02:16Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42207185761",
       "run_number": 3914,
