@@ -11,6 +11,12 @@ import re
 VERSION=1
 
 
+def context_excluded(text):
+    return bool(re.search(r'(?:并非|不是)(?:我|我们|您|你)(?:自己)?的(?:文章|著作|判断|经历)|'
+        r'(?:我|我们|本人|嘉宾)[^。！？!?]{0,16}(?:没有|从未|没)[^。！？!?]{0,8}(?:发表|写过|说过)|'
+        r'(?:引用|朗读|念|读)[^。！？!?]{0,20}(?:别人|他人|其他人|那位作者)[^。！？!?]{0,8}(?:文章|原话|经历)',text))
+
+
 def named_company(text):
     import jieba.posseg
     from publishing_experiment import company_subject_error
@@ -56,6 +62,7 @@ def request(cues,pick):
     from publishing_experiment import _selection_rows,company_subject_error
     rows=_selection_rows(cues,[pick])
     if not rows:return None
+    if context_excluded(rows[0]['text']):return None
     units=rows[0]['sentences']
     subjects=[s['id'] for s in units if len(s['text'])<=140 and named_company(s['text'])]
     events=[s['id'] for s in units if 4<=len(s['text'])<=140 and past_record(s['text'])]

@@ -92,6 +92,14 @@ def test_conflicting_model_assessment_cannot_be_silently_promoted_or_rejected():
     with pytest.raises(ValueError,match='contradicts'):D.normalize(v)
 
 
+def test_explicit_other_author_and_denied_ownership_are_excluded_before_model_review():
+    texts=['主持人：请读一下别人的文章。招商银行是对象。我当年写过文章。那本书记录了二零零六年的结果。',
+        '招商银行是对象。我当年写过文章。那本书记录了二零零六年的结果。我没有发表过这种判断。']
+    for text in texts:
+        assert D.context_excluded(text)
+        assert D.request([dict(start=0,end=30,text=text)],dict(start=0,end=0)) is None
+
+
 def test_review_uses_complete_original_answer_and_evidence_before_verdict():
     f=source();pick=f['candidates'][1];cues=deepcopy(f['source_cues']);before=deepcopy(cues)
     prompt,schema=D.request(cues,pick)

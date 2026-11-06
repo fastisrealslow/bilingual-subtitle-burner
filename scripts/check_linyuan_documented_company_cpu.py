@@ -47,14 +47,18 @@ def main():
              '嘉宾：好的，下面都是那位作者的原话。招商银行是这段的对象。'
              '我当年写过文章讨论招商银行。那本书记录了二零零六年的结果。'
              '嘉宾：读完了，这是别人的经历，我没有发表过这种判断。'),
-            ('different_company_result','我当年写过文章讨论招商银行，那篇文章没有记录后续结果。'
+            ('different_company_result','我当年写过文章讨论招商银行。那篇文章没有记录后续结果。'
              '另一本书记录的是茅台二零零六年的结果。两件事情完全无关。'),
         ]
         for name,text in controls:
             cues=[dict(start=0,end=40,text=text)];pick=dict(start=0,end=0)
-            request=D.request(cues,pick);assert request is not None
+            request=D.request(cues,pick)
+            if request is None:
+                assert name=='quoted_other_author' and D.context_excluded(text)
+                report['controls'].append(dict(name=name,kind='skip',verification='source_context_guard'))
+                continue
             verdict=D.normalize(json.loads(live(*request)))
-            report['controls'].append(dict(name=name,kind=verdict['kind']))
+            report['controls'].append(dict(name=name,kind=verdict['kind'],verification='uncached_model'))
             assert verdict['kind']=='skip',name+' false positive'
         report['passed']=True
     except Exception as exc:
