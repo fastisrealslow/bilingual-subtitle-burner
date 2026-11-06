@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1793935513,
+  "updated_at": 1793935708,
   "inventory_updated_at": 1793935507,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -233,17 +233,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793935511,
+    "updated_at": 1793935707,
     "records": 15996,
     "video_records": 13550,
-    "initial_candidates": 182,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 181,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 8323,
-      "already_attempted_or_cooling": 3282,
+      "speaker_unconfirmed": 8314,
+      "already_attempted_or_cooling": 3292,
       "clip_title": 1400,
       "no_video": 2446,
       "noise": 38,
@@ -254,16 +254,7 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:4544327806616761",
-        "title": "2007年 林园采访，有人说他是托儿，林园答复：托儿就托呗！#a股# http://t.cn/A64bFVWz ​​​",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4544327806616761",
-        "duration_sec": 481.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 97,
@@ -286,7 +277,8 @@
     "experiment_fallback": 119,
     "ready": 23,
     "validation_failed": 2,
-    "retry_queued": 2
+    "retry_queued": 1,
+    "running": 2
   },
   "tasks": [
     {
@@ -44780,24 +44772,6 @@
       "run_updated_at": "2026-11-05T23:16:43Z"
     },
     {
-      "slug": "ly-1105-1df4ce",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1793932551,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1793934683,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 42151332771,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151332771",
-      "run_started_at": "2026-11-06T02:35:51Z",
-      "run_updated_at": "2026-11-06T02:37:27Z"
-    },
-    {
       "slug": "ly-story-7bd4766b69",
       "status": "experiment_fallback",
       "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
@@ -44922,6 +44896,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42152661865",
       "run_started_at": "2026-11-06T02:48:37Z",
       "run_updated_at": "2026-11-06T02:50:37Z"
+    },
+    {
+      "slug": "ly-1105-1df4ce",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793935659,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42156682270,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42156682270",
+      "run_started_at": "2026-11-06T03:27:38Z",
+      "run_updated_at": "2026-11-06T03:27:43Z"
+    },
+    {
+      "slug": "ly-1106-102901",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1793935667,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42156696942,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42156696942",
+      "run_started_at": "2026-11-06T03:27:47Z",
+      "run_updated_at": "2026-11-06T03:27:52Z"
     }
   ],
   "runs": {
@@ -67773,14 +67783,14 @@
       "display_title": "中文源出片 · ly-1106-45f6ba"
     },
     "ly-1105-1df4ce": {
-      "id": 42151332771,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-06T02:35:51Z",
-      "updated_at": "2026-11-06T02:37:27Z",
-      "run_started_at": "2026-11-06T02:35:51Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42151332771",
-      "run_number": 3902,
+      "id": 42156682270,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T03:27:38Z",
+      "updated_at": "2026-11-06T03:27:43Z",
+      "run_started_at": "2026-11-06T03:27:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42156682270",
+      "run_number": 3910,
       "display_title": "中文源出片 · ly-1105-1df4ce"
     },
     "ly-1106-3a943f": {
@@ -67848,6 +67858,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42152012513",
       "run_number": 3906,
       "display_title": "中文源出片 · ly-1106-88ba8b"
+    },
+    "ly-1106-102901": {
+      "id": 42156696942,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-06T03:27:47Z",
+      "updated_at": "2026-11-06T03:27:52Z",
+      "run_started_at": "2026-11-06T03:27:47Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42156696942",
+      "run_number": 3911,
+      "display_title": "中文源出片 · ly-1106-102901"
     }
   }
 }
