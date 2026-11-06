@@ -98603,7 +98603,59 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-02-13T14:48:28+08:00"
+   "publish_time": "2026-02-13T14:48:28+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-fc254a",
+    "run_id": 42275894601,
+    "artifact_id": 13538896735,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1562afcbd788db9d5d7d6a351e9a82145861d5046e7c5c8ba2813acd2410b4cc",
+     "duration_sec": 5084.68,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5265872526509204"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3531.20s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 63%（BV1hrxW6XEim）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 93%（BV1PcHp6tE4k）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4548.47s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3531.20s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段在嘉宾表达完核心否定观点后，突然转入对‘未来世界需要什么’的新话题讨论，且未对前文关于‘不吃药’的假设进行进一步展开或补充说明。虽然嘉宾后续提到了自己的背景（海参产业、持股情况等），但这些内容属于个人介绍性质，并未构成对初始问题的完整论证闭环。因此，该片段在逻辑上存在主题断裂，无法作为独立成片的完整表达。；原文问题：[]"
+     }
+    ]
+   },
+   "source_check_report_id": 13538896735,
+   "source_check_run_id": 42275894601,
+   "last_error": "整段取景预检：源 3531.20s，原始画面不足以保留完整人脸及头顶余量",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1793997976
   }
  ],
  "makeup_receipts": {
