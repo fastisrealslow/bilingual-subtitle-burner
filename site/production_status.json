@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1793948345,
+  "updated_at": 1793948791,
   "inventory_updated_at": 1793948338,
   "continuity": {
     "daily_target": 4,
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 9,
+    "consecutive_fallbacks": 10,
     "actual_treatment_published": 5,
     "valid_comparison_days": 1,
     "daily": [
@@ -221,10 +221,10 @@
       },
       {
         "date": "2026-11-06",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
@@ -233,7 +233,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793948343,
+    "updated_at": 1793948789,
     "records": 15996,
     "video_records": 13550,
     "initial_candidates": 181,
@@ -269,12 +269,12 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 185,
+    "complete": 186,
     "failed": 2077,
     "paused": 5,
     "interrupted": 9,
-    "excluded": 59,
-    "experiment_fallback": 119,
+    "excluded": 60,
+    "experiment_fallback": 117,
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1
@@ -29472,8 +29472,8 @@
     },
     {
       "slug": "ly-story-77352bfc47",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793248138,
         "failed": null,
@@ -29922,13 +29922,13 @@
     },
     {
       "slug": "ly-titlefix-20261030-4b387838",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793294351,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
@@ -30733,7 +30733,7 @@
     {
       "slug": "ly-asrseam-20261030-4b387838",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793328491,
         "failed": null,
