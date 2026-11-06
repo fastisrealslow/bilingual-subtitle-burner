@@ -81,6 +81,8 @@ def test_saved_documentary_marker_does_not_authorize_a_future_forecast():
     s=dict(kind='company_case',company_documentary_recall_version=1,
         event_quote='我以后会写文章讲招商银行。',detail_quote='书记录了二零零六年的结果。')
     assert D.selection_error(s)
+    s['event_quote']='我写过文章讲招商银行。';s['company_documentary_recall_version']=999
+    assert D.selection_error(s)
 
 
 def test_conflicting_model_assessment_cannot_be_silently_promoted_or_rejected():
@@ -88,8 +90,6 @@ def test_conflicting_model_assessment_cannot_be_silently_promoted_or_rejected():
     with pytest.raises(ValueError,match='contradicts'):D.normalize(v)
     v=verdict();v['b_assessment']['guest_actually_published']=False
     with pytest.raises(ValueError,match='contradicts'):D.normalize(v)
-    s['event_quote']='我写过文章讲招商银行。';s['company_documentary_recall_version']=999
-    assert D.selection_error(s)
 
 
 def test_review_uses_complete_original_answer_and_evidence_before_verdict():
