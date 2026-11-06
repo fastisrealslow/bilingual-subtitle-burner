@@ -97948,7 +97948,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-07-02T13:58:20+08:00"
+   "publish_time": "2021-07-02T13:58:20+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-f86f7d",
+    "run_id": 42209731557,
+    "artifact_id": 13498344928,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "69d03f68f6eb11bd2793d254dbbb0463c5c8fbe9b2665a4ccba437fb054f8225",
+     "duration_sec": 86.03,
+     "resolution": {
+      "width": 1080,
+      "height": 1272,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4654511580776103"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"哎，我就是金身币，我就是金身币，你当成假的，不走去了。\", \"suspect_quote\": \"金身币\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为林园，该句自称“金身币”与已知身份严重不符，且无上下文支持此专名，疑似识别污染或口误转写错误。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42209731557,
+    "artifact_id": 13498344928,
+    "name": "production-reject-ly-1106-f86f7d",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"哎，我就是金身币，我就是金身币，你当成假的，不走去了。\", \"suspect_quote\": \"金身币\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为林园，该句自称“金身币”与已知身份严重不符，且无上下文支持此专名，疑似识别污染或口误转写错误。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5362336124634957",
@@ -97971,7 +98004,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-06T19:20:22+08:00"
+   "publish_time": "2026-11-06T19:20:22+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-a6bb9e",
+    "run_id": 42210475558,
+    "artifact_id": 13499195724,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ebd5113ea9fb0cde418bda7de45c3eba72f6db632728e9509b6bd06efe13b4d9",
+     "duration_sec": 32.95,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5362336124634957"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42210475558,
+    "artifact_id": 13499195724,
+    "name": "production-reject-ly-1106-a6bb9e",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4646890526476483",
@@ -97994,7 +98060,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-11T13:14:59+08:00"
+   "publish_time": "2021-06-11T13:14:59+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42211309574,
+    "artifact_id": 13499820726,
+    "name": "source-reject-ly-1106-0c0aa3",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0185, 2: -0.019, 3: 0.0299, 4: 0.0784, 5: 0.0589, 6: -0.0197, 7: 0.0809, 8: 0.0272, 9: 0.0468, 10: 0.039, 11: -0.0266, 12: -0.0024, 13: -0.0335, 14: -0.0119, 15: 0.0802, 16: 0.0105, 17: 0.0368, 18: 0.024}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -199965,6 +200041,27 @@
    "video_id": "https://f.video.weibocdn.com/000p47Ftgx07NZrj68lV01041200tMxm0E010.mp4",
    "ts": 1793964433,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1106-0c0aa3",
+   "key": "weibo_search:4646890526476483",
+   "video_id": "https://f.video.weibocdn.com/002VLK4Cgx07NmZWvKyc01041200ITx30E010.mp4",
+   "ts": 1793965166,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0185, 2: -0.019, 3: 0.0299, 4: 0.0784, 5: 0.0589, 6: -0.0197, 7: 0.0809, 8: 0.0272, 9: 0.0468, 10: 0.039, 11: -0.0266, 12: -0.0024, 13: -0.0335, 14: -0.0119, 15: 0.0802, 16: 0.0105, 17: 0.0368, 18: 0.024}"
+  },
+  {
+   "slug": "ly-1106-a6bb9e",
+   "key": "weibo_search:5362336124634957",
+   "video_id": "https://f.video.weibocdn.com/u0/kutHsGedgx08C9Vhs5zO010412006DDa0E010.mp4",
+   "ts": 1793965167,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1106-f86f7d",
+   "key": "weibo_search:4654511580776103",
+   "video_id": "https://f.video.weibocdn.com/RCBZknzelx07NTd2Q5ao01041200qQZ40E010.mp4",
+   "ts": 1793965167,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"哎，我就是金身币，我就是金身币，你当成假的，不走去了。\", \"suspect_quote\": \"金身币\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为林园，该句自称“金身币”与已知身份严重不符，且无上下文支持此专名，疑似识别污染或口误转写错误。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
