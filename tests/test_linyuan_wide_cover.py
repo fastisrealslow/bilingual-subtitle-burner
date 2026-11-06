@@ -26,12 +26,12 @@ def font():
 def test_actual_oct9_face_restores_oct6_scale_and_full_reviewed_copy(tmp_path):
     source=Image.new('RGB',(720,1280),'#b98768')
     proof=C.render(source,tmp_path/'cover.jpg',[504,416,105,143],
-                   '别只看股价要看财务健全','林园',font())
-    assert proof['design_version']==3
+                   '别只看股价，要看现金流','林园',font())
+    assert proof['design_version']==4
     assert proof['portrait_panel']==[832,68,1152,652]
     assert proof['face_box'][2]-proof['face_box'][0] >= 190
     assert proof['font_px']==112
-    assert ''.join(proof['headline_lines'])=='别只看股价要看财务健全'
+    assert ''.join(proof['headline_lines'])=='别只看股价要看现金流'
     assert min(b[0] for b in proof['text_boxes'])==176
     assert Image.open(tmp_path/proof['feed_preview']).size==(480,360)
     assert FC.cover_quality_error(proof) is None
