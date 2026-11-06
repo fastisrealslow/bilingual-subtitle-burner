@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1793990546,
-  "inventory_updated_at": 1793990425,
+  "updated_at": 1793991480,
+  "inventory_updated_at": 1793991472,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 96,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 0,
+    "verified_daily_stock": 97,
+    "active_or_recovering_sources": 1,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 96,
+      "verified_stock_snapshot": 97,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 20,
-        "landscape": 76
+        "portrait": 19,
+        "landscape": 78
       },
       "full_schedule_days": 6,
-      "required_week_shortfall": 1,
+      "required_week_shortfall": 2,
       "required_week_shortfall_by_layout": {
-        "portrait": 1,
+        "portrait": 2,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -233,20 +233,20 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793990545,
-    "records": 16070,
-    "video_records": 13624,
-    "initial_candidates": 181,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1793991478,
+    "records": 16115,
+    "video_records": 13668,
+    "initial_candidates": 183,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "clip_title": 1413,
+      "clip_title": 1414,
       "already_attempted_or_cooling": 3330,
-      "speaker_unconfirmed": 8335,
-      "no_video": 2446,
-      "noise": 38,
+      "speaker_unconfirmed": 8375,
+      "no_video": 2447,
+      "noise": 39,
       "unrelated": 79,
       "reference_only": 212,
       "ai_content": 36,
@@ -254,17 +254,34 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1ZM466VE8e",
+        "title": "11月6日【1小时完整版】对话林园：从市场周期到人生哲学！",
+        "source": "reference_origin_search",
+        "author": "投资大佬说",
+        "url": "https://www.bilibili.com/video/BV1ZM466VE8e",
+        "duration_sec": 3251.0
+      },
+      {
+        "key": "weibo_search:5265872526509204",
+        "title": "#微博超有用视频大赛# 【高清修复版】2026年1月26林园最新演讲！高净值研究院投资大咖课，股市投资机会展望！#十分钟",
+        "source": "weibo_search",
+        "author": "全球独一",
+        "url": "https://m.weibo.cn/detail/5265872526509204",
+        "duration_sec": 5084.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 96,
+    "verified_live": 97,
     "verified_audio_card": 0,
-    "verified_landscape": 76,
-    "verified_portrait": 20,
+    "verified_landscape": 78,
+    "verified_portrait": 19,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 96,
+    "daily_mix_usable": 97,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -275,10 +292,9 @@
     "interrupted": 9,
     "excluded": 60,
     "experiment_fallback": 120,
-    "ready": 24,
+    "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -45223,8 +45239,8 @@
     },
     {
       "slug": "ly-1106-1efa55",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1793989427,
         "failed": null,
@@ -45237,7 +45253,7 @@
       "run_id": 42270313140,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42270313140",
       "run_started_at": "2026-11-06T18:23:47Z",
-      "run_updated_at": "2026-11-06T18:23:50Z"
+      "run_updated_at": "2026-11-06T18:55:59Z"
     }
   ],
   "runs": {
@@ -68354,10 +68370,10 @@
     },
     "ly-1106-1efa55": {
       "id": 42270313140,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-11-06T18:23:47Z",
-      "updated_at": "2026-11-06T18:23:50Z",
+      "updated_at": "2026-11-06T18:55:59Z",
       "run_started_at": "2026-11-06T18:23:47Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42270313140",
       "run_number": 3933,
