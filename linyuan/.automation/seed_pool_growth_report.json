@@ -6,10 +6,10 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 900,
+      "weibo": 906,
       "bilibili": 1670
     },
-    "total": 2641,
+    "total": 2647,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -26,7 +26,7 @@
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 6,
+  "added_count": 0,
   "providers": {
     "bilibili": {
       "baseline": {
@@ -35,10 +35,10 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 900,
+          "weibo": 906,
           "bilibili": 1670
         },
-        "total": 2641,
+        "total": 2647,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -47,92 +47,111 @@
       "rights_approved_count": 0,
       "production_dispatch": false,
       "added_count": 0,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        }
+      ],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
+      "search_pages": {
+        "林园 微观世界": [
+          7,
+          8
+        ],
+        "林园 会见财经界": [
+          7,
+          8
+        ],
+        "林园 华南农大": [
+          7,
+          8
+        ]
+      },
+      "verification_paused": {
+        "until": 1793935883.6445236,
+        "reason": "provider_restricted",
+        "http_status": 412,
+        "api_code": null
+      },
+      "added_bvids": [],
+      "pending_lead_count": 577,
+      "roles": {},
+      "new_long_parent_count": 0,
+      "verification": {
+        "not_verified": 1
+      },
       "after": {
         "counts": {
           "douyin": 51,
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 900,
+          "weibo": 906,
           "bilibili": 1670
         },
-        "total": 2641,
+        "total": 2647,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_paused": {
-        "until": 1793919810.8661087,
-        "reason": "provider_restricted",
-        "http_status": 412,
-        "api_code": null
-      }
+      "verification_errors": {
+        "HTTPError": 1
+      },
+      "verification_http_status": {
+        "412": 1
+      },
+      "verification_api_codes": {}
     },
     "weibo": {
       "provider": "weibo",
       "target": 5000,
-      "before": 2641,
-      "added_count": 6,
+      "before": 2647,
+      "added_count": 0,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
       "errors": [
         {
           "stage": "exact_video",
-          "mid": "5348153500631110",
+          "mid": "5277929908471407",
           "error": "ValueError"
         },
         {
           "stage": "exact_video",
-          "mid": "5338215168868624",
+          "mid": "5306922099807874",
           "error": "ValueError"
         },
         {
           "stage": "exact_video",
-          "mid": "4229384984395111",
-          "error": "SeedMetadataRejected",
-          "checks": [
-            "stable_video_identity"
-          ]
-        },
-        {
-          "stage": "exact_video",
-          "mid": "5214832615229785",
+          "mid": "5189750840362597",
           "error": "ValueError"
         },
         {
           "stage": "exact_video",
-          "mid": "4461047731763836",
-          "error": "SeedMetadataRejected",
-          "checks": [
-            "stable_video_identity"
-          ]
-        },
-        {
-          "stage": "exact_video",
-          "mid": "4470314463565480",
-          "error": "SeedMetadataRejected",
-          "checks": [
-            "stable_video_identity"
-          ]
-        },
-        {
-          "stage": "exact_video",
-          "mid": "4467633124598048",
-          "error": "SeedMetadataRejected",
-          "checks": [
-            "stable_video_identity"
-          ]
-        },
-        {
-          "stage": "exact_video",
-          "mid": "4467635184061443",
+          "mid": "4534962269718358",
           "error": "ValueError"
         },
         {
           "stage": "exact_video",
-          "mid": "4467835356816499",
+          "mid": "4534963887935791",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4544472085957512",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466183572844514",
           "error": "SeedMetadataRejected",
           "checks": [
             "stable_video_identity"
@@ -140,27 +159,48 @@
         },
         {
           "stage": "exact_video",
-          "mid": "4468169991013603",
+          "mid": "4466184130778229",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5244125997700662",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5107817927935267",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4650414374912848",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4592846521240676",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4497631998840128",
           "error": "SeedMetadataRejected",
           "checks": [
             "stable_video_identity"
           ]
         }
       ],
-      "discovery_leads": 608,
-      "eligible_checks": 17,
-      "deferred_checks": 74,
+      "discovery_leads": 602,
+      "eligible_checks": 27,
+      "deferred_checks": 61,
       "exact_checks": 16,
-      "known_duplicate_leads": 517,
-      "long_checks": 0,
-      "added_mids": [
-        "5206830974239842",
-        "5203250416713850",
-        "4977853987557406",
-        "5198419253789579",
-        "5198453748795144",
-        "5202842738497067"
-      ],
+      "known_duplicate_leads": 514,
+      "long_checks": 2,
+      "duplicate_video_count": 3,
       "after": 2647
     }
   },
