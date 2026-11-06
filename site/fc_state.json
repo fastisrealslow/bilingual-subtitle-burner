@@ -97248,11 +97248,12 @@
     "basis": "source_metadata_unverified"
    },
    "publish_time": "2019-08-14T17:36:48+08:00",
-   "source_check_report_id": 13461302503,
-   "source_check_run_id": 42126475027,
+   "source_check_report_id": 13472935641,
+   "source_check_run_id": 42151332771,
    "last_error": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4405243708110153']' returned non-zero exit status 1.",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1793934683
   },
   {
    "video_id": "BV1KyeJe5EnF",
@@ -97301,7 +97302,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-14T17:47:33+08:00"
+   "publish_time": "2023-06-14T17:47:33+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42151359412,
+    "artifact_id": 13471409892,
+    "name": "source-reject-ly-1106-45f6ba",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[5, 6, 7, 14, 15, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{5: 0.1113, 6: 0.0548, 7: 0.1332, 14: 0.1242, 15: 0.0469, 18: 0.1046}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -198319,6 +198330,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/mCma05Wnlx08raemcRXW01041201HUFl0E010.mp4",
    "ts": 1793930705,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1106-45f6ba",
+   "key": "weibo_search:4912589426135578",
+   "video_id": "https://f.video.weibocdn.com/o0/uGZIU9LElx086erw2QYw01041200tz6S0E010.mp4",
+   "ts": 1793932882,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[5, 6, 7, 14, 15, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{5: 0.1113, 6: 0.0548, 7: 0.1332, 14: 0.1242, 15: 0.0469, 18: 0.1046}"
   }
  ],
  "reviewed_third_video_0910": {
