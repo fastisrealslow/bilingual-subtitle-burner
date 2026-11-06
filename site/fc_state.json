@@ -97336,7 +97336,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-08-24T13:54:49+08:00"
+   "publish_time": "2019-08-24T13:54:49+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-e12641",
+    "run_id": 42151999580,
+    "artifact_id": 13473846496,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "59e3878a98f62d3e186d3fd5fc185f4ed2ca92c16790a4f466cf886878de1106",
+     "duration_sec": 204.93,
+     "resolution": {
+      "width": 1920,
+      "height": 888,
+      "short_edge": 888
+     },
+     "source_url": "https://m.weibo.cn/detail/4408811726579160"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42151999580,
+    "artifact_id": 13473846496,
+    "name": "production-reject-ly-1106-e12641",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4408803095086347",
@@ -97359,7 +97392,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-08-24T13:20:31+08:00"
+   "publish_time": "2019-08-24T13:20:31+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-88ba8b",
+    "run_id": 42152012513,
+    "artifact_id": 13473621675,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "59e3878a98f62d3e186d3fd5fc185f4ed2ca92c16790a4f466cf886878de1106",
+     "duration_sec": 204.93,
+     "resolution": {
+      "width": 1920,
+      "height": 888,
+      "short_edge": 888
+     },
+     "source_url": "https://m.weibo.cn/detail/4408803095086347"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42152012513,
+    "artifact_id": 13473621675,
+    "name": "production-reject-ly-1106-88ba8b",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4408747625156953",
@@ -97382,7 +97448,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-08-24T09:40:06+08:00"
+   "publish_time": "2019-08-24T09:40:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-55f416",
+    "run_id": 42152025583,
+    "artifact_id": 13473856533,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "59e3878a98f62d3e186d3fd5fc185f4ed2ca92c16790a4f466cf886878de1106",
+     "duration_sec": 204.93,
+     "resolution": {
+      "width": 1920,
+      "height": 888,
+      "short_edge": 888
+     },
+     "source_url": "https://m.weibo.cn/detail/4408747625156953"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42152025583,
+    "artifact_id": 13473856533,
+    "name": "production-reject-ly-1106-55f416",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4238536456096974",
@@ -97415,7 +97514,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4460932060792041",
@@ -97448,7 +97548,8 @@
    },
    "last_error": "原始素材短边 448 < 480（960x448），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -198487,6 +198588,27 @@
    "video_id": "http://miaopai.video.weibocdn.com/C6crlaqRlx07knFuQBr201040200ao4q0E013",
    "ts": 1793933633,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1106-55f416",
+   "key": "weibo_search:4408747625156953",
+   "video_id": "https://f.video.weibocdn.com/003GVBmslx07wq2O5L5601041202fc4y0E010.mp4",
+   "ts": 1793933962,
+   "error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1106-88ba8b",
+   "key": "weibo_search:4408803095086347",
+   "video_id": "https://f.video.weibocdn.com/003GVBmslx07wq2O5L5601041202fc4y0E010.mp4",
+   "ts": 1793933963,
+   "error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1106-e12641",
+   "key": "weibo_search:4408811726579160",
+   "video_id": "https://f.video.weibocdn.com/003GVBmslx07wq2O5L5601041202fc4y0E010.mp4",
+   "ts": 1793933963,
+   "error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
