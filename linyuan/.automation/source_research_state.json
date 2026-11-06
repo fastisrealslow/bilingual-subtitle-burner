@@ -6390,13 +6390,13 @@
       "family": "simuwang_2026_10_15",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 20,
+      "attempts": 21,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793844704.9180412,
-      "next_retry_at": 1793931104.9180412,
+      "last_attempt_at": 1793932344.873065,
+      "next_retry_at": 1794018744.873065,
       "download_partial_bytes": 0
     },
     "5c2f622b708b2e66cb4d": {
@@ -6958,12 +6958,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 15,
+      "attempts": 16,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793812958.0152395,
-      "next_retry_at": 1793899358.0152395,
+      "last_attempt_at": 1793932353.6127613,
+      "next_retry_at": 1794018753.6127613,
       "download_partial_bytes": 0
     },
     "39600df0740a4322bb0c": {
@@ -7281,12 +7281,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 14,
+      "attempts": 15,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793812967.7179976,
-      "next_retry_at": 1793899367.7179976,
+      "last_attempt_at": 1793932362.5489135,
+      "next_retry_at": 1794018762.5489135,
       "download_partial_bytes": 0
     },
     "ea43e145737884baa248": {
@@ -8705,21 +8705,24 @@
       "new_ids": []
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1793810748.3639538,
-      "next_retry_at": 1793853948.3639538,
+      "next_retry_at": 1793953941.862079,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1793932341.862079
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "retry_wait",
       "checked_at": 1793812934.0792305,
-      "next_retry_at": 1793883183.477691,
+      "next_retry_at": 1793975541.862079,
       "found": 2,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1793861583.477691
+      "last_attempt_at": 1793932341.862079
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
       "status": "searched",
@@ -8775,12 +8778,12 @@
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
       "status": "retry_wait",
       "checked_at": 1793810748.3639538,
-      "next_retry_at": 1793931613.0674117,
+      "next_retry_at": 1794018741.862079,
       "found": 4,
       "new_ids": [],
-      "attempts": 2,
+      "attempts": 3,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1793888413.0674117
+      "last_attempt_at": 1793932341.862079
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
@@ -8791,19 +8794,43 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
-    "new_bvids": [
-      "BV1454a6TEmx"
-    ],
+    "status": "retry_next_run",
+    "error": "RuntimeError",
+    "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
-  "search_cursor": 7,
-  "updated_at": 1793916540,
-  "last_run_id": "42117550748",
+  "search_cursor": 9,
+  "updated_at": 1793932362,
+  "last_run_id": "42150404283",
   "audio_match_candidates": []
 }
