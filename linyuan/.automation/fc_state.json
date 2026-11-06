@@ -97798,7 +97798,8 @@
    },
    "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5362315903896453",
@@ -97890,7 +97891,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-07-05T15:40:00+08:00"
+   "publish_time": "2021-07-05T15:40:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-9cafb0",
+    "run_id": 42208710831,
+    "artifact_id": 13498960112,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8278b53eda1640b99778ac1649ba498cc1c078e7c615f0b53163519b2d129bdd",
+     "duration_sec": 87.89,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4655624329888733"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42208710831,
+    "artifact_id": 13498960112,
+    "name": "production-reject-ly-1106-9cafb0",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4654511580776103",
@@ -199877,6 +199911,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/4mBskjp6lx07WTgCAlHi01041200lMvm0E010.mp4",
    "ts": 1793964069,
    "error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1106-9cafb0",
+   "key": "weibo_search:4655624329888733",
+   "video_id": "https://f.video.weibocdn.com/000p47Ftgx07NZrj68lV01041200tMxm0E010.mp4",
+   "ts": 1793964433,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
