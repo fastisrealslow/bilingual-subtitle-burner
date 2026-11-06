@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793965429,
+  "updated_at": 1793965633,
   "inventory_updated_at": 1793965423,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 95,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -233,7 +233,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793965427,
+    "updated_at": 1793965632,
     "records": 16054,
     "video_records": 13608,
     "initial_candidates": 181,
@@ -270,7 +270,7 @@
   },
   "counts": {
     "complete": 187,
-    "failed": 2085,
+    "failed": 2086,
     "paused": 5,
     "interrupted": 9,
     "excluded": 60,
@@ -278,7 +278,7 @@
     "ready": 23,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -45133,11 +45133,11 @@
     },
     {
       "slug": "ly-1106-64ea7b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0586, 2: -0.0062, 3: 0.009, 4: -0.0346, 5: 0.0322, 6: 0.0346, 7: 0.0332, 8: -0.0221, 9: 0.0167, 10: 0.0312, 11: 0.0098, 12: 0.0207, 13: 0.0499, 14: 0.019, 15: 0.0185, 16: -0.0022, 17: 0.0382, 18: 0.009}",
       "signature": {
         "ts": 1793965222,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45147,7 +45147,7 @@
       "run_id": 42211969901,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211969901",
       "run_started_at": "2026-11-06T11:40:22Z",
-      "run_updated_at": "2026-11-06T11:40:27Z"
+      "run_updated_at": "2026-11-06T11:42:46Z"
     }
   ],
   "runs": {
@@ -68176,10 +68176,10 @@
     },
     "ly-1106-64ea7b": {
       "id": 42211969901,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-06T11:40:22Z",
-      "updated_at": "2026-11-06T11:40:27Z",
+      "updated_at": "2026-11-06T11:42:46Z",
       "run_started_at": "2026-11-06T11:40:22Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42211969901",
       "run_number": 3923,
