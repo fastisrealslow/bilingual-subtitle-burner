@@ -25,6 +25,7 @@ DELIVERY_ARTIFACT = 12875084203
 ASR_CHILD = 'ly-asrseam-20261030-4b387838'
 ASR_RUN = 40920169914
 ASR_DELIVERY_ARTIFACT = 12919627941
+DOCUMENTARY_CHILD = 'ly-doccase-20261106-4b387838'
 
 
 def proof_error(cpu, deploy, root=ROOT):
@@ -49,8 +50,14 @@ def proof_error(cpu, deploy, root=ROOT):
     return None
 
 
-def plan(state, stock, active, seeds, *, seam_proof=None):
+def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None):
     child_slug=CHILD
+    if documentary_proof is not None:
+        from documented_company_recovery import cpu_error
+        if seam_proof is not None or cpu_error(documentary_proof):return None,'actual_documented_case_not_verified'
+        if not any(e.get('slug')==ASR_CHILD for e in state.get('dispatched',[])):
+            return None,'prior_asr_retry_missing'
+        child_slug=DOCUMENTARY_CHILD
     if seam_proof is not None:
         from asr_overlap_replay import proof_error as seam_error
         if seam_error(seam_proof):return None,'actual_asr_seam_not_verified'
@@ -92,6 +99,9 @@ def plan(state, stock, active, seeds, *, seam_proof=None):
             original_slug=ORIGINAL,original_run_id=40817982883,cpu_run_id=CPU_RUN,
             deployment_run_id=DEPLOY_RUN,source_sha256=MOTHER,media_approved=False))
     if seam_proof is not None:child['asr_seam_recovery_evidence']=deepcopy(seam_proof)
+    if documentary_proof is not None:
+        child['documented_company_recovery_evidence']=dict(cpu_run_id=42230521924,
+            source_sha256=MOTHER,fixture_sha256=documentary_proof['fixture_sha256'],media_approved=False)
     return child,None
 
 
