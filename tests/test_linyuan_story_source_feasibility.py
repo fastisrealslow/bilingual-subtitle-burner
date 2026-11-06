@@ -32,7 +32,8 @@ def test_real_long_480p_source_keeps_request_and_runs_only_as_control(tmp_path,m
     assert not result['experiment_complete']
 
 
-@pytest.mark.parametrize('size',[(1920,1080),(1484,720),(960,540),(1280,720)])
+@pytest.mark.parametrize('size',[(1920,1080),(1484,720),(960,540),(1280,720),
+    (1080,1640),(1080,1920),(1104,1080)])
 def test_usable_native_geometry_still_requires_actual_story_and_cover(tmp_path,monkeypatch,size):
     monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',E.TREATMENT)
     source=actual_source();source['resolution']=dict(zip(['width','height'],size))
@@ -44,7 +45,7 @@ def test_usable_native_geometry_still_requires_actual_story_and_cover(tmp_path,m
     with pytest.raises(ValueError):scene_cover_crop((200,100,40,50),*size,[])
 
 
-@pytest.mark.parametrize('size',[(852,480),(959,540),(960,539),(720,1280),(1104,1080)])
+@pytest.mark.parametrize('size',[(852,480),(959,540),(960,539),(720,1280)])
 def test_rerouting_uses_exact_unchanged_scene_crop_prerequisite(tmp_path,monkeypatch,size):
     monkeypatch.setenv('LINYUAN_EDITORIAL_PROFILE',E.TREATMENT)
     source=actual_source();source['resolution']=dict(zip(['width','height'],size))

@@ -9,7 +9,7 @@ def native_scene_unavailable(width,height):
     # Keep these necessary limits identical to live_tracking.scene_cover_crop.
     # Boundary regressions call that real crop gate too. Do not infer a usable
     # face, clean image or finished cover from passing these three limits.
-    if width<960 or height<540 or width/height<1.35:
+    if width<960 or height<540:
         return '原始画面不足以提供清晰横向现场封面'
     return None
 
