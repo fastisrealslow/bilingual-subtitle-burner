@@ -65,7 +65,10 @@ def request(cues,pick):
         ('subject_sentence',subjects),('event_sentence',events),('detail_sentence',details))}
     # Nested evidence sorts before the verdict even on runtimes that sort
     # schema properties alphabetically. The model must read evidence first.
+    checks={k:dict(type='boolean') for k in ('named_company','guest_actually_published','same_historical_record')}
+    checks['reason']=dict(type='string',maxLength=160)
     props=dict(a_evidence=dict(type='object',properties=evidence,required=list(evidence),additionalProperties=False),
+        b_assessment=dict(type='object',properties=checks,required=list(checks),additionalProperties=False),
         z_kind=dict(type='string',enum=['skip','company_case']))
     schema=dict(type='object',properties=props,required=list(props),additionalProperties=False)
     prompt=('核对这一完整访谈中的历史公司个案。先选择三条原句编号，再判断是否入选：'
@@ -80,17 +83,28 @@ def request(cues,pick):
         '否认写过、没有具体后续记录，一律skip。'
         '只用本段原句，不改字、不补事实、不从其他段借证据。'
         '即使三个编号都有可选值，也须独立判断是否同一历史公司个案，不能为凑数接受。'
-        '返回a_evidence中的编号，最后返回z_kind；不合格时选skip。完整原句：\n'
+        '返回a_evidence中的编号，再在b_assessment核对是否点名具体公司、是否确实由嘉宾发表过、'
+        '是否同一段历史记录，并用一句话说明依据。三项全部成立时z_kind返回company_case，'
+        '任一项不成立返回skip。不要把“没有实际买卖”作为未发表过判断的依据。完整原句：\n'
         +json.dumps(units,ensure_ascii=False))
     return prompt,schema
 
 
 def normalize(verdict):
-    if not isinstance(verdict,dict) or set(verdict)!={'a_evidence','z_kind'}:
+    if not isinstance(verdict,dict) or set(verdict)!={'a_evidence','b_assessment','z_kind'}:
         raise ValueError('Invalid documented company verdict')
     evidence=verdict['a_evidence']
+    assessment=verdict['b_assessment']
+    fields=('named_company','guest_actually_published','same_historical_record')
+    if (not isinstance(assessment,dict) or set(assessment)!={*fields,'reason'}
+            or any(type(assessment[k]) is not bool for k in fields)
+            or not isinstance(assessment['reason'],str) or not assessment['reason'].strip()
+            or len(assessment['reason'])>160):
+        raise ValueError('Invalid documented company assessment')
     if (not isinstance(evidence,dict) or set(evidence)!={'subject_sentence','event_sentence','detail_sentence'}
             or any(type(v) is not int for v in evidence.values())
             or verdict['z_kind'] not in ('skip','company_case')):
         raise ValueError('Invalid documented company evidence')
+    if (verdict['z_kind']=='company_case')!=all(assessment[k] for k in fields):
+        raise ValueError('Documented company verdict contradicts its independent evidence assessment')
     return dict(evidence,kind=verdict['z_kind'])

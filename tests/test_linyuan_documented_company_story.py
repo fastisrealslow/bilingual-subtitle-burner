@@ -15,7 +15,9 @@ def source():
 
 
 def verdict():
-    return dict(a_evidence=dict(subject_sentence=8,event_sentence=9,detail_sentence=15),z_kind='company_case')
+    return dict(a_evidence=dict(subject_sentence=8,event_sentence=9,detail_sentence=15),
+        b_assessment=dict(named_company=True,guest_actually_published=True,same_historical_record=True,
+            reason='原句叙述曾发表的公司判断及书中记录的年份。'),z_kind='company_case')
 
 
 def test_actual_source_is_rechecked_only_after_its_unchanged_primary_rejections(tmp_path):
@@ -50,7 +52,9 @@ def test_forecasts_plans_denial_or_unidentified_companies_do_not_get_a_review(te
 def test_new_review_can_skip_and_does_not_manufacture_a_story():
     f=source();responses=iter(f['original_responses'])
     def call(prompt,schema):
-        return {**verdict(),'z_kind':'skip'} if 'a_evidence' in schema['properties'] else next(responses)
+        if 'a_evidence' not in schema['properties']:return next(responses)
+        v=verdict();v['z_kind']='skip';v['b_assessment']['same_historical_record']=False
+        return v
     r=E.choose_stories(f['source_cues'],f['candidates'],call,None)
     assert r['selected']==[] and len(r['rejected'])==8 and not r['retryable']
 
@@ -77,6 +81,13 @@ def test_saved_documentary_marker_does_not_authorize_a_future_forecast():
     s=dict(kind='company_case',company_documentary_recall_version=1,
         event_quote='我以后会写文章讲招商银行。',detail_quote='书记录了二零零六年的结果。')
     assert D.selection_error(s)
+
+
+def test_conflicting_model_assessment_cannot_be_silently_promoted_or_rejected():
+    v=verdict();v['z_kind']='skip'
+    with pytest.raises(ValueError,match='contradicts'):D.normalize(v)
+    v=verdict();v['b_assessment']['guest_actually_published']=False
+    with pytest.raises(ValueError,match='contradicts'):D.normalize(v)
     s['event_quote']='我写过文章讲招商银行。';s['company_documentary_recall_version']=999
     assert D.selection_error(s)
 
@@ -86,5 +97,5 @@ def test_review_uses_complete_original_answer_and_evidence_before_verdict():
     prompt,schema=D.request(cues,pick)
     units=E._selection_rows(cues,[pick])[0]['sentences']
     assert json.loads(prompt.split('\n')[-1])==units and cues==before
-    assert sorted(schema['properties'])==['a_evidence','z_kind']
+    assert sorted(schema['properties'])==['a_evidence','b_assessment','z_kind']
     assert schema['properties']['z_kind']['enum']==['skip','company_case']
