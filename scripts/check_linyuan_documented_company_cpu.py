@@ -33,13 +33,13 @@ def main():
     began=time.monotonic();save()
     try:
         selected=E.choose_stories(f['source_cues'],f['candidates'],call,None)
+        report['selection']=selected;save()
         assert next(primary,None) is None and report['primary_replayed_calls']==4
         assert len(selected['selected'])==1 and not selected['unresolved']
         item=selected['selected'][0]
         assert (item['start'],item['end'])==(f['candidates'][1]['start'],f['candidates'][1]['end'])
         s=item['story_selection'];assert D.selection_error(s) is None
         assert s['event_quote'] in ''.join(c['text'] for c in f['source_cues'][item['start']:item['end']+1])
-        report['selection']=selected
         # Both controls qualify for a review, but their full context denies
         # the SAME-guest/SAME-company connection. Numbers alone cannot admit.
         controls=[
