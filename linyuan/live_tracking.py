@@ -92,9 +92,10 @@ def scene_cover_crop(face, width, height, exclusions, maximum_width=None):
 
     Geometry is a proposal only. Identity, OCR, QR, black edges, sharpness
     and feed cropping still require independent checks on the cropped image.
-    Never enlarge a small source or make a landscape from a narrow portrait.
+    Never enlarge a small source. A sufficiently wide portrait may contain a
+    valid native 16:9 window; actual face margins and overlays decide that.
     """
-    if width<960 or height<540 or width/height<1.35:
+    if width<960 or height<540:
         raise ValueError('原始画面不足以提供清晰横向现场封面')
     fx,fy,fw,fh=map(float,face[:4])
     if not all(math.isfinite(v) for v in (fx,fy,fw,fh)) or min(fw,fh)<=0:
