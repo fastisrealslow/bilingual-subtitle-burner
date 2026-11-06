@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1793990115,
+  "updated_at": 1793990295,
   "inventory_updated_at": 1793990111,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 96,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -233,7 +233,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1793990114,
+    "updated_at": 1793990294,
     "records": 16070,
     "video_records": 13624,
     "initial_candidates": 181,
@@ -270,7 +270,7 @@
   },
   "counts": {
     "complete": 187,
-    "failed": 2087,
+    "failed": 2088,
     "paused": 5,
     "interrupted": 9,
     "excluded": 60,
@@ -278,7 +278,7 @@
     "ready": 24,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -45205,11 +45205,11 @@
     },
     {
       "slug": "ly-doccase-20261106-4b387838",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
       "signature": {
         "ts": 1793988575,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45219,7 +45219,7 @@
       "run_id": 42268135807,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42268135807",
       "run_started_at": "2026-11-06T18:09:34Z",
-      "run_updated_at": "2026-11-06T18:09:39Z"
+      "run_updated_at": "2026-11-06T18:34:40Z"
     },
     {
       "slug": "ly-1106-1efa55",
@@ -68354,10 +68354,10 @@
     },
     "ly-doccase-20261106-4b387838": {
       "id": 42268135807,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-06T18:09:34Z",
-      "updated_at": "2026-11-06T18:09:39Z",
+      "updated_at": "2026-11-06T18:34:40Z",
       "run_started_at": "2026-11-06T18:09:34Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42268135807",
       "run_number": 3932,
