@@ -97640,7 +97640,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-11T04:10:11+08:00"
+   "publish_time": "2021-06-11T04:10:11+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42207154986,
+    "artifact_id": 13498095042,
+    "name": "source-reject-ly-1106-d301ed",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0921, 2: 0.1065, 3: 0.0936, 4: 0.0552, 5: 0.0588, 6: 0.0246, 7: 0.0172, 8: -0.0459, 9: 0.031, 10: 0.0962, 11: 0.0307, 12: -0.0052, 13: 0.0535, 16: -0.0322, 18: 0.1456}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4646583118075886",
@@ -97663,7 +97673,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-10T16:53:27+08:00"
+   "publish_time": "2021-06-10T16:53:27+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42207170100,
+    "artifact_id": 13497590803,
+    "name": "source-reject-ly-1106-31e73f",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0921, 2: 0.1065, 3: 0.0936, 4: 0.0552, 5: 0.0588, 6: 0.0246, 7: 0.0172, 8: -0.0459, 9: 0.031, 10: 0.0962, 11: 0.0307, 12: -0.0052, 13: 0.0535, 16: -0.0322, 18: 0.1456}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4781005263342770",
@@ -97686,7 +97706,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-16T15:19:04+08:00"
+   "publish_time": "2022-06-16T15:19:04+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-adc218",
+    "run_id": 42207185761,
+    "artifact_id": 13498275865,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "fbb434d338aada5416a744c873a83d3456d1d4e9075983c330217c75c350aff8",
+     "duration_sec": 26.43,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4781005263342770"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42207185761,
+    "artifact_id": 13498275865,
+    "name": "production-reject-ly-1106-adc218",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4781000092288690",
@@ -199645,6 +199698,27 @@
    "video_id": "https://f.video.weibocdn.com/003QaNbRgx07G5A1JB8A01041203mW0J0E020.mp4",
    "ts": 1793937193,
    "error": "源视频比选段短0.133秒，须重新核对音视频边界"
+  },
+  {
+   "slug": "ly-1106-adc218",
+   "key": "weibo_search:4781005263342770",
+   "video_id": "https://f.video.weibocdn.com/o0/4mBskjp6lx07WTgCAlHi01041200lMvm0E010.mp4",
+   "ts": 1793963563,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1106-31e73f",
+   "key": "weibo_search:4646583118075886",
+   "video_id": "https://f.video.weibocdn.com/S14we0Volx07Nlcpi4zS01041200e2mN0E010.mp4",
+   "ts": 1793963564,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0921, 2: 0.1065, 3: 0.0936, 4: 0.0552, 5: 0.0588, 6: 0.0246, 7: 0.0172, 8: -0.0459, 9: 0.031, 10: 0.0962, 11: 0.0307, 12: -0.0052, 13: 0.0535, 16: -0.0322, 18: 0.1456}"
+  },
+  {
+   "slug": "ly-1106-d301ed",
+   "key": "weibo_search:4646753422803064",
+   "video_id": "https://f.video.weibocdn.com/S14we0Volx07Nlcpi4zS01041200e2mN0E010.mp4",
+   "ts": 1793963565,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0921, 2: 0.1065, 3: 0.0936, 4: 0.0552, 5: 0.0588, 6: 0.0246, 7: 0.0172, 8: -0.0459, 9: 0.031, 10: 0.0962, 11: 0.0307, 12: -0.0052, 13: 0.0535, 16: -0.0322, 18: 0.1456}"
   }
  ],
  "reviewed_third_video_0910": {
