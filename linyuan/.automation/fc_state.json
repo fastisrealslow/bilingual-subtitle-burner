@@ -97553,7 +97553,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4544327806616761",
@@ -97576,7 +97577,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-09-01T12:47:20+08:00"
+   "publish_time": "2020-09-01T12:47:20+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-102901",
+    "run_id": 42156696942,
+    "artifact_id": 13475653066,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ed17f280c5501d9ee37fe62c1104202380f8ff487abf0b10cbd3417cf14bf5c8",
+     "duration_sec": 480.91,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4544327806616761"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "源视频比选段短0.133秒，须重新核对音视频边界"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42156696942,
+    "artifact_id": 13475653066,
+    "name": "production-reject-ly-1106-102901",
+    "retained": true
+   },
+   "last_error": "源视频比选段短0.133秒，须重新核对音视频边界",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -198636,6 +198670,13 @@
    "video_id": "https://f.video.weibocdn.com/003GVBmslx07wq2O5L5601041202fc4y0E010.mp4",
    "ts": 1793933963,
    "error": "整段取景预检：源 27.93s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1106-102901",
+   "key": "weibo_search:4544327806616761",
+   "video_id": "https://f.video.weibocdn.com/003QaNbRgx07G5A1JB8A01041203mW0J0E020.mp4",
+   "ts": 1793937193,
+   "error": "源视频比选段短0.133秒，须重新核对音视频边界"
   }
  ],
  "reviewed_third_video_0910": {
