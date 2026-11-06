@@ -6,10 +6,10 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 907,
+      "weibo": 908,
       "bilibili": 1670
     },
-    "total": 2648,
+    "total": 2649,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -26,7 +26,7 @@
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 1,
+  "added_count": 0,
   "providers": {
     "bilibili": {
       "baseline": {
@@ -35,10 +35,10 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 907,
+          "weibo": 908,
           "bilibili": 1670
         },
-        "total": 2648,
+        "total": 2649,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -47,46 +47,159 @@
       "rights_approved_count": 0,
       "production_dispatch": false,
       "added_count": 0,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        },
+        {
+          "stage": "search",
+          "error": "RuntimeError"
+        }
+      ],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
+      "search_pages": {
+        "林园 雪球 2017": [
+          7,
+          8
+        ],
+        "林园 新浪财经 2020": [
+          7,
+          8
+        ],
+        "林园 2026": [
+          7,
+          8
+        ]
+      },
+      "verification_paused": {
+        "until": 1793953039.0347729,
+        "reason": "provider_restricted",
+        "http_status": 412,
+        "api_code": null
+      },
+      "added_bvids": [],
+      "pending_lead_count": 577,
+      "roles": {},
+      "new_long_parent_count": 0,
+      "verification": {
+        "not_verified": 1
+      },
       "after": {
         "counts": {
           "douyin": 51,
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 907,
+          "weibo": 908,
           "bilibili": 1670
         },
-        "total": 2648,
+        "total": 2649,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_paused": {
-        "until": 1793935883.6445236,
-        "reason": "provider_restricted",
-        "http_status": 412,
-        "api_code": null
-      }
+      "verification_errors": {
+        "HTTPError": 1
+      },
+      "verification_http_status": {
+        "412": 1
+      },
+      "verification_api_codes": {}
     },
     "weibo": {
       "provider": "weibo",
       "target": 5000,
-      "before": 2648,
-      "added_count": 1,
+      "before": 2649,
+      "added_count": 0,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
-      "discovery_leads": 607,
-      "eligible_checks": 1,
-      "deferred_checks": 91,
-      "exact_checks": 1,
-      "known_duplicate_leads": 515,
-      "long_checks": 0,
-      "added_mids": [
-        "4544327806616761"
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "5068997521834075",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5292316664531713",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5355034250578939",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5322310462735466",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4454870318713950",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4454897887688346",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4454987713043218",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4982168537534052",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5314214987565488",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466203919969931",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4801202435393127",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467270737102698",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467445907947131",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        }
       ],
+      "discovery_leads": 606,
+      "eligible_checks": 13,
+      "deferred_checks": 78,
+      "exact_checks": 13,
+      "known_duplicate_leads": 515,
+      "long_checks": 8,
       "after": 2649
     }
   },
