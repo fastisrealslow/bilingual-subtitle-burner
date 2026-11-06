@@ -100,7 +100,7 @@ def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None
             deployment_run_id=DEPLOY_RUN,source_sha256=MOTHER,media_approved=False))
     if seam_proof is not None:child['asr_seam_recovery_evidence']=deepcopy(seam_proof)
     if documentary_proof is not None:
-        child['documented_company_recovery_evidence']=dict(cpu_run_id=42228523720,
+        child['documented_company_recovery_evidence']=dict(cpu_run_id=42230521924,
             source_sha256=MOTHER,fixture_sha256=documentary_proof['fixture_sha256'],media_approved=False)
     return child,None
 

@@ -11,8 +11,8 @@ import documented_company_story as D
 import verified_story_title_recovery as R
 
 ROOT=Path(__file__).resolve().parents[1]
-CPU_RUN=42228523720
-CPU_HEAD='4a639669893e297a23a20678d6706e71790d72e6'
+CPU_RUN=42230521924
+CPU_HEAD='77ee6980c79b2cdd8956735f52271626d7427eeb'
 DELIVERY_ARTIFACT=12953295426
 
 
