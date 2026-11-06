@@ -97849,7 +97849,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-06T18:04:01+08:00"
+   "publish_time": "2026-11-06T18:04:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-e3b4db",
+    "run_id": 42208690195,
+    "artifact_id": 13503617938,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9c0285b06bb04a72a6686a9e608b4d9e9274393d101e498d1ca5f607c39d7771",
+     "duration_sec": 5178.61,
+     "resolution": {
+      "width": 1920,
+      "height": 1078,
+      "short_edge": 1078
+     },
+     "source_url": "https://m.weibo.cn/detail/5362316910790180"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 65%（BV1hrxW6XEim）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4559.50s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 84%（BV1PcHp6tE4k）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42208690195,
+    "artifact_id": 13503617938,
+    "name": "production-reject-ly-1106-e3b4db",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4655624329888733",
@@ -200641,6 +200694,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/VL0oju8egx07Smiz8nHi01041200Or1T0E010.mp4",
    "ts": 1793965526,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0586, 2: -0.0062, 3: 0.009, 4: -0.0346, 5: 0.0322, 6: 0.0346, 7: 0.0332, 8: -0.0221, 9: 0.0167, 10: 0.0312, 11: 0.0098, 12: 0.0207, 13: 0.0499, 14: 0.019, 15: 0.0185, 16: -0.0022, 17: 0.0382, 18: 0.009}"
+  },
+  {
+   "slug": "ly-1106-e3b4db",
+   "key": "weibo_search:5362316910790180",
+   "video_id": "https://f.video.weibocdn.com/o0/pSEKRYwjlx08C9xTBTws0104120ROcZu0E0j0.mp4",
+   "ts": 1793970979,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸"
   }
  ],
  "reviewed_third_video_0910": {
