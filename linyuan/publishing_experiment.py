@@ -460,6 +460,38 @@ def choose_stories(cues, candidates, call, path, *, attempts=2, budget_sec=1200)
             record['error']=str(exc);report[bucket].remove(rejected)
             report['unresolved'].append(dict(index=index,error=str(exc)))
         save()
+    # A documented past company judgment can be a case without a trade.
+    # Recheck only answers with explicit writing/speaking AND a dated result;
+    # a new selection still needs the ordinary independent media/title gates.
+    import documented_company_story as documentary
+    for rejected in list(report['rejected']):
+        if rejected.get('reason')!='no_grounded_story':continue
+        index=rejected['index'];request=documentary.request(cues,candidates[index])
+        if request is None:continue
+        if time.monotonic()>=deadline:
+            report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error='documented_company_review_budget_exhausted'))
+            continue
+        prompt,schema=request
+        record=dict(indices=[index],stage='documented_company_recall_v1',prompt=prompt,schema=schema)
+        report['calls'].append(record);save()
+        try:
+            raw=call(prompt,schema);record['response']=raw
+            verdict=json.loads(raw) if isinstance(raw,str) else raw
+            normalized=documentary.normalize(verdict)
+            chosen=validate_choices(cues,[candidates[index]],{'candidate_0':normalized})
+            for item in chosen:
+                selection=item['story_selection']
+                selection['company_documentary_recall_version']=documentary.VERSION
+                issue=documentary.selection_error(selection)
+                if issue:raise ValueError(issue)
+            report['rejected'].remove(rejected)
+            if chosen:report['selected'].extend(chosen)
+            else:report['rejected'].append(dict(index=index,reason='no_grounded_story'))
+        except (RuntimeError,ValueError,TypeError,KeyError,AttributeError) as exc:
+            record['error']=str(exc);report['rejected'].remove(rejected)
+            report['unresolved'].append(dict(index=index,error=str(exc)))
+        save()
     report['selection_completed']=not report['unresolved']
     report['retryable']=bool(report['unresolved'])
     # Keep positive backups: the renderer already stops at six ACCEPTED
@@ -784,6 +816,10 @@ def proof_error(meta):
     except (TypeError,ValueError,KeyError):return 'Invalid story proof fields'
     if s['kind']=='personal_story':
         issue=personal_event_error(s['event_quote']) or personal_detail_error(s['detail_quote'])
+        if issue:return issue
+    if 'company_documentary_recall_version' in s:
+        from documented_company_story import selection_error
+        issue=selection_error(s)
         if issue:return issue
     focus=title_focus(s)
     company_issue=company_subject_error(s)

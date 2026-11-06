@@ -14,6 +14,7 @@ SOURCES = (
     'caption_boundary_quality.py', 'presentation.py', 'live_motion.py',
     'source_geometry.py', 'source_profile_feasibility.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
     'source_admission_guard.py', 'publishing_experiment.py', 'experiment_runtime.py',
+    'documented_company_story.py',
     'publication_fingerprints.py',
     'transcript_review_evidence.py',
     'experiment_observation_dispatch.py',
