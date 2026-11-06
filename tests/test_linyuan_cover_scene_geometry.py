@@ -49,3 +49,21 @@ def test_bounded_tighter_proposal_preserves_face_and_minimum_source_pixels():
     assert y+max(8,face[3]*.22)<=face[1]
     with pytest.raises(ValueError,match='人物占比'):
         scene_cover_crop((900,250,90,110),1920,1080,[])
+
+
+@pytest.mark.parametrize('size',[(1080,1640),(1080,1920),(1104,1080)])
+def test_portrait_source_can_supply_a_native_wide_window_when_face_really_fits(size):
+    face=(380,350,250,320)
+    x,y,w,h=scene_cover_crop(face,*size,[])
+    assert 960<=w<=size[0] and 540<=h<=size[1]
+    assert 1.77<=w/h<=1.79 and x>=0 and y>=0
+    assert x+w<=size[0] and y+h<=size[1]
+    assert x+8<=face[0] and face[0]+face[2]<=x+w-8
+    assert y+max(8,face[3]*.22)<=face[1]
+    assert face[1]+face[3]<=y+h-8
+
+
+def test_portrait_window_still_rejects_a_tall_face_overlays_or_insufficient_pixels():
+    with pytest.raises(ValueError):scene_cover_crop((200,100,600,1000),1080,1920,[])
+    with pytest.raises(ValueError):scene_cover_crop((380,350,250,320),1080,1920,[(0,0,1,1)])
+    with pytest.raises(ValueError):scene_cover_crop((200,350,200,280),720,1280,[])
