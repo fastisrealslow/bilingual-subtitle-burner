@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794067022,
+  "updated_at": 1794067230,
   "inventory_updated_at": 1794067015,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 99,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 9,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -19,13 +19,13 @@
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-07",
         "2026-11-08",
         "2026-11-09",
         "2026-11-10",
         "2026-11-11",
         "2026-11-12",
-        "2026-11-13"
+        "2026-11-13",
+        "2026-11-14"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794067019,
+    "updated_at": 1794067228,
     "records": 16376,
     "video_records": 13905,
-    "initial_candidates": 191,
-    "duration_eligible_records": 9,
-    "candidate_count": 9,
-    "known_duration_candidates": 9,
+    "initial_candidates": 189,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3434,
+      "already_attempted_or_cooling": 3436,
       "speaker_unconfirmed": 8454,
       "clip_title": 1430,
       "no_video": 2471,
@@ -263,22 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5259453143979280",
-        "title": "【#阳江市长用800年青瓷碗盛起程村蚝#】#直击2026广东两会#2026广东两会现场，阳江市市长余金富来到@羊城晚报 ",
-        "source": "weibo_search",
-        "author": "羊城晚报",
-        "url": "https://m.weibo.cn/detail/5259453143979280",
-        "duration_sec": 41.0
-      },
-      {
-        "key": "weibo_search:5260605759946921",
-        "title": "《2026年1月26林园最新演讲！高净值研究院投资大咖课，股市投资机会展望！》核心精髓总结；林园数十年投资不败的核心智慧",
-        "source": "weibo_search",
-        "author": "复利999",
-        "url": "https://m.weibo.cn/detail/5260605759946921",
-        "duration_sec": 324.0
-      },
       {
         "key": "weibo_search:5262263881826872",
         "title": "2026年1月26林园最新演讲！高净值研究院投资大咖课，股市投资机会展望！》核心精髓总结;林园对腾讯与茅台的鲜明投资态度",
@@ -351,7 +335,7 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2145,
+    "failed": 2147,
     "paused": 5,
     "interrupted": 9,
     "excluded": 64,
@@ -46636,11 +46620,11 @@
     },
     {
       "slug": "ly-1107-8d27e5",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[15]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{15: -0.0618}",
       "signature": {
         "ts": 1794066796,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46650,15 +46634,15 @@
       "run_id": 42388539313,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42388539313",
       "run_started_at": "2026-11-07T15:53:15Z",
-      "run_updated_at": "2026-11-07T15:53:19Z"
+      "run_updated_at": "2026-11-07T15:56:36Z"
     },
     {
       "slug": "ly-1107-80e466",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 3, 5, 6, 11]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1512, 3: 0.0825, 5: 0.1092, 6: 0.1887, 11: 0.0845}",
       "signature": {
         "ts": 1794066808,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46668,7 +46652,43 @@
       "run_id": 42388554934,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42388554934",
       "run_started_at": "2026-11-07T15:53:28Z",
-      "run_updated_at": "2026-11-07T15:53:32Z"
+      "run_updated_at": "2026-11-07T15:56:36Z"
+    },
+    {
+      "slug": "ly-1107-f6c941",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794067176,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42389018767,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42389018767",
+      "run_started_at": "2026-11-07T15:59:35Z",
+      "run_updated_at": "2026-11-07T15:59:39Z"
+    },
+    {
+      "slug": "ly-1107-fa954d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794067186,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42389030625,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42389030625",
+      "run_started_at": "2026-11-07T15:59:45Z",
+      "run_updated_at": "2026-11-07T15:59:49Z"
     }
   ],
   "runs": {
@@ -70575,12 +70595,34 @@
       "run_number": 4013,
       "display_title": "中文源出片 · ly-1107-58d7ca"
     },
-    "ly-1107-80e466": {
-      "id": 42388554934,
+    "ly-1107-fa954d": {
+      "id": 42389030625,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-07T15:59:45Z",
+      "updated_at": "2026-11-07T15:59:49Z",
+      "run_started_at": "2026-11-07T15:59:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42389030625",
+      "run_number": 4019,
+      "display_title": "中文源出片 · ly-1107-fa954d"
+    },
+    "ly-1107-f6c941": {
+      "id": 42389018767,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T15:59:35Z",
+      "updated_at": "2026-11-07T15:59:39Z",
+      "run_started_at": "2026-11-07T15:59:35Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42389018767",
+      "run_number": 4018,
+      "display_title": "中文源出片 · ly-1107-f6c941"
+    },
+    "ly-1107-80e466": {
+      "id": 42388554934,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-07T15:53:28Z",
-      "updated_at": "2026-11-07T15:53:32Z",
+      "updated_at": "2026-11-07T15:56:36Z",
       "run_started_at": "2026-11-07T15:53:28Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42388554934",
       "run_number": 4017,
@@ -70588,10 +70630,10 @@
     },
     "ly-1107-8d27e5": {
       "id": 42388539313,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-07T15:53:15Z",
-      "updated_at": "2026-11-07T15:53:19Z",
+      "updated_at": "2026-11-07T15:56:36Z",
       "run_started_at": "2026-11-07T15:53:15Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42388539313",
       "run_number": 4016,
