@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794032474,
+  "updated_at": 1794032777,
   "inventory_updated_at": 1794032470,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 94,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794032473,
+    "updated_at": 1794032776,
     "records": 16206,
     "video_records": 13737,
-    "initial_candidates": 191,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
-    "known_duration_candidates": 10,
+    "initial_candidates": 190,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3370,
+      "already_attempted_or_cooling": 3371,
       "speaker_unconfirmed": 8394,
       "clip_title": 1416,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1fS4y1b7ws",
-        "title": "林园 P1 林园：投资就是投资垄断！没有别的。",
-        "source": "bilibili_collection",
-        "author": "走走走拍拍拍",
-        "url": "https://www.bilibili.com/video/BV1fS4y1b7ws",
-        "duration_sec": 885.0
-      },
       {
         "key": "weibo_search:5362596578592149",
         "title": "片仔H股东大会，\n林园总：为什么投Z这个公司？\n#片仔癀##林园##股票投资##财宝宝##巴菲特#  http://t.",
@@ -359,15 +351,15 @@
   },
   "counts": {
     "complete": 188,
-    "failed": 2093,
+    "failed": 2094,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 63,
     "experiment_fallback": 120,
     "ready": 24,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -45546,11 +45538,11 @@
     },
     {
       "slug": "ly-1107-c1d268",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（352x272），画质不达标",
       "signature": {
         "ts": 1794032246,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45561,6 +45553,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42346336524",
       "run_started_at": "2026-11-07T06:17:26Z",
       "run_updated_at": "2026-11-07T06:19:03Z"
+    },
+    {
+      "slug": "ly-1107-f8788a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794032735,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42346949707,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42346949707",
+      "run_started_at": "2026-11-07T06:25:34Z",
+      "run_updated_at": "2026-11-07T06:25:38Z"
     }
   ],
   "runs": {
@@ -68795,6 +68805,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42346336524",
       "run_number": 3949,
       "display_title": "中文源出片 · ly-1107-c1d268"
+    },
+    "ly-1107-f8788a": {
+      "id": 42346949707,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T06:25:34Z",
+      "updated_at": "2026-11-07T06:25:38Z",
+      "run_started_at": "2026-11-07T06:25:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42346949707",
+      "run_number": 3950,
+      "display_title": "中文源出片 · ly-1107-f8788a"
     },
     "ly-1107-e97952": {
       "id": 42345783697,
