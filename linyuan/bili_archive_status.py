@@ -17,7 +17,7 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
     titles=set(expected_titles or [])
     result={'owner_mid':str(owner_mid),'requested_bvids':sorted(target),'videos':[],
             'verification_origin':'authenticated-creator-read','public_count':0,
-            'scan_complete':False,'scanned_pages':0}
+            'scan_complete':False,'scanned_pages':0,'owner_verified':False}
     if titles:
         result['requested_titles']=sorted(titles)
     data=json.loads(cookies_json.lstrip('\ufeff'))
@@ -52,6 +52,12 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
         if not isinstance(rows,list):
             result['response_error']='archive_list_missing'
             break
+        owners={str((row.get('Archive') or row.get('archive') or {}).get('mid')) for row in rows}
+        if owners and owners != {str(owner_mid)}:
+            result.update(response_error='archive_owner_mismatch',scan_complete=False)
+            break
+        if owners:
+            result['owner_verified']=True
         result['scanned_pages']=page
         page_info=body.get('page') or {}
         total=page_info.get('count') if isinstance(page_info,dict) else None

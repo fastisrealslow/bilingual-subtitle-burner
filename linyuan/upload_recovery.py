@@ -24,7 +24,8 @@ def archive_match(entry, snapshot, now):
     title = entry.get('upload_title')
     exact = [v for v in snapshot.get('videos', []) if v.get('title') == title]
     if not exact:
-        return ('absent' if snapshot.get('scan_complete') is True else 'incomplete'), None
+        return ('absent' if snapshot.get('scan_complete') is True
+                and snapshot.get('owner_verified') is True else 'incomplete'), None
     matches = [v for v in exact if (str(v.get('mid')) == str(snapshot.get('owner_mid'))
         and re.fullmatch(r'BV[a-zA-Z0-9]{10}', str(v.get('bvid') or ''))
         and type(v.get('ctime')) in (int, float)
@@ -60,10 +61,11 @@ def reconcile(fc, state, *, now=None, lookup=None):
     """Caller owns the publication lease; persist reconciliation before posting."""
     now = time.time() if now is None else now
     entries = [e for e in fc._latest_dispatches(state) if e.get('uploading')]
-    result = dict(recovered=0, quarantined=0, pending=0, changed=False)
-    for entry in entries:
+    result = dict(recovered=0, quarantined=0, pending=max(0,len(entries)-4), changed=False)
+    for entry in entries[:4]:
         started = entry.get('uploading_ts')
         if (type(started) not in (int,float) or now-started < LEASE_SECONDS
+                or not entry.get('upload_title')
                 or now-float(entry.get('upload_reconciled_at') or 0)<RECHECK_SECONDS):
             result['pending'] += 1
             continue

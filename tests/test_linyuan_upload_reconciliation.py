@@ -35,7 +35,7 @@ def snapshot(e=None, **changes):
     videos=[] if e is None else [dict(bvid=BV,mid=fc.OWNER_MID,title=e['upload_title'],
         ctime=START+20,duration=80,public=True)]
     return dict(verification_origin='authenticated-creator-read',owner_mid=fc.OWNER_MID,
-        api_code=0,scan_complete=True,videos=videos,**changes)
+        api_code=0,scan_complete=True,owner_verified=True,videos=videos,**changes)
 
 
 @pytest.fixture(autouse=True)
@@ -52,7 +52,8 @@ def test_active_lease_never_queries_or_replays(age):
 
 
 @pytest.mark.parametrize('changes',[dict(api_code=-101),dict(scan_complete=False),
-    dict(http_status=412),dict(owner_mid='another-account'),dict(response_error='archive_list_missing')])
+    dict(http_status=412),dict(owner_mid='another-account'),dict(owner_verified=False),
+    dict(response_error='archive_list_missing')])
 def test_unavailable_or_incomplete_read_is_never_absence(changes):
     e=entry();proof=snapshot();proof.update(changes);st=dict(dispatched=[e])
     out=recovery.reconcile(fc,st,now=NOW,lookup=lambda _:proof)
@@ -150,3 +151,14 @@ def test_creator_absence_requires_real_exhausted_archive_list(monkeypatch,payloa
     cookies=json.dumps(dict(DedeUserID=str(fc.OWNER_MID),SESSDATA='test-only'))
     proof=archive.archive_status([],fc.OWNER_MID,cookies,expected_titles=['exact'],max_pages=2)
     assert proof['scan_complete']==complete and proof['found_count']==0
+
+
+def test_creator_response_from_another_owner_cannot_release_any_upload(monkeypatch):
+    payload=dict(code=0,data=dict(arc_audits=[dict(Archive=dict(mid=999,title='other'))]))
+    class Opener:
+        def open(self,*a,**kw):return io.StringIO(json.dumps(payload))
+    monkeypatch.setattr(archive.urllib.request,'build_opener',lambda *a:Opener())
+    proof=archive.archive_status([],fc.OWNER_MID,
+        json.dumps(dict(DedeUserID=str(fc.OWNER_MID),SESSDATA='test-only')),expected_titles=['exact'])
+    assert not proof['scan_complete'] and not proof['owner_verified']
+    assert proof['response_error']=='archive_owner_mismatch'

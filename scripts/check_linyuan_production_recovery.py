@@ -35,6 +35,7 @@ def main():
     Path('production-recovery-preflight.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps(report,ensure_ascii=False))
     if (report['creator'].get('api_code')!=0 or report['creator'].get('response_error')
+            or report['creator'].get('owner_verified') is not True
             or not report['creator'].get('scan_complete') and not report['creator'].get('found_count')):
         raise SystemExit('Creator archive read is incomplete; do not infer absence')
 
