@@ -1,0 +1,37 @@
+name: 已验收发布器的原时段单次补发核验
+on:
+  push:
+    branches: [ops/verify-catchup-20261107]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  catchup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi -r linyuan/fc/runtime-requirements.txt
+      - name: 只读核对当前线上代码、登录账号与原补发门禁
+        run: python scripts/check_catchup_runtime_20261107.py
+      - name: 仅通过既有追踪任务补一个到期时段，不重放未知投稿
+        run: python linyuan/fc/catchup_from_inventory.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verified-catchup-receipt
+          path: |
+            catchup-runtime-check.json
+            catchup-receipt.json
+          if-no-files-found: warn
