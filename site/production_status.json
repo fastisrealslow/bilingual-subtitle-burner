@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794058918,
+  "updated_at": 1794059072,
   "inventory_updated_at": 1794058913,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 99,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 1,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794058917,
+    "updated_at": 1794059071,
     "records": 16306,
     "video_records": 13837,
-    "initial_candidates": 182,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 181,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3416,
+      "already_attempted_or_cooling": 3417,
       "speaker_unconfirmed": 8433,
       "clip_title": 1427,
       "no_video": 2469,
@@ -262,16 +262,7 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1DXuP6REz4",
-        "title": "林园 P1 林园2026年最新视频 祝福有理想愿意搏一搏的人成功，年轻人或许有不同的思维方式 【林园的投资观点】",
-        "source": "bilibili_series",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1DXuP6REz4",
-        "duration_sec": 69.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 99,
@@ -287,7 +278,7 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2132,
+    "failed": 2133,
     "paused": 5,
     "interrupted": 9,
     "excluded": 64,
@@ -46338,11 +46329,11 @@
     },
     {
       "slug": "ly-1107-090f0f",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 428 < 480（718x428），画质不达标",
       "signature": {
         "ts": 1794058750,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46352,7 +46343,7 @@
       "run_id": 42377936501,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42377936501",
       "run_started_at": "2026-11-07T13:39:10Z",
-      "run_updated_at": "2026-11-07T13:39:14Z"
+      "run_updated_at": "2026-11-07T13:40:58Z"
     },
     {
       "slug": "ly-1107-cc90ab",
@@ -46371,6 +46362,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42377946232",
       "run_started_at": "2026-11-07T13:39:18Z",
       "run_updated_at": "2026-11-07T13:39:22Z"
+    },
+    {
+      "slug": "ly-1107-9b8d96",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794059055,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42378319884,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42378319884",
+      "run_started_at": "2026-11-07T13:44:15Z",
+      "run_updated_at": "2026-11-07T13:44:19Z"
     }
   ],
   "runs": {
@@ -70134,6 +70143,17 @@
       "run_number": 3999,
       "display_title": "中文源出片 · ly-1107-a92ebd"
     },
+    "ly-1107-9b8d96": {
+      "id": 42378319884,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T13:44:15Z",
+      "updated_at": "2026-11-07T13:44:19Z",
+      "run_started_at": "2026-11-07T13:44:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42378319884",
+      "run_number": 4005,
+      "display_title": "中文源出片 · ly-1107-9b8d96"
+    },
     "ly-1107-cc90ab": {
       "id": 42377946232,
       "status": "in_progress",
@@ -70147,10 +70167,10 @@
     },
     "ly-1107-090f0f": {
       "id": 42377936501,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-07T13:39:10Z",
-      "updated_at": "2026-11-07T13:39:14Z",
+      "updated_at": "2026-11-07T13:40:58Z",
       "run_started_at": "2026-11-07T13:39:10Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42377936501",
       "run_number": 4003,
