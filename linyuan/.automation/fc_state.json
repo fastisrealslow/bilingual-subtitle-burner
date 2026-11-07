@@ -99745,7 +99745,40 @@
    "experiment_replenishment_basis": {
     "source_sha256": "74c7a5c11201060c6c0b7dfa8d24b0f8388f611ca889000f997872cc188cbb62",
     "publication_digest": "83f1310a73e97dd1b506b3ba3d705c95a2b34c3ab4b8a6c89edc3978e86b1bca"
-   }
+   },
+   "production_failure_summary": {
+    "slug": "ly-story-cb5736b71f",
+    "run_id": 42345772617,
+    "artifact_id": 13563632598,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "74c7a5c11201060c6c0b7dfa8d24b0f8388f611ca889000f997872cc188cbb62",
+     "duration_sec": 2700.0,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     }
+    },
+    "failures": [
+     {
+      "stage": "source-version",
+      "reason": "恢复证据与本次通过质检的母片哈希不一致"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42345772617,
+    "artifact_id": 13563632598,
+    "name": "production-reject-ly-story-cb5736b71f",
+    "retained": true
+   },
+   "last_error": "恢复证据与本次通过质检的母片哈希不一致",
+   "source_quality_rejected": false,
+   "source_version_unresolved": true,
+   "failure_stage": "source-version"
   },
   {
    "key": "bilibili_search:BV1SYebekEe5",
@@ -202927,6 +202960,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/ptyYQcqzgx08Cb4Xtw5y01041203ZCOt0E020.mp4",
    "ts": 1794029467,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-story-cb5736b71f",
+   "key": "ly-story-cb5736b71f",
+   "video_id": "BV1iC4y1H7JN",
+   "ts": 1794032197,
+   "error": "恢复证据与本次通过质检的母片哈希不一致"
   }
  ],
  "reviewed_third_video_0910": {
