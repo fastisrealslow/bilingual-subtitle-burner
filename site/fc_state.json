@@ -105213,8 +105213,8 @@
    "publish_time": "2025-05-19T07:48:37+08:00",
    "production_failure_summary": {
     "slug": "ly-1107-66b929",
-    "run_id": 42406102592,
-    "artifact_id": 13587553120,
+    "run_id": 42408443817,
+    "artifact_id": 13588293306,
     "accepted": 0,
     "source_context": null,
     "failures": [
@@ -105224,11 +105224,12 @@
      }
     ]
    },
-   "source_check_report_id": 13587553120,
-   "source_check_run_id": 42406102592,
+   "source_check_report_id": 13588293306,
+   "source_check_run_id": 42408443817,
    "last_error": "工作流步骤失败，未形成素材不合格结论：render",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1794083682
   },
   {
    "key": "bilibili_search:BV1saVc67EBd",
@@ -105251,7 +105252,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-26T05:48:37+00:00"
+   "publish_time": "2026-05-26T05:48:37+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-fb6dab",
+    "run_id": 42408454157,
+    "artifact_id": 13588063488,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8aca5f093762bdb6d62bab2a1a35fcb375cfab9979e8ef101ea2ed040fdacfa8",
+     "duration_sec": 26.5,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1saVc67EBd"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/159，总帧数790；身份匹配但人脸短边不足96px的帧数159"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42408454157,
+    "artifact_id": 13588063488,
+    "name": "production-reject-ly-1107-fb6dab",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/159，总帧数790；身份匹配但人脸短边不足96px的帧数159",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4497632552594837",
@@ -209856,6 +209890,13 @@
    "video_id": "BV1vzBkBgEMC",
    "ts": 1794081873,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（360x640），画质不达标"
+  },
+  {
+   "slug": "ly-1107-fb6dab",
+   "key": "bilibili_search:BV1saVc67EBd",
+   "video_id": "BV1saVc67EBd",
+   "ts": 1794081881,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/159，总帧数790；身份匹配但人脸短边不足96px的帧数159"
   }
  ],
  "reviewed_third_video_0910": {
