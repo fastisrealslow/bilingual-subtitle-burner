@@ -104641,7 +104641,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Lg4y1B7qA",
@@ -104904,7 +104905,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-02-13T06:45:59+00:00"
+   "publish_time": "2026-02-13T06:45:59+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-3a3fb1",
+    "run_id": 42403309018,
+    "artifact_id": 13586324090,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "092472ff36501d4363c0deb1087385b7b8c500bb2f24cf3398fed5e6dbb727bd",
+     "duration_sec": 21.2,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1h4c7zQEze"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42403309018,
+    "artifact_id": 13586324090,
+    "name": "production-reject-ly-1107-3a3fb1",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -209372,6 +209406,13 @@
    "video_id": "BV1y94y1j7Ja",
    "ts": 1794077402,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1107-3a3fb1",
+   "key": "bilibili_search:BV1h4c7zQEze",
+   "video_id": "BV1h4c7zQEze",
+   "ts": 1794078290,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
