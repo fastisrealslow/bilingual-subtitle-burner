@@ -106737,7 +106737,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-05T01:48:14+00:00"
+   "publish_time": "2021-01-05T01:48:14+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-a98f0f",
+    "run_id": 42419421863,
+    "artifact_id": 13594105293,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "dfe26c22a593a43d2fc7f9c0f1defda2d10fae3b02f2a0a887f6e3028c5ad65c",
+     "duration_sec": 134.93,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1uo4y1f7A4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42419421863,
+    "artifact_id": 13594105293,
+    "name": "production-reject-ly-1107-a98f0f",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Xy4y12722",
@@ -106953,7 +106986,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1UR45e2EUp",
@@ -106976,7 +107010,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-10-03T01:52:24+00:00"
+   "publish_time": "2024-10-03T01:52:24+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42420805705,
+    "artifact_id": 13594100129,
+    "name": "source-reject-ly-1107-aec435",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 384 < 480（726x384），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -211633,6 +211677,20 @@
    "video_id": "BV1io1rBsEso",
    "ts": 1794090489,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标"
+  },
+  {
+   "slug": "ly-1107-aec435",
+   "key": "bilibili_search:BV1UR45e2EUp",
+   "video_id": "BV1UR45e2EUp",
+   "ts": 1794090794,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 384 < 480（726x384），画质不达标"
+  },
+  {
+   "slug": "ly-1107-a98f0f",
+   "key": "bilibili_search:BV1uo4y1f7A4",
+   "video_id": "BV1uo4y1f7A4",
+   "ts": 1794090798,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
