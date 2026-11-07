@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794046219,
+  "updated_at": 1794046495,
   "inventory_updated_at": 1794046215,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794046218,
+    "updated_at": 1794046494,
     "records": 16236,
     "video_records": 13767,
-    "initial_candidates": 183,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 182,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3392,
+      "already_attempted_or_cooling": 3393,
       "speaker_unconfirmed": 8405,
       "clip_title": 1419,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV14Y7E65Eps",
-        "title": "林园 P1 6月26日(4)",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV14Y7E65Eps",
-        "duration_sec": 435.0
-      },
       {
         "key": "bilibili_search:BV1SV41197qo",
         "title": "林园 P1 股神林园总最新专访：你们咋老亏钱我给你们一些建议（2024.1.11）",
@@ -295,15 +287,15 @@
   },
   "counts": {
     "complete": 189,
-    "failed": 2111,
+    "failed": 2112,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 124,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -45932,11 +45924,11 @@
     },
     {
       "slug": "ly-1107-c23aec",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1794046016,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45947,6 +45939,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42362557846",
       "run_started_at": "2026-11-07T10:06:55Z",
       "run_updated_at": "2026-11-07T10:08:38Z"
+    },
+    {
+      "slug": "ly-1107-a7928e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794046452,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42363090285,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42363090285",
+      "run_started_at": "2026-11-07T10:14:12Z",
+      "run_updated_at": "2026-11-07T10:14:16Z"
     }
   ],
   "runs": {
@@ -69456,6 +69466,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42362557846",
       "run_number": 3977,
       "display_title": "中文源出片 · ly-1107-c23aec"
+    },
+    "ly-1107-a7928e": {
+      "id": 42363090285,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T10:14:12Z",
+      "updated_at": "2026-11-07T10:14:16Z",
+      "run_started_at": "2026-11-07T10:14:12Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42363090285",
+      "run_number": 3978,
+      "display_title": "中文源出片 · ly-1107-a7928e"
     },
     "ly-1107-493f0a": {
       "id": 42359168493,
