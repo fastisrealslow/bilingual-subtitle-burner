@@ -103890,7 +103890,51 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-01-27T16:46:48+08:00"
+   "publish_time": "2026-01-27T16:46:48+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-02ff20",
+    "run_id": 42387407255,
+    "artifact_id": 13583024586,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "2beda118f22a37adda49918eaa88dff127980300cec552cfdbee22be3b230ab1",
+     "duration_sec": 5101.29,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5259741712354739"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 63%（BV1hrxW6XEim）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4546.17s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 90%（BV1PcHp6tE4k）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：嘉宾在句 8 中完整表达了其投资判断（买入特定股票及理由），虽存在口语重复（如‘然后呢’）、数字识别疑点（‘一点二六倍’、‘第一点’）及可能的错别字（‘买的那个你的五只股票’疑似‘买了你的五只股票’或‘买的产业’），但核心观点与理由连贯，未出现指代不明或论述切断。句 7 为嘉宾自述背景（听讲座、做海参产业），作为理由支撑句 8 的判断；句 0-6 为主持人提问及无关寒暄，不应纳入观点证据。；原文问题：[[\"然后喜欢这个新消费，然后呢，我是做了海参产业二十年了，所以说我买的产，买的那个你的五只股票我都买了，呃，华东医药、达能堂，你刚才说的一点二六倍，我这个每年的拍戏也拍到了，但"
+     }
+    ]
+   },
+   "source_check_report_id": 13583024586,
+   "source_check_run_id": 42387407255,
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794073359
   },
   {
    "key": "weibo_search:5260580829006127",
@@ -104447,7 +104491,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{5: 0.1592, 6: 0.2901, 7: 0.1187, 8: 0.1285, 9: 0.1614, 10: 0.1445, 11: 0.1426, 12: 0.1699, 13: 0.1604, 14: 0.125, 15: 0.1744, 16: 0.1902, 17: 0.1794, 18: 0.1338}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1y94y1j7Ja",
