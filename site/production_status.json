@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794078685,
+  "updated_at": 1794078882,
   "inventory_updated_at": 1794078681,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 100,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794078684,
+    "updated_at": 1794078881,
     "records": 16395,
     "video_records": 13924,
-    "initial_candidates": 194,
-    "duration_eligible_records": 10,
-    "candidate_count": 10,
-    "known_duration_candidates": 9,
+    "initial_candidates": 193,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 8,
     "unknown_duration_candidates": 1,
     "excluded": {
-      "already_attempted_or_cooling": 3436,
+      "already_attempted_or_cooling": 3437,
       "speaker_unconfirmed": 8464,
       "clip_title": 1432,
       "no_video": 2471,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1Y4Ts6jE9K",
-        "title": "林园 P1 林园：财富积累的第一个100万是最难的 #财经#经济#价值投资#林园",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1Y4Ts6jE9K",
-        "duration_sec": 27.0
-      },
       {
         "key": "bilibili_search:BV1PP7p6DEiS",
         "title": "林园 P1 林园：股票亏了抑郁症 睡不着觉，片仔癀让你快乐，疏肝理气#片仔癀 #林园 #价值投资 #股市 #",
@@ -359,15 +351,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2160,
+    "failed": 2161,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 127,
     "ready": 26,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -46968,11 +46960,11 @@
     },
     {
       "slug": "ly-1107-02ff20",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）",
       "signature": {
         "ts": 1794078351,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46983,6 +46975,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42404526775",
       "run_started_at": "2026-11-07T19:05:51Z",
       "run_updated_at": "2026-11-07T19:09:40Z"
+    },
+    {
+      "slug": "ly-1107-2ff160",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794078842,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42405199561,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42405199561",
+      "run_started_at": "2026-11-07T19:14:02Z",
+      "run_updated_at": "2026-11-07T19:14:06Z"
     }
   ],
   "runs": {
@@ -71086,6 +71096,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42404526775",
       "run_number": 4036,
       "display_title": "中文源出片 · ly-1107-02ff20"
+    },
+    "ly-1107-2ff160": {
+      "id": 42405199561,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T19:14:02Z",
+      "updated_at": "2026-11-07T19:14:06Z",
+      "run_started_at": "2026-11-07T19:14:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42405199561",
+      "run_number": 4037,
+      "display_title": "中文源出片 · ly-1107-2ff160"
     },
     "ly-1107-be7b7a": {
       "id": 42402090465,
