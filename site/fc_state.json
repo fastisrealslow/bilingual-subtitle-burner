@@ -101653,7 +101653,8 @@
    },
    "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1go4y1f7VY",
@@ -101709,7 +101710,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1m7Eq6cEwU",
@@ -101732,7 +101734,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-11T11:08:54+00:00"
+   "publish_time": "2026-06-11T11:08:54+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-1bbe02",
+    "run_id": 42365994607,
+    "artifact_id": 13572226131,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7bb2407eaf4a0a9ac6ec764dd7cc70dd18a0ff95c182d3272acc890f25c5f4f7",
+     "duration_sec": 177.66,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1m7Eq6cEwU"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1NEbW6JEq7）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42365994607,
+    "artifact_id": 13572226131,
+    "name": "production-reject-ly-1107-1bbe02",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1NEbW6JEq7）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4405907414542050",
@@ -205592,6 +205627,13 @@
    "video_id": "BV1kwjG67EB1",
    "ts": 1794049257,
    "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+  },
+  {
+   "slug": "ly-1107-1bbe02",
+   "key": "bilibili_search:BV1m7Eq6cEwU",
+   "video_id": "BV1m7Eq6cEwU",
+   "ts": 1794049663,
+   "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1NEbW6JEq7）"
   }
  ],
  "reviewed_third_video_0910": {
