@@ -105534,11 +105534,12 @@
     "basis": "unknown"
    },
    "publish_time": "2020-05-29T08:47:25+08:00",
-   "source_check_report_id": 13587712638,
-   "source_check_run_id": 42407402531,
+   "source_check_report_id": 13588249852,
+   "source_check_run_id": 42409363868,
    "last_error": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4509840578399579']' returned non-zero exit status 1.",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1794084039
   },
   {
    "key": "bilibili_search:BV1cU6WBuEf7",
@@ -105561,7 +105562,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-02-09T14:25:00+00:00"
+   "publish_time": "2026-02-09T14:25:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42409375078,
+    "artifact_id": 13589150256,
+    "name": "source-reject-ly-1107-64ecba",
+    "retained": true
+   },
+   "last_error": "素材时长 19s 不在 [20,7200]",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -210085,6 +210096,13 @@
    "video_id": "BV1AnYTzZEa1",
    "ts": 1794081897,
    "error": "整段取景预检：源 1431.20s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1107-64ecba",
+   "key": "bilibili_search:BV1cU6WBuEf7",
+   "video_id": "BV1cU6WBuEf7",
+   "ts": 1794082239,
+   "error": "素材时长 19s 不在 [20,7200]"
   }
  ],
  "reviewed_third_video_0910": {
