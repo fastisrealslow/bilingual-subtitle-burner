@@ -1,0 +1,23 @@
+name: 原时段补发稿件可见性只读回查
+on:
+  push:
+    branches: [diagnose/catchup-visibility-20261107]
+permissions:
+  contents: read
+jobs:
+  creator-read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 只读查询已收到真实BV回执的稿件，不重传
+        run: python linyuan/bili_archive_status.py --bvid BV1Xa4j6zEVQ --out creator-visibility.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: creator-visibility-BV1Xa4j6zEVQ
+          path: creator-visibility.json
