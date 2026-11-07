@@ -103832,7 +103832,8 @@
    },
    "last_error": "原始素材短边 312 < 480（640x312），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5260004400828050",
@@ -103865,7 +103866,8 @@
    },
    "last_error": "原始素材短边 312 < 480（640x312），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5259741712354739",
@@ -103911,7 +103913,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-30T00:21:09+08:00"
+   "publish_time": "2026-01-30T00:21:09+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42388539313,
+    "artifact_id": 13581140064,
+    "name": "source-reject-ly-1107-8d27e5",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[15]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{15: -0.0618}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5260076517693556",
@@ -103934,7 +103946,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-28T14:57:12+08:00"
+   "publish_time": "2026-01-28T14:57:12+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42388554934,
+    "artifact_id": 13580826489,
+    "name": "source-reject-ly-1107-80e466",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 3, 5, 6, 11]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1512, 3: 0.0825, 5: 0.1092, 6: 0.1887, 11: 0.0845}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -208304,6 +208326,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/kuezt6HLgx08uTyfPrEQ0104120bExtp0E050.mp4",
    "ts": 1794066740,
    "error": "原始素材短边 312 < 480（640x312），画质不达标"
+  },
+  {
+   "slug": "ly-1107-80e466",
+   "key": "weibo_search:5260076517693556",
+   "video_id": "https://f.video.weibocdn.com/u0/0IOT67tygx08uTS10Iq4010412037n3B0E020.mp4",
+   "ts": 1794067116,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 3, 5, 6, 11]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1512, 3: 0.0825, 5: 0.1092, 6: 0.1887, 11: 0.0845}"
+  },
+  {
+   "slug": "ly-1107-8d27e5",
+   "key": "weibo_search:5260580829006127",
+   "video_id": "https://f.video.weibocdn.com/o0/MSDolB3tlx08uW5Bd2mc01041204Fmi10E020.mp4",
+   "ts": 1794067117,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[15]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{15: -0.0618}"
   }
  ],
  "reviewed_third_video_0910": {
