@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794047282,
+  "updated_at": 1794047488,
   "inventory_updated_at": 1794047277,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794047281,
+    "updated_at": 1794047486,
     "records": 16273,
     "video_records": 13804,
-    "initial_candidates": 189,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 188,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3396,
+      "already_attempted_or_cooling": 3397,
       "speaker_unconfirmed": 8422,
       "clip_title": 1422,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5362674737086838",
-        "title": "大盘跌破3700点，牛市结束了吗？林园在访谈中明确表示，这几年就根本没有真正意义上的牛市！牛熊实际上是一种趋势，唯一衡量",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5362674737086838",
-        "duration_sec": 49.0
-      },
       {
         "key": "bilibili_search:BV1j5NJ6AEqF",
         "title": "林园 P1 林园：财务自由3000万基本门槛#林园#投资#股票 #价值投资",
@@ -345,13 +337,13 @@
     "complete": 189,
     "failed": 2113,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 124,
     "ready": 25,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 4
+    "retry_queued": 2,
+    "running": 5
   },
   "tasks": [
     {
@@ -46016,14 +46008,14 @@
     },
     {
       "slug": "ly-1107-e53a6f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794047089,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794049190,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -46031,6 +46023,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42363846043",
       "run_started_at": "2026-11-07T10:24:49Z",
       "run_updated_at": "2026-11-07T10:26:44Z"
+    },
+    {
+      "slug": "ly-1107-1a289c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794047447,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42364257966,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42364257966",
+      "run_started_at": "2026-11-07T10:30:46Z",
+      "run_updated_at": "2026-11-07T10:30:50Z"
     }
   ],
   "runs": {
@@ -69551,6 +69561,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42363846043",
       "run_number": 3980,
       "display_title": "中文源出片 · ly-1107-e53a6f"
+    },
+    "ly-1107-1a289c": {
+      "id": 42364257966,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T10:30:46Z",
+      "updated_at": "2026-11-07T10:30:50Z",
+      "run_started_at": "2026-11-07T10:30:46Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42364257966",
+      "run_number": 3981,
+      "display_title": "中文源出片 · ly-1107-1a289c"
     },
     "ly-1107-efac4f": {
       "id": 42363498563,
