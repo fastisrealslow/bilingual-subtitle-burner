@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794076375,
+  "updated_at": 1794076602,
   "inventory_updated_at": 1794076371,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 100,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 9,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 8,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794076374,
+    "updated_at": 1794076601,
     "records": 16395,
     "video_records": 13924,
-    "initial_candidates": 191,
-    "duration_eligible_records": 9,
-    "candidate_count": 9,
-    "known_duration_candidates": 9,
+    "initial_candidates": 190,
+    "duration_eligible_records": 8,
+    "candidate_count": 8,
+    "known_duration_candidates": 8,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3449,
+      "already_attempted_or_cooling": 3450,
       "speaker_unconfirmed": 8454,
       "clip_title": 1432,
       "no_video": 2471,
@@ -320,14 +320,6 @@
         "duration_sec": 20.0
       },
       {
-        "key": "bilibili_search:BV18v4y1Q78V",
-        "title": "林园 P1 2022.12.19林园：聊聊2023的变与不变",
-        "source": "bilibili_collection",
-        "author": "基金经理说",
-        "url": "https://www.bilibili.com/video/BV18v4y1Q78V",
-        "duration_sec": 5333.0
-      },
-      {
         "key": "bilibili_search:BV1cU6WBuEf7",
         "title": "林园 P1 林园2026-1-9 20年后我还在  价值投资",
         "source": "bilibili_series",
@@ -351,15 +343,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2157,
+    "failed": 2158,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 127,
     "ready": 26,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -46924,11 +46916,11 @@
     },
     {
       "slug": "ly-1107-cd233a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 240 < 480（320x240），画质不达标",
       "signature": {
         "ts": 1794076169,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46939,6 +46931,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42401539057",
       "run_started_at": "2026-11-07T18:29:29Z",
       "run_updated_at": "2026-11-07T18:31:12Z"
+    },
+    {
+      "slug": "ly-1107-be7b7a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794076561,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42402090465,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42402090465",
+      "run_started_at": "2026-11-07T18:36:00Z",
+      "run_updated_at": "2026-11-07T18:36:04Z"
     }
   ],
   "runs": {
@@ -71020,6 +71030,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42401539057",
       "run_number": 4033,
       "display_title": "中文源出片 · ly-1107-cd233a"
+    },
+    "ly-1107-be7b7a": {
+      "id": 42402090465,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T18:36:00Z",
+      "updated_at": "2026-11-07T18:36:04Z",
+      "run_started_at": "2026-11-07T18:36:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42402090465",
+      "run_number": 4034,
+      "display_title": "中文源出片 · ly-1107-be7b7a"
     },
     "ly-1107-e4ffe3": {
       "id": 42401529900,
