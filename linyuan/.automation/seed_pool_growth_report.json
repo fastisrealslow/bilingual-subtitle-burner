@@ -47,48 +47,8 @@
       "rights_approved_count": 0,
       "production_dispatch": false,
       "added_count": 0,
-      "errors": [
-        {
-          "stage": "search",
-          "error": "RuntimeError"
-        },
-        {
-          "stage": "search",
-          "error": "RuntimeError"
-        },
-        {
-          "stage": "search",
-          "error": "RuntimeError"
-        }
-      ],
+      "errors": [],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
-      "search_pages": {
-        "林园 财联社": [
-          9,
-          10
-        ],
-        "林园 凤凰论坛": [
-          9,
-          10
-        ],
-        "林园 早年 经历 完整访谈": [
-          9,
-          10
-        ]
-      },
-      "verification_paused": {
-        "until": 1794020580.8044984,
-        "reason": "provider_restricted",
-        "http_status": 412,
-        "api_code": null
-      },
-      "added_bvids": [],
-      "pending_lead_count": 637,
-      "roles": {},
-      "new_long_parent_count": 0,
-      "verification": {
-        "not_verified": 1
-      },
       "after": {
         "counts": {
           "douyin": 51,
@@ -102,13 +62,12 @@
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_errors": {
-        "HTTPError": 1
-      },
-      "verification_http_status": {
-        "412": 1
-      },
-      "verification_api_codes": {}
+      "verification_paused": {
+        "until": 1794020580.8044984,
+        "reason": "provider_restricted",
+        "http_status": 412,
+        "api_code": null
+      }
     },
     "weibo": {
       "provider": "weibo",
@@ -118,12 +77,90 @@
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "5277929908471407",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5306922099807874",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4544472085957512",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466183572844514",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466184130778229",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5244125997700662",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5107817927935267",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4650414374912848",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4592846521240676",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4497631998840128",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5189750840362597",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4534962269718358",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4534963887935791",
+          "error": "ValueError"
+        }
+      ],
       "discovery_leads": 631,
-      "eligible_checks": 0,
-      "deferred_checks": 91,
-      "exact_checks": 0,
-      "known_duplicate_leads": 540
+      "eligible_checks": 16,
+      "deferred_checks": 75,
+      "exact_checks": 16,
+      "known_duplicate_leads": 540,
+      "long_checks": 2,
+      "duplicate_video_count": 3,
+      "after": 2660
     }
   },
   "accepted_mp4_count": 0,
