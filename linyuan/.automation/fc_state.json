@@ -100300,7 +100300,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-05T05:29:12+00:00"
+   "publish_time": "2026-07-05T05:29:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-016774",
+    "run_id": 42352440178,
+    "artifact_id": 13566509280,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e3e73ceb4dfd588d431424cfc6519bbb7791ea41c10356bdf6bce589c469da7c",
+     "duration_sec": 1097.6,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1gLMu6YEGh"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 90%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 78%（BV1yxxX6xEAU）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42352440178,
+    "artifact_id": 13566509280,
+    "name": "production-reject-ly-1107-016774",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1AZxv6rEpG）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1JMeLepEAQ",
@@ -204269,6 +204330,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/SKQDI8A9gx087FtgXlHy01041200jxTI0E010.mp4",
    "ts": 1794038567,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1107-016774",
+   "key": "bilibili_search:BV1gLMu6YEGh",
+   "video_id": "BV1gLMu6YEGh",
+   "ts": 1794039539,
+   "error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1AZxv6rEpG）"
   }
  ],
  "reviewed_third_video_0910": {
