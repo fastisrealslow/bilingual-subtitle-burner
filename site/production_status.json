@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1794075408,
+  "updated_at": 1794075623,
   "inventory_updated_at": 1794075401,
   "continuity": {
     "daily_target": 4,
@@ -241,7 +241,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794075406,
+    "updated_at": 1794075621,
     "records": 16395,
     "video_records": 13924,
     "initial_candidates": 193,
@@ -367,15 +367,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2156,
+    "failed": 2157,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 127,
     "ready": 26,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 3
+    "retry_queued": 1,
+    "running": 4
   },
   "tasks": [
     {
@@ -46633,24 +46633,6 @@
       "run_updated_at": "2026-11-07T15:49:50Z"
     },
     {
-      "slug": "ly-1107-02ff20",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1794065947,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1794073359,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 42387407255,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42387407255",
-      "run_started_at": "2026-11-07T15:39:06Z",
-      "run_updated_at": "2026-11-07T17:22:57Z"
-    },
-    {
       "slug": "ly-1107-8d27e5",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[15]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{15: -0.0618}",
@@ -46886,11 +46868,11 @@
     },
     {
       "slug": "ly-1107-0978e5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 28, \"quote\": \"标气，比如说牛市初期，这个是有点难判断。\", \"suspect_quote\": \"标气\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“标的”误识别为无意义的“标气”，属专名错写。\"}, {\"sentence_id\": 29, \"quote\": \"但是老林给你判断，你看这次准不准？\", \"suspect_quote\": \"老林给你判断\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文嘉宾为“林园”，此处应为称呼“老林”后接动作，但“给你判断”语义不通，疑似将“老林你看一下”或类似口语误转，属实际矛盾/含义不明。\"}]",
       "signature": {
         "ts": 1794070513,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46919,6 +46901,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42396480842",
       "run_started_at": "2026-11-07T17:28:30Z",
       "run_updated_at": "2026-11-07T17:28:33Z"
+    },
+    {
+      "slug": "ly-1107-02ff20",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794075578,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42400720844,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42400720844",
+      "run_started_at": "2026-11-07T18:19:38Z",
+      "run_updated_at": "2026-11-07T18:19:41Z"
     }
   ],
   "runs": {
@@ -70958,26 +70958,15 @@
       "display_title": "中文源出片 · ly-1107-8fc1ee"
     },
     "ly-1107-02ff20": {
-      "id": 42387407255,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-07T15:39:06Z",
-      "updated_at": "2026-11-07T17:22:57Z",
-      "run_started_at": "2026-11-07T15:39:06Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42387407255",
-      "run_number": 4015,
-      "display_title": "中文源出片 · ly-1107-02ff20"
-    },
-    "ly-1107-d12d2c": {
-      "id": 42396480842,
+      "id": 42400720844,
       "status": "in_progress",
       "conclusion": null,
-      "created_at": "2026-11-07T17:28:30Z",
-      "updated_at": "2026-11-07T17:28:33Z",
-      "run_started_at": "2026-11-07T17:28:30Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42396480842",
-      "run_number": 4030,
-      "display_title": "中文源出片 · ly-1107-d12d2c"
+      "created_at": "2026-11-07T18:19:38Z",
+      "updated_at": "2026-11-07T18:19:41Z",
+      "run_started_at": "2026-11-07T18:19:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42400720844",
+      "run_number": 4031,
+      "display_title": "中文源出片 · ly-1107-02ff20"
     },
     "ly-1107-0978e5": {
       "id": 42393695017,
@@ -70989,6 +70978,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42393695017",
       "run_number": 4029,
       "display_title": "中文源出片 · ly-1107-0978e5"
+    },
+    "ly-1107-d12d2c": {
+      "id": 42396480842,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T17:28:30Z",
+      "updated_at": "2026-11-07T17:28:33Z",
+      "run_started_at": "2026-11-07T17:28:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42396480842",
+      "run_number": 4030,
+      "display_title": "中文源出片 · ly-1107-d12d2c"
     },
     "ly-1107-e5aaee": {
       "id": 42392233720,
