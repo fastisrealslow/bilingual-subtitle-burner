@@ -115,6 +115,24 @@ def intervals(segments):
     return result or None
 
 
+def source_version_error(meta, source_url, state):
+    """Reject an unknown URL version before spending ASR/selection budget."""
+    digest=meta.get('source_sha256')
+    current=intervals(meta.get('segments'))
+    if current is None and type(meta.get('duration_sec')) in (int,float) and meta['duration_sec']>0:
+        current=[(0,float(meta['duration_sec']))]
+    for info in state.get('published',{}).values():
+        if not source_url or source_key(info.get('source_url'))!=source_key(source_url):continue
+        for old in info.get('parts') or ([info] if info.get('bvid') else []):
+            if old.get('status')=='skipped' or not old.get('bvid'):continue
+            old_digest=old.get('source_sha256') or info.get('source_sha256')
+            if digest and old_digest and digest!=old_digest:
+                from source_timeline import related
+                if not related(source_key(source_url),digest,old_digest,current,intervals(old.get('source_segments'))):
+                    return '同一来源URL的母片内容哈希已改变，须核对旧段对应关系'
+    return None
+
+
 def source_reuse_error(meta, source_url, state):
     """Permit different arguments from a mother only with usable old ranges.
 
@@ -137,7 +155,9 @@ def source_reuse_error(meta, source_url, state):
             if not current or not previous:
                 return '同源历史缺少可核对的起止段，不能确认是未用内容'
             if same_url and digest and old_digest and digest!=old_digest:
-                return '同一来源URL的母片内容哈希已改变，须核对旧段对应关系'
+                from source_timeline import related
+                if not related(source_key(source_url),digest,old_digest,current,previous):
+                    return '同一来源URL的母片内容哈希已改变，须核对旧段对应关系'
             if any(min(b,d)-max(a,c)>.3 for a,b in current for c,d in previous):
                 return '与已经发布的母片时间段重叠，保留其他完整观点'
     return None

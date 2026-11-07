@@ -62,6 +62,14 @@ def restore(evidence, work, *, titles_only=False):
         print('旧任务仅取源失败，没有可复用的完整母片证据；使用本次已核验母片继续离线识别')
         return False
     if current['source_sha256']!=old.get('source_sha256'):
+        report=work.parent/'batch_report.json'
+        if not report.exists():
+            reason='恢复证据与本次通过质检的母片哈希不一致'
+            report.write_text(json.dumps(dict(slug=work.parent.name,accepted=0,retryable=False,
+                failure_stage='source-version',reason=reason,
+                rejected=[dict(stage='source-version',reason=reason)],
+                source_context={k:current.get(k) for k in ('passed','source_sha256','duration_sec','resolution')},
+                selection_completed=False),ensure_ascii=False,indent=2)+'\n')
         raise ValueError('恢复证据与本次通过质检的母片哈希不一致')
     copied=[]
     from mother_asr_cache import transfer

@@ -1,0 +1,31 @@
+name: 同源完整音频时间轴证据复验
+on:
+  pull_request:
+    paths:
+      - linyuan/source_timeline.py
+      - linyuan/source_timeline_evidence.json
+      - scripts/check_linyuan_source_timeline.py
+      - .github/workflows/linyuan-source-timeline-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 从两个原始运行读取完整识别与时钟证据，不修改素材或发布状态
+        run: python scripts/check_linyuan_source_timeline.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-timeline-verification
+          path: source-timeline-verification.json
+          if-no-files-found: warn
