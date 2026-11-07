@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794037733,
+  "updated_at": 1794037862,
   "inventory_updated_at": 1794037727,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 95,
     "active_or_recovering_sources": 8,
-    "waiting_candidates": 4,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794037731,
+    "updated_at": 1794037860,
     "records": 16206,
     "video_records": 13737,
-    "initial_candidates": 185,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 184,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3376,
+      "already_attempted_or_cooling": 3377,
       "speaker_unconfirmed": 8394,
       "clip_title": 1416,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4932816666630414",
-        "title": "林园在片仔癀临时股东大会发言 http://t.cn/A60Ez7Pd ​​​",
-        "source": "weibo_search",
-        "author": "司马道馆",
-        "url": "https://m.weibo.cn/detail/4932816666630414",
-        "duration_sec": 28.0
-      },
       {
         "key": "weibo_search:4917631775937185",
         "title": "五粮液股东大会林园：呼吁五粮液管理层，别理财多分红 http://t.cn/A6pmKN5I ​​​",
@@ -311,7 +303,7 @@
   },
   "counts": {
     "complete": 188,
-    "failed": 2096,
+    "failed": 2097,
     "paused": 5,
     "interrupted": 10,
     "excluded": 63,
@@ -45570,8 +45562,8 @@
     },
     {
       "slug": "ly-1107-05e8c2",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794036118,
         "failed": null,
@@ -45584,15 +45576,15 @@
       "run_id": 42350980259,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42350980259",
       "run_started_at": "2026-11-07T07:21:58Z",
-      "run_updated_at": "2026-11-07T07:22:02Z"
+      "run_updated_at": "2026-11-07T07:49:58Z"
     },
     {
       "slug": "ly-1107-4cdd15",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794036990,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45675,6 +45667,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42352735634",
       "run_started_at": "2026-11-07T07:47:28Z",
       "run_updated_at": "2026-11-07T07:47:33Z"
+    },
+    {
+      "slug": "ly-1107-d1a1d1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794037821,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42352930200,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42352930200",
+      "run_started_at": "2026-11-07T07:50:21Z",
+      "run_updated_at": "2026-11-07T07:50:25Z"
     }
   ],
   "runs": {
@@ -68965,6 +68975,28 @@
       "run_number": 3953,
       "display_title": "中文源出片 · ly-1107-cb0447"
     },
+    "ly-1107-4cdd15": {
+      "id": 42351993930,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-07T07:36:30Z",
+      "updated_at": "2026-11-07T07:46:37Z",
+      "run_started_at": "2026-11-07T07:36:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42351993930",
+      "run_number": 3955,
+      "display_title": "中文源出片 · ly-1107-4cdd15"
+    },
+    "ly-1107-d1a1d1": {
+      "id": 42352930200,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T07:50:21Z",
+      "updated_at": "2026-11-07T07:50:25Z",
+      "run_started_at": "2026-11-07T07:50:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42352930200",
+      "run_number": 3960,
+      "display_title": "中文源出片 · ly-1107-d1a1d1"
+    },
     "ly-1107-ae3d59": {
       "id": 42352735634,
       "status": "in_progress",
@@ -69009,23 +69041,12 @@
       "run_number": 3956,
       "display_title": "中文源出片 · ly-1107-016774"
     },
-    "ly-1107-4cdd15": {
-      "id": 42351993930,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-07T07:36:30Z",
-      "updated_at": "2026-11-07T07:46:37Z",
-      "run_started_at": "2026-11-07T07:36:30Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42351993930",
-      "run_number": 3955,
-      "display_title": "中文源出片 · ly-1107-4cdd15"
-    },
     "ly-1107-05e8c2": {
       "id": 42350980259,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-07T07:21:58Z",
-      "updated_at": "2026-11-07T07:22:02Z",
+      "updated_at": "2026-11-07T07:49:58Z",
       "run_started_at": "2026-11-07T07:21:58Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42350980259",
       "run_number": 3954,
