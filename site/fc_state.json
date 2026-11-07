@@ -99778,7 +99778,8 @@
    "last_error": "恢复证据与本次通过质检的母片哈希不一致",
    "source_quality_rejected": false,
    "source_version_unresolved": true,
-   "failure_stage": "source-version"
+   "failure_stage": "source-version",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1SYebekEe5",
@@ -99824,7 +99825,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-08-19T02:49:16+00:00"
+   "publish_time": "2021-08-19T02:49:16+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42346336524,
+    "artifact_id": 13564170575,
+    "name": "source-reject-ly-1107-c1d268",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（352x272），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -202990,6 +203001,13 @@
    "video_id": "BV1iC4y1H7JN",
    "ts": 1794032197,
    "error": "恢复证据与本次通过质检的母片哈希不一致"
+  },
+  {
+   "slug": "ly-1107-c1d268",
+   "key": "bilibili_search:BV1uA411A7EE",
+   "video_id": "BV1uA411A7EE",
+   "ts": 1794032690,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（352x272），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
