@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794088938,
+  "updated_at": 1794089143,
   "inventory_updated_at": 1794088933,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 103,
     "active_or_recovering_sources": 7,
-    "waiting_candidates": 12,
+    "waiting_candidates": 11,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794088937,
+    "updated_at": 1794089141,
     "records": 16540,
     "video_records": 14025,
-    "initial_candidates": 194,
-    "duration_eligible_records": 12,
-    "candidate_count": 12,
-    "known_duration_candidates": 12,
+    "initial_candidates": 193,
+    "duration_eligible_records": 11,
+    "candidate_count": 11,
+    "known_duration_candidates": 11,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3507,
+      "already_attempted_or_cooling": 3508,
       "speaker_unconfirmed": 8468,
       "clip_title": 1441,
       "no_video": 2515,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1z3xnejEnz",
-        "title": "林园 P1 studio_video_1727366666559.mp4",
-        "source": "bilibili_collection",
-        "author": "可爱的莫里",
-        "url": "https://www.bilibili.com/video/BV1z3xnejEnz",
-        "duration_sec": 124.0
-      },
       {
         "key": "bilibili_search:BV1uo4y1f7A4",
         "title": "林园 P1 大佬林园：两三小时研究不透就不买，真正的研究=常识+统计学",
@@ -375,7 +367,7 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2183,
+    "failed": 2184,
     "paused": 5,
     "interrupted": 9,
     "excluded": 64,
@@ -47416,11 +47408,11 @@
     },
     {
       "slug": "ly-1107-1f4205",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794088355,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -47430,7 +47422,7 @@
       "run_id": 42417926396,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42417926396",
       "run_started_at": "2026-11-07T21:52:35Z",
-      "run_updated_at": "2026-11-07T21:52:39Z"
+      "run_updated_at": "2026-11-07T22:01:26Z"
     },
     {
       "slug": "ly-1107-7836ec",
@@ -47485,6 +47477,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42418427757",
       "run_started_at": "2026-11-07T21:59:15Z",
       "run_updated_at": "2026-11-07T21:59:19Z"
+    },
+    {
+      "slug": "ly-1107-ffe8d3",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794089126,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42418940803,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42418940803",
+      "run_started_at": "2026-11-07T22:05:25Z",
+      "run_updated_at": "2026-11-07T22:05:30Z"
     }
   ],
   "runs": {
@@ -71853,6 +71863,17 @@
       "run_number": 4066,
       "display_title": "中文源出片 · ly-1107-2feab1"
     },
+    "ly-1107-ffe8d3": {
+      "id": 42418940803,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T22:05:25Z",
+      "updated_at": "2026-11-07T22:05:30Z",
+      "run_started_at": "2026-11-07T22:05:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42418940803",
+      "run_number": 4073,
+      "display_title": "中文源出片 · ly-1107-ffe8d3"
+    },
     "ly-1107-a219bb": {
       "id": 42418427757,
       "status": "in_progress",
@@ -71888,10 +71909,10 @@
     },
     "ly-1107-1f4205": {
       "id": 42417926396,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-07T21:52:35Z",
-      "updated_at": "2026-11-07T21:52:39Z",
+      "updated_at": "2026-11-07T22:01:26Z",
       "run_started_at": "2026-11-07T21:52:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42417926396",
       "run_number": 4069,
