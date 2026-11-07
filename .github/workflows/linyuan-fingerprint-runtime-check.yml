@@ -1,0 +1,27 @@
+name: 库存指纹计算等价与耗时核验
+on:
+  push:
+    branches: [fix/fingerprint-runtime-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pytest -r linyuan/fc/runtime-requirements.txt
+      - name: 包括阈值边缘、坏指纹和历史变化的等价测试
+        run: python -m pytest -q tests/test_linyuan_fingerprint_match.py
+      - name: 同一批真实历史和库存，逐条使用原阈值，禁止网络和状态写入
+        run: python scripts/check_linyuan_fingerprint_runtime.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fingerprint-runtime-benchmark
+          path: fingerprint-runtime-benchmark.json
+          if-no-files-found: warn

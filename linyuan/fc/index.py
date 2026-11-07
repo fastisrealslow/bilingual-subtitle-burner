@@ -1364,11 +1364,8 @@ def _hamming_hex(a, b):
 
 
 def _fingerprint_match_ratio(current, previous, max_distance):
-    if not current or not previous:
-        return 0.0
-    matched = sum(any(_hamming_hex(a, b) <= max_distance for b in previous)
-                  for a in current)
-    return matched / len(current)
+    from fingerprint_match import match_ratio
+    return match_ratio(current,previous,max_distance)
 
 
 def fingerprint_duplicate(current, previous):
