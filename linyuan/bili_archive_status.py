@@ -9,11 +9,15 @@ import urllib.error
 import urllib.request
 
 
-def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include_statistics=False):
+def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include_statistics=False,
+                   max_pages=3):
+    if type(max_pages) is not int or not 1 <= max_pages <= 12:
+        raise ValueError('Archive read must have a bounded page limit')
     target=set(bvids)
     titles=set(expected_titles or [])
     result={'owner_mid':str(owner_mid),'requested_bvids':sorted(target),'videos':[],
-            'verification_origin':'authenticated-creator-read','public_count':0}
+            'verification_origin':'authenticated-creator-read','public_count':0,
+            'scan_complete':False,'scanned_pages':0}
     if titles:
         result['requested_titles']=sorted(titles)
     data=json.loads(cookies_json.lstrip('\ufeff'))
@@ -31,7 +35,7 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
     opener.addheaders=[('User-Agent','Mozilla/5.0 Chrome/126.0.0.0 Safari/537.36'),
         ('Referer','https://member.bilibili.com/platform/upload-manager/article'),
         ('Accept','application/json')]
-    for page in range(1,4):
+    for page in range(1,max_pages+1):
         url=('https://member.bilibili.com/x/web/archives?status=pubed,not_pubed,is_pubing'
              f'&pn={page}&ps=50&coop=1&interactive=1')
         try:
@@ -44,7 +48,16 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
         if payload.get('code')!=0:
             break
         body=payload.get('data') or {}
-        rows=body.get('arc_audits') or []
+        rows=body.get('arc_audits')
+        if not isinstance(rows,list):
+            result['response_error']='archive_list_missing'
+            break
+        result['scanned_pages']=page
+        page_info=body.get('page') or {}
+        total=page_info.get('count') if isinstance(page_info,dict) else None
+        # A short/empty real archive list exhausts the requested statuses. A
+        # successful API code or a bounded first page alone cannot prove absence.
+        result['scan_complete']=(len(rows)<50 or type(total) is int and total<=page*50)
         observed_at=time.time()
         result['response_keys']=sorted(body)
         for row in rows:
@@ -64,7 +77,7 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
                     available_stat_fields=sorted(counters),available_archive_fields=sorted(archive),
                     publication_clock_candidates={k:archive[k] for k in ('pubdate','ptime','online_time','ctime') if k in archive})
             result['videos'].append(safe)
-        if not rows or (target <= {r['bvid'] for r in result['videos']}
+        if result['scan_complete'] or (target <= {r['bvid'] for r in result['videos']}
                         and titles <= {r.get('title') for r in result['videos']}):
             break
     result['found_count']=len(result['videos'])

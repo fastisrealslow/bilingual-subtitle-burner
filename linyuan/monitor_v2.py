@@ -261,7 +261,7 @@ class BilibiliSearchSource(Source):
         for page_no in range(start_page, stop_page):
             url = ("https://api.bilibili.com/x/web-interface/wbi/search/type"
                    f"?search_type=video&keyword={kw}&page={page_no}")
-            data = json.loads(http_get(url, referer="https://www.bilibili.com/"))
+            data = json.loads(getattr(self, 'http_get', http_get)(url, referer="https://www.bilibili.com/"))
             if data.get("code") != 0:
                 raise RuntimeError(
                     f"B站 API page={page_no} code={data.get('code')} "

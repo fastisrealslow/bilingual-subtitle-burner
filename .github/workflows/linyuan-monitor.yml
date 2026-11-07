@@ -117,6 +117,8 @@ jobs:
       - name: 向5000个独立视频种子扩源（来源冷却互不阻挡，不计成片）
         timeout-minutes: 8
         continue-on-error: true
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python -u seed_pool_growth.py --target 5000 --limit 48
 
       - name: 恢复已核验来源证据

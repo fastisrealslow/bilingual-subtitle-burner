@@ -75,6 +75,30 @@ def catalog_candidates(db=BASE / 'monitor_v2.db'):
     return list(candidates.values())
 
 
+def metadata_session():
+    """One normal browser session for the whole bounded metadata pass.
+
+    Initialise before the first request, never switch endpoints or identities
+    after a restriction. Existing provider cooldowns remain authoritative.
+    """
+    session = None
+    def fetch(url, referer=None, ua=None, timeout=25):
+        nonlocal session
+        import urllib.request
+        from urllib.parse import urlsplit
+        if urlsplit(url).scheme != 'https' or urlsplit(url).hostname != 'api.bilibili.com':
+            raise ValueError('Metadata session only supports the official HTTPS API')
+        if session is None:
+            from ci_fetch_bilibili import opener
+            session = opener()
+        request = urllib.request.Request(url, headers={
+            'Referer': referer or 'https://www.bilibili.com/',
+            'Accept': 'application/json'})
+        with session.open(request, timeout=timeout) as response:
+            return response.read().decode('utf-8')
+    return fetch
+
+
 def verify_seed(candidate, fetch=monitor.http_get):
     from fc import index as fc
     bvid = candidate['bvid']

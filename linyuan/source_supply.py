@@ -228,7 +228,8 @@ def find_deliveries(candidates, api, runs, previous=()):
 def validation_signature():
     return hashlib.sha256(Path(__file__).read_bytes()+Path(source_outcomes.__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
         +Path(fc.experiment.__file__).read_bytes()+Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()+Path(live_motion.__file__).read_bytes()+Path(title_rewrite.__file__).read_bytes()+Path(stage_context.__file__).read_bytes()+Path(caption_readability.__file__).read_bytes()+Path(upgrade_cover_delivery.__file__).read_bytes()
-        +Path(source_timeline.__file__).read_bytes()+source_timeline.REGISTRY.read_bytes()).hexdigest()
+        +Path(source_timeline.__file__).read_bytes()+source_timeline.REGISTRY.read_bytes()
+        +Path(fc.upload_recovery.__file__).read_bytes()+Path(__file__).with_name("bili_archive_status.py").read_bytes()).hexdigest()
 
 
 def main():
