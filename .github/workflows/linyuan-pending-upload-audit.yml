@@ -1,0 +1,27 @@
+name: 核对本次未确认投稿回执（只读）
+on:
+  push:
+    branches: ['diagnose/pending-upload-20261107']
+    paths: ['.github/workflows/linyuan-pending-upload-audit.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 使用现有账号只查询精确标题，不修改或重新投稿
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python scripts/inspect_linyuan_pending_upload_20261107.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pending-upload-audit
+          path: pending-upload-audit.json
+          if-no-files-found: warn
+          retention-days: 5
