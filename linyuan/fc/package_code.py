@@ -14,7 +14,7 @@ SOURCES = (
     'caption_boundary_quality.py', 'presentation.py', 'live_motion.py',
     'source_geometry.py', 'source_profile_feasibility.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
     'source_admission_guard.py', 'publishing_experiment.py', 'experiment_runtime.py',
-    'documented_company_story.py',
+    'documented_company_story.py', 'source_timeline.py',
     'publication_fingerprints.py',
     'transcript_review_evidence.py',
     'experiment_observation_dispatch.py',
@@ -58,6 +58,7 @@ def build(destination, include_reviewed_videos=False):
             archive.write(path,'jieba/'+str(path.relative_to(tokenizer)))
         archive.write(ROOT/'fc/jieba-LICENSE.txt','jieba/LICENSE')
         archive.write(ROOT/'source_restrictions.json','source_restrictions.json')
+        archive.write(ROOT/'source_timeline_evidence.json','source_timeline_evidence.json')
         for path in sorted((ROOT/'fc/reviewed_0910').rglob('*')):
             if path.is_file() and (include_reviewed_videos or path.suffix.lower() != '.mp4'):
                 archive.write(path, path.relative_to(ROOT/'fc'))

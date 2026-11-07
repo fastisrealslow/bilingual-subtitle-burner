@@ -14,6 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 CPU_RUN=42230521924
 CPU_HEAD='77ee6980c79b2cdd8956735f52271626d7427eeb'
 DELIVERY_ARTIFACT=12953295426
+TIMELINE_ARTIFACT=13528993846
 
 
 def cpu_error(report):
@@ -43,7 +44,10 @@ def deployment_error(report):
         return 'deployment_not_verified'
     for path,actual in [('linyuan/fc/index.py',health.get('code_sha256')),
             ('linyuan/publishing_experiment.py',health.get('publishing_experiment_sha256')),
-            ('linyuan/documented_company_story.py',runtime.get('documented_company_story_sha256'))]:
+            ('linyuan/documented_company_story.py',runtime.get('documented_company_story_sha256')),
+            ('linyuan/editorial_policy.py',health.get('editorial_code_sha256')),
+            ('linyuan/source_timeline.py',runtime.get('source_timeline_module_sha256')),
+            ('linyuan/source_timeline_evidence.json',runtime.get('source_timeline_evidence_sha256'))]:
         if hashlib.sha256((ROOT/path).read_bytes()).hexdigest()!=actual:
             return 'deployed_code_differs'
     return None
@@ -71,10 +75,18 @@ def request(cpu):
         active+=F.gh('GET',f'/actions/workflows/{F.WF_PRODUCE}/runs?status={status}&per_page=100').get('workflow_runs',[])
     seeds=json.loads(F.gh('GET','/contents/linyuan/bilibili_seeds.json?ref=main',raw=True))['seeds']
     child,issue=R.plan(state,stock,active,seeds,documentary_proof=cpu)
+    if issue=='already_attempted_or_unresolved':
+        from source_timeline import lookup
+        from editorial_policy import source_key
+        prior=next((e for e in state.get('dispatched',[]) if e.get('slug')==R.DOCUMENTARY_CHILD),{})
+        other=((prior.get('production_failure_summary') or {}).get('source_context') or {}).get('source_sha256')
+        proof=lookup(source_key(R.SOURCE),R.MOTHER,other)
+        if proof:child,issue=R.plan(state,stock,active,seeds,documentary_proof=cpu,timeline_proof=proof)
     if issue:return dict(dispatched=0,reason=issue)
     state['dispatched'].append(child);F.save_state(state)
+    artifact=TIMELINE_ARTIFACT if child.get('audio_timeline_recovery_evidence') else DELIVERY_ARTIFACT
     sent=F._request_quality_reprocess(state,child,child['slug'],
-        '真实CPU与反例已验证的历史公司案例复核：重新自动选段，全部成片门禁照常验收',DELIVERY_ARTIFACT)
+        '已验证原话及完整音频时间轴：重新自动选段，全部成片门禁照常验收',artifact)
     child['documented_company_recovery_evidence']['dispatch_confirmed']=bool(sent)
     F.save_state(state)
     return dict(dispatched=int(bool(sent)),slug=child['slug'],actual_treatment_stock_added=0,

@@ -70,6 +70,11 @@ def test_deployed_code_must_match_new_classifier_and_current_runtime():
         code_sha256=hashlib.sha256((C.ROOT/'linyuan/fc/index.py').read_bytes()).hexdigest(),
         publishing_experiment_sha256=hashlib.sha256((C.ROOT/'linyuan/publishing_experiment.py').read_bytes()).hexdigest())
     d=dict(verification_complete=True,health=h)
+    h['editorial_code_sha256']=hashlib.sha256((C.ROOT/'linyuan/editorial_policy.py').read_bytes()).hexdigest()
+    h['experiment_runtime']['source_timeline_module_sha256']=hashlib.sha256(
+        (C.ROOT/'linyuan/source_timeline.py').read_bytes()).hexdigest()
+    h['experiment_runtime']['source_timeline_evidence_sha256']=hashlib.sha256(
+        (C.ROOT/'linyuan/source_timeline_evidence.json').read_bytes()).hexdigest()
     assert C.deployment_error(d) is None
     h['experiment_runtime']['documented_company_story_sha256']='a'*64
     assert C.deployment_error(d)=='deployed_code_differs'

@@ -7,8 +7,19 @@ import re
 from pathlib import Path
 
 
+def version_conflict(reason):
+    return any(t in str(reason or '') for t in ('同一来源URL的母片内容哈希已改变',
+        '恢复证据与本次通过质检的母片哈希不一致'))
+
+
+def ordered_failures(failures):
+    return sorted(failures,key=lambda f:(version_conflict(f.get('reason')),f.get('retryable') is True,
+        f.get('stage')=='part-quality'),reverse=True)
+
+
 def failure_category(reason):
     reason = str(reason or '')
+    if version_conflict(reason):return 'publication_history'
     # The tracker includes the minimum face size in its diagnostic even when
     # zero frames failed that size check. Do not recommend higher resolution
     # for host cutaways / identity mismatches (actual library302).

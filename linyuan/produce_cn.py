@@ -6456,6 +6456,16 @@ def main():
                          ensure_ascii=False), file=sys.stderr)
         return 2
 
+    version_error=editorial.source_version_error(source_report,os.environ.get('SOURCE_ORIGIN_URL',''),publication_state)
+    if version_error:
+        failure=dict(slug=args.slug,accepted=0,retryable=False,failure_stage='source-version',
+            reason=version_error,rejected=[dict(stage='source-version',reason=version_error)],
+            source_context={**{k:source_report.get(k) for k in ('passed','source_sha256','duration_sec','resolution')},
+                'source_url':os.environ.get('SOURCE_ORIGIN_URL','')},selection_completed=False)
+        (out/'batch_report.json').write_text(json.dumps(failure,ensure_ascii=False,indent=2)+'\n')
+        print(json.dumps(dict(stage='source-version',reason=version_error),ensure_ascii=False),file=sys.stderr)
+        return 2
+
     from reviewed_source_context import context_for
     source_context = context_for(source_report.get('source_sha256'))
     if source_context:

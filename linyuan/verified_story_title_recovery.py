@@ -26,6 +26,7 @@ ASR_CHILD = 'ly-asrseam-20261030-4b387838'
 ASR_RUN = 40920169914
 ASR_DELIVERY_ARTIFACT = 12919627941
 DOCUMENTARY_CHILD = 'ly-doccase-20261106-4b387838'
+TIMELINE_CHILD = 'ly-timeline-20261107-74c7a5c1'
 
 
 def proof_error(cpu, deploy, root=ROOT):
@@ -50,7 +51,7 @@ def proof_error(cpu, deploy, root=ROOT):
     return None
 
 
-def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None):
+def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None,timeline_proof=None):
     child_slug=CHILD
     if documentary_proof is not None:
         from documented_company_recovery import cpu_error
@@ -58,6 +59,25 @@ def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None
         if not any(e.get('slug')==ASR_CHILD for e in state.get('dispatched',[])):
             return None,'prior_asr_retry_missing'
         child_slug=DOCUMENTARY_CHILD
+        if timeline_proof is not None:
+            from source_timeline import valid,lookup
+            from editorial_policy import source_key
+            other=[h for h in timeline_proof.get('video_sha256',[]) if h!=MOTHER]
+            prior=next((e for e in state.get('dispatched',[]) if e.get('slug')==DOCUMENTARY_CHILD),{})
+            summary=prior.get('production_failure_summary') or {}
+            measured=summary.get('source_context') or {}
+            if (not valid(timeline_proof) or len(other)!=1 or timeline_proof.get('source_key')!=source_key(SOURCE)
+                    or lookup(source_key(SOURCE),MOTHER,other[0])!=timeline_proof
+                    or prior.get('failed') is not True or measured.get('source_sha256')!=other[0]
+                    or summary.get('slug')!=DOCUMENTARY_CHILD or summary.get('accepted')!=0
+                    or measured.get('passed') is not True or source_key(measured.get('source_url'))!=source_key(SOURCE)
+                    or type(measured.get('duration_sec')) not in (int,float)
+                    or abs(measured['duration_sec']-timeline_proof['duration_sec'])>.05
+                    or summary.get('run_id')!=prior.get('source_check_run_id')
+                    or not any('母片内容哈希已改变' in str(f.get('reason','')) for f in summary.get('failures',[]))):
+                return None,'audio_timeline_repair_not_verified'
+            child_slug=TIMELINE_CHILD
+    elif timeline_proof is not None:return None,'actual_documented_case_not_verified'
     if seam_proof is not None:
         from asr_overlap_replay import proof_error as seam_error
         if seam_error(seam_proof):return None,'actual_asr_seam_not_verified'
@@ -102,6 +122,10 @@ def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None
     if documentary_proof is not None:
         child['documented_company_recovery_evidence']=dict(cpu_run_id=42230521924,
             source_sha256=MOTHER,fixture_sha256=documentary_proof['fixture_sha256'],media_approved=False)
+    if timeline_proof is not None:
+        other=next(h for h in timeline_proof['video_sha256'] if h!=MOTHER)
+        child.update(source_sha256=other,experiment_mother_sha256=other,
+            audio_timeline_recovery_evidence=deepcopy(timeline_proof))
     return child,None
 
 

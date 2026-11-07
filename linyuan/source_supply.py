@@ -23,6 +23,7 @@ import stage_context
 import caption_readability
 import production_status
 import upgrade_cover_delivery
+import source_timeline
 
 VERSION = 1
 INVENTORY = Path(__file__).parent/'.automation/source_inventory.json'
@@ -224,6 +225,12 @@ def find_deliveries(candidates, api, runs, previous=()):
     return found
 
 
+def validation_signature():
+    return hashlib.sha256(Path(__file__).read_bytes()+Path(source_outcomes.__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
+        +Path(fc.experiment.__file__).read_bytes()+Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()+Path(live_motion.__file__).read_bytes()+Path(title_rewrite.__file__).read_bytes()+Path(stage_context.__file__).read_bytes()+Path(caption_readability.__file__).read_bytes()+Path(upgrade_cover_delivery.__file__).read_bytes()
+        +Path(source_timeline.__file__).read_bytes()+source_timeline.REGISTRY.read_bytes()).hexdigest()
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--max-new',type=int,default=4)
@@ -235,8 +242,7 @@ def main():
     if not state.get('dispatched'):
         raise SystemExit('Production state unavailable; do not replace inventory with empty state')
     previous=json.loads(INVENTORY.read_text()) if INVENTORY.exists() else {}
-    validation_sha=hashlib.sha256(Path(__file__).read_bytes()+Path(source_outcomes.__file__).read_bytes()+Path(fc.editorial.__file__).read_bytes()
-                                 +Path(fc.experiment.__file__).read_bytes()+Path(fc.__file__).read_bytes()+Path(headline_policy.__file__).read_bytes()+Path(live_motion.__file__).read_bytes()+Path(title_rewrite.__file__).read_bytes()+Path(stage_context.__file__).read_bytes()+Path(caption_readability.__file__).read_bytes()+Path(upgrade_cover_delivery.__file__).read_bytes()).hexdigest()
+    validation_sha=validation_signature()
     old={r['artifact_id']:r for r in previous.get('artifacts',[])} if (
         previous.get('version')==VERSION and previous.get('validation_sha256')==validation_sha
         and previous.get('quality_gate_version')==fc.QUALITY_GATE_VERSION) else {}

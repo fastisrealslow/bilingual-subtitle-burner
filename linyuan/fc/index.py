@@ -4433,9 +4433,12 @@ def _collect_source_rejections(st):
                 # Selection may legitimately skip an unrelated block before a
                 # selected part fails. Report the actual recoverable failure,
                 # or the final render failure, instead of that first skip.
-                failures=sorted(failures,key=lambda f:(f.get('retryable') is True,
-                    f.get('stage')=='part-quality'),reverse=True)
+                from production_diagnostics import ordered_failures,version_conflict
+                failures=ordered_failures(failures)
                 reason = report.get("reason") or (failures[0].get("reason") if failures else None) or reason
+                if failures and version_conflict(failures[0].get('reason')):
+                    reason=failures[0]['reason'];report['retryable']=False
+                    report['failure_stage']='source-version'
                 if (prefix=='production-reject-' and report.get('slug')==slug
                         and type(report.get('accepted')) is int and report['accepted']==0):
                     # A mother can fail ASR in part1 but only a repairable bar
@@ -4486,8 +4489,11 @@ def _collect_source_rejections(st):
             candidate['failure_evidence']=dict(run_id=run['id'],artifact_id=artifact['id'],
                 name=artifact['name'],retained=True)
             candidate["last_error"] = reason
-            candidate["source_quality_rejected"] = True
-            candidate['failure_stage']='editorial-or-render' if prefix=='production-reject-' else 'source-quality'
+            version_block=report.get('failure_stage')=='source-version'
+            candidate["source_quality_rejected"] = not version_block
+            if version_block:candidate['source_version_unresolved']=True
+            candidate['failure_stage']=(report.get('failure_stage') if report.get('failure_stage')=='source-version'
+                else 'editorial-or-render' if prefix=='production-reject-' else 'source-quality')
             # A deterministic slug may have several dispatch rows after prior
             # retries.  The artifact rejects the source/slug, not merely the
             # newest row, so close every duplicate row as well.
@@ -4495,7 +4501,8 @@ def _collect_source_rejections(st):
                 if row.get("slug") == slug:
                     row["failed"] = True
                     row["last_error"] = reason
-                    row["source_quality_rejected"] = True
+                    row["source_quality_rejected"] = not version_block
+                    if version_block:row['source_version_unresolved']=True
             # A gate rejection is terminal for this exact source.  Leaving the
             # old retry record behind would make pick() subtract the rejected
             # key from `done` after its cooldown and dispatch it again.
