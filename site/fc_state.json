@@ -101371,7 +101371,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段以主持人串场或无关话题（美债、外围市场）结尾，切断了关于‘红利再投资’逻辑的完整闭环，导致表达不完整。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5362659173340482",
@@ -102222,7 +102223,8 @@
    },
    "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1hY411f7bg",
@@ -102278,7 +102280,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：完整词句无法放入三行；必须重新审核封面文案",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1rz4y1s7NL",
@@ -102391,7 +102394,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1SV41197qo",
@@ -102437,7 +102441,48 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-10T10:09:48+00:00"
+   "publish_time": "2025-08-10T10:09:48+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-1e66d9",
+    "run_id": 42368690854,
+    "artifact_id": 13573027748,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7bcef7c6ee26230875a7ac7befc600706b8ef59b60eb8a6f69923ef24daba130",
+     "duration_sec": 180.74,
+     "resolution": {
+      "width": 846,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1y6bPzkEiL"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配232/682，总帧数2247；身份匹配但人脸短边不足96px的帧数125"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/372，总帧数1855；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/180，总帧数896；身份匹配但人脸短边不足96px的帧数180"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42368690854,
+    "artifact_id": 13573027748,
+    "name": "production-reject-ly-1107-1e66d9",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配232/682，总帧数2247；身份匹配但人脸短边不足96px的帧数125",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4685391095664282",
@@ -206385,6 +206430,13 @@
    "video_id": "BV1xa476bEu5",
    "ts": 1794051675,
    "error": "完整观点验收未通过：complete_argument；完整性理由：片段以主持人串场或无关话题（美债、外围市场）结尾，切断了关于‘红利再投资’逻辑的完整闭环，导致表达不完整。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1107-1e66d9",
+   "key": "bilibili_search:BV1y6bPzkEiL",
+   "video_id": "BV1y6bPzkEiL",
+   "ts": 1794052272,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配232/682，总帧数2247；身份匹配但人脸短边不足96px的帧数125"
   }
  ],
  "reviewed_third_video_0910": {
