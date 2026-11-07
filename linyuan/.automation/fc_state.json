@@ -100492,7 +100492,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4932816666630414",
@@ -100832,7 +100833,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-14T12:45:10+08:00"
+   "publish_time": "2023-06-14T12:45:10+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-7829c8",
+    "run_id": 42355465017,
+    "artifact_id": 13568150746,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "182a3bece50be5b3f41cc19addfc88c240cc82a64040310e54f1c38241467c9a",
+     "duration_sec": 58.96,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4912513328354818"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0680379746835443, 0.19361702127659575, 0.125, 0.274468085106383), (0.13132911392405064, 0.18936170212765957, 0.24841772151898733, 0.22127659574468084), (0.13132911392405064, 0.21914893617021278, 0.25316455696202533, 0.2765957446808511)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42355465017,
+    "artifact_id": 13568150746,
+    "name": "production-reject-ly-1107-7829c8",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.0680379746835443, 0.19361702127659575, 0.125, 0.274468085106383), (0.13132911392405064, 0.18936170212765957, 0.24841772151898733, 0.22127659574468084), (0.13132911392405064, 0.21914893617021278, 0.25316455696202533, 0.2765957446808511)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -204557,6 +204591,13 @@
    "video_id": "BV1JFNm6jEtc",
    "ts": 1794040603,
    "error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）"
+  },
+  {
+   "slug": "ly-1107-7829c8",
+   "key": "weibo_search:4912513328354818",
+   "video_id": "https://f.video.weibocdn.com/o0/EyLWk1f7lx086e6LtBhS01041200bvbP0E010.mp4",
+   "ts": 1794040936,
+   "error": "真人动态区仍有稳定来源角标：[(0.0680379746835443, 0.19361702127659575, 0.125, 0.274468085106383), (0.13132911392405064, 0.18936170212765957, 0.24841772151898733, 0.22127659574468084), (0.13132911392405064, 0.21914893617021278, 0.25316455696202533, 0.2765957446808511)]"
   }
  ],
  "reviewed_third_video_0910": {
