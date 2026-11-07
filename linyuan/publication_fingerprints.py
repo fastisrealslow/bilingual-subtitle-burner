@@ -30,11 +30,8 @@ def transcript_duplicate(current,previous):
         return f'转写片段重合 {containment:.0%}'
     cur_text=current.get('transcript_simhash') or []
     old_text=previous.get('transcript_simhash') or []
-    def distance(a,b):
-        try:return (int(a,16)^int(b,16)).bit_count()
-        except (TypeError,ValueError):return 10**9
-    text_ratio=(sum(any(distance(a,b)<=10 for b in old_text) for a in cur_text)/len(cur_text)
-                if cur_text and old_text else 0.)
+    from fingerprint_match import match_ratio
+    text_ratio=match_ratio(cur_text,old_text,10)
     text_matches=round(text_ratio*len(cur_text))
     if text_ratio>=.60 and text_matches>=min(2,len(cur_text)):
         return f'转写内容重合 {text_ratio:.0%}'

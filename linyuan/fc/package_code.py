@@ -15,7 +15,7 @@ SOURCES = (
     'source_geometry.py', 'source_profile_feasibility.py', 'source_priority.py', 'production_diagnostics.py', 'weibo_media.py',
     'source_admission_guard.py', 'publishing_experiment.py', 'experiment_runtime.py',
     'documented_company_story.py', 'source_timeline.py', 'upload_recovery.py', 'bili_archive_status.py',
-    'publication_fingerprints.py',
+    'publication_fingerprints.py', 'fingerprint_match.py',
     'transcript_review_evidence.py',
     'experiment_observation_dispatch.py',
     'fc/media_repair.py', 'fc/stage_revision.py', 'fc/title_revision.py',
