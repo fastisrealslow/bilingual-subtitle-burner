@@ -106340,7 +106340,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/733，总帧数3664；身份匹配但人脸短边不足96px的帧数733",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1tZ4y1h7M4",
@@ -106419,7 +106420,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Gj411C73E",
@@ -106442,7 +106444,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-09-23T10:39:42+00:00"
+   "publish_time": "2023-09-23T10:39:42+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-1f4205",
+    "run_id": 42417926396,
+    "artifact_id": 13592836252,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cd6e3cc2dabbb79742ad7ff8bf10c41ddaafa0b5d2f65b4ea5d48e6f7206845c",
+     "duration_sec": 125.03,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Gj411C73E"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42417926396,
+    "artifact_id": 13592836252,
+    "name": "production-reject-ly-1107-1f4205",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Pq421F75p",
@@ -211112,6 +211147,13 @@
    "video_id": "BV1FgVD61EKv",
    "ts": 1794088704,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/733，总帧数3664；身份匹配但人脸短边不足96px的帧数733"
+  },
+  {
+   "slug": "ly-1107-1f4205",
+   "key": "bilibili_search:BV1Gj411C73E",
+   "video_id": "BV1Gj411C73E",
+   "ts": 1794089075,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
