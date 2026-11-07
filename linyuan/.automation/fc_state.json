@@ -104584,7 +104584,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-05T14:44:57+00:00"
+   "publish_time": "2023-12-05T14:44:57+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-e5aaee",
+    "run_id": 42392233720,
+    "artifact_id": 13586262345,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3bfb958f489c144c4e0333a06a344ddac3988fd4b4acdc09d896cc9eae59f628",
+     "duration_sec": 5255.7,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1y94y1j7Ja"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 574.77s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 628.43s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 450.47s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42392233720,
+    "artifact_id": 13586262345,
+    "name": "production-reject-ly-1107-e5aaee",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Lg4y1B7qA",
@@ -104800,7 +104857,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 240 < 480（320x240），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV18v4y1Q78V",
@@ -209284,6 +209342,13 @@
    "video_id": "BV1sTBmBqELE",
    "ts": 1794076492,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 240 < 480（320x240），画质不达标"
+  },
+  {
+   "slug": "ly-1107-e5aaee",
+   "key": "bilibili_search:BV1y94y1j7Ja",
+   "video_id": "BV1y94y1j7Ja",
+   "ts": 1794077402,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
