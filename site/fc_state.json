@@ -104538,7 +104538,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-05-13T14:22:43+00:00"
+   "publish_time": "2020-05-13T14:22:43+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-0978e5",
+    "run_id": 42393695017,
+    "artifact_id": 13584169847,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9ff51198f63b054c9c157d15b2f5da8e14f106e020530ebd0129cf206841124d",
+     "duration_sec": 2088.05,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Lg4y1B7qA"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 28, \"quote\": \"标气，比如说牛市初期，这个是有点难判断。\", \"suspect_quote\": \"标气\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“标的”误识别为无意义的“标气”，属专名错写。\"}, {\"sentence_id\": 29, \"quote\": \"但是老林给你判断，你看这次准不准？\", \"suspect_quote\": \"老林给你判断\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文嘉宾为“林园”，此处应为称呼“老林”后接动作，但"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 97%（BV1rLnC6CEyx）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"那么也想问一下，啊，林元总，以后就是核心资产，甚至是一些我们所说的一些代表性的一些企业，他们估值是否会越来越贵呢？\", \"suspect_quote\": \"林元总\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，自动转写将人名识别为“林元”，存在专名错写污染。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"那么也想问一下，啊，林元总，以后就是核心资产，甚至是一些我们所说的一些代表性的一些企业，他们估值是否会越来越贵呢？\", \"suspect_quote\": \"林元总\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，转写将“林园”误识别为“林元”，属专名错写。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42393695017,
+    "artifact_id": 13584169847,
+    "name": "production-reject-ly-1107-0978e5",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 28, \"quote\": \"标气，比如说牛市初期，这个是有点难判断。\", \"suspect_quote\": \"标气\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“标的”误识别为无意义的“标气”，属专名错写。\"}, {\"sentence_id\": 29, \"quote\": \"但是老林给你判断，你看这次准不准？\", \"suspect_quote\": \"老林给你判断\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文嘉宾为“林园”，此处应为称呼“老林”后接动作，但“给你判断”语义不通，疑似将“老林你看一下”或类似口语误转，属实际矛盾/含义不明。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1wdx1eWEGk",
@@ -209008,6 +209053,13 @@
    "video_id": "BV1co4y1D7Np",
    "ts": 1794070794,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{5: 0.1592, 6: 0.2901, 7: 0.1187, 8: 0.1285, 9: 0.1614, 10: 0.1445, 11: 0.1426, 12: 0.1699, 13: 0.1604, 14: 0.125, 15: 0.1744, 16: 0.1902, 17: 0.1794, 18: 0.1338}"
+  },
+  {
+   "slug": "ly-1107-0978e5",
+   "key": "bilibili_search:BV1Lg4y1B7qA",
+   "video_id": "BV1Lg4y1B7qA",
+   "ts": 1794075511,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 28, \"quote\": \"标气，比如说牛市初期，这个是有点难判断。\", \"suspect_quote\": \"标气\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“标的”误识别为无意义的“标气”，属专名错写。\"}, {\"sentence_id\": 29, \"quote\": \"但是老林给你判断，你看这次准不准？\", \"suspect_quote\": \"老林给你判断\", \"kind\": \"unintelligible_term\", \"reason\": \"结合上下文嘉宾为“林园”，此处应为称呼“老林”后接动作，但“给你判断”语义不通，疑似将“老林你看一下”或类似口语误转，属实际矛盾/含义不明。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
