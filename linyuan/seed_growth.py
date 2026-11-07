@@ -172,7 +172,7 @@ def long_replenishment_budget(base):
     return min(4,max(0,8-added))
 
 
-def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed,replenish_long=False):
+def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_long=False):
     deadline = time.monotonic() + 210
     before = census(base)
     roots = existing_roots(base)
@@ -194,6 +194,10 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed,rep
     if cooldown.get('until', 0) > time.time():
         report.update(after=before, verification_paused=cooldown)
         return report
+    from seed_campaign import metadata_session
+    request = metadata_session()
+    if verify is None:
+        verify = lambda candidate: verify_seed(candidate, fetch=request)
     pending_path = base / '.automation/seed_growth_leads.json'
     pending = {key: row for key, row in pending_leads(pending_path).items() if key not in roots}
     for row in catalog_leads(base / 'monitor_v2.db'):
@@ -214,7 +218,9 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed,rep
                 from batch_delivery import write_json
                 write_json(state, search_scan)
                 report.setdefault('search_pages', {})[query] = [first_page, first_page+1]
-                for row in monitor.BilibiliSearchSource({'pages': 2, 'start_page': first_page}, {})._fetch_via_api(query):
+                source = monitor.BilibiliSearchSource({'pages': 2, 'start_page': first_page}, {})
+                source.http_get = request
+                for row in source._fetch_via_api(query):
                     bvid = row.get('bvid', '')
                     if (BVID.fullmatch(bvid) and bvid not in roots
                             and '林园' in row.get('title', '') and not NO_MEDIA.search(row['title'])
@@ -229,10 +235,13 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed,rep
                 if getattr(exc,'code',None) in {403,412,429}:
                     observation['http_status'] = exc.code
                 api_code = re.search(r'\bcode=(-?\d+)\b',str(exc))
-                if api_code and int(api_code[1]) == -412:
-                    observation['api_code'] = -412
-                report['errors'].append(dict(stage='search',error=type(exc).__name__,**observation))
-                if observation:
+                if api_code:
+                    observation['api_code'] = int(api_code[1])
+                restricted = (observation.get('http_status') in {403,412,429}
+                    or observation.get('api_code') in {-352,-412,-509})
+                report['errors'].append(dict(stage='search',error=type(exc).__name__,
+                    reason='provider_restricted' if restricted else 'search_unavailable',**observation))
+                if restricted:
                     report['verification_paused'] = pause_provider(state,observation)
                     break
     # Save ALL discoveries before the bounded verifier starts. Previously the
@@ -253,7 +262,7 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=verify_seed,rep
         result = verify(candidate)
         rows.append(result)
         if (result.get('status') == 'not_verified' and
-                (result.get('http_status') in {403, 412, 429} or result.get('api_code') == -412)):
+                (result.get('http_status') in {403, 412, 429} or result.get('api_code') in {-352,-412,-509})):
             # A provider restriction is not evidence against the footage. Stop
             # this batch; the lazy cursor has advanced only for actual requests.
             # Persist across immediate monitor refreshes, not just this process.

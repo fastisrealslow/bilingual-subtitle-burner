@@ -1,0 +1,29 @@
+name: 投稿恢复与扩源真实只读预检
+on:
+  push:
+    branches: [fix/production-receipts-supply-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q pytest -r linyuan/fc/runtime-requirements.txt
+      - name: 先验证恢复、身份、冷却与预算
+        run: python -m pytest -q tests/test_linyuan_upload_reconciliation.py tests/test_linyuan_seed_metadata_session.py tests/test_linyuan_seed_growth.py
+      - name: 读取完整创作档案与有界官方元数据，不写生产或种子
+        run: python scripts/check_linyuan_production_recovery.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-recovery-preflight
+          path: production-recovery-preflight.json
+          if-no-files-found: warn

@@ -18,6 +18,7 @@ on:
     # and refill FC from their refreshed data, not wait for the next cron slot.
     paths:
       - .github/workflows/linyuan-monitor.yml
+      - linyuan/materialize_verified_seeds.py
       - linyuan/monitor_v2.py
       - linyuan/p5w_source.py
       - linyuan/weibo_media.py
@@ -117,7 +118,13 @@ jobs:
       - name: 向5000个独立视频种子扩源（来源冷却互不阻挡，不计成片）
         timeout-minutes: 8
         continue-on-error: true
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python -u seed_pool_growth.py --target 5000 --limit 48
+      - name: 将新核验长母片立即写入候选目录（不增加网络请求或生产并发）
+        run: |
+          python -m pytest -q ../tests/test_linyuan_seed_materialization.py
+          python materialize_verified_seeds.py
 
       - name: 恢复已核验来源证据
         uses: actions/cache/restore@v4

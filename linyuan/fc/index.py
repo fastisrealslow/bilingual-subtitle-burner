@@ -41,6 +41,7 @@ if str(Path(__file__).resolve().parent.parent) not in sys.path:
 import editorial_policy as editorial
 import publishing_experiment as experiment
 import experiment_observation_dispatch as observation_clock
+import upload_recovery
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -2251,8 +2252,21 @@ def inventory_catchup_request(st, payload, now=None):
     return None
 
 
+def reconcile_upload_intents(st):
+    from types import SimpleNamespace
+    runtime=SimpleNamespace(_latest_dispatches=_latest_dispatches,OWNER_MID=OWNER_MID,
+        COOKIES_JSON=COOKIES_JSON,save_state=save_state,mark_part_processed=mark_part_processed,
+        record_publication_slot=record_publication_slot)
+    return upload_recovery.reconcile(runtime,st)
+
+
 def publish_catchup(event, context=None):
     st=load_state()
+    recovery=reconcile_upload_intents(st)
+    if recovery.get('persist_failed'):
+        return {'published':0,'upload_reconciliation_not_saved':1}
+    if recovery['pending']:
+        return {'published':0,'upload_reconciliation_pending':recovery['pending']}
     if not catchup_deficit(st):
         return {'published':0,'schedule_caught_up':1}
     reserve=json.loads(gh('GET',f'/contents/{SOURCE_INVENTORY_KEY}?ref=main',raw=True,timeout=20))
@@ -2278,6 +2292,8 @@ def proven_recall_source_error(part,entry):
 
 
 def inventory_publication_error(part,entry,state):
+    error=upload_recovery.quarantine_error(part,entry,state)
+    if error:return error
     error=proven_recall_source_error(part,entry)
     if error:return error
     from source_admission_guard import restriction
@@ -4836,6 +4852,11 @@ def publish_handler(event=None, context=None):
         log.info(f"北京时间 {hour:02d} 时不在普通投稿窗口，跳过")
         return {"published": 0, "outside_publish_window": 1}
     st = load_state()
+    recovery=reconcile_upload_intents(st)
+    if recovery.get('persist_failed'):
+        return {'published':0,'upload_reconciliation_not_saved':1}
+    if recovery['pending']:
+        return {'published':0,'upload_reconciliation_pending':recovery['pending']}
     makeup_slot = event.get('makeup_slot')
     makeup_error = makeup_request_error(event, st)
     if makeup_error:
@@ -4993,28 +5014,7 @@ def publish_handler(event=None, context=None):
         if rights_error:
             log_event('quality',f'{s} 已知源页限制，保留成片证据但禁止发布',rights_error)
             continue
-        # 上轮上传中断的（uploading 标记仍在）：绝不能盲目重传——先查 B站
-        if candidate.get("uploading"):
-            lease_age = now - float(candidate.get("uploading_ts") or 0)
-            if has_active_upload_lease(candidate, now):
-                log.info(f"{s} 另一投稿调用仍在执行（{lease_age:.0f}s），本轮跳过")
-                continue
-            dup = bili_find_duplicate(candidate.get("upload_title") or "")
-            if dup:
-                st["published"][s] = {"bvid": dup, "ts": int(time.time()),
-                                       "title": candidate.get("upload_title") or candidate.get("title", "")}
-                candidate.pop("uploading", None)
-                candidate.pop("uploading_ts", None)
-                log_event("dedup", f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
-                log.info(f"{s} 上轮其实已传过（{dup}），补记状态，不再重传")
-                save_state(st)
-            else:
-                candidate["failed"] = True
-                candidate.pop("uploading", None)
-                candidate.pop("uploading_ts", None)
-                log_event("fail", f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
-                log.error(f"{s} 上轮上传状态未知且 B站查无此片，标记失败待人工确认（绝不自动重传）")
-                save_state(st)
+        if candidate.get('uploading') or candidate.get('publication_quarantined'):
             continue
         if s in arts:
             selected_part_index=inventory_part_index(candidate,art_ids.get(s),reserve_records,budget,
@@ -5346,17 +5346,34 @@ def publish_handler(event=None, context=None):
     if replacement_state is not st and dup in HIDDEN_SHORT_SIX_BVIDS:
         dup = None  # Explicitly superseded hidden short; all other titles remain protected.
     if dup:
-        st["published"][slug] = {"bvid": dup, "ts": int(time.time()), "title": title,
-                                 "source_platform": meta_info.get("source_platform") or platform_of(e.get("source", ""))}
-        save_state(st)
-        log.info(f"⛔ {slug} 已在 B站存在（{dup}），补记状态跳过上传")
+        _record_skipped_part(st,e,slug,part,parts_total,k,title,
+            f'空间标题搜索命中 {dup}，仅阻止重传，不据此创建文件或实验发布回执')
+        log.info(f"⛔ {slug} 标题搜索命中（{dup}），跳过上传，不计新发布")
         return _continue_after_rejection(
             event, context, slug, {"published": 0, "existing": 1}, tmp)
     # 4) 落盘上传意图：万一上传后崩溃，下轮凭 uploading 标记走恢复逻辑而非重传
     e["uploading"] = True
     e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
+    for old_result in ('upload_process_result','upload_reconciliation','upload_reconciled_at'):
+        e.pop(old_result,None)
     e['upload_part_index'] = k
+    e['upload_parts_total'] = parts_total
+    e['upload_artifact_id'] = art_ids.get(slug)
+    e['upload_expected_sha256'] = (meta_info.get('fingerprints') or {}).get('sha256')
+    e['upload_receipt_intent'] = dict(
+        title=title, slug=slug, part_index=k, artifact_id=art_ids.get(slug),
+        duration_sec=part.get('duration_sec') or meta_info.get('duration_sec'),
+        fingerprints=meta_info.get('fingerprints') or {},
+        source_sha256=part.get('source_sha256'), source_segments=part.get('segments') or [],
+        editorial_profile=part.get('editorial_profile','baseline'),
+        long_story_family=part.get('long_story_family'), render_mode=part.get('render_mode'),
+        content_type=part.get('content_type'), resolution=part.get('resolution') or {},
+        copyright_requested=COPYRIGHT, tags=tags.split(','),
+        click_packaging_policy=(part.get('copy_identity') or meta_info.get('copy_identity') or {}).get('click_packaging_policy'),
+        publishing_experiment=experiment.receipt(part,now,makeup_slot) if publication_plan else None,
+        **({'scheduled_slot':publication_plan['slot']} if publication_plan else {}),
+        **({'makeup_slot':makeup_slot} if makeup_slot else {}))
     experiment_receipt=experiment.receipt(part,now,makeup_slot) if publication_plan else None
     if experiment_receipt:e['upload_experiment']=experiment_receipt
     else:e.pop('upload_experiment',None)
@@ -5376,11 +5393,17 @@ def publish_handler(event=None, context=None):
         r = subprocess.run(cmd, capture_output=True, text=True,
                            timeout=1620, env=env)
     except subprocess.TimeoutExpired:
+        e['upload_process_result']=dict(completed_at=int(time.time()),outcome='timeout')
+        save_state(st)
         log_event("fail", f"✗ {slug} 投稿超过 27 分钟", title[:80])
         log.error(f"✗ {slug} 投稿超时；保留上传租约供下轮查重恢复")
         shutil.rmtree(tmp, ignore_errors=True)
         return {"published": 0, "upload_timeout": 1}
     out = (r.stdout or "") + (r.stderr or "")
+    e['upload_process_result']=dict(completed_at=int(time.time()),returncode=r.returncode)
+    if save_state(st) is False:
+        shutil.rmtree(tmp, ignore_errors=True)
+        return {'published':0,'upload_result_not_saved':1}
     m = re.search(r'BV\w{10}', out)
     if r.returncode == 0 and m:
         bvid = m.group(0)
