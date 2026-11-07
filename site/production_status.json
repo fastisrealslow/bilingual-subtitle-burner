@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794080313,
+  "updated_at": 1794080505,
   "inventory_updated_at": 1794080308,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 102,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 6,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,17 +241,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794080312,
+    "updated_at": 1794080504,
     "records": 16395,
     "video_records": 13924,
-    "initial_candidates": 188,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
+    "initial_candidates": 187,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
     "known_duration_candidates": 5,
-    "unknown_duration_candidates": 1,
+    "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3442,
-      "speaker_unconfirmed": 8464,
+      "already_attempted_or_cooling": 3453,
+      "speaker_unconfirmed": 8454,
       "clip_title": 1432,
       "no_video": 2471,
       "noise": 39,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4509840578399579",
-        "title": "投资就投垄断，这和吃饭必须拿筷子一样是常识。现阶段有比个股赚钱确定性更高的东西，那就是可转债，医药、银行、券商的可转债是",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4509840578399579",
-        "duration_sec": 0
-      },
       {
         "key": "bilibili_search:BV1adxp6WERP",
         "title": "林园 P1 牛市里高点和低点差多少？林园：牛市当中大部分股票在高和低实际上非常接近——该赚钱的时候你不好好赚钱，那这是你",
@@ -327,15 +319,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2162,
+    "failed": 2163,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 128,
     "ready": 26,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "running": 3
+    "retry_queued": 4,
+    "running": 4
   },
   "tasks": [
     {
@@ -46990,11 +46982,11 @@
     },
     {
       "slug": "ly-1107-cbb82f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794079754,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -47026,14 +47018,14 @@
     },
     {
       "slug": "ly-1107-deeb79",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794080108,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794081297,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -47041,6 +47033,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406931179",
       "run_started_at": "2026-11-07T19:35:08Z",
       "run_updated_at": "2026-11-07T19:36:45Z"
+    },
+    {
+      "slug": "ly-1107-80d23b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794080462,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42407402531,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42407402531",
+      "run_started_at": "2026-11-07T19:41:02Z",
+      "run_updated_at": "2026-11-07T19:41:05Z"
     }
   ],
   "runs": {
@@ -71189,17 +71199,6 @@
       "run_number": 4041,
       "display_title": "中文源出片 · ly-1107-deeb79"
     },
-    "ly-story-f65e50ad30": {
-      "id": 42406920731,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-07T19:35:01Z",
-      "updated_at": "2026-11-07T19:35:05Z",
-      "run_started_at": "2026-11-07T19:35:01Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406920731",
-      "run_number": 4040,
-      "display_title": "中文源出片 · ly-story-f65e50ad30"
-    },
     "ly-1107-cbb82f": {
       "id": 42406434389,
       "status": "completed",
@@ -71210,6 +71209,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406434389",
       "run_number": 4039,
       "display_title": "中文源出片 · ly-1107-cbb82f"
+    },
+    "ly-1107-80d23b": {
+      "id": 42407402531,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T19:41:02Z",
+      "updated_at": "2026-11-07T19:41:05Z",
+      "run_started_at": "2026-11-07T19:41:02Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42407402531",
+      "run_number": 4042,
+      "display_title": "中文源出片 · ly-1107-80d23b"
+    },
+    "ly-story-f65e50ad30": {
+      "id": 42406920731,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T19:35:01Z",
+      "updated_at": "2026-11-07T19:35:05Z",
+      "run_started_at": "2026-11-07T19:35:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406920731",
+      "run_number": 4040,
+      "display_title": "中文源出片 · ly-story-f65e50ad30"
     },
     "ly-1107-be7b7a": {
       "id": 42402090465,
