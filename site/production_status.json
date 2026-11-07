@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794050338,
+  "updated_at": 1794050540,
   "inventory_updated_at": 1794050332,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 4,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794050336,
+    "updated_at": 1794050538,
     "records": 16280,
     "video_records": 13811,
-    "initial_candidates": 185,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 184,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3404,
+      "already_attempted_or_cooling": 3405,
       "speaker_unconfirmed": 8422,
       "clip_title": 1425,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1cQBoBbEZa",
-        "title": "林园 P1 林园的投资策略",
-        "source": "bilibili_collection",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1cQBoBbEZa",
-        "duration_sec": 180.0
-      },
       {
         "key": "bilibili_search:BV1SV41197qo",
         "title": "林园 P1 股神林园总最新专访：你们咋老亏钱我给你们一些建议（2024.1.11）",
@@ -311,15 +303,15 @@
   },
   "counts": {
     "complete": 189,
-    "failed": 2120,
+    "failed": 2121,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 124,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -45858,11 +45850,11 @@
     },
     {
       "slug": "ly-1107-72f7c2",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1794042004,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46143,6 +46135,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42367431585",
       "run_started_at": "2026-11-07T11:15:48Z",
       "run_updated_at": "2026-11-07T11:15:52Z"
+    },
+    {
+      "slug": "ly-1107-40f5d2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794050498,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42367851410,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42367851410",
+      "run_started_at": "2026-11-07T11:21:37Z",
+      "run_updated_at": "2026-11-07T11:21:42Z"
     }
   ],
   "runs": {
@@ -69740,6 +69750,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42357813492",
       "run_number": 3972,
       "display_title": "中文源出片 · ly-1107-72f7c2"
+    },
+    "ly-1107-40f5d2": {
+      "id": 42367851410,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T11:21:37Z",
+      "updated_at": "2026-11-07T11:21:42Z",
+      "run_started_at": "2026-11-07T11:21:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42367851410",
+      "run_number": 3990,
+      "display_title": "中文源出片 · ly-1107-40f5d2"
     },
     "ly-1107-94cb06": {
       "id": 42367431585,
