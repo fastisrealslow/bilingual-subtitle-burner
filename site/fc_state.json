@@ -101357,7 +101357,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4405907414542050",
@@ -101408,7 +101409,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-01T00:30:49+00:00"
+   "publish_time": "2026-01-01T00:30:49+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42362557846,
+    "artifact_id": 13570019071,
+    "name": "source-reject-ly-1107-c23aec",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -205189,6 +205200,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/AoCyUYorlx08CbjrG7ny01041200pkkX0E010.mp4",
    "ts": 1794045961,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1107-c23aec",
+   "key": "bilibili_search:BV1t4iLB2EA4",
+   "video_id": "BV1t4iLB2EA4",
+   "ts": 1794046394,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
