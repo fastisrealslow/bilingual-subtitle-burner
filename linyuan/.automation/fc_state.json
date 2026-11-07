@@ -100442,7 +100442,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"开始后开始降息，但是啊，自己觉得它的高息不会维持长时间为下去。\", \"suspect_quote\": \"为下去\", \"kind\": \"unintelligible_term\", \"reason\": \"语义不通，疑似‘维持长时间不下去’识别污染，应为‘维持很长时间不下去’或类似表达，但‘为下去’无法确认原意。\"}, {\"sentence_id\": 5, \"quote\": \"啊，说我们简单的一些，呃，这个这个这个，我们看天天吃方便面什么，那几个那都达到百分之六点七，还有些是吧？\", \"suspect_quote\": \"百分之六点七\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘百分之六点七’可能为约数，但结合上下文‘天天吃方便面什么’后接具体数字，需核实是否为精确值或误识别。\"}, {\"sentence_id\": 12, \"quote\": \"时间分回来百分之七十，是吧？\", \"suspect_quote\": \"百分之七十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之七十’在口语中可能为约数，但需确认是否为精确比例或误识别。\"}, {\"sentence_id\": 13, \"quote\": \"但是你买房子如果不涨的话，你靠那个租金，可能时间只能达到百分之十，那个差距就很大了。\", \"suspect_quote\": \"百分之十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十’在口语中可能为约数，但需确认是否为精确比例或误识别。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1V44y1x7Gz",
@@ -100465,7 +100466,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-10-16T13:12:32+00:00"
+   "publish_time": "2021-10-16T13:12:32+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-5f3e47",
+    "run_id": 42352726731,
+    "artifact_id": 13567657708,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0b35faa8537bc8bff58e805a0807a4ffec6ea1e1941abd7feeab4ea5661868af",
+     "duration_sec": 951.7,
+     "resolution": {
+      "width": 2160,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1V44y1x7Gz"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "成片存在持续黑色填充边"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 11, \"quote\": \"云南白药最多也就是在这盘。\", \"suspect_quote\": \"云南白药最多也就是在这盘\", \"kind\": \"unintelligible_term\", \"reason\": \"“在这盘”语义不明，疑似专有名词或特定术语识别污染，无法确定具体含义。\"}, {\"sentence_id\": 33, \"quote\": \"啊，所以我对一，我就不明白了，为什么你明明可以直接零元免费领的西瓜聚全馆。\", \"suspect_quote\": \"零元免费领的西瓜聚全馆\", \"kind\": \"unintelligible_term\", \"re"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"林元也说，买股票是有一定风险，这个风险体现在时间上。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别为“林元”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"他的股票也经常面对不涨的情况，所以他经常会猫着等着等涨。\", \"suspect_quote\": \"猫着等着等涨\", \"kind\": \"unintelligible_term\", \"reason\": \"口语表达不清晰，疑似“蹲着”或特"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配762/1448，总帧数3428；身份匹配但人脸短边不足96px的帧数9"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42352726731,
+    "artifact_id": 13567657708,
+    "name": "production-reject-ly-1107-5f3e47",
+    "retained": true
+   },
+   "last_error": "成片存在持续黑色填充边",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1JFNm6jEtc",
@@ -204755,6 +204809,13 @@
    "video_id": "BV1JMeLepEAQ",
    "ts": 1794041290,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"开始后开始降息，但是啊，自己觉得它的高息不会维持长时间为下去。\", \"suspect_quote\": \"为下去\", \"kind\": \"unintelligible_term\", \"reason\": \"语义不通，疑似‘维持长时间不下去’识别污染，应为‘维持很长时间不下去’或类似表达，但‘为下去’无法确认原意。\"}, {\"sentence_id\": 5, \"quote\": \"啊，说我们简单的一些，呃，这个这个这个，我们看天天吃方便面什么，那几个那都达到百分之六点七，还有些是吧？\", \"suspect_quote\": \"百分之六点七\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘百分之六点七’可能为约数，但结合上下文‘天天吃方便面什么’后接具体数字，需核实是否为精确值或误识别。\"}, {\"sentence_id\": 12, \"quote\": \"时间分回来百分之七十，是吧？\", \"suspect_quote\": \"百分之七十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之七十’在口语中可能为约数，但需确认是否为精确比例或误识别。\"}, {\"sentence_id\": 13, \"quote\": \"但是你买房子如果不涨的话，你靠那个租金，可能时间只能达到百分之十，那个差距就很大了。\", \"suspect_quote\": \"百分之十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十’在口语中可能为约数，但需确认是否为精确比例或误识别。\"}]"
+  },
+  {
+   "slug": "ly-1107-5f3e47",
+   "key": "bilibili_search:BV1V44y1x7Gz",
+   "video_id": "BV1V44y1x7Gz",
+   "ts": 1794041614,
+   "error": "成片存在持续黑色填充边"
   }
  ],
  "reviewed_third_video_0910": {
