@@ -53,3 +53,47 @@ def test_descriptions_personal_choices_opposite_actions_and_added_urgency_reject
 ])
 def test_faithful_statements_and_explicit_same_direction_advice_keep_normal_review(title,cover,source):
     assert T.unsupported_trade_directive_error(title,cover,source) is None
+
+
+def test_actual_published_general_encouragement_does_not_authorize_buying_invitation():
+    r=json.loads((ROOT/'tests/fixtures/linyuan_published_attempt_directive.json').read_text())
+    assert all(r['proof']['review'][k] is True for k in T.CHECKS)
+    assert '买卖指令' in T.error(r['title'],r['proof'],r['raw_text'])
+    item=dict(title=r['title'],cover_title=r['cover'],
+        subject=r['proof']['subject'],evidence=r['proof']['evidence'])
+    assert '买卖指令' in T._candidate_error(item,r['raw_text'],'林园',(),check_layout=False)
+
+
+@pytest.mark.parametrize('copy',[
+    '有些事直接去尝试买股票吧', '试着加仓股票吧', '尝试卖出股票吧',
+    '不妨尝试投资股票', '可以试着买入股票',
+])
+def test_general_encouragement_is_not_same_action_permission(copy):
+    source='那时候我们买股票，没有考虑风险。有些事可以去尝试。'
+    assert T.unsupported_trade_directive_error('林园：'+copy,'有些事可以尝试',source)
+    assert T.unsupported_trade_directive_error('林园：有些事可以尝试',copy,source)
+
+
+@pytest.mark.parametrize('copy,source',[
+    ('尝试买股票吧','可以尝试买入股票。'),
+    ('试着卖出股票吧','建议卖出股票。'),
+    ('可以试着买股票','不妨尝试买股票。'),
+    ('尝试买股票吧','我建议大家可以尝试买入股票。'),
+    ('我尝试买股票','我尝试买股票。'),
+    ('过去尝试买股票吧','过去尝试买股票吧。'),
+    ('是否可以尝试买股票？','是否可以尝试买股票？'),
+    ('他可以尝试买股票','他可以尝试买股票。'),
+    ('有些事可以尝试','有些事可以尝试。'),
+])
+def test_explicit_permission_and_non_directive_attempts(copy,source):
+    assert T.unsupported_trade_directive_error('林园：'+copy,copy,source) is None
+
+
+@pytest.mark.parametrize('source',[
+    '我可以尝试买股票。', '他可以尝试买股票。', '不要尝试买股票吧。',
+    '是否可以尝试买股票？', '那时候可以尝试买股票。',
+    '不可以尝试买股票。',
+    '可以尝试卖股票。', '可以尝试加仓股票。',
+])
+def test_personal_historical_negative_questions_and_other_actions_are_not_permission(source):
+    assert T.unsupported_trade_directive_error('林园：尝试买股票吧','有些事可以尝试',source)
