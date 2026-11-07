@@ -98791,7 +98791,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2166/3046，总帧数4397；身份匹配但人脸短边不足96px的帧数338",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5265872526509204",
@@ -98915,7 +98916,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-09T03:50:39+00:00"
+   "publish_time": "2025-11-09T03:50:39+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1106-578e95",
+    "run_id": 42312040642,
+    "artifact_id": 13551235075,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a63b8c720ea5de18f92b1198c7e612a8731e0f3f623d7b55163f4e03101c52ba",
+     "duration_sec": 582.53,
+     "resolution": {
+      "width": 720,
+      "height": 960,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1KykSBREHK"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1243，总帧数6211；身份匹配但人脸短边不足96px的帧数1242"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/256，总帧数1277；身份匹配但人脸短边不足96px的帧数256"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/242，总帧数1205；身份匹配但人脸短边不足96px的帧数209"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/151，总帧数754；身份匹配但人脸短边不足96px的帧数151"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42312040642,
+    "artifact_id": 13551235075,
+    "name": "production-reject-ly-1106-578e95",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1243，总帧数6211；身份匹配但人脸短边不足96px的帧数1242",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -201283,6 +201333,13 @@
    "video_id": "BV1ZM466VE8e",
    "ts": 1794008618,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2166/3046，总帧数4397；身份匹配但人脸短边不足96px的帧数338"
+  },
+  {
+   "slug": "ly-1106-578e95",
+   "key": "bilibili_search:BV1KykSBREHK",
+   "video_id": "BV1KykSBREHK",
+   "ts": 1794010025,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1243，总帧数6211；身份匹配但人脸短边不足96px的帧数1242"
   }
  ],
  "reviewed_third_video_0910": {
