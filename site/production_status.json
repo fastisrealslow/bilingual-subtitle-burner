@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794008550,
-  "inventory_updated_at": 1794008542,
+  "updated_at": 1794009902,
+  "inventory_updated_at": 1794009898,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -36,13 +36,13 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 21,
-        "landscape": 76
+        "portrait": 18,
+        "landscape": 79
       },
-      "full_schedule_days": 7,
-      "required_week_shortfall": 0,
+      "full_schedule_days": 6,
+      "required_week_shortfall": 3,
       "required_week_shortfall_by_layout": {
-        "portrait": 0,
+        "portrait": 3,
         "landscape": 0
       },
       "reserve_targets_by_layout": {
@@ -233,8 +233,8 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794008548,
-    "records": 16148,
+    "updated_at": 1794009901,
+    "records": 16169,
     "video_records": 13701,
     "initial_candidates": 181,
     "duration_eligible_records": 0,
@@ -245,7 +245,7 @@
       "clip_title": 1414,
       "already_attempted_or_cooling": 3361,
       "speaker_unconfirmed": 8379,
-      "no_video": 2447,
+      "no_video": 2468,
       "noise": 39,
       "unrelated": 79,
       "reference_only": 212,
@@ -259,8 +259,8 @@
   "inventory": {
     "verified_live": 97,
     "verified_audio_card": 0,
-    "verified_landscape": 76,
-    "verified_portrait": 21,
+    "verified_landscape": 79,
+    "verified_portrait": 18,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -270,7 +270,7 @@
   },
   "counts": {
     "complete": 187,
-    "failed": 2089,
+    "failed": 2090,
     "paused": 5,
     "interrupted": 10,
     "excluded": 60,
@@ -278,7 +278,7 @@
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -45259,11 +45259,11 @@
     },
     {
       "slug": "ly-story-8e479ff56c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2166/3046，总帧数4397；身份匹配但人脸短边不足96px的帧数338",
       "signature": {
         "ts": 1793998995,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45313,8 +45313,8 @@
     },
     {
       "slug": "ly-1106-578e95",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794007656,
         "failed": null,
@@ -45327,7 +45327,7 @@
       "run_id": 42312040642,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42312040642",
       "run_started_at": "2026-11-06T23:27:36Z",
-      "run_updated_at": "2026-11-06T23:27:41Z"
+      "run_updated_at": "2026-11-07T00:03:00Z"
     }
   ],
   "runs": {
@@ -68488,10 +68488,10 @@
     },
     "ly-1106-578e95": {
       "id": 42312040642,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-06T23:27:36Z",
-      "updated_at": "2026-11-06T23:27:41Z",
+      "updated_at": "2026-11-07T00:03:00Z",
       "run_started_at": "2026-11-06T23:27:36Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42312040642",
       "run_number": 3940,
