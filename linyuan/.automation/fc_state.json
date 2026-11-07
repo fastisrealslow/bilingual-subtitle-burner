@@ -106770,7 +106770,8 @@
    },
    "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Xy4y12722",
@@ -106953,7 +106954,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-02T04:59:44+00:00"
+   "publish_time": "2026-01-02T04:59:44+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-833d48",
+    "run_id": 42420454749,
+    "artifact_id": 13594015740,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6a5c9cbd83d3e0d5cbbd07459afb065cb966d9741a90caefe30f621128889ee4",
+     "duration_sec": 118.53,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1drvZBVE5A"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42420454749,
+    "artifact_id": 13594015740,
+    "name": "production-reject-ly-1107-833d48",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1io1rBsEso",
@@ -107020,7 +107054,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 384 < 480（726x384），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV15cu16kEh9",
@@ -211760,6 +211795,13 @@
    "video_id": "BV1uo4y1f7A4",
    "ts": 1794090798,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1107-833d48",
+   "key": "bilibili_search:BV1drvZBVE5A",
+   "video_id": "BV1drvZBVE5A",
+   "ts": 1794091083,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
