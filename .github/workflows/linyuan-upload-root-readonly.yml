@@ -1,0 +1,30 @@
+name: 今日投稿中断根因只读核验
+on:
+  push:
+    branches: [diagnose/upload-root-20261107]
+permissions:
+  contents: read
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi aliyun-log-python-sdk
+      - name: 只读取日志配置和目标投稿时段错误，不修改云函数或稿件
+        run: python scripts/inspect_upload_root_20261107.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: upload-root-readonly
+          path: upload-root-readonly.json
+          if-no-files-found: warn
