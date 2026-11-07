@@ -101324,7 +101324,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-07T16:45:53+08:00"
+   "publish_time": "2026-11-07T16:45:53+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-889d3e",
+    "run_id": 42361520216,
+    "artifact_id": 13570232938,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "47aaddf4c6a57e3fabb4fe44365b95ce5fe5312fc87cc16584c2021d3487e605",
+     "duration_sec": 65.06,
+     "resolution": {
+      "width": 1916,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5362659634451025"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42361520216,
+    "artifact_id": 13570232938,
+    "name": "production-reject-ly-1107-889d3e",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4405907414542050",
@@ -205126,6 +205159,13 @@
    "video_id": "BV1MT4y117mF",
    "ts": 1794045072,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1107-889d3e",
+   "key": "weibo_search:5362659634451025",
+   "video_id": "https://f.video.weibocdn.com/o0/AoCyUYorlx08CbjrG7ny01041200pkkX0E010.mp4",
+   "ts": 1794045961,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
