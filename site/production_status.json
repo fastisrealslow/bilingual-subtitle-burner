@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794048061,
+  "updated_at": 1794048228,
   "inventory_updated_at": 1794048056,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 97,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 6,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 9,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,18 +241,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794048060,
-    "records": 16273,
-    "video_records": 13804,
-    "initial_candidates": 187,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "updated_at": 1794048227,
+    "records": 16280,
+    "video_records": 13811,
+    "initial_candidates": 190,
+    "duration_eligible_records": 9,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3398,
+      "already_attempted_or_cooling": 3399,
       "speaker_unconfirmed": 8422,
-      "clip_title": 1422,
+      "clip_title": 1425,
       "no_video": 2469,
       "noise": 39,
       "unrelated": 79,
@@ -264,12 +264,12 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV1kwjG67EB1",
-        "title": "林园 P1 林园：投资还是要保持初心！要有那种坚韧不拔的毅力！",
+        "key": "bilibili_search:BV1go4y1f7VY",
+        "title": "林园 P1 大佬林园：垄断企业的毛利率大于80%，两种垄断企业的标准",
         "source": "bilibili_collection",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV1kwjG67EB1",
-        "duration_sec": 175.0
+        "author": "旺财学堂",
+        "url": "https://www.bilibili.com/video/BV1go4y1f7VY",
+        "duration_sec": 101.0
       },
       {
         "key": "bilibili_search:BV1m7Eq6cEwU",
@@ -286,6 +286,22 @@
         "author": "复利财务自由",
         "url": "https://www.bilibili.com/video/BV1r5Eb6cEWQ",
         "duration_sec": 241.0
+      },
+      {
+        "key": "bilibili_search:BV1hY411f7bg",
+        "title": "林园 P1 studio_video_1668606196295.mp4",
+        "source": "bilibili_collection",
+        "author": "可爱的莫里",
+        "url": "https://www.bilibili.com/video/BV1hY411f7bg",
+        "duration_sec": 103.0
+      },
+      {
+        "key": "bilibili_search:BV1rz4y1s7NL",
+        "title": "林园 P1 2023-05林园谈60岁的自己不在乎第一和财产的多少，只是烦恼时间过得太快了",
+        "source": "bilibili_collection",
+        "author": "林园门下走狗",
+        "url": "https://www.bilibili.com/video/BV1rz4y1s7NL",
+        "duration_sec": 107.0
       },
       {
         "key": "bilibili_search:BV1cQBoBbEZa",
@@ -310,6 +326,14 @@
         "author": "我真的是大川啊",
         "url": "https://www.bilibili.com/video/BV1y6bPzkEiL",
         "duration_sec": 181.0
+      },
+      {
+        "key": "bilibili_search:BV1VJiKBhE5T",
+        "title": "林园 P1 价值投资大师 林园的投资策略",
+        "source": "bilibili_series",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1VJiKBhE5T",
+        "duration_sec": 105.0
       }
     ]
   },
@@ -327,15 +351,15 @@
   },
   "counts": {
     "complete": 189,
-    "failed": 2114,
+    "failed": 2115,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 124,
     "ready": 25,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -46018,11 +46042,11 @@
     },
     {
       "slug": "ly-1107-1a289c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794047447,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46051,6 +46075,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42364805466",
       "run_started_at": "2026-11-07T10:38:26Z",
       "run_updated_at": "2026-11-07T10:38:30Z"
+    },
+    {
+      "slug": "ly-1107-891241",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794048189,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42365131670,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42365131670",
+      "run_started_at": "2026-11-07T10:43:08Z",
+      "run_updated_at": "2026-11-07T10:43:12Z"
     }
   ],
   "runs": {
@@ -69593,6 +69635,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42364257966",
       "run_number": 3981,
       "display_title": "中文源出片 · ly-1107-1a289c"
+    },
+    "ly-1107-891241": {
+      "id": 42365131670,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T10:43:08Z",
+      "updated_at": "2026-11-07T10:43:12Z",
+      "run_started_at": "2026-11-07T10:43:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42365131670",
+      "run_number": 3983,
+      "display_title": "中文源出片 · ly-1107-891241"
     },
     "ly-1107-d519af": {
       "id": 42364805466,
