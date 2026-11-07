@@ -100519,7 +100519,8 @@
    },
    "last_error": "成片存在持续黑色填充边",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1JFNm6jEtc",
@@ -100881,7 +100882,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-24T12:02:01+00:00"
+   "publish_time": "2022-05-24T12:02:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-e88678",
+    "run_id": 42356646619,
+    "artifact_id": 13567589963,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "815d5e387b41fb250a67f75772794194085bd76f9f907c945dd9ab4a7a748e8a",
+     "duration_sec": 429.6,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1KT4y1q7zX"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42356646619,
+    "artifact_id": 13567589963,
+    "name": "production-reject-ly-1107-e88678",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1HXRzBQEDo",
@@ -204815,6 +204849,13 @@
    "video_id": "BV1V44y1x7Gz",
    "ts": 1794041614,
    "error": "成片存在持续黑色填充边"
+  },
+  {
+   "slug": "ly-1107-e88678",
+   "key": "bilibili_search:BV1KT4y1q7zX",
+   "video_id": "BV1KT4y1q7zX",
+   "ts": 1794041953,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
