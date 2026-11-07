@@ -104964,7 +104964,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-03T07:37:05+00:00"
+   "publish_time": "2026-07-03T07:37:05+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-2ff160",
+    "run_id": 42405199561,
+    "artifact_id": 13587203124,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "44c3edc1ed3799caeba321a74558daa0711ecebfe31efbc93a97928dd2861f3d",
+     "duration_sec": 26.33,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Y4Ts6jE9K"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42405199561,
+    "artifact_id": 13587203124,
+    "name": "production-reject-ly-1107-2ff160",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5167922143825174",
@@ -209461,6 +209494,13 @@
    "key": "bilibili_search:BV1h4c7zQEze",
    "video_id": "BV1h4c7zQEze",
    "ts": 1794078290,
+   "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1107-2ff160",
+   "key": "bilibili_search:BV1Y4Ts6jE9K",
+   "video_id": "BV1Y4Ts6jE9K",
+   "ts": 1794079686,
    "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
