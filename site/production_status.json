@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794041172,
+  "updated_at": 1794041364,
   "inventory_updated_at": 1794041168,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 95,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 5,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794041171,
+    "updated_at": 1794041363,
     "records": 16217,
     "video_records": 13748,
-    "initial_candidates": 186,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 185,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3383,
+      "already_attempted_or_cooling": 3384,
       "speaker_unconfirmed": 8394,
       "clip_title": 1419,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1uB4y1s7Me",
-        "title": "林园 P1 林园：谈这些行业需要高度自律性（8.20直播）",
-        "source": "bilibili_collection",
-        "author": "临园指路",
-        "url": "https://www.bilibili.com/video/BV1uB4y1s7Me",
-        "duration_sec": 446.0
-      },
       {
         "key": "bilibili_search:BV1MT4y117mF",
         "title": "林园 P1 林园讲述投资往事，那叫一个牛啊！",
@@ -319,15 +311,15 @@
   },
   "counts": {
     "complete": 189,
-    "failed": 2103,
+    "failed": 2104,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 63,
     "experiment_fallback": 124,
     "ready": 24,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -45614,11 +45606,11 @@
     },
     {
       "slug": "ly-1107-8be0b7",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"开始后开始降息，但是啊，自己觉得它的高息不会维持长时间为下去。\", \"suspect_quote\": \"为下去\", \"kind\": \"unintelligible_term\", \"reason\": \"语义不通，疑似‘维持长时间不下去’识别污染，应为‘维持很长时间不下去’或类似表达，但‘为下去’无法确认原意。\"}, {\"sentence_id\": 5, \"quote\": \"啊，说我们简单的一些，呃，这个这个这个，我们看天天吃方便面什么，那几个那都达到百分之六点七，还有些是吧？\", \"suspect_quote\": \"百分之六点七\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"口语中‘百分之六点七’可能为约数，但结合上下文‘天天吃方便面什么’后接具体数字，需核实是否为精确值或误识别。\"}, {\"sentence_id\": 12, \"quote\": \"时间分回来百分之七十，是吧？\", \"suspect_quote\": \"百分之七十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之七十’在口语中可能为约数，但需确认是否为精确比例或误识别。\"}, {\"sentence_id\": 13, \"quote\": \"但是你买房子如果不涨的话，你靠那个租金，可能时间只能达到百分之十，那个差距就很大了。\", \"suspect_quote\": \"百分之十\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"‘百分之十’在口语中可能为约数，但需确认是否为精确比例或误识别。\"}]",
       "signature": {
         "ts": 1794037399,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45827,6 +45819,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42356662211",
       "run_started_at": "2026-11-07T08:43:08Z",
       "run_updated_at": "2026-11-07T08:43:12Z"
+    },
+    {
+      "slug": "ly-1107-8efd11",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794041324,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42357052047,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42357052047",
+      "run_started_at": "2026-11-07T08:48:44Z",
+      "run_updated_at": "2026-11-07T08:48:48Z"
     }
   ],
   "runs": {
@@ -69226,6 +69236,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42352449074",
       "run_number": 3957,
       "display_title": "中文源出片 · ly-1107-8be0b7"
+    },
+    "ly-1107-8efd11": {
+      "id": 42357052047,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T08:48:44Z",
+      "updated_at": "2026-11-07T08:48:48Z",
+      "run_started_at": "2026-11-07T08:48:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42357052047",
+      "run_number": 3969,
+      "display_title": "中文源出片 · ly-1107-8efd11"
     },
     "ly-1107-f42baa": {
       "id": 42356662211,
