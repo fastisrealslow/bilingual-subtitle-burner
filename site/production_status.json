@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794077344,
+  "updated_at": 1794077499,
   "inventory_updated_at": 1794077339,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 100,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794077342,
+    "updated_at": 1794077497,
     "records": 16395,
     "video_records": 13924,
-    "initial_candidates": 190,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 189,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3450,
+      "already_attempted_or_cooling": 3451,
       "speaker_unconfirmed": 8454,
       "clip_title": 1432,
       "no_video": 2471,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1h4c7zQEze",
-        "title": "林园 P1 林园：4000点不算牛市，有一半人赚钱才算",
-        "source": "bilibili_collection",
-        "author": "雷达财经",
-        "url": "https://www.bilibili.com/video/BV1h4c7zQEze",
-        "duration_sec": 22.0
-      },
       {
         "key": "bilibili_search:BV1Y4Ts6jE9K",
         "title": "林园 P1 林园：财富积累的第一个100万是最难的 #财经#经济#价值投资#林园",
@@ -343,15 +335,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2158,
+    "failed": 2159,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 127,
     "ready": 26,
     "validation_failed": 2,
     "retry_queued": 3,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -46826,11 +46818,11 @@
     },
     {
       "slug": "ly-1107-e5aaee",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1794069452,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -46949,6 +46941,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42402090465",
       "run_started_at": "2026-11-07T18:36:00Z",
       "run_updated_at": "2026-11-07T18:36:04Z"
+    },
+    {
+      "slug": "ly-1107-3a3fb1",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794077457,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42403309018,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42403309018",
+      "run_started_at": "2026-11-07T18:50:57Z",
+      "run_updated_at": "2026-11-07T18:51:01Z"
     }
   ],
   "runs": {
@@ -71031,6 +71041,28 @@
       "run_number": 4033,
       "display_title": "中文源出片 · ly-1107-cd233a"
     },
+    "ly-1107-e5aaee": {
+      "id": 42392233720,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-07T16:37:32Z",
+      "updated_at": "2026-11-07T18:47:02Z",
+      "run_started_at": "2026-11-07T16:37:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42392233720",
+      "run_number": 4028,
+      "display_title": "中文源出片 · ly-1107-e5aaee"
+    },
+    "ly-1107-3a3fb1": {
+      "id": 42403309018,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T18:50:57Z",
+      "updated_at": "2026-11-07T18:51:01Z",
+      "run_started_at": "2026-11-07T18:50:57Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42403309018",
+      "run_number": 4035,
+      "display_title": "中文源出片 · ly-1107-3a3fb1"
+    },
     "ly-1107-be7b7a": {
       "id": 42402090465,
       "status": "in_progress",
@@ -71063,17 +71095,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42396480842",
       "run_number": 4030,
       "display_title": "中文源出片 · ly-1107-d12d2c"
-    },
-    "ly-1107-e5aaee": {
-      "id": 42392233720,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-07T16:37:32Z",
-      "updated_at": "2026-11-07T18:47:02Z",
-      "run_started_at": "2026-11-07T16:37:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42392233720",
-      "run_number": 4028,
-      "display_title": "中文源出片 · ly-1107-e5aaee"
     }
   }
 }
