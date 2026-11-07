@@ -100431,7 +100431,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-13T11:50:52+00:00"
+   "publish_time": "2026-07-13T11:50:52+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-ae3d59",
+    "run_id": 42352735634,
+    "artifact_id": 13567466688,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "83f661580a2b5d8c7d1edd40a2d143caa85e10cdd64c21de88e2b4c77fb6fb32",
+     "duration_sec": 1097.6,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1JFNm6jEtc"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 71%（BV1SGxD64Exs）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 254.83s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 81%（BV1yxxX6xEAU）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42352735634,
+    "artifact_id": 13567466688,
+    "name": "production-reject-ly-1107-ae3d59",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4932816666630414",
@@ -100690,7 +100751,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4781084380496994",
@@ -100746,7 +100808,8 @@
    },
    "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4912513328354818",
@@ -204487,6 +204550,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/6qawQ0Volx086ADwucbK01041200KK5D0E010.mp4",
    "ts": 1794040281,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1107-ae3d59",
+   "key": "bilibili_search:BV1JFNm6jEtc",
+   "video_id": "BV1JFNm6jEtc",
+   "ts": 1794040603,
+   "error": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）"
   }
  ],
  "reviewed_third_video_0910": {
