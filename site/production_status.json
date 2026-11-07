@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794044937,
+  "updated_at": 1794045165,
   "inventory_updated_at": 1794044933,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 95,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 13,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 12,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794044936,
+    "updated_at": 1794045164,
     "records": 16236,
     "video_records": 13767,
-    "initial_candidates": 194,
-    "duration_eligible_records": 13,
-    "candidate_count": 13,
-    "known_duration_candidates": 10,
+    "initial_candidates": 193,
+    "duration_eligible_records": 12,
+    "candidate_count": 12,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 3,
     "excluded": {
-      "already_attempted_or_cooling": 3361,
+      "already_attempted_or_cooling": 3362,
       "speaker_unconfirmed": 8425,
       "clip_title": 1419,
       "no_video": 2469,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5362659634451025",
-        "title": "面对当下火热的AI行情，私募大佬林园直言生意的本质是垄断！没有竞争什么都好做，但创新行业不可能形成长期垄断。即便是英伟达",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5362659634451025",
-        "duration_sec": 65.0
-      },
       {
         "key": "weibo_search:4405907414542050",
         "title": "#林园炒股秘籍# 这段视频的时间是2006年夏天，#林园# 应陕西电视台《今日证券》邀请，与投资者交流，分享他早年的投资",
@@ -383,15 +375,15 @@
   },
   "counts": {
     "complete": 189,
-    "failed": 2109,
+    "failed": 2110,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 124,
     "ready": 24,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -45966,11 +45958,11 @@
     },
     {
       "slug": "ly-1107-46de9e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794043930,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -45981,6 +45973,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42360143721",
       "run_started_at": "2026-11-07T09:32:10Z",
       "run_updated_at": "2026-11-07T09:46:20Z"
+    },
+    {
+      "slug": "ly-1107-889d3e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794045124,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42361520216,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42361520216",
+      "run_started_at": "2026-11-07T09:52:04Z",
+      "run_updated_at": "2026-11-07T09:52:08Z"
     }
   ],
   "runs": {
@@ -69446,6 +69456,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42360143721",
       "run_number": 3974,
       "display_title": "中文源出片 · ly-1107-46de9e"
+    },
+    "ly-1107-889d3e": {
+      "id": 42361520216,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T09:52:04Z",
+      "updated_at": "2026-11-07T09:52:08Z",
+      "run_started_at": "2026-11-07T09:52:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42361520216",
+      "run_number": 3975,
+      "display_title": "中文源出片 · ly-1107-889d3e"
     },
     "ly-1107-493f0a": {
       "id": 42359168493,
