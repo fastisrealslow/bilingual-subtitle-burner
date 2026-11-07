@@ -87,6 +87,12 @@ def test_legacy_waits_past_function_timeout_but_finished_cli_does_not_wait_two_h
     assert out['quarantined']==1
 
 
+def test_previous_parts_cli_result_cannot_close_a_new_upload_attempt():
+    e=entry();e['upload_process_result']=dict(completed_at=START-1,returncode=0)
+    out=recovery.reconcile(fc,dict(dispatched=[e]),now=START+2800,lookup=lambda _:snapshot())
+    assert out['pending']==1 and e['uploading'] and not e.get('publication_quarantined')
+
+
 @pytest.mark.parametrize('mutate',[
     lambda v:v.update(title='林园：一个有来源的标题，但是另一条'),
     lambda v:v.update(ctime=START-500),lambda v:v.update(duration=120),

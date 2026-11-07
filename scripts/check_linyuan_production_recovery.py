@@ -16,7 +16,7 @@ def main():
     report=dict(checked_at=time.time(),state_mutated=False,production_dispatch=False,
         media_approved=False,seed_added_count=0)
     report['creator']=archive_status([],275211725,os.environ['BILIBILI_COOKIES'],
-        expected_titles=[title],max_pages=12)
+        expected_titles=[title],max_pages=12,scan_all=True)
     scan=json.loads((ROOT/'linyuan/.automation/seed_growth_scan.json').read_text())
     cooldown=scan.get('verification_cooldown') or {}
     if cooldown.get('until',0)>time.time():

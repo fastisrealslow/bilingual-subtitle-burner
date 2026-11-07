@@ -21,6 +21,8 @@ def archive_match(entry, snapshot, now):
             or snapshot.get('api_code') != 0 or snapshot.get('http_status')
             or snapshot.get('response_error')):
         return 'unavailable', None
+    if snapshot.get('scan_complete') is not True or snapshot.get('owner_verified') is not True:
+        return 'incomplete', None
     title = entry.get('upload_title')
     exact = [v for v in snapshot.get('videos', []) if v.get('title') == title]
     if not exact:
@@ -72,7 +74,7 @@ def reconcile(fc, state, *, now=None, lookup=None):
         if lookup is None:
             from bili_archive_status import archive_status
             read = lambda title: archive_status([], fc.OWNER_MID, fc.COOKIES_JSON,
-                expected_titles=[title], max_pages=12)
+                expected_titles=[title], max_pages=12, scan_all=True)
         else:
             read = lookup
         try:
@@ -117,7 +119,8 @@ def reconcile(fc, state, *, now=None, lookup=None):
             entry.pop('uploading', None)
             result['recovered'] += 1
         elif status == 'absent' and (now-started >= LEGACY_HORIZON_SECONDS
-                or type((entry.get('upload_process_result') or {}).get('completed_at')) in (int,float)):
+                or type((entry.get('upload_process_result') or {}).get('completed_at')) in (int,float)
+                and started <= entry['upload_process_result']['completed_at'] <= now):
             # Preserve all original intent fields for later audits. Quarantine
             # this source/file/title even if a delayed archive appears later.
             entry['publication_quarantined'] = True

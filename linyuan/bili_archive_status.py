@@ -10,7 +10,7 @@ import urllib.request
 
 
 def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include_statistics=False,
-                   max_pages=3):
+                   max_pages=3, scan_all=False):
     if type(max_pages) is not int or not 1 <= max_pages <= 12:
         raise ValueError('Archive read must have a bounded page limit')
     target=set(bvids)
@@ -83,7 +83,7 @@ def archive_status(bvids, owner_mid, cookies_json, expected_titles=None, include
                     available_stat_fields=sorted(counters),available_archive_fields=sorted(archive),
                     publication_clock_candidates={k:archive[k] for k in ('pubdate','ptime','online_time','ctime') if k in archive})
             result['videos'].append(safe)
-        if result['scan_complete'] or (target <= {r['bvid'] for r in result['videos']}
+        if result['scan_complete'] or (not scan_all and target <= {r['bvid'] for r in result['videos']}
                         and titles <= {r.get('title') for r in result['videos']}):
             break
     result['found_count']=len(result['videos'])

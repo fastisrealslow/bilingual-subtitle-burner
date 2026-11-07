@@ -5355,6 +5355,8 @@ def publish_handler(event=None, context=None):
     e["uploading"] = True
     e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
+    for old_result in ('upload_process_result','upload_reconciliation','upload_reconciled_at'):
+        e.pop(old_result,None)
     e['upload_part_index'] = k
     e['upload_parts_total'] = parts_total
     e['upload_artifact_id'] = art_ids.get(slug)
