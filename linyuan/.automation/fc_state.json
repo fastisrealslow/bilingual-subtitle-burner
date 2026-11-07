@@ -105693,7 +105693,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1XSzTBzEbG",
@@ -105716,7 +105717,76 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-23T11:12:52+00:00"
+   "publish_time": "2026-01-23T11:12:52+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-52f16d",
+    "run_id": 42412311101,
+    "artifact_id": 13590389179,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8d7553730edf64ae6ded52f1595399b0d83a7d5f811e1e03a3eb7fb3742f9827",
+     "duration_sec": 748.23,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1XSzTBzEbG"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 75%（BV1Jtah6TE7Q）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 254.90s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段以主持人新提问（第 5 句）结尾，嘉宾未对前述问题给出完整判断或解释，且全段缺乏明确的观点陈述与结论性语句，属于‘未回答的新问题结尾’及‘缺少观点证据’。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话开头是主持人提问（编号 0），嘉宾的回答（编号 1-6）虽然提供了具体例子（如三甲与基层医院用药区别、急诊科流程、信息积累重要性）和自身范围说明，但始终未给出一个针对‘如何判断哪是真的哪是假的’这一问题的明确结论或判断标准。结尾的‘嗯嗯’仅为语气词，不构成有效收束。因此，该片段缺乏独立的观点表达，无法构成完整回答。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾的回答在最后一句中断，未给出针对‘调研方式’或‘药品好如何判断’的完整结论性解释，且开头为回应主持人提问（程序已识别编号 0 为提问），缺乏独立的观点陈述和完整的论证闭环。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 88%（BV1xuaB6YEmf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 712.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾的回答主要是在回应主持人的具体提问（关于医院覆盖情况），并未形成独立的、可脱离该提问而成立的完整观点或判断。其核心内容是对‘一百家三甲医院’这一说法的澄清和补充，而非提出新的独立论断。因此，无法从中提取出符合要求的'claim_quote'（嘉宾的实际判断）。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 40.20s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"比如说某一类的药例子，或者说比如说一个结核，是个结核病的发发病率就高了。\", \"suspect_quote\": \"结核病的发发病率\", \"kind\": \"unintelligible_term\", \"reason\": \"重复词“发发病率”疑似识别污染，应为“发病率”。\"}, {\"sentence_id\": 3, \"quote\": \"以前那一个病人，你这个传染病的发病率，发病率都都，这都找你。\", \"suspect_quote\": \"这都找你\", \"kind\": \"unintelligible_term\", \"reason\": \""
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42412311101,
+    "artifact_id": 13590389179,
+    "name": "production-reject-ly-1107-52f16d",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 75%（BV1Jtah6TE7Q）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1KM2yBUEzr",
@@ -210300,6 +210370,13 @@
    "video_id": "BV1bk4E66EmL",
    "ts": 1794083706,
    "error": "动态取景连续2.04秒缺少人脸"
+  },
+  {
+   "slug": "ly-1107-52f16d",
+   "key": "bilibili_search:BV1XSzTBzEbG",
+   "video_id": "BV1XSzTBzEbG",
+   "ts": 1794086224,
+   "error": "与已发布内容文字指纹重复：转写片段重合 75%（BV1Jtah6TE7Q）"
   }
  ],
  "reviewed_third_video_0910": {
