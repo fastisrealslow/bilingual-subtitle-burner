@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1794091435,
-  "inventory_updated_at": 1794091280,
+  "updated_at": 1794091577,
+  "inventory_updated_at": 1794091573,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 104,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 0,
+    "verified_daily_stock": 105,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 104,
+      "verified_stock_snapshot": 105,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 26,
+        "portrait": 27,
         "landscape": 78
       },
-      "full_schedule_days": 8,
+      "full_schedule_days": 9,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -241,38 +241,79 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794091434,
-    "records": 16540,
-    "video_records": 14025,
-    "initial_candidates": 182,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1794091576,
+    "records": 16554,
+    "video_records": 14039,
+    "initial_candidates": 187,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
       "already_attempted_or_cooling": 3519,
-      "speaker_unconfirmed": 8468,
-      "clip_title": 1441,
+      "speaker_unconfirmed": 8471,
+      "clip_title": 1443,
       "no_video": 2515,
       "noise": 39,
       "unrelated": 79,
-      "reference_only": 261,
+      "reference_only": 265,
       "ai_content": 36,
       "over_limit": 34,
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1Z3dhYwECR",
+        "title": "林园 P1 studio_video_1744443851300.mp4",
+        "source": "bilibili_collection",
+        "author": "理财有我",
+        "url": "https://www.bilibili.com/video/BV1Z3dhYwECR",
+        "duration_sec": 61.0
+      },
+      {
+        "key": "bilibili_search:BV12K4y1u7pQ",
+        "title": "林园 P1 1624703050399.mp4",
+        "source": "bilibili_collection",
+        "author": "理财有我",
+        "url": "https://www.bilibili.com/video/BV12K4y1u7pQ",
+        "duration_sec": 84.0
+      },
+      {
+        "key": "bilibili_search:BV1nV41157UX",
+        "title": "林园 P1 2023-05林园谈市场：牛市初期。",
+        "source": "bilibili_collection",
+        "author": "林园门下走狗",
+        "url": "https://www.bilibili.com/video/BV1nV41157UX",
+        "duration_sec": 62.0
+      },
+      {
+        "key": "bilibili_search:BV1Vp4y1x7bx",
+        "title": "林园 P1 大佬林园：大道至简，抓住重点，2021年结构行情继续",
+        "source": "bilibili_collection",
+        "author": "旺财学堂",
+        "url": "https://www.bilibili.com/video/BV1Vp4y1x7bx",
+        "duration_sec": 74.0
+      },
+      {
+        "key": "bilibili_search:BV1LHY9zCEVJ",
+        "title": "林园 P1 2025.8.21，林园：4500点是真正的牛市启动点，现在虽然已经2700多点，但大多数人还亏钱的，而且大",
+        "source": "bilibili_collection",
+        "author": "我真的是大川啊",
+        "url": "https://www.bilibili.com/video/BV1LHY9zCEVJ",
+        "duration_sec": 72.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 104,
+    "verified_live": 105,
     "verified_audio_card": 0,
     "verified_landscape": 78,
-    "verified_portrait": 26,
+    "verified_portrait": 27,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 104,
+    "daily_mix_usable": 105,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -283,10 +324,10 @@
     "interrupted": 11,
     "excluded": 64,
     "experiment_fallback": 129,
-    "ready": 28,
+    "ready": 29,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -47427,8 +47468,8 @@
     },
     {
       "slug": "ly-1107-9d3da0",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1794089489,
         "failed": null,
@@ -47441,7 +47482,7 @@
       "run_id": 42419435616,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42419435616",
       "run_started_at": "2026-11-07T22:11:29Z",
-      "run_updated_at": "2026-11-07T22:11:32Z"
+      "run_updated_at": "2026-11-07T22:44:44Z"
     },
     {
       "slug": "ly-1107-967c14",
@@ -72150,10 +72191,10 @@
     },
     "ly-1107-9d3da0": {
       "id": 42419435616,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-11-07T22:11:29Z",
-      "updated_at": "2026-11-07T22:11:32Z",
+      "updated_at": "2026-11-07T22:44:44Z",
       "run_started_at": "2026-11-07T22:11:29Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42419435616",
       "run_number": 4075,
