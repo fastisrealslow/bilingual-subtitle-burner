@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794079924,
+  "updated_at": 1794080149,
   "inventory_updated_at": 1794079917,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 102,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 6,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794079922,
+    "updated_at": 1794080147,
     "records": 16395,
     "video_records": 13924,
-    "initial_candidates": 192,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 7,
+    "initial_candidates": 188,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 1,
     "excluded": {
-      "already_attempted_or_cooling": 3438,
+      "already_attempted_or_cooling": 3442,
       "speaker_unconfirmed": 8464,
       "clip_title": 1432,
       "no_video": 2471,
@@ -259,26 +259,10 @@
       "reference_only": 244,
       "ai_content": 36,
       "over_limit": 34,
-      "too_short": 150,
+      "too_short": 148,
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:4497632552594837",
-        "title": "【林园：炒股如何控风险控回撤？】\n 买入的时候，买入和持有是分开的。林园买股票不是做买卖，从来不... http://t",
-        "source": "weibo_search",
-        "author": "用户5189301092苍鹰",
-        "url": "https://m.weibo.cn/detail/4497632552594837",
-        "duration_sec": 22.0
-      },
-      {
-        "key": "weibo_search:4497529955667900",
-        "title": "【林园：炒股如何控风险控回撤？】\n 买入的时候，买入和持有是分开的。林园买股票不是做买卖，从来不... http://t",
-        "source": "weibo_search",
-        "author": "用户5189301092苍鹰",
-        "url": "https://m.weibo.cn/detail/4497529955667900",
-        "duration_sec": 22.0
-      },
       {
         "key": "weibo_search:4509840578399579",
         "title": "投资就投垄断，这和吃饭必须拿筷子一样是常识。现阶段有比个股赚钱确定性更高的东西，那就是可转债，医药、银行、券商的可转债是",
@@ -345,13 +329,13 @@
     "complete": 190,
     "failed": 2162,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 128,
     "ready": 26,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 3
+    "retry_queued": 3,
+    "running": 5
   },
   "tasks": [
     {
@@ -46988,14 +46972,14 @@
     },
     {
       "slug": "ly-1107-66b929",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794079504,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794080946,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -47021,6 +47005,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406434389",
       "run_started_at": "2026-11-07T19:29:14Z",
       "run_updated_at": "2026-11-07T19:29:18Z"
+    },
+    {
+      "slug": "ly-story-f65e50ad30",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794080102,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 42406920731,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406920731",
+      "run_started_at": "2026-11-07T19:35:01Z",
+      "run_updated_at": "2026-11-07T19:35:05Z"
+    },
+    {
+      "slug": "ly-1107-deeb79",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794080108,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42406931179,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406931179",
+      "run_started_at": "2026-11-07T19:35:08Z",
+      "run_updated_at": "2026-11-07T19:35:13Z"
     }
   ],
   "runs": {
@@ -71157,6 +71177,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42396480842",
       "run_number": 4030,
       "display_title": "中文源出片 · ly-1107-d12d2c"
+    },
+    "ly-1107-deeb79": {
+      "id": 42406931179,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T19:35:08Z",
+      "updated_at": "2026-11-07T19:35:13Z",
+      "run_started_at": "2026-11-07T19:35:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406931179",
+      "run_number": 4041,
+      "display_title": "中文源出片 · ly-1107-deeb79"
+    },
+    "ly-story-f65e50ad30": {
+      "id": 42406920731,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-07T19:35:01Z",
+      "updated_at": "2026-11-07T19:35:05Z",
+      "run_started_at": "2026-11-07T19:35:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42406920731",
+      "run_number": 4040,
+      "display_title": "中文源出片 · ly-story-f65e50ad30"
     },
     "ly-1107-cbb82f": {
       "id": 42406434389,
