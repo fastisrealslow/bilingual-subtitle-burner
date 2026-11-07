@@ -46,6 +46,7 @@ def deployment_error(report):
             ('linyuan/publishing_experiment.py',health.get('publishing_experiment_sha256')),
             ('linyuan/documented_company_story.py',runtime.get('documented_company_story_sha256')),
             ('linyuan/editorial_policy.py',health.get('editorial_code_sha256')),
+            ('linyuan/source_timeline.py',runtime.get('source_timeline_module_sha256')),
             ('linyuan/source_timeline_evidence.json',runtime.get('source_timeline_evidence_sha256'))]:
         if hashlib.sha256((ROOT/path).read_bytes()).hexdigest()!=actual:
             return 'deployed_code_differs'

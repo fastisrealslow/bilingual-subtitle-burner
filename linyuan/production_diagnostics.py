@@ -19,7 +19,7 @@ def ordered_failures(failures):
 
 def failure_category(reason):
     reason = str(reason or '')
-    if version_conflict(reason):return 'source_version'
+    if version_conflict(reason):return 'publication_history'
     # The tracker includes the minimum face size in its diagnostic even when
     # zero frames failed that size check. Do not recommend higher resolution
     # for host cutaways / identity mismatches (actual library302).

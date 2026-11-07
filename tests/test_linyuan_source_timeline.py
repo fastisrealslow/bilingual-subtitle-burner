@@ -97,7 +97,7 @@ def test_source_wide_version_conflict_precedes_a_partial_model_timeout():
     rows=[dict(stage='editorial-service',retryable=True,reason='长演讲候选推理尚未完成'),
         dict(stage='part-quality',reason='同一来源URL的母片内容哈希已改变，须核对旧段对应关系')]
     assert D.ordered_failures(rows)[0]==rows[1]
-    assert D.failure_category(rows[1]['reason'])=='source_version'
+    assert D.failure_category(rows[1]['reason'])=='publication_history'
 
 
 def failed_state():
@@ -127,3 +127,12 @@ def test_unmeasured_version_or_wrong_failed_parent_cannot_borrow_the_new_retry(m
     state=failed_state();stock=dict(inventory_fresh=True,experiment_ready={})
     state['dispatched'][-1]['production_failure_summary']['source_context']['source_sha256']='f'*64
     assert R.plan(state,stock,[],[],documentary_proof=cpu_proof(),timeline_proof=PROOF)[1]=='audio_timeline_repair_not_verified'
+
+
+def test_changed_clock_evidence_invalidates_cached_inventory_approvals(tmp_path,monkeypatch):
+    import source_supply as S
+    path=tmp_path/'timeline.json';path.write_bytes(T.REGISTRY.read_bytes())
+    monkeypatch.setattr(T,'REGISTRY',path)
+    old=S.validation_signature()
+    path.write_text(json.dumps(dict(version=1,proofs=[])))
+    assert old!=S.validation_signature()
