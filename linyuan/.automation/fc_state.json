@@ -100657,7 +100657,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-28T15:44:03+08:00"
+   "publish_time": "2023-06-28T15:44:03+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-e1a5b3",
+    "run_id": 42354990452,
+    "artifact_id": 13567406646,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c33f62a7343776edd02b326c20845ae2d524bc15f10859972ba26b558cd61521",
+     "duration_sec": 111.13,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4917631775937185"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42354990452,
+    "artifact_id": 13567406646,
+    "name": "production-reject-ly-1107-e1a5b3",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4781084380496994",
@@ -100680,7 +100713,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-16T20:33:27+08:00"
+   "publish_time": "2022-06-16T20:33:27+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1107-5d09eb",
+    "run_id": 42355000016,
+    "artifact_id": 13567009709,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7e9199ecd227276ba23a43cc35a2023d7a619e41010cc93901b92d43103b55a0",
+     "duration_sec": 26.43,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4781084380496994"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42355000016,
+    "artifact_id": 13567009709,
+    "name": "production-reject-ly-1107-5d09eb",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4912513328354818",
@@ -204407,6 +204473,20 @@
    "video_id": "BV1gLMu6YEGh",
    "ts": 1794039539,
    "error": "与已发布内容文字指纹重复：转写片段重合 90%（BV1AZxv6rEpG）"
+  },
+  {
+   "slug": "ly-1107-5d09eb",
+   "key": "weibo_search:4781084380496994",
+   "video_id": "https://f.video.weibocdn.com/o0/T9ZMWSGHlx07WTDBjMMM010412006Re50E010.mp4",
+   "ts": 1794040280,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：原文仅是对股东大会现场情况的客观报道（如‘股东陆续落座’、‘设置座位近三百个’、‘林园但斌落座于第一排’、‘吸引股东合影签名’），没有任何一句是嘉宾表达的投资观点、逻辑推导或最终结论。缺少核心要素：嘉宾判断（claim）及支撑该判断的理由或解释（reasoning/conclusion）。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1107-e1a5b3",
+   "key": "weibo_search:4917631775937185",
+   "video_id": "https://f.video.weibocdn.com/o0/6qawQ0Volx086ADwucbK01041200KK5D0E010.mp4",
+   "ts": 1794040281,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
