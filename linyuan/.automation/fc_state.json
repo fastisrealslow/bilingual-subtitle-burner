@@ -111417,7 +111417,8 @@
    },
    "last_error": "真人动态区检出来源二维码（含裁切残留定位图案）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1d8Kp6kEC6",
@@ -111463,7 +111464,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-10T03:12:26+00:00"
+   "publish_time": "2026-08-10T03:12:26+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-1ae65a",
+    "run_id": 42525455428,
+    "artifact_id": 13635139286,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "2058d9fad406cb6d9d1bf32e9cba37abcf1acac87537d98d299af70a01d6c595",
+     "duration_sec": 147.01,
+     "resolution": {
+      "width": 772,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1x5uR69E4A"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42525455428,
+    "artifact_id": 13635139286,
+    "name": "production-reject-ly-1108-1ae65a",
+    "retained": true
+   },
+   "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV16CE367EGw",
@@ -217272,6 +217306,13 @@
    "video_id": "BV1ydqaBREMJ",
    "ts": 1794173680,
    "error": "真人动态区检出来源二维码（含裁切残留定位图案）"
+  },
+  {
+   "slug": "ly-1108-1ae65a",
+   "key": "bilibili_search:BV1x5uR69E4A",
+   "video_id": "BV1x5uR69E4A",
+   "ts": 1794174338,
+   "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
   }
  ],
  "reviewed_third_video_0910": {
