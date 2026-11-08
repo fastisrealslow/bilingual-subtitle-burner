@@ -1,0 +1,28 @@
+name: FC费用与配置只读核验（不调用函数）
+on:
+  push:
+    branches: [diagnose/fc-cost-20261108]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi aliyun-python-sdk-bssopenapi
+      - name: 读取配置、异步调用记录与FC账单，所有财务输出加密
+        run: python scripts/inspect_fc_cost_20261108.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fc-cost-audit-encrypted
+          path: fc-cost-audit.encrypted.json
+          retention-days: 3
