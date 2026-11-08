@@ -109022,7 +109022,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-22T11:44:00+00:00"
+   "publish_time": "2022-05-22T11:44:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-85f123",
+    "run_id": 42453957251,
+    "artifact_id": 13606748772,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "64cb4c4e3b7bd76c9c20ab2c2441b8910f597000394f3e8b6adf49b97a5c2858",
+     "duration_sec": 359.04,
+     "resolution": {
+      "width": 1276,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1GZ4y187n8"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 60%（BV18B4j6iE9p）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42453957251,
+    "artifact_id": 13606748772,
+    "name": "production-reject-ly-1108-85f123",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 60%（BV18B4j6iE9p）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1Pe411y7Bp",
@@ -214686,6 +214719,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/RwERgc5klx08Cctn6JgY01041200bknq0E010.mp4",
    "ts": 1794118831,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1108-85f123",
+   "key": "bilibili_search:BV1GZ4y187n8",
+   "video_id": "BV1GZ4y187n8",
+   "ts": 1794119619,
+   "error": "与已发布内容文字指纹重复：转写片段重合 60%（BV18B4j6iE9p）"
   }
  ],
  "reviewed_third_video_0910": {
