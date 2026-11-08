@@ -111474,7 +111474,8 @@
    },
    "last_error": "整段取景预检：源 213.97s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1x5uR69E4A",
@@ -111554,7 +111555,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-08T14:44:05+00:00"
+   "publish_time": "2026-06-08T14:44:05+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-f76660",
+    "run_id": 42525975733,
+    "artifact_id": 13636091490,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "89891147d7471703471bb1336e4e48bfb4aa842d3b910b6f7591d3f3d20f5074",
+     "duration_sec": 212.16,
+     "resolution": {
+      "width": 960,
+      "height": 1920,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV16CE367EGw"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 74%（BV1Lheu6kEfE）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42525975733,
+    "artifact_id": 13636091490,
+    "name": "production-reject-ly-1108-f76660",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 74%（BV1Lheu6kEfE）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1kDNv6XEfa",
@@ -111577,7 +111615,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-15T03:57:45+00:00"
+   "publish_time": "2026-07-15T03:57:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-460f15",
+    "run_id": 42526851967,
+    "artifact_id": 13635628928,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "11375cc250e3613dd3dcb157dad9db80d91dc5f8d6abd24894de374c24babdd6",
+     "duration_sec": 125.6,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1kDNv6XEfa"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42526851967,
+    "artifact_id": 13635628928,
+    "name": "production-reject-ly-1108-460f15",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1SHN466Eoo",
@@ -217446,6 +217517,20 @@
    "video_id": "BV1d8Kp6kEC6",
    "ts": 1794174763,
    "error": "整段取景预检：源 213.97s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1108-460f15",
+   "key": "bilibili_search:BV1kDNv6XEfa",
+   "video_id": "BV1kDNv6XEfa",
+   "ts": 1794175154,
+   "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1108-f76660",
+   "key": "bilibili_search:BV16CE367EGw",
+   "video_id": "BV16CE367EGw",
+   "ts": 1794175155,
+   "error": "与已发布内容文字指纹重复：转写片段重合 74%（BV1Lheu6kEfE）"
   }
  ],
  "reviewed_third_video_0910": {
