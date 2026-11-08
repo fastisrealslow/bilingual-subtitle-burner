@@ -1,0 +1,50 @@
+name: 免费CI补备片（不调用FC）
+on:
+  push:
+    branches: [optimize/free-inventory-20261108]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-dispatch-runner
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests jieba 'opencv-python-headless<5'
+      - name: 保留六工作位、来源限制和质量恢复，只走CI可取源路径
+        run: |
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import index as fc
+          result=dict(backend='github',fc_invocations=0,completed=False)
+          try:
+              result['admission']=fc.dispatch_handler({'execution_backend':'github'})
+              result['completed']=True
+              # A domestic-transfer deficit remains deferred. This job has no
+              # cloud credentials and never invokes run_inventory_task/retire_timer.
+          finally:
+              fc.flush_logs()
+              Path('free-inventory-preparation.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+              print(json.dumps(result,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: free-inventory-preparation
+          path: free-inventory-preparation.json
+          if-no-files-found: warn
+          retention-days: 7
