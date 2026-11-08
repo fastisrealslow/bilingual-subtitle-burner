@@ -110999,7 +110999,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1rrE162Ej1",
@@ -111022,7 +111023,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-12T10:26:45+00:00"
+   "publish_time": "2026-06-12T10:26:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-5c215e",
+    "run_id": 42521941530,
+    "artifact_id": 13634620937,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "349bb0fda7e2509dcf9b3b17429f89d732e894f8b6cfdb8d866fd3ddb434353f",
+     "duration_sec": 148.37,
+     "resolution": {
+      "width": 544,
+      "height": 960,
+      "short_edge": 544
+     },
+     "source_url": "https://www.bilibili.com/video/BV1rrE162Ej1"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1JRp96yE1n）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"就程程陈董事长。\", \"suspect_quote\": \"就程程陈董事长\", \"kind\": \"unintelligible_term\", \"reason\": \"“程程”疑似将人名“程”重复识别或误读，且与后文“陈董事长”连用导致身份指代不清（是称呼“程程”还是“陈”？），存在专名识别污染。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 96%（BV1C8pe6FEa3）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42521941530,
+    "artifact_id": 13634620937,
+    "name": "production-reject-ly-1108-5c215e",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1JRp96yE1n）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5246956017549858",
@@ -216897,6 +216939,13 @@
    "video_id": "BV11UydYXEvY",
    "ts": 1794171779,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1108-5c215e",
+   "key": "bilibili_search:BV1rrE162Ej1",
+   "video_id": "BV1rrE162Ej1",
+   "ts": 1794172202,
+   "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1JRp96yE1n）"
   }
  ],
  "reviewed_third_video_0910": {
