@@ -110237,7 +110237,124 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-10T12:42:57+00:00"
+   "publish_time": "2023-12-10T12:42:57+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-07f85c",
+    "run_id": 42501349974,
+    "artifact_id": 13628409388,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "59d96afe6e701e08b1405eec3ac00c6c815d23b12eabc7280d814cefafc52d1c",
+     "duration_sec": 3483.43,
+     "resolution": {
+      "width": 720,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Wj411s759"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"这也不是我说的，建立金融强国，这是第一次听说的啊。\", \"suspect_quote\": \"建立金融强国\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘建设’误识别为‘建立’，且‘第一次听说’与嘉宾身份及语境存在逻辑矛盾，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"我们也做了一个，当下的这个，嗯，代表中国大多数人收入的这个家庭啊，其实他们的收入并没有减少啊。\", \"suspect_quote\": \"代表中国大多数人收入的这个家庭\", \"kind"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"那么到今年三季度，我们我们看到它它的这个呃这个工业利润，工业工业利润，大概去到了，四是四十二亿，十三亿的四十三亿啊，口碑的十三亿。\", \"suspect_quote\": \"四是四十二亿，十三亿的四十三亿啊\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"数字识别混乱：'四是四十二亿'与'十三亿的四十三亿'存在明显的语音转写污染，无法确定实体数值，需核对原音。\"}, {\"sentence_id\": 13, \"quote\": \"这是发生在过去，比如说体彩，呃，对药物的这个这个"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"但是我要增加我这个糖尿病，我要治疗这个循解决循环的问题。\", \"suspect_quote\": \"循解决循环\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，'循解决循环'语义不通，无法确定具体医学或日常用语含义。\"}, {\"sentence_id\": 6, \"quote\": \"所以我就促进那循环，我现在就没有这方面的并发症是。\", \"suspect_quote\": \"是\", \"kind\": \"unintelligible_term\", \"reason\": \"句末'是'字疑似"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2066/3864，总帧数8988；身份匹配但人脸短边不足96px的帧数1798"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/494，总帧数2465；身份匹配但人脸短边不足96px的帧数494"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配48/584，总帧数2678；身份匹配但人脸短边不足96px的帧数536"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/507，总帧数2534；身份匹配但人脸短边不足96px的帧数507"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/193，总帧数960；身份匹配但人脸短边不足96px的帧数193"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配21/462，总帧数2203；身份匹配但人脸短边不足96px的帧数441"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/466，总帧数2326；身份匹配但人脸短边不足96px的帧数466"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/423，总帧数2110；身份匹配但人脸短边不足96px的帧数10"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1142/1564，总帧数2105；身份匹配但人脸短边不足96px的帧数422"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配827/1189，总帧数1807；身份匹配但人脸短边不足96px的帧数362"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答仅停留在个人消费习惯的事实描述（'两千块就够了'），未延伸出关于资产配置、投资哲学或市场看法的实质性判断；且中间夹杂口吃（'我我赚你'）、语气词（'嗯''啊'）及无意义重复，导致表达碎片化，无法构成完整观点链条。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1009/2630，总帧数8100；身份匹配但人脸短边不足96px的帧数1305"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段中嘉宾未给出明确的投资判断或完整论述逻辑，仅重复‘熊市第三期’并描述市场弱势特征，缺乏支撑该判断的理由或具体例子，属于必要论述被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/182，总帧数907；身份匹配但人脸短边不足96px的帧数182"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/622，总帧数3108；身份匹配但人脸短边不足96px的帧数284"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空，因为主持人问题编号 [0] 被排除在嘉宾判断之外；嘉宾回答虽提及因素但未形成针对‘是否可买’的明确立场（如‘可以买’或‘不能一概而论’的具体指向），导致核心观点缺失。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/351，总帧数1754；身份匹配但人脸短边不足96px的帧数351"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/340，总帧数1697；身份匹配但人脸短边不足96px的帧数340"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "选段进入指名提问其他嘉宾的轮次；画面出现林园不代表这段原声属于林园，须另选明确转回本人的完整回答"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42501349974,
+    "artifact_id": 13628409388,
+    "name": "production-reject-ly-1108-07f85c",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"这也不是我说的，建立金融强国，这是第一次听说的啊。\", \"suspect_quote\": \"建立金融强国\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘建设’误识别为‘建立’，且‘第一次听说’与嘉宾身份及语境存在逻辑矛盾，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"我们也做了一个，当下的这个，嗯，代表中国大多数人收入的这个家庭啊，其实他们的收入并没有减少啊。\", \"suspect_quote\": \"代表中国大多数人收入的这个家庭\", \"kind\": \"unintelligible_term\", \"reason\": \"‘代表’疑似误识别，结合上下文应为‘反映’或类似动词，需核实原音。\"}, {\"sentence_id\": 15, \"quote\": \"如果今天是经济增长百分之十八，我反倒觉得我没这么有这个激情，因为经济增长降速，而且这个这个经济确实是，我们看就不管是股市还是，股市的趋势也比较冷，是吧？\", \"suspect_quote\": \"百分之十八\", \"kind\": \"unintelligible_term\", \"reason\": \"经济增长‘百分之十八’不符合常识及语境，疑似将‘百分之八’误识别为‘百分之十八’，需核实原音。\"}, {\"sentence_id\": 19, \"quote\": \"美国没有什么人的，他就是十年的大牛市。\", \"suspect_quote\": \"美国没有什么人的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘没有什么人的’疑似误识别，结合上下文应为‘没有什么好说的’或类似表达，需核实原音。\"}, {\"sentence_id\": 23, \"quote\": \"但美国，你印钞，他基金的这个这个利息都，存款利息达到百分之五以上，这肯定不正常。\", \"suspect_quote\": \"百分之五以上\", \"kind\": \"unintelligible_term\", \"reason\": \"存款利息‘百分之五以上’在语境中可能为误识别，需核实原音确认具体数值。\"}, {\"sentence_id\": 28, \"quote\": \"如果我们假设国家的这个金融经经济强国能建立，那中国说了算了就好办了，也随便印印印，啊！\", \"suspect_quote\": \"金融经经济强国\", \"kind\": \"unintelligible_term\", \"reason\": \"‘金融经经济’疑似重复识别，应为‘金融经济’，需核实原音。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1YH4y1E79x",
@@ -110447,7 +110564,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Bz2HYUEy5",
@@ -216202,6 +216320,13 @@
    "video_id": "BV12FAGeGE6B",
    "ts": 1794162152,
    "error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+  },
+  {
+   "slug": "ly-1108-07f85c",
+   "key": "bilibili_search:BV1Wj411s759",
+   "video_id": "BV1Wj411s759",
+   "ts": 1794162555,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"这也不是我说的，建立金融强国，这是第一次听说的啊。\", \"suspect_quote\": \"建立金融强国\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘建设’误识别为‘建立’，且‘第一次听说’与嘉宾身份及语境存在逻辑矛盾，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"我们也做了一个，当下的这个，嗯，代表中国大多数人收入的这个家庭啊，其实他们的收入并没有减少啊。\", \"suspect_quote\": \"代表中国大多数人收入的这个家庭\", \"kind\": \"unintelligible_term\", \"reason\": \"‘代表’疑似误识别，结合上下文应为‘反映’或类似动词，需核实原音。\"}, {\"sentence_id\": 15, \"quote\": \"如果今天是经济增长百分之十八，我反倒觉得我没这么有这个激情，因为经济增长降速，而且这个这个经济确实是，我们看就不管是股市还是，股市的趋势也比较冷，是吧？\", \"suspect_quote\": \"百分之十八\", \"kind\": \"unintelligible_term\", \"reason\": \"经济增长‘百分之十八’不符合常识及语境，疑似将‘百分之八’误识别为‘百分之十八’，需核实原音。\"}, {\"sentence_id\": 19, \"quote\": \"美国没有什么人的，他就是十年的大牛市。\", \"suspect_quote\": \"美国没有什么人的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘没有什么人的’疑似误识别，结合上下文应为‘没有什么好说的’或类似表达，需核实原音。\"}, {\"sentence_id\": 23, \"quote\": \"但美国，你印钞，他基金的这个这个利息都，存款利息达到百分之五以上，这肯定不正常。\", \"suspect_quote\": \"百分之五以上\", \"kind\": \"unintelligible_term\", \"reason\": \"存款利息‘百分之五以上’在语境中可能为误识别，需核实原音确认具体数值。\"}, {\"sentence_id\": 28, \"quote\": \"如果我们假设国家的这个金融经经济强国能建立，那中国说了算了就好办了，也随便印印印，啊！\", \"suspect_quote\": \"金融经经济强国\", \"kind\": \"unintelligible_term\", \"reason\": \"‘金融经经济’疑似重复识别，应为‘金融经济’，需核实原音。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
