@@ -108970,7 +108970,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-10T11:48:00+00:00"
+   "publish_time": "2022-06-10T11:48:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-52556c",
+    "run_id": 42453947956,
+    "artifact_id": 13607044089,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "67841adf5cb04a7f667c73195e09ee0f6541a8cf4b550cb93c41f8d05749fd8f",
+     "duration_sec": 501.8,
+     "resolution": {
+      "width": 1278,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1PY411M7Hu"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42453947956,
+    "artifact_id": 13607044089,
+    "name": "production-reject-ly-1108-52556c",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1GZ4y187n8",
@@ -109026,7 +109059,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 60%（BV18B4j6iE9p）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "video_id": "BV1Pe411y7Bp",
@@ -214727,6 +214761,13 @@
    "video_id": "BV1GZ4y187n8",
    "ts": 1794119619,
    "error": "与已发布内容文字指纹重复：转写片段重合 60%（BV18B4j6iE9p）"
+  },
+  {
+   "slug": "ly-1108-52556c",
+   "key": "bilibili_search:BV1PY411M7Hu",
+   "video_id": "BV1PY411M7Hu",
+   "ts": 1794119919,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
