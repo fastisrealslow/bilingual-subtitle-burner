@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794155140,
+  "updated_at": 1794155319,
   "inventory_updated_at": 1794155133,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 116,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 39,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 36,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -249,17 +249,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794155138,
+    "updated_at": 1794155317,
     "records": 16755,
     "video_records": 14240,
-    "initial_candidates": 223,
-    "duration_eligible_records": 39,
-    "candidate_count": 39,
-    "known_duration_candidates": 39,
+    "initial_candidates": 220,
+    "duration_eligible_records": 36,
+    "candidate_count": 36,
+    "known_duration_candidates": 36,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 8541,
-      "already_attempted_or_cooling": 3576,
+      "already_attempted_or_cooling": 3582,
+      "speaker_unconfirmed": 8538,
       "clip_title": 1455,
       "unrelated": 81,
       "no_video": 2515,
@@ -271,30 +271,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5362953268495443",
-        "title": "林园访谈关键词：1趋势：牛熊背后是趋势，尊重趋势，等候趋势，但是趋势是突然的、爆发式的，也许短期亏损但一弹好几倍（过去赚",
-        "source": "weibo_search",
-        "author": "秋天的果实JS",
-        "url": "https://m.weibo.cn/detail/5362953268495443",
-        "duration_sec": 3184.0
-      },
-      {
-        "key": "weibo_search:5363068695478717",
-        "title": "//@秋天的果实JS:林园访谈关键词：1趋势：牛熊背后是趋势，尊重趋势，等候趋势，但是趋势是突然的、爆发式的，也许短期亏",
-        "source": "weibo_search",
-        "author": "咖啡豆AAA",
-        "url": "https://m.weibo.cn/detail/5363068695478717",
-        "duration_sec": 3184.0
-      },
-      {
-        "key": "weibo_search:5362339349270922",
-        "title": "【1小时完整版】林园：市场周期与人生哲学。#天玉朋友圈##透过财经看世界##微博视频号迎新计划##财经# http://",
-        "source": "weibo_search",
-        "author": "晋江大状王金龙13959718271",
-        "url": "https://m.weibo.cn/detail/5362339349270922",
-        "duration_sec": 3184.0
-      },
       {
         "key": "bilibili_search:BV1Wj411s759",
         "title": "林园 P1 【完整字幕】20231210林园：物极必反，铁定反弹",
@@ -599,15 +575,15 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2237,
+    "failed": 2238,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 139,
     "ready": 32,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -48882,11 +48858,11 @@
     },
     {
       "slug": "ly-1108-c35beb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1794154904,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -48897,6 +48873,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42499499149",
       "run_started_at": "2026-11-08T16:21:44Z",
       "run_updated_at": "2026-11-08T16:23:55Z"
+    },
+    {
+      "slug": "ly-1108-0dd8cc",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794155277,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42500015526,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42500015526",
+      "run_started_at": "2026-11-08T16:27:56Z",
+      "run_updated_at": "2026-11-08T16:28:00Z"
     }
   ],
   "runs": {
@@ -74023,6 +74017,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42499499149",
       "run_number": 4148,
       "display_title": "中文源出片 · ly-1108-c35beb"
+    },
+    "ly-1108-0dd8cc": {
+      "id": 42500015526,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T16:27:56Z",
+      "updated_at": "2026-11-08T16:28:00Z",
+      "run_started_at": "2026-11-08T16:27:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42500015526",
+      "run_number": 4149,
+      "display_title": "中文源出片 · ly-1108-0dd8cc"
     },
     "ly-story-5d8406e664": {
       "id": 42499489563,
