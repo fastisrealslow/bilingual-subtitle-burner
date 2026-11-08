@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794123001,
-  "inventory_updated_at": 1794122668,
+  "updated_at": 1794123172,
+  "inventory_updated_at": 1794123166,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 112,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 29,
-        "landscape": 83
+        "portrait": 28,
+        "landscape": 84
       },
       "full_schedule_days": 9,
       "required_week_shortfall": 0,
@@ -249,34 +249,51 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794122999,
-    "records": 16677,
-    "video_records": 14162,
-    "initial_candidates": 184,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1794123170,
+    "records": 16687,
+    "video_records": 14172,
+    "initial_candidates": 186,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 8518,
-      "already_attempted_or_cooling": 3574,
-      "clip_title": 1451,
+      "speaker_unconfirmed": 8521,
+      "already_attempted_or_cooling": 3577,
+      "clip_title": 1452,
       "no_video": 2515,
       "noise": 39,
       "unrelated": 80,
-      "reference_only": 280,
+      "reference_only": 281,
       "ai_content": 36,
       "over_limit": 36,
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1NFyKY5EMo",
+        "title": "林园 P1 studio_video_1729152684520.mp4",
+        "source": "bilibili_collection",
+        "author": "可爱的莫里",
+        "url": "https://www.bilibili.com/video/BV1NFyKY5EMo",
+        "duration_sec": 2215.0
+      },
+      {
+        "key": "bilibili_search:BV1DMQDYcEw2",
+        "title": "林园 P1 studio_video_1742049571631.mp4",
+        "source": "bilibili_collection",
+        "author": "理财有我",
+        "url": "https://www.bilibili.com/video/BV1DMQDYcEw2",
+        "duration_sec": 2994.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 112,
     "verified_audio_card": 0,
-    "verified_landscape": 83,
-    "verified_portrait": 29,
+    "verified_landscape": 84,
+    "verified_portrait": 28,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -288,13 +305,13 @@
     "complete": 192,
     "failed": 2229,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 10,
     "excluded": 65,
     "experiment_fallback": 136,
     "ready": 32,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -48425,8 +48442,8 @@
     },
     {
       "slug": "ly-1108-fc1bb4",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794122942,
         "failed": null,
@@ -48439,7 +48456,7 @@
       "run_id": 42458967383,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42458967383",
       "run_started_at": "2026-11-08T07:29:02Z",
-      "run_updated_at": "2026-11-08T07:29:06Z"
+      "run_updated_at": "2026-11-08T07:30:33Z"
     },
     {
       "slug": "ly-1108-3b4e84",
@@ -73449,17 +73466,6 @@
       "run_number": 4122,
       "display_title": "中文源出片 · ly-1108-da40a2"
     },
-    "ly-story-c185a62548": {
-      "id": 42458958034,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-08T07:28:53Z",
-      "updated_at": "2026-11-08T07:28:58Z",
-      "run_started_at": "2026-11-08T07:28:53Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42458958034",
-      "run_number": 4135,
-      "display_title": "中文源出片 · ly-story-c185a62548"
-    },
     "ly-1108-dc73bd": {
       "id": 42456705979,
       "status": "completed",
@@ -73550,14 +73556,25 @@
     },
     "ly-1108-fc1bb4": {
       "id": 42458967383,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-08T07:29:02Z",
-      "updated_at": "2026-11-08T07:29:06Z",
+      "updated_at": "2026-11-08T07:30:33Z",
       "run_started_at": "2026-11-08T07:29:02Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42458967383",
       "run_number": 4136,
       "display_title": "中文源出片 · ly-1108-fc1bb4"
+    },
+    "ly-story-c185a62548": {
+      "id": 42458958034,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T07:28:53Z",
+      "updated_at": "2026-11-08T07:28:58Z",
+      "run_started_at": "2026-11-08T07:28:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42458958034",
+      "run_number": 4135,
+      "display_title": "中文源出片 · ly-story-c185a62548"
     },
     "ly-1108-a3ec8d": {
       "id": 42457525948,
