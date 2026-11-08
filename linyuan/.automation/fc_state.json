@@ -108825,7 +108825,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 58%（BV1RCn76bE4M）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1gS4y1v7Kk",
@@ -108900,7 +108901,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-11-08T09:02:01+08:00"
+   "publish_time": "2026-11-08T09:02:01+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42452796002,
+    "artifact_id": 13606179774,
+    "name": "source-reject-ly-1108-308dd1",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -214455,6 +214466,13 @@
    "video_id": "BV1iB3x6aEEd",
    "ts": 1794117830,
    "error": "与已发布内容文字指纹重复：转写片段重合 58%（BV1RCn76bE4M）"
+  },
+  {
+   "slug": "ly-1108-308dd1",
+   "key": "weibo_search:5362905285657132",
+   "video_id": "https://f.video.weibocdn.com/o0/bDC8ADZwlx08CbFe48JW0104120cdGoL0E050.mp4",
+   "ts": 1794118423,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
