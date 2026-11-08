@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794180861,
+  "updated_at": 1794181042,
   "inventory_updated_at": 1794180853,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 122,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 3,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -249,16 +249,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794180859,
+    "updated_at": 1794181040,
     "records": 16884,
     "video_records": 14367,
-    "initial_candidates": 187,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 186,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3639,
+      "already_attempted_or_cooling": 3640,
       "speaker_unconfirmed": 8614,
       "clip_title": 1467,
       "unrelated": 81,
@@ -271,14 +271,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1EG4y1Q7Hy",
-        "title": "林园 P1 1674619314083.mp4",
-        "source": "bilibili_collection",
-        "author": "理财有我",
-        "url": "https://www.bilibili.com/video/BV1EG4y1Q7Hy",
-        "duration_sec": 116.0
-      },
       {
         "key": "bilibili_search:BV1FK411u7Ph",
         "title": "林园 P1 大佬林园：牛市里大多数都会有表现，关注优质企业才是根本",
@@ -311,15 +303,15 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2280,
+    "failed": 2281,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 151,
     "ready": 33,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -49620,11 +49612,11 @@
     },
     {
       "slug": "ly-1108-d2dcd5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1296/1791，总帧数2472；身份匹配但人脸短边不足96px的帧数206",
       "signature": {
         "ts": 1794180015,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49653,6 +49645,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42534694387",
       "run_started_at": "2026-11-08T23:20:23Z",
       "run_updated_at": "2026-11-08T23:20:27Z"
+    },
+    {
+      "slug": "ly-1108-1bbd6a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794181002,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42536003368,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536003368",
+      "run_started_at": "2026-11-08T23:36:42Z",
+      "run_updated_at": "2026-11-08T23:36:46Z"
     }
   ],
   "runs": {
@@ -75385,17 +75395,6 @@
       "run_number": 4204,
       "display_title": "中文源出片 · ly-1108-3e6e8f"
     },
-    "ly-1108-d01d84": {
-      "id": 42534694387,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-08T23:20:23Z",
-      "updated_at": "2026-11-08T23:20:27Z",
-      "run_started_at": "2026-11-08T23:20:23Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42534694387",
-      "run_number": 4207,
-      "display_title": "中文源出片 · ly-1108-d01d84"
-    },
     "ly-1108-d2dcd5": {
       "id": 42534682128,
       "status": "completed",
@@ -75406,6 +75405,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42534682128",
       "run_number": 4206,
       "display_title": "中文源出片 · ly-1108-d2dcd5"
+    },
+    "ly-1108-1bbd6a": {
+      "id": 42536003368,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T23:36:42Z",
+      "updated_at": "2026-11-08T23:36:46Z",
+      "run_started_at": "2026-11-08T23:36:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536003368",
+      "run_number": 4208,
+      "display_title": "中文源出片 · ly-1108-1bbd6a"
+    },
+    "ly-1108-d01d84": {
+      "id": 42534694387,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T23:20:23Z",
+      "updated_at": "2026-11-08T23:20:27Z",
+      "run_started_at": "2026-11-08T23:20:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42534694387",
+      "run_number": 4207,
+      "display_title": "中文源出片 · ly-1108-d01d84"
     },
     "ly-1108-8be062": {
       "id": 42534036185,
