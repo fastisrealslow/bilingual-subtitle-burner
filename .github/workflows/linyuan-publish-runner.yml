@@ -1,0 +1,71 @@
+name: 林园发布协调（境内仅上传）
+on:
+  schedule:
+    # Backup for the FC clock. The existing slot ledger caps four per day.
+    - cron: '2 2,6,8,13 * * *'
+  workflow_dispatch:
+    inputs:
+      preview:
+        description: '只检查到期时段和库存，不投稿'
+        type: boolean
+        default: true
+      canary:
+        description: '仅手动验收一条真实到期稿件，保留正常配额和全套门禁'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-publish-runner
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装现有质检依赖（国内投稿依赖保留在 FC）
+        run: |
+          pip install -q requests numpy pillow 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
+          pip install -q -r linyuan/fc/runtime-requirements.txt
+          bash linyuan/ci_install_media_tools.sh
+      - name: 按实际库存与原配额发布，未启用时只预检
+        env:
+          REQUEST_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.preview && 'true' || 'false' }}
+          REQUEST_CANARY: ${{ github.event_name == 'workflow_dispatch' && inputs.canary && 'true' || 'false' }}
+        run: |
+          python - <<'PY'
+          import sys,os,json
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          from fc_cost_policy import RUNNER_PUBLISH_ENABLED
+          from publish_on_runner import run
+          canary=os.environ['REQUEST_CANARY']=='true'
+          preview=os.environ['REQUEST_PREVIEW']=='true' or not (RUNNER_PUBLISH_ENABLED or canary)
+          result=run(preview=preview,max_slots=1 if canary else 4)
+          Path('runner-publish-receipt.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          if result.get("visibility_pending"):
+              raise SystemExit("真实上传回执已保存，公开审核未完成；禁止重传")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runner-publish-receipt
+          path: runner-publish-receipt.json
+          retention-days: 7
+          if-no-files-found: warn

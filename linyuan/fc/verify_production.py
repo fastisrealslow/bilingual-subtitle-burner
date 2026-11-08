@@ -74,6 +74,16 @@ def verify_config_health(health, root=None):
             or health.get('experiment_observation_clock_sha256')!=hashlib.sha256(
                 (root/'linyuan/experiment_observation_dispatch.py').read_bytes()).hexdigest()):
         raise SystemExit('Deployed independent analytics clock does not match verified checkout')
+    import fc_cost_policy
+    import upload_transport
+    import publish_clock
+    expected_cost=dict(version=fc_cost_policy.VERSION,target_ratio=fc_cost_policy.TARGET_RATIO,
+        runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION,
+        upload_transport_sha256=hashlib.sha256((root/"linyuan/upload_transport.py").read_bytes()).hexdigest(),
+        policy_sha256=hashlib.sha256((root/"linyuan/fc_cost_policy.py").read_bytes()).hexdigest(),
+        clock_sha256=hashlib.sha256((root/"linyuan/publish_clock.py").read_bytes()).hexdigest())
+    if health.get('fc_cost_policy')!=expected_cost:
+        raise SystemExit('Deployed cost rollout/protocol does not match verified checkout')
     expected_runtime=experiment_runtime_health()
     if not expected_runtime['passed'] or health.get('experiment_runtime')!=expected_runtime:
         raise SystemExit('Deployed story-proof tokenizer runtime is missing or mismatched')
@@ -110,8 +120,9 @@ def configure_observation_timer(client,function,m,read_runtime):
     response=client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
     triggers={t.trigger_name:t for t in response.body.triggers}
     ownership=dict(triggerName=name,purpose='read_only_experiment_statistics')
+    import fc_cost_policy
     desired=dict(cronExpression=config['cron'],
-        enable=time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))<config['end_exclusive'],
+        enable=not fc_cost_policy.CI_OBSERVATION_CLOCK and time.strftime('%Y-%m-%d',time.gmtime(time.time()+8*3600))<config['end_exclusive'],
         payload=json.dumps(ownership))
     if name in triggers:
         if triggers[name].trigger_type!='timer':
