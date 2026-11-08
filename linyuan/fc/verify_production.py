@@ -76,8 +76,12 @@ def verify_config_health(health, root=None):
         raise SystemExit('Deployed independent analytics clock does not match verified checkout')
     import fc_cost_policy
     import upload_transport
+    import publish_clock
     expected_cost=dict(version=fc_cost_policy.VERSION,target_ratio=fc_cost_policy.TARGET_RATIO,
-        runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION)
+        runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION,
+        upload_transport_sha256=hashlib.sha256((root/"linyuan/upload_transport.py").read_bytes()).hexdigest(),
+        policy_sha256=hashlib.sha256((root/"linyuan/fc_cost_policy.py").read_bytes()).hexdigest(),
+        clock_sha256=hashlib.sha256((root/"linyuan/publish_clock.py").read_bytes()).hexdigest())
     if health.get('fc_cost_policy')!=expected_cost:
         raise SystemExit('Deployed cost rollout/protocol does not match verified checkout')
     expected_runtime=experiment_runtime_health()

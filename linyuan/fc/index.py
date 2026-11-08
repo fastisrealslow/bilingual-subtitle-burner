@@ -2031,7 +2031,10 @@ def production_config():
             "duration_policy_version": editorial.DURATION_POLICY_VERSION,
             "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
             "fc_cost_policy": dict(version=fc_cost_policy.VERSION,target_ratio=fc_cost_policy.TARGET_RATIO,
-                runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION),
+                runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION,
+                upload_transport_sha256=hashlib.sha256(Path(upload_transport.__file__).read_bytes()).hexdigest(),
+                policy_sha256=hashlib.sha256(Path(fc_cost_policy.__file__).read_bytes()).hexdigest(),
+                clock_sha256=hashlib.sha256(Path(publish_clock.__file__).read_bytes()).hexdigest()),
             "experiment_observation_clock": observation_clock.policy(),
             "experiment_observation_clock_sha256": hashlib.sha256(Path(observation_clock.__file__).read_bytes()).hexdigest(),
             "dispatch_workflow_ref": "main", "publish_hours_beijing": sorted(PUBLISH_HOURS)}
@@ -5390,8 +5393,10 @@ def publish_handler(event=None, context=None):
         e['upload_makeup_slot'] = makeup_slot
         e['upload_expected_sha256'] = expected_sha256
     if remote_upload:
-        from reviewed_upload_client import prepare
-        binding=prepare(sys.modules[__name__],tmp/slug,part,e,cmd)
+        # The adapter is CI-only; the FC ZIP carries just upload_transport.
+        from importlib import import_module
+        upload_client=import_module("reviewed_upload_client")
+        binding=upload_client.prepare(sys.modules[__name__],tmp/slug,part,e,cmd)
         binding['video_sha256']=(part.get('fingerprints') or {}).get('sha256')
     if save_state(st) is False:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -5404,8 +5409,7 @@ def publish_handler(event=None, context=None):
     # 调用 biliup CLI
     try:
         if remote_upload:
-            from reviewed_upload_client import execute
-            r = execute(binding)
+            r = upload_client.execute(binding)
         else:
             r = subprocess.run(cmd, capture_output=True, text=True,
                                timeout=1620, env=env)

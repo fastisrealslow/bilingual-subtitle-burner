@@ -25,15 +25,22 @@ def connection():
 
 
 def capability():
-    """Safe even on the old runtime: its first publisher guard rejects the slug."""
+    """Use the existing read-only health route, including on old runtimes."""
     import io
     client,function,m,runtime=connection()
     response=client.invoke_function_with_options(function,m.InvokeFunctionRequest(qualifier='LATEST',
-        body=io.BytesIO(canonical(dict(triggerName=TRIGGER,probe=True,batch_slug=LEGACY_SENTINEL)))),
+        body=io.BytesIO(canonical(dict(triggerName='diagnose-config')))),
         m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),runtime)
     raw=response.body.read() if hasattr(response.body,'read') else response.body
     result=json.loads(raw)
-    return response.status_code==200 and result==dict(protocol=VERSION,upload_called=False)
+    if response.status_code!=200 or (result.get('fc_cost_policy') or {}).get('upload_protocol')!=VERSION:
+        return False
+    from verify_production import verify_config_health
+    try:
+        verify_config_health(result)
+    except SystemExit:
+        return False
+    return True
 
 
 def prepare(fc,directory,part,entry,cmd):
@@ -77,10 +84,8 @@ def prepare(fc,directory,part,entry,cmd):
 
 
 def execute(binding):
-    from importlib import import_module
-    prepare_async_tasks=import_module("publish_fresh_six").prepare_async_tasks
-    tasks=import_module("catchup_from_inventory")
-    tracked_request,task_result=tasks.tracked_request,tasks.task_result
+    from publish_fresh_six import prepare_async_tasks
+    from catchup_from_inventory import tracked_request,task_result
     client,function,m,runtime=connection()
     prepare_async_tasks(client,function,m,runtime)
     payload=dict(binding,triggerName=TRIGGER,batch_slug=LEGACY_SENTINEL)
