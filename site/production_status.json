@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794173600,
+  "updated_at": 1794173773,
   "inventory_updated_at": 1794173593,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 121,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 24,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 23,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -249,16 +249,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794173598,
+    "updated_at": 1794173771,
     "records": 16837,
     "video_records": 14320,
-    "initial_candidates": 208,
-    "duration_eligible_records": 24,
-    "candidate_count": 24,
-    "known_duration_candidates": 24,
+    "initial_candidates": 207,
+    "duration_eligible_records": 23,
+    "candidate_count": 23,
+    "known_duration_candidates": 23,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3606,
+      "already_attempted_or_cooling": 3607,
       "speaker_unconfirmed": 8586,
       "clip_title": 1465,
       "unrelated": 81,
@@ -271,14 +271,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV16CE367EGw",
-        "title": "林园 P1 林园：2026年消费随时都可能爆发！",
-        "source": "bilibili_collection",
-        "author": "唐晶晶的价值观",
-        "url": "https://www.bilibili.com/video/BV16CE367EGw",
-        "duration_sec": 213.0
-      },
       {
         "key": "bilibili_search:BV1kDNv6XEfa",
         "title": "林园 P1 林园：咬定“价值”不放松 #财经#经济#价值投资#林园",
@@ -479,15 +471,16 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2251,
+    "failed": 2252,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 148,
     "ready": 33,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 5,
+    "queued": 1
   },
   "tasks": [
     {
@@ -49194,11 +49187,11 @@
     },
     {
       "slug": "ly-1108-b5299e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "真人动态区检出来源二维码（含裁切残留定位图案）",
       "signature": {
         "ts": 1794172608,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49245,6 +49238,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42525455428",
       "run_started_at": "2026-11-08T21:29:29Z",
       "run_updated_at": "2026-11-08T21:29:39Z"
+    },
+    {
+      "slug": "ly-1108-f76660",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1794173729,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42525975733,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42525975733",
+      "run_started_at": "2026-11-08T21:35:29Z",
+      "run_updated_at": "2026-11-08T21:35:29Z"
     }
   ],
   "runs": {
@@ -74635,6 +74646,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42524393836",
       "run_number": 4173,
       "display_title": "中文源出片 · ly-1108-b5299e"
+    },
+    "ly-1108-f76660": {
+      "id": 42525975733,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-11-08T21:35:29Z",
+      "updated_at": "2026-11-08T21:35:29Z",
+      "run_started_at": "2026-11-08T21:35:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42525975733",
+      "run_number": 4176,
+      "display_title": "中文源出片 · ly-1108-f76660"
     },
     "ly-1108-1ae65a": {
       "id": 42525455428,
