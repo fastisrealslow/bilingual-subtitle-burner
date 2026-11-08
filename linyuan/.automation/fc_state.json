@@ -109087,7 +109087,59 @@
    "experiment_selection_revision": 2026102201,
    "experiment_mother_sha256": "9a0ea064b15174feebf783caaf96091875bc5cf75d3ac13b73822cfb46725eae",
    "experiment_parent_slug": "ly-1108-178a42",
-   "recovery_origin_run_id": 42449122647
+   "recovery_origin_run_id": 42449122647,
+   "production_failure_summary": {
+    "slug": "ly-story-c185a62548",
+    "run_id": 42454397215,
+    "artifact_id": 13607668708,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9a0ea064b15174feebf783caaf96091875bc5cf75d3ac13b73822cfb46725eae",
+     "duration_sec": 1778.9,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Pe411y7Bp"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"所以这个可以预防，就是促进循环，促进血液循环，它包括很多循环啊，内室循环，我是内事那个嗯东西啊。\", \"suspect_quote\": \"内室循环\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘内室’在医学语境下无意义，结合上下文应为‘内脏循环’或类似术语，需核实原音。\"}, {\"sentence_id\": 9, \"quote\": \"所以这个可以预防，就是促进循环，促进血液循环，它包括很多循环啊，内室循环，我是内事那个嗯东西啊。\", \"suspect_quote\": \"我"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 453.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/125，总帧数622；身份匹配但人脸短边不足96px的帧数125"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/303，总帧数1512；身份匹配但人脸短边不足96px的帧数303"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/351，总帧数1752；身份匹配但人脸短边不足96px的帧数351"
+     }
+    ]
+   },
+   "source_check_report_id": 13607668708,
+   "source_check_run_id": 42454397215,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794122540
   },
   {
    "key": "bilibili_search:BV1S34y1h75C",
@@ -109183,7 +109235,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-10T01:23:22+00:00"
+   "publish_time": "2022-05-10T01:23:22+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-da40a2",
+    "run_id": 42454877872,
+    "artifact_id": 13607822971,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1b2a7687fc3f6f90d7d90343af771c434b2faa491080d11aa2d9cad139f234a8",
+     "duration_sec": 382.0,
+     "resolution": {
+      "width": 1914,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1E541197wX"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未表达独立观点，仅是对主持人问题的确认和背景补充，属于问答互动中的回应部分，而非完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 85.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 29.30s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 267.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42454877872,
+    "artifact_id": 13607822971,
+    "name": "production-reject-ly-1108-da40a2",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未表达独立观点，仅是对主持人问题的确认和背景补充，属于问答互动中的回应部分，而非完整表达。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1yW4y1e7FR",
@@ -109408,7 +109517,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-08T16:17:50+00:00"
+   "publish_time": "2026-07-08T16:17:50+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-dc73bd",
+    "run_id": 42456705979,
+    "artifact_id": 13607174808,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "2ca1bf998444a6e5f939d4aa2c401aa05736bac04e3542ca7e2e74637a6b57a2",
+     "duration_sec": 90.93,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1tKMG6KEAT"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42456705979,
+    "artifact_id": 13607174808,
+    "name": "production-reject-ly-1108-dc73bd",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1CmM9zbEEW",
@@ -109441,7 +109583,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 462 < 480（854x462），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1zf1AYFEoG",
@@ -109487,7 +109630,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-10-05T16:12:18+00:00"
+   "publish_time": "2024-10-05T16:12:18+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42457080514,
+    "artifact_id": 13607918157,
+    "name": "source-reject-ly-1108-61945d",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[1]，scan_different=[]，confidence=0.98，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.5166}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV185T56yEfv",
@@ -215128,6 +215281,27 @@
    "video_id": "BV1CmM9zbEEW",
    "ts": 1794121244,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 462 < 480（854x462），画质不达标"
+  },
+  {
+   "slug": "ly-1108-61945d",
+   "key": "bilibili_search:BV1zD1dYLE5r",
+   "video_id": "BV1zD1dYLE5r",
+   "ts": 1794121632,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[1]，scan_different=[]，confidence=0.98，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.5166}"
+  },
+  {
+   "slug": "ly-1108-dc73bd",
+   "key": "bilibili_search:BV1tKMG6KEAT",
+   "video_id": "BV1tKMG6KEAT",
+   "ts": 1794121633,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1108-da40a2",
+   "key": "bilibili_search:BV1E541197wX",
+   "video_id": "BV1E541197wX",
+   "ts": 1794121638,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未表达独立观点，仅是对主持人问题的确认和背景补充，属于问答互动中的回应部分，而非完整表达。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
