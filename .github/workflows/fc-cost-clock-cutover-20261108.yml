@@ -1,0 +1,74 @@
+name: 关闭重复FC统计时钟（保留CI半小时采样）
+on:
+  push:
+    branches: [optimize/fc-cost-clock-20261108]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cutover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests pyyaml alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 核实替代时钟已成功，再只关闭属于统计的FC触发器
+        run: |
+          python - <<'PY'
+          import sys,os,json,time
+          from pathlib import Path
+          import requests,yaml
+          sys.path[:0]=['linyuan/fc','linyuan']
+          from verify_production import configure_observation_timer
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          report=dict(function_invocations=0,verified=False)
+          try:
+              workflow=yaml.safe_load(Path('.github/workflows/linyuan-experiment-observations.yml').read_text())
+              events=workflow.get('on',workflow.get(True))
+              assert events['schedule']==[dict(cron='17,47 * * * *')]
+              result=requests.get('https://api.github.com/repos/fastisrealslow/bilingual-subtitle-burner/actions/workflows/linyuan-experiment-observations.yml/runs',params={'per_page':10},headers={'Authorization':'Bearer '+os.environ['GITHUB_TOKEN']},timeout=20)
+              result.raise_for_status()
+              runs=result.json()['workflow_runs']
+              assert any(r['head_branch']=='main' and r['head_sha']=='fcfa789d2f38271a01cb0ed508c916afe98638de' and r['conclusion']=='success' for r in runs)
+              client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ.get('FC_REGION','cn-hangzhou')+'.aliyuncs.com'))
+              function=os.environ.get('FC_FUNCTION_NAME','fc-develop')
+              runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=30000,autoretry=False)
+              def protected():
+                  ts=client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},runtime).body.triggers
+                  return {t.trigger_name:dict(type=t.trigger_type,qualifier=t.qualifier,config=t.trigger_config) for t in ts if t.trigger_name in {'publish','dispatch'}}
+              before=protected()
+              assert set(before)=={'publish','dispatch'}
+              report['timer']=configure_observation_timer(client,function,m,runtime)
+              after=protected()
+              assert after==before
+              report.update(verified=True,publish_unchanged=True,dispatch_unchanged=True)
+          except Exception as exc:
+              report['blocked']='cloud_account_billing' if 'debt' in str(exc).lower() else 'verification_or_control_plane'
+              report['error_type']=type(exc).__name__
+              report['provider_code']=str(getattr(exc,'code',''))
+          finally:
+              Path('fc-clock-cutover.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+              print(json.dumps(report,ensure_ascii=False))
+          if not report['verified']:raise SystemExit('Clock cutover not verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-clock-cutover
+          path: fc-clock-cutover.json
+          if-no-files-found: error
+          retention-days: 7
