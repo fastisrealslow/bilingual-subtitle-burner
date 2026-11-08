@@ -113081,7 +113081,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1296/1791，总帧数2472；身份匹配但人脸短边不足96px的帧数206",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1SK411M7HX",
@@ -113104,7 +113105,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-04T02:04:45+00:00"
+   "publish_time": "2021-01-04T02:04:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-d01d84",
+    "run_id": 42534694387,
+    "artifact_id": 13638449831,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "adcf29b85dcaae445e90618090712197e87f78a6af152f97fcffbc27350ff38f",
+     "duration_sec": 123.73,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1SK411M7HX"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"钢钢老板都是钢钢铁。\", \"suspect_quote\": \"钢钢老板都是钢钢铁\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'钢钢'为异常字母堆积，无法确定实体；'钢钢铁'语义不通，疑似截断或粘连错误。\"}, {\"sentence_id\": 24, \"quote\": \"所以那些就脑子有问题的，他想着这个，哎，现在这一说这个低估值的，就银行地产低估值，那是P一是低，P一低，他养了多少人呢？\", \"suspect_quote\": \"P一是低\", \"kind\": \"unin"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42534694387,
+    "artifact_id": 13638449831,
+    "name": "production-reject-ly-1108-d01d84",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"钢钢老板都是钢钢铁。\", \"suspect_quote\": \"钢钢老板都是钢钢铁\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'钢钢'为异常字母堆积，无法确定实体；'钢钢铁'语义不通，疑似截断或粘连错误。\"}, {\"sentence_id\": 24, \"quote\": \"所以那些就脑子有问题的，他想着这个，哎，现在这一说这个低估值的，就银行地产低估值，那是P一是低，P一低，他养了多少人呢？\", \"suspect_quote\": \"P一是低\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'P一'为异常字符，无法确定实体，疑似将英文字母 P 误识为汉字'一'。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1EG4y1Q7Hy",
@@ -219116,6 +219150,13 @@
    "video_id": "BV1cNNM66EEe",
    "ts": 1794180945,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1296/1791，总帧数2472；身份匹配但人脸短边不足96px的帧数206"
+  },
+  {
+   "slug": "ly-1108-d01d84",
+   "key": "bilibili_search:BV1SK411M7HX",
+   "video_id": "BV1SK411M7HX",
+   "ts": 1794181291,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"钢钢老板都是钢钢铁。\", \"suspect_quote\": \"钢钢老板都是钢钢铁\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'钢钢'为异常字母堆积，无法确定实体；'钢钢铁'语义不通，疑似截断或粘连错误。\"}, {\"sentence_id\": 24, \"quote\": \"所以那些就脑子有问题的，他想着这个，哎，现在这一说这个低估值的，就银行地产低估值，那是P一是低，P一低，他养了多少人呢？\", \"suspect_quote\": \"P一是低\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'P一'为异常字符，无法确定实体，疑似将英文字母 P 误识为汉字'一'。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
