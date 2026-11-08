@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794098696,
+  "updated_at": 1794098886,
   "inventory_updated_at": 1794098691,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 106,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 6,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794098695,
+    "updated_at": 1794098884,
     "records": 16597,
     "video_records": 14082,
-    "initial_candidates": 188,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 187,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3545,
+      "already_attempted_or_cooling": 3546,
       "speaker_unconfirmed": 8479,
       "clip_title": 1446,
       "no_video": 2515,
@@ -263,14 +263,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1fm4y1B7Rz",
-        "title": "林园 P1 【私募高峰论坛】林园谈如何看2023年的投资？消费和医药能起来吗？（高清字幕）",
-        "source": "bilibili_collection",
-        "author": "知识投资家",
-        "url": "https://www.bilibili.com/video/BV1fm4y1B7Rz",
-        "duration_sec": 1519.0
-      },
       {
         "key": "bilibili_search:BV1hFjn6QEWa",
         "title": "林园 P1 林园：如何投资股票能赚钱？PS：老登的理念还有用吗？",
@@ -327,15 +319,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2204,
+    "failed": 2205,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 129,
     "ready": 30,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -47818,11 +47810,11 @@
     },
     {
       "slug": "ly-1108-b3fccd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1445, 2: 0.1343, 3: 0.0871, 4: 0.0238, 5: 0.083, 6: -0.0299, 7: -0.0163, 8: -0.0172, 9: 0.0336, 10: 0.0973, 11: 0.0589, 12: -0.0421, 16: 0.0333, 18: 0.1581}",
       "signature": {
         "ts": 1794098503,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -47833,6 +47825,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42430917805",
       "run_started_at": "2026-11-08T00:41:43Z",
       "run_updated_at": "2026-11-08T00:43:26Z"
+    },
+    {
+      "slug": "ly-1108-a78948",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794098844,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42431358423,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42431358423",
+      "run_started_at": "2026-11-08T00:47:24Z",
+      "run_updated_at": "2026-11-08T00:47:28Z"
     }
   ],
   "runs": {
@@ -72475,6 +72485,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42430917805",
       "run_number": 4094,
       "display_title": "中文源出片 · ly-1108-b3fccd"
+    },
+    "ly-1108-a78948": {
+      "id": 42431358423,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T00:47:24Z",
+      "updated_at": "2026-11-08T00:47:28Z",
+      "run_started_at": "2026-11-08T00:47:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42431358423",
+      "run_number": 4095,
+      "display_title": "中文源出片 · ly-1108-a78948"
     },
     "ly-1108-93569d": {
       "id": 42430345730,
