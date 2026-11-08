@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794172863,
+  "updated_at": 1794173047,
   "inventory_updated_at": 1794172855,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 121,
     "active_or_recovering_sources": 6,
-    "waiting_candidates": 26,
+    "waiting_candidates": 25,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -249,16 +249,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794172861,
+    "updated_at": 1794173045,
     "records": 16837,
     "video_records": 14320,
-    "initial_candidates": 210,
-    "duration_eligible_records": 26,
-    "candidate_count": 26,
-    "known_duration_candidates": 26,
+    "initial_candidates": 209,
+    "duration_eligible_records": 25,
+    "candidate_count": 25,
+    "known_duration_candidates": 25,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3604,
+      "already_attempted_or_cooling": 3605,
       "speaker_unconfirmed": 8586,
       "clip_title": 1465,
       "unrelated": 81,
@@ -271,14 +271,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1d8Kp6kEC6",
-        "title": "林园 P1 林园熊市满仓暴跌时的采访#林园#股市#投资#价值投资",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1d8Kp6kEC6",
-        "duration_sec": 587.0
-      },
       {
         "key": "bilibili_search:BV1x5uR69E4A",
         "title": "林园 P1 林园：泡泡玛特能给人带来快感，但能不能长久不好判断，需要时间检验。现在医药和消费都是左侧的好机会，从估值来看",
@@ -495,9 +487,9 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2249,
+    "failed": 2251,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 148,
     "ready": 33,
@@ -49156,11 +49148,11 @@
     },
     {
       "slug": "ly-1108-51de8f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 148.86s，原始画面不足以保留完整人脸及头顶余量",
       "signature": {
         "ts": 1794171838,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49174,11 +49166,11 @@
     },
     {
       "slug": "ly-1108-813dd7",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794172241,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49188,7 +49180,7 @@
       "run_id": 42523872067,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42523872067",
       "run_started_at": "2026-11-08T21:10:41Z",
-      "run_updated_at": "2026-11-08T21:11:38Z"
+      "run_updated_at": "2026-11-08T21:19:41Z"
     },
     {
       "slug": "ly-1108-8fb491",
@@ -49225,6 +49217,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42524393836",
       "run_started_at": "2026-11-08T21:16:48Z",
       "run_updated_at": "2026-11-08T21:16:53Z"
+    },
+    {
+      "slug": "ly-1108-56f5a2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794173003,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42524959411,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42524959411",
+      "run_started_at": "2026-11-08T21:23:23Z",
+      "run_updated_at": "2026-11-08T21:23:33Z"
     }
   ],
   "runs": {
@@ -74594,6 +74604,17 @@
       "run_number": 4164,
       "display_title": "中文源出片 · ly-1108-dd9fdc"
     },
+    "ly-1108-56f5a2": {
+      "id": 42524959411,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T21:23:23Z",
+      "updated_at": "2026-11-08T21:23:33Z",
+      "run_started_at": "2026-11-08T21:23:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42524959411",
+      "run_number": 4174,
+      "display_title": "中文源出片 · ly-1108-56f5a2"
+    },
     "ly-1108-b5299e": {
       "id": 42524393836,
       "status": "in_progress",
@@ -74618,10 +74639,10 @@
     },
     "ly-1108-813dd7": {
       "id": 42523872067,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-08T21:10:41Z",
-      "updated_at": "2026-11-08T21:11:38Z",
+      "updated_at": "2026-11-08T21:19:41Z",
       "run_started_at": "2026-11-08T21:10:41Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42523872067",
       "run_number": 4171,
