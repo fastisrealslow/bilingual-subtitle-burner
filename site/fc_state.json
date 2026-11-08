@@ -111384,7 +111384,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-16T13:46:30+00:00"
+   "publish_time": "2025-12-16T13:46:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-b5299e",
+    "run_id": 42524393836,
+    "artifact_id": 13634624701,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "4e3441a3901a714a906303b284bf8d724c44a840d6ba2b743625fb169f31f135",
+     "duration_sec": 71.13,
+     "resolution": {
+      "width": 1440,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1ydqaBREMJ"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出来源二维码（含裁切残留定位图案）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42524393836,
+    "artifact_id": 13634624701,
+    "name": "production-reject-ly-1108-b5299e",
+    "retained": true
+   },
+   "last_error": "真人动态区检出来源二维码（含裁切残留定位图案）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1d8Kp6kEC6",
@@ -217209,6 +217242,13 @@
    "video_id": "BV1RB5M6JEcc",
    "ts": 1794172959,
    "error": "整段取景预检：源 148.86s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1108-b5299e",
+   "key": "bilibili_search:BV1ydqaBREMJ",
+   "video_id": "BV1ydqaBREMJ",
+   "ts": 1794173680,
+   "error": "真人动态区检出来源二维码（含裁切残留定位图案）"
   }
  ],
  "reviewed_third_video_0910": {
