@@ -109716,7 +109716,8 @@
    },
    "last_error": "整段取景预检：源 16.50s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1jCdHBfEKJ",
@@ -109840,7 +109841,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-04T00:55:55+00:00"
+   "publish_time": "2026-09-04T00:55:55+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42458967383,
+    "artifact_id": 13609081649,
+    "name": "source-reject-ly-1108-fc1bb4",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（404x272），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1N7421N7cR",
@@ -215546,6 +215557,13 @@
    "video_id": "BV1Nz4y167tm",
    "ts": 1794122885,
    "error": "整段取景预检：源 16.50s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1108-fc1bb4",
+   "key": "bilibili_search:BV1xatv6jEyd",
+   "video_id": "BV1xatv6jEyd",
+   "ts": 1794123515,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（404x272），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
