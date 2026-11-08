@@ -140,6 +140,10 @@ def prepare_async_tasks(client, function, m, runtime):
         if not any(marker in str(getattr(exc, 'code', '')) for marker in ('NotFound', 'NotExist')):
             raise
         old = None
+    if old is not None and old.async_task is True and old.max_async_retry_attempts == 0:
+        # This configuration already satisfies no-replay delivery. Rewriting it
+        # for every catch-up adds no safety and can fail during account debt.
+        return
     body = m.PutAsyncInvokeConfigInput(async_task=True, max_async_retry_attempts=0)
     if old is not None:
         body.destination_config = old.destination_config

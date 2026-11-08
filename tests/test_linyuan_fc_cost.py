@@ -281,3 +281,38 @@ def test_one_slot_canary_keeps_existing_slot_and_quality_path(monkeypatch):
     assert publish_on_runner.run(max_slots=1)['published']==1
     assert len(calls)==1
     with pytest.raises(ValueError):publish_on_runner.run(max_slots=5)
+
+
+def test_inventory_waits_on_runner_and_skips_slot_already_filled(monkeypatch):
+    import catchup_from_inventory as catchup
+    clock=[1000];reads=[]
+    monkeypatch.setattr(catchup.time,'time',lambda:clock[0])
+    monkeypatch.setattr(catchup.time,'monotonic',lambda:clock[0])
+    def sleep(seconds):clock[0]+=seconds
+    monkeypatch.setattr(catchup.time,'sleep',sleep)
+    def gh(*a,**kw):
+        reads.append(clock[0]);return json.dumps({'expires_at':1015})
+    monkeypatch.setattr(fc,'gh',gh)
+    monkeypatch.setattr(catchup,'state',lambda:{'filled':True})
+    monkeypatch.setattr(fc,'source_inventory',lambda _:dict(inventory_fresh=True,daily_mix_usable=1))
+    monkeypatch.setattr(catchup,'inventory_action',lambda st,stock:None)
+    result=catchup.publication_preflight(wait_seconds=30)
+    assert result==dict(invoke=False,reason='no_verified_due_slot_after_wait',function_invocations=0)
+    assert reads==[1000,1015]
+
+
+def test_inventory_busy_or_unknown_never_invokes_fc(monkeypatch):
+    import catchup_from_inventory as catchup
+    monkeypatch.setattr(fc,'gh',lambda *a,**kw:json.dumps({'expires_at':10**20}))
+    result=catchup.publication_preflight(wait_seconds=0)
+    assert result['function_invocations']==0 and result['reason']=='publisher_still_busy'
+    monkeypatch.setattr(fc,'gh',lambda *a,**kw:'{}')
+    with pytest.raises(ValueError):catchup.publication_preflight(wait_seconds=0)
+
+
+def test_no_rewrite_when_async_delivery_is_already_no_replay():
+    from publish_fresh_six import prepare_async_tasks
+    existing=SimpleNamespace(async_task=True,max_async_retry_attempts=0)
+    fake=SimpleNamespace(get_async_invoke_config_with_options=lambda *a:SimpleNamespace(body=existing))
+    models=SimpleNamespace(GetAsyncInvokeConfigRequest=lambda **kw:kw)
+    prepare_async_tasks(fake,'fc',models,None)

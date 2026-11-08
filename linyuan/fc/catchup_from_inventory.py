@@ -20,7 +20,38 @@ def inventory_action(initial, stock):
     return None
 
 
+def publication_preflight(wait_seconds=720):
+    """Wait on the free runner, then reread receipts before spending FC time."""
+    import math
+    import urllib.error
+    deadline=time.monotonic()+wait_seconds
+    while True:
+        try:
+            raw=fc.gh('GET',f'/contents/{fc.DISPATCH_LEASE_KEY}?ref=main',raw=True,timeout=20)
+            lease=json.loads(raw)
+            expiry=lease.get('expires_at')
+            if type(expiry) not in (int,float) or not math.isfinite(expiry) or expiry<0:
+                raise ValueError('Unverified shared pipeline lease')
+        except urllib.error.HTTPError as exc:
+            if exc.code!=404:raise
+            expiry=0
+        if expiry<=time.time():break
+        remaining=deadline-time.monotonic()
+        if remaining<=0:return dict(invoke=False,reason='publisher_still_busy',function_invocations=0)
+        time.sleep(min(15,remaining))
+    # The active uploader may have filled the slot while this job was waiting.
+    # Never invoke a catch-up using the original stale deficit snapshot.
+    current=state()
+    stock=fc.source_inventory(current)
+    if inventory_action(current,stock)!='publish-catchup':
+        return dict(invoke=False,reason='no_verified_due_slot_after_wait',function_invocations=0)
+    return dict(invoke=True,reason='verified_due_slot_and_free_lease')
+
+
 def run_inventory_task(action):
+    if action=='publish-catchup':
+        decision=publication_preflight()
+        if not decision['invoke']:return None,decision
     from alibabacloud_fc20230330.client import Client
     from alibabacloud_fc20230330 import models as m
     from alibabacloud_tea_openapi import models as api
@@ -108,6 +139,10 @@ def main():
                           outcome='publisher_workflow_requested'))
         return
     task_id,task=run_inventory_task(action)
+    if task_id is None:
+        save_receipt(dict(action=action,backend='github',outcome='deferred_before_fc',
+                          preflight=task,new_bvids=[]))
+        return
     result=dict(task_id=task_id,action=action,status=task.status if task else 'Unknown',
                 return_payload=task.return_payload if task else None,
                 function_result=task_result(task))
