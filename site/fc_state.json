@@ -108089,8 +108089,8 @@
    "publish_time": "2023-03-31T12:58:39+00:00",
    "production_failure_summary": {
     "slug": "ly-1108-a78948",
-    "run_id": 42431358423,
-    "artifact_id": 13598829379,
+    "run_id": 42440017501,
+    "artifact_id": 13602510673,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -108119,14 +108119,23 @@
      {
       "stage": "part-quality",
       "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配563/807，总帧数1217；身份匹配但人脸短边不足96px的帧数244"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：原话从第 0 句开始是对巴菲特的评价和背景铺垫，中间穿插了关于九四年、品牌、股价等看似跳跃的口语表达（如第 8 句‘对你笑这个笑这个国际的品牌’、第 9 句‘和嘴有关系的’），这些内容在缺乏上下文时指代不明且逻辑断裂。真正的核心观点从第 15 句开始，即‘所以我们买过持有的，赚钱是靠持有的...'，并延续至最后一句'...你要持有泡沫资产’。前面的铺垫（0-14 句）虽然口语化严重、存在大量无意义重复和指代不清的片段（如‘国学圈’、‘革核心’、‘对嘴有关系’），但作为嘉宾回答的完整语境，它们共同；原文问题：[[\"这个是革核心的核心，就是我们说的国学圈。\", \"‘这个是革核心的"
      }
     ]
    },
-   "source_check_report_id": 13598829379,
-   "source_check_run_id": 42431358423,
+   "source_check_report_id": 13602510673,
+   "source_check_run_id": 42440017501,
    "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1794110100
   },
   {
    "video_id": "BV1vfyAB1E2D",
