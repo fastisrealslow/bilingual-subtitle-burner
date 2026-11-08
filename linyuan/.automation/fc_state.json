@@ -110006,56 +110006,24 @@
    "recovery_origin_run_id": 42449122647,
    "production_failure_summary": {
     "slug": "ly-story-c185a62548",
-    "run_id": 42458958034,
-    "artifact_id": 13609018135,
+    "run_id": 42467346060,
+    "artifact_id": 13611769785,
     "accepted": 0,
-    "source_context": {
-     "passed": true,
-     "source_sha256": "9a0ea064b15174feebf783caaf96091875bc5cf75d3ac13b73822cfb46725eae",
-     "duration_sec": 1778.9,
-     "resolution": {
-      "width": 1280,
-      "height": 720,
-      "short_edge": 720
-     },
-     "source_url": "https://www.bilibili.com/video/BV1Pe411y7Bp"
-    },
+    "source_context": null,
     "failures": [
      {
-      "stage": "part-quality",
-      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"所以这个可以预防，就是促进循环，促进血液循环，它包括很多循环啊，内室循环，我是内事那个嗯东西啊。\", \"suspect_quote\": \"内室循环\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘内室’在医学语境下无意义，结合上下文应为‘内脏循环’或类似术语，需核实原音。\"}, {\"sentence_id\": 9, \"quote\": \"所以这个可以预防，就是促进循环，促进血液循环，它包括很多循环啊，内室循环，我是内事那个嗯东西啊。\", \"suspect_quote\": \"我"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "整段取景预检：源 453.97s，原始画面不足以保留完整人脸及头顶余量"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/125，总帧数622；身份匹配但人脸短边不足96px的帧数125"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/303，总帧数1512；身份匹配但人脸短边不足96px的帧数303"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/351，总帧数1752；身份匹配但人脸短边不足96px的帧数351"
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：render"
      }
     ]
    },
-   "source_check_report_id": 13609018135,
-   "source_check_run_id": 42458958034,
-   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "source_check_report_id": 13611769785,
+   "source_check_run_id": 42467346060,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：render",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "video_id": "BV1NFyKY5EMo",
