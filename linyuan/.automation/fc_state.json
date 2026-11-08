@@ -110943,7 +110943,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-16T06:28:01+00:00"
+   "publish_time": "2022-05-16T06:28:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-04907d",
+    "run_id": 42520710664,
+    "artifact_id": 13634592297,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e85804229380acdefafef691149a60473b4b174161ea5ffad589061b620f0131",
+     "duration_sec": 487.2,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1zY4y1r7h5"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对核心问题'如何做到遵守纪律'给出正面回答或具体方法，而是先自曝做不到，再转向讨论量化投资是否撇除人的因素。虽然讨论了量化投资受市场影响，但这属于对主持人假设的回应而非对‘如何做到’这一问题的独立完整表达，且缺乏具体的操作手段或案例支撑，导致核心问题未获解答。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 158.77s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 26.53s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 47.43s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 293.13s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 346.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42520710664,
+    "artifact_id": 13634592297,
+    "name": "production-reject-ly-1108-04907d",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对核心问题'如何做到遵守纪律'给出正面回答或具体方法，而是先自曝做不到，再转向讨论量化投资是否撇除人的因素。虽然讨论了量化投资受市场影响，但这属于对主持人假设的回应而非对‘如何做到’这一问题的独立完整表达，且缺乏具体的操作手段或案例支撑，导致核心问题未获解答。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV11UydYXEvY",
@@ -111064,7 +111121,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1JRp96yE1n）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5246956017549858",
@@ -216969,6 +217027,13 @@
    "video_id": "BV1rrE162Ej1",
    "ts": 1794172202,
    "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1JRp96yE1n）"
+  },
+  {
+   "slug": "ly-1108-04907d",
+   "key": "bilibili_search:BV1zY4y1r7h5",
+   "video_id": "BV1zY4y1r7h5",
+   "ts": 1794172566,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未对核心问题'如何做到遵守纪律'给出正面回答或具体方法，而是先自曝做不到，再转向讨论量化投资是否撇除人的因素。虽然讨论了量化投资受市场影响，但这属于对主持人假设的回应而非对‘如何做到’这一问题的独立完整表达，且缺乏具体的操作手段或案例支撑，导致核心问题未获解答。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
