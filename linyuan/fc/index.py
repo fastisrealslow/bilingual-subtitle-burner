@@ -42,6 +42,9 @@ import editorial_policy as editorial
 import publishing_experiment as experiment
 import experiment_observation_dispatch as observation_clock
 import upload_recovery
+import fc_cost_policy
+import upload_transport
+import publish_clock
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -2027,6 +2030,8 @@ def production_config():
             "content_policy": editorial.CONTENT_POLICY,
             "duration_policy_version": editorial.DURATION_POLICY_VERSION,
             "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
+            "fc_cost_policy": dict(version=fc_cost_policy.VERSION,target_ratio=fc_cost_policy.TARGET_RATIO,
+                runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION),
             "experiment_observation_clock": observation_clock.policy(),
             "experiment_observation_clock_sha256": hashlib.sha256(Path(observation_clock.__file__).read_bytes()).hexdigest(),
             "dispatch_workflow_ref": "main", "publish_hours_beijing": sorted(PUBLISH_HOURS)}
@@ -2038,6 +2043,7 @@ def handler(event, context):
     触发器名含 dispatch → 每日调度；其余 → 投稿。
     （定时触发器的 event 是 JSON：{"triggerName": "...", "triggerTime": "..."}）
     """
+    import sys
     try:
         evt = json.loads(event or "{}")
     except Exception:
@@ -2048,6 +2054,10 @@ def handler(event, context):
         # hit a synchronous 503. Code/timer validation must not wait for source
         # discovery or write progress logs before responding.
         return production_config()
+    if name == upload_transport.TRIGGER:
+        return upload_transport.worker(sys.modules[__name__],evt)
+    if name == 'publish' and fc_cost_policy.RUNNER_PUBLISH_ENABLED:
+        return publish_clock.request(gh)
     if name == observation_clock.TRIGGER:
         # Analytics must never fall through to the default publisher, acquire
         # production leases, or write the shared publication/source ledgers.
@@ -5253,10 +5263,12 @@ def publish_handler(event=None, context=None):
         else:
             log.info(f"层路径不存在: {path}")
     
-    # 检查 biliup 是否可用
+    # The reviewed CI backend imports biliup only in the domestic FC worker.
+    remote_upload = os.environ.get("LINYUAN_PUBLISH_BACKEND") == "reviewed-upload"
     try:
-        import biliup
-        log.info(f"✓ biliup 可用: {biliup.__file__}")
+        if not remote_upload:
+            import biliup
+            log.info(f"✓ biliup 可用: {biliup.__file__}")
     except ImportError as e:
         log.error(f"✗ biliup 不可用: {e}")
         log.error(f"  sys.path: {sys.path}")
@@ -5377,6 +5389,10 @@ def publish_handler(event=None, context=None):
     if makeup_slot:
         e['upload_makeup_slot'] = makeup_slot
         e['upload_expected_sha256'] = expected_sha256
+    if remote_upload:
+        from reviewed_upload_client import prepare
+        binding=prepare(sys.modules[__name__],tmp/slug,part,e,cmd)
+        binding['video_sha256']=(part.get('fingerprints') or {}).get('sha256')
     if save_state(st) is False:
         shutil.rmtree(tmp, ignore_errors=True)
         return {'published': 0, 'upload_intent_not_saved': 1}
@@ -5387,8 +5403,18 @@ def publish_handler(event=None, context=None):
     
     # 调用 biliup CLI
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True,
-                           timeout=1620, env=env)
+        if remote_upload:
+            from reviewed_upload_client import execute
+            r = execute(binding)
+        else:
+            r = subprocess.run(cmd, capture_output=True, text=True,
+                               timeout=1620, env=env)
+    except upload_transport.RemoteUploadPending:
+        # Remote work may still be running: do not record a fictitious process
+        # completion, release its intent, or issue a second upload.
+        log_event("upload_pending",f"{slug} 等待境内上传回执",binding["task_id"])
+        shutil.rmtree(tmp,ignore_errors=True)
+        return {"published":0,"upload_remote_pending":1,"task_id":binding["task_id"]}
     except subprocess.TimeoutExpired:
         e['upload_process_result']=dict(completed_at=int(time.time()),outcome='timeout')
         save_state(st)

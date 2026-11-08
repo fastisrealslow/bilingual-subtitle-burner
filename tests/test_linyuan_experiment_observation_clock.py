@@ -164,7 +164,7 @@ def test_event_hooks_are_trusted_main_only_with_no_collection_cycle():
     root=Path(__file__).resolve().parents[1]
     workflow=yaml.safe_load((root/'.github/workflows/linyuan-experiment-observations.yml').read_text())
     events=workflow.get('on',workflow.get(True))
-    assert events['schedule']==[dict(cron='17 * * * *')]
+    assert events['schedule']==[dict(cron='17,47 * * * *')]
     upstream=events['workflow_run']
     assert upstream['types']==['completed'] and workflow['name'] not in upstream['workflows']
     names={yaml.safe_load(p.read_text()).get('name') for p in (root/'.github/workflows').glob('*.yml')}

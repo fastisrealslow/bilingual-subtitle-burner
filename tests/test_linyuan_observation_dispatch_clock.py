@@ -145,7 +145,7 @@ def test_timer_create_readback_and_redeploy_do_not_change_source_or_publish_time
     V.configure_observation_timer(client,'fc',MODELS,NS())
     assert client.writes==[('create',C.TRIGGER),('update',C.TRIGGER)]
     assert client.triggers['dispatch']==before['dispatch'] and client.triggers['publish']==before['publish']
-    assert proof['config']==dict(cronExpression=C.CRON,enable=True,payload=json.dumps(
+    assert proof['config']==dict(cronExpression=C.CRON,enable=False,payload=json.dumps(
         dict(triggerName=C.TRIGGER,purpose='read_only_experiment_statistics')))
     assert proof['qualifier']=='LATEST' and not proof['publication'] and not proof['source_jobs']
 

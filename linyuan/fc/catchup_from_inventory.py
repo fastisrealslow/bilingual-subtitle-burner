@@ -100,6 +100,13 @@ def main():
         save_receipt(dict(action=action, backend='github', dispatch=result,
                           new_bvids=[], outcome='completed_without_new_publication'))
         return
+    import fc_cost_policy
+    if fc_cost_policy.RUNNER_PUBLISH_ENABLED:
+        import publish_clock
+        result=publish_clock.request(fc.gh)
+        save_receipt(dict(action=action,backend='github',dispatch=result,new_bvids=[],
+                          outcome='publisher_workflow_requested'))
+        return
     task_id,task=run_inventory_task(action)
     result=dict(task_id=task_id,action=action,status=task.status if task else 'Unknown',
                 return_payload=task.return_payload if task else None,
