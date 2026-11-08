@@ -109003,7 +109003,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1GZ4y187n8",
@@ -109109,7 +109110,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-15T06:13:57+00:00"
+   "publish_time": "2022-05-15T06:13:57+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-59ed28",
+    "run_id": 42454406490,
+    "artifact_id": 13606993751,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "64474c6af516220a51895a6004486664d09beea1ec1f2f9348caa631f5560ac9",
+     "duration_sec": 390.43,
+     "resolution": {
+      "width": 1914,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1S34y1h75C"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 266.47s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 缺失：主持人提问（句 0、1）后，嘉宾回答（句 2-4）未针对‘最近购买行为’给出具体事实或明确结论，而是转向解释长期投资逻辑（句 2-4），导致对原问题的直接回应被切断或缺失。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 315.07s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 366.83s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42454406490,
+    "artifact_id": 13606993751,
+    "name": "production-reject-ly-1108-59ed28",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 266.47s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1E541197wX",
@@ -109185,7 +109235,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1pk4y1Q7xc",
@@ -214791,6 +214842,13 @@
    "video_id": "BV1PY411M7Hu",
    "ts": 1794119919,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1108-59ed28",
+   "key": "bilibili_search:BV1S34y1h75C",
+   "video_id": "BV1S34y1h75C",
+   "ts": 1794120193,
+   "error": "整段取景预检：源 266.47s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
