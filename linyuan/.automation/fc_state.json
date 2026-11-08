@@ -110754,7 +110754,59 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-23T10:01:01+08:00"
+   "publish_time": "2025-12-23T10:01:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-d599a6",
+    "run_id": 42513541971,
+    "artifact_id": 13632963801,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7b0da8ffb317acafd6afdd0a9284a0e5dbeee7f3001d81f90822426f2856c852",
+     "duration_sec": 3445.28,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5246956017549858"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 198.70s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 52%（BV1fN4b61EVy）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 304.73s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 440.60s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1018.90s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "source_check_report_id": 13632963801,
+   "source_check_run_id": 42513541971,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794171723
   },
   {
    "key": "weibo_search:5235839231854689",
@@ -110919,7 +110971,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 76%（BV1umYA6CE8L）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1MZ7k6jE6Y",
