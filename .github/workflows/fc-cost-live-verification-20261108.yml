@@ -1,0 +1,88 @@
+name: FC降本通道上线验收（最多一条到期稿件）
+on:
+  push:
+    branches: [verify/fc-cost-live-20261108]
+permissions:
+  contents: write
+  actions: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 等待同一主线部署完成（只读GitHub，不调用FC）
+        run: |
+          python - <<'PYWAIT'
+          import urllib.request,json,os,time
+          from pathlib import Path
+          endpoint='https://api.github.com/repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/42477010679'
+          deadline=time.monotonic()+25*60
+          while True:
+              request=urllib.request.Request(endpoint,headers={'Authorization':'Bearer '+os.environ['GITHUB_TOKEN']})
+              with urllib.request.urlopen(request,timeout=20) as response:run=json.load(response)
+              if run['status']=='completed':break
+              if time.monotonic()>deadline:raise SystemExit('Deployment still pending; no FC calls made')
+              time.sleep(15)
+          if run['conclusion']!='success':
+              report=dict(verified=False,published=0,blocked='production_deployment_not_verified',deployment_conclusion=run['conclusion'],function_invocations=0)
+              Path('fc-cost-live-verification.json').write_text(json.dumps(report))
+              print(json.dumps(report))
+              raise SystemExit('Deployment did not pass; no live canary attempted')
+          PYWAIT
+      - run: |
+          pip install -q requests numpy pillow 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
+          pip install -q -r linyuan/fc/runtime-requirements.txt
+          bash linyuan/ci_install_media_tools.sh
+      - name: 只读预检，云端版本完全一致才试跑一个真实到期位
+        run: |
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import index as fc
+          from catchup_from_inventory import publication_preflight
+          from reviewed_upload_client import capability
+          from publish_on_runner import run
+          report=dict(stage='preflight',verified=False,published=0)
+          try:
+              report['preflight']=publication_preflight(wait_seconds=0)
+              report['capability']=capability()
+              if not report['capability']:
+                  report['blocked']='deployed_runtime_not_verified'
+              elif report['preflight']['invoke']:
+                  report['canary']=run(max_slots=1)
+                  report['verified']=bool(report['canary'].get('new_bvids')) and not report['canary'].get('visibility_pending')
+              else:
+                  report['blocked']='no_free_verified_due_slot'
+          except Exception as exc:
+              message=str(exc).lower()
+              report['blocked']='cloud_account_billing' if 'debt' in message else 'verification_runtime'
+              report['error_type']=type(exc).__name__
+              report['provider_code']=str(getattr(exc,'code',''))
+          finally:
+              fc.flush_logs()
+              Path('fc-cost-live-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+              print(json.dumps(report,ensure_ascii=False))
+          if not report['verified']:raise SystemExit('Live canary not verified; rollout remains disabled')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-live-verification
+          path: fc-cost-live-verification.json
+          if-no-files-found: warn
+          retention-days: 7
