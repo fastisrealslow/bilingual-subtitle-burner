@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794113037,
+  "updated_at": 1794113270,
   "inventory_updated_at": 1794113032,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 108,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 23,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -249,7 +249,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794113035,
+    "updated_at": 1794113269,
     "records": 16624,
     "video_records": 14109,
     "initial_candidates": 205,
@@ -471,15 +471,15 @@
   },
   "counts": {
     "complete": 191,
-    "failed": 2209,
+    "failed": 2210,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 65,
     "experiment_fallback": 131,
     "ready": 31,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 3
   },
   "tasks": [
     {
@@ -48106,11 +48106,11 @@
     },
     {
       "slug": "ly-1108-2add41",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "整段取景预检：源 802.50s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1794109231,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -48139,6 +48139,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42446275086",
       "run_started_at": "2026-11-08T04:18:29Z",
       "run_updated_at": "2026-11-08T04:18:33Z"
+    },
+    {
+      "slug": "ly-story-eb595fa774",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794113229,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": null
+      },
+      "history_count": 1,
+      "run_id": 42448192618,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42448192618",
+      "run_started_at": "2026-11-08T04:47:09Z",
+      "run_updated_at": "2026-11-08T04:47:12Z"
     }
   ],
   "runs": {
@@ -72881,17 +72899,6 @@
       "run_number": 4098,
       "display_title": "中文源出片 · ly-1108-81185b"
     },
-    "ly-1108-a78948": {
-      "id": 42446275086,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-08T04:18:29Z",
-      "updated_at": "2026-11-08T04:18:33Z",
-      "run_started_at": "2026-11-08T04:18:29Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42446275086",
-      "run_number": 4105,
-      "display_title": "中文源出片 · ly-1108-a78948"
-    },
     "ly-1108-2add41": {
       "id": 42443703890,
       "status": "completed",
@@ -72902,6 +72909,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42443703890",
       "run_number": 4104,
       "display_title": "中文源出片 · ly-1108-2add41"
+    },
+    "ly-story-eb595fa774": {
+      "id": 42448192618,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T04:47:09Z",
+      "updated_at": "2026-11-08T04:47:12Z",
+      "run_started_at": "2026-11-08T04:47:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42448192618",
+      "run_number": 4106,
+      "display_title": "中文源出片 · ly-story-eb595fa774"
+    },
+    "ly-1108-a78948": {
+      "id": 42446275086,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T04:18:29Z",
+      "updated_at": "2026-11-08T04:18:33Z",
+      "run_started_at": "2026-11-08T04:18:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42446275086",
+      "run_number": 4105,
+      "display_title": "中文源出片 · ly-1108-a78948"
     },
     "ly-1108-3690f1": {
       "id": 42443126944,
