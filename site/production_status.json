@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794138064,
-  "inventory_updated_at": 1794138029,
+  "updated_at": 1794140739,
+  "inventory_updated_at": 1794140733,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 116,
-    "active_or_recovering_sources": 1,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -249,7 +249,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794138062,
+    "updated_at": 1794140738,
     "records": 16688,
     "video_records": 14173,
     "initial_candidates": 184,
@@ -286,14 +286,14 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2236,
+    "failed": 2237,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 139,
     "ready": 32,
     "validation_failed": 2,
-    "retry_queued": 1
+    "retry_queued": 4
   },
   "tasks": [
     {
@@ -48496,11 +48496,11 @@
     },
     {
       "slug": "ly-story-c185a62548",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "工作流步骤失败，未形成素材不合格结论：render",
       "signature": {
         "ts": 1794130128,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -48514,14 +48514,14 @@
     },
     {
       "slug": "ly-story-5d8406e664",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794130137,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794139803,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -48532,14 +48532,14 @@
     },
     {
       "slug": "ly-story-1c9f86db25",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794130146,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794139797,
         "weekly_full_week": null
       },
       "history_count": 1,
@@ -48550,14 +48550,14 @@
     },
     {
       "slug": "ly-story-296dc0d934",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794130152,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794139791,
         "weekly_full_week": null
       },
       "history_count": 1,
