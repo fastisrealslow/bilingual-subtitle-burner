@@ -110354,7 +110354,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"这也不是我说的，建立金融强国，这是第一次听说的啊。\", \"suspect_quote\": \"建立金融强国\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘建设’误识别为‘建立’，且‘第一次听说’与嘉宾身份及语境存在逻辑矛盾，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"我们也做了一个，当下的这个，嗯，代表中国大多数人收入的这个家庭啊，其实他们的收入并没有减少啊。\", \"suspect_quote\": \"代表中国大多数人收入的这个家庭\", \"kind\": \"unintelligible_term\", \"reason\": \"‘代表’疑似误识别，结合上下文应为‘反映’或类似动词，需核实原音。\"}, {\"sentence_id\": 15, \"quote\": \"如果今天是经济增长百分之十八，我反倒觉得我没这么有这个激情，因为经济增长降速，而且这个这个经济确实是，我们看就不管是股市还是，股市的趋势也比较冷，是吧？\", \"suspect_quote\": \"百分之十八\", \"kind\": \"unintelligible_term\", \"reason\": \"经济增长‘百分之十八’不符合常识及语境，疑似将‘百分之八’误识别为‘百分之十八’，需核实原音。\"}, {\"sentence_id\": 19, \"quote\": \"美国没有什么人的，他就是十年的大牛市。\", \"suspect_quote\": \"美国没有什么人的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘没有什么人的’疑似误识别，结合上下文应为‘没有什么好说的’或类似表达，需核实原音。\"}, {\"sentence_id\": 23, \"quote\": \"但美国，你印钞，他基金的这个这个利息都，存款利息达到百分之五以上，这肯定不正常。\", \"suspect_quote\": \"百分之五以上\", \"kind\": \"unintelligible_term\", \"reason\": \"存款利息‘百分之五以上’在语境中可能为误识别，需核实原音确认具体数值。\"}, {\"sentence_id\": 28, \"quote\": \"如果我们假设国家的这个金融经经济强国能建立，那中国说了算了就好办了，也随便印印印，啊！\", \"suspect_quote\": \"金融经经济强国\", \"kind\": \"unintelligible_term\", \"reason\": \"‘金融经经济’疑似重复识别，应为‘金融经济’，需核实原音。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1YH4y1E79x",
@@ -110377,7 +110378,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-02-11T01:29:25+00:00"
+   "publish_time": "2024-02-11T01:29:25+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-2c5e36",
+    "run_id": 42501360941,
+    "artifact_id": 13629424776,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8055100881c18a1a426c552063f3c553dec016a7df08a34c4be5e9ae7ec20b86",
+     "duration_sec": 5256.6,
+     "resolution": {
+      "width": 1916,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1YH4y1E79x"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 55%（BV14VHG6BEZ9）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1uvxQ6hEKd）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 4551.60s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1198.07s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42501360941,
+    "artifact_id": 13629424776,
+    "name": "production-reject-ly-1108-2c5e36",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1wh5Z6uEFH",
@@ -216327,6 +216389,13 @@
    "video_id": "BV1Wj411s759",
    "ts": 1794162555,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 7, \"quote\": \"这也不是我说的，建立金融强国，这是第一次听说的啊。\", \"suspect_quote\": \"建立金融强国\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘建设’误识别为‘建立’，且‘第一次听说’与嘉宾身份及语境存在逻辑矛盾，需核实原音。\"}, {\"sentence_id\": 10, \"quote\": \"我们也做了一个，当下的这个，嗯，代表中国大多数人收入的这个家庭啊，其实他们的收入并没有减少啊。\", \"suspect_quote\": \"代表中国大多数人收入的这个家庭\", \"kind\": \"unintelligible_term\", \"reason\": \"‘代表’疑似误识别，结合上下文应为‘反映’或类似动词，需核实原音。\"}, {\"sentence_id\": 15, \"quote\": \"如果今天是经济增长百分之十八，我反倒觉得我没这么有这个激情，因为经济增长降速，而且这个这个经济确实是，我们看就不管是股市还是，股市的趋势也比较冷，是吧？\", \"suspect_quote\": \"百分之十八\", \"kind\": \"unintelligible_term\", \"reason\": \"经济增长‘百分之十八’不符合常识及语境，疑似将‘百分之八’误识别为‘百分之十八’，需核实原音。\"}, {\"sentence_id\": 19, \"quote\": \"美国没有什么人的，他就是十年的大牛市。\", \"suspect_quote\": \"美国没有什么人的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘没有什么人的’疑似误识别，结合上下文应为‘没有什么好说的’或类似表达，需核实原音。\"}, {\"sentence_id\": 23, \"quote\": \"但美国，你印钞，他基金的这个这个利息都，存款利息达到百分之五以上，这肯定不正常。\", \"suspect_quote\": \"百分之五以上\", \"kind\": \"unintelligible_term\", \"reason\": \"存款利息‘百分之五以上’在语境中可能为误识别，需核实原音确认具体数值。\"}, {\"sentence_id\": 28, \"quote\": \"如果我们假设国家的这个金融经经济强国能建立，那中国说了算了就好办了，也随便印印印，啊！\", \"suspect_quote\": \"金融经经济强国\", \"kind\": \"unintelligible_term\", \"reason\": \"‘金融经经济’疑似重复识别，应为‘金融经济’，需核实原音。\"}]"
+  },
+  {
+   "slug": "ly-1108-2c5e36",
+   "key": "bilibili_search:BV1YH4y1E79x",
+   "video_id": "BV1YH4y1E79x",
+   "ts": 1794164552,
+   "error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
   }
  ],
  "reviewed_third_video_0910": {
