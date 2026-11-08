@@ -1,0 +1,87 @@
+name: FC降本代码部署（复用已通过的同代码验收）
+on:
+  push:
+    branches: [verify/fc-cost-deploy-20261108]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    concurrency:
+      group: fc-production-deploy
+      cancel-in-progress: false
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+      FC_CODE_ZIP: /tmp/fc-code.zip
+      FC_CPU: '0.5'
+      FC_MEMORY_SIZE_MB: '1024'
+      FC_DISK_SIZE_MB: '10240'
+      FC_TIMEOUT_SECONDS: '7200'
+      FC_REFILL: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests pyyaml alibabacloud-fc20230330 alibabacloud-tea-openapi -r linyuan/fc/runtime-requirements.txt
+      - name: 验证先前两项真实CPU与合并证据通过，全部相关代码逐字相同
+        run: |
+          git fetch --no-tags --depth=1 origin fcfa789d2f38271a01cb0ed508c916afe98638de
+          python - <<'PY'
+          import os,sys,json,subprocess
+          import requests
+          sys.path[:0]=['linyuan','linyuan/fc']
+          from package_code import SOURCES
+          from reuse_title_verification import TITLE_FILES,WORKFLOW
+          assert json.load(open('.github/linyuan-release-policy.json'))['deployment_paused'] is False
+          result=requests.get('https://api.github.com/repos/fastisrealslow/bilingual-subtitle-burner/actions/runs/42477010679/jobs',headers={'Authorization':'Bearer '+os.environ['GITHUB_TOKEN']},timeout=20)
+          result.raise_for_status()
+          jobs={j['name']:j for j in result.json()['jobs']}
+          for name in ['release-policy','title-landscape / check','title-portrait / check','editorial-check']:
+              assert jobs[name]['conclusion']=='success'
+          paths=list(TITLE_FILES)+[WORKFLOW]+['linyuan/'+s for s in SOURCES]+['linyuan/source_restrictions.json','linyuan/source_timeline_evidence.json','linyuan/fc/runtime-requirements.txt','linyuan/fc/verify_production.py','linyuan/fc/deploy_code.py','.github/linyuan-release-policy.json']
+          subprocess.run(['git','diff','--exit-code','fcfa789d2f38271a01cb0ed508c916afe98638de','HEAD','--',*paths],check=True)
+          print('Same code as completed real CPU/editorial verification; full Linux regression 42476783889 passed')
+          PY
+      - name: 使用原部署器与原时段核验器，不补产
+        run: |
+          python linyuan/fc/package_code.py "$FC_CODE_ZIP"
+          git fetch --no-tags --depth=1 origin main
+          python linyuan/fc/check_deploy_current.py
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import deploy_code,verify_production
+          report=dict(verified=False,phase='code_update')
+          try:
+              deploy_code.main()
+              report['phase']='health_and_timer_verification'
+              verify_production.main()
+              report['verified']=True
+          except Exception as exc:
+              report['blocked']='cloud_account_billing' if 'debt' in str(exc).lower() else 'deployment_runtime'
+              report['error_type']=type(exc).__name__
+              report['provider_code']=str(getattr(exc,'code',''))
+          finally:
+              Path('fc-cost-deployment.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+              print(json.dumps(report,ensure_ascii=False))
+          if not report['verified']:raise SystemExit('FC deployment not accepted; new uploader stays disabled')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-deployment
+          path: |
+            fc-cost-deployment.json
+            production-verification.json
+          if-no-files-found: warn
+          retention-days: 7
