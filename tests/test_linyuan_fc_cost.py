@@ -267,3 +267,17 @@ def test_publish_workflow_uses_main_and_live_clock_passes_preview_false():
     assert events['workflow_dispatch']['inputs']['preview']['default'] is True
     assert workflow['jobs']['publish']['steps'][0]['with']['ref']=='main'
     assert workflow['concurrency']['cancel-in-progress'] is False
+
+
+def test_one_slot_canary_keeps_existing_slot_and_quality_path(monkeypatch):
+    monkeypatch.setattr(fc,'load_state',lambda:{})
+    monkeypatch.setattr(fc,'catchup_deficit',lambda _:1)
+    monkeypatch.setattr(publish_on_runner,'capability',lambda:True)
+    monkeypatch.setattr(fc,'run_with_lease',lambda kind,action:action())
+    monkeypatch.setattr(fc,'flush_logs',lambda:None)
+    calls=[]
+    monkeypatch.setattr(fc,'publish_catchup',lambda event:calls.append(event) or dict(published=1))
+    monkeypatch.setenv('LINYUAN_PUBLISH_BACKEND','legacy')
+    assert publish_on_runner.run(max_slots=1)['published']==1
+    assert len(calls)==1
+    with pytest.raises(ValueError):publish_on_runner.run(max_slots=5)
