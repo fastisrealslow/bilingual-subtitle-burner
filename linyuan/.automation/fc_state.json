@@ -110697,7 +110697,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-08T22:30:01+08:00"
+   "publish_time": "2026-11-08T22:30:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-c88a7b",
+    "run_id": 42513055871,
+    "artifact_id": 13630735687,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "76300aded1a63d4080732fb50d8e4455877acef7b94d292e0743dab247a26f22",
+     "duration_sec": 132.22,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5363108627614148"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42513055871,
+    "artifact_id": 13630735687,
+    "name": "production-reject-ly-1108-c88a7b",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5246956017549858",
@@ -216466,6 +216499,13 @@
    "video_id": "BV1YH4y1E79x",
    "ts": 1794164552,
    "error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+  },
+  {
+   "slug": "ly-1108-c88a7b",
+   "key": "weibo_search:5363108627614148",
+   "video_id": "https://f.video.weibocdn.com/u0/GDiWhuhHgx08CdjcijYQ01041201PBof0E010.mp4",
+   "ts": 1794165361,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
