@@ -209,3 +209,61 @@ def test_rollout_stays_disabled_until_live_acceptance():
     assert fc_cost_policy.RUNNER_PUBLISH_ENABLED is False
     assert fc.MAX_PUBLISH_PER_DAY==4 and sorted(fc.PUBLISH_HOURS)==[10,14,16,21]
     assert fc_cost_policy.estimate_compute(100)==pytest.approx(65.0075)
+
+
+@pytest.mark.parametrize('outcome',['missing','wrong_task','wrong_hash','timeout','success'])
+def test_client_accepts_only_exact_completed_remote_receipt(monkeypatch,outcome):
+    binding=dict(task_id='ly-upload-12345678-a',video_sha256='a'*64)
+    result=dict(protocol=1,task_id=binding['task_id'],video_sha256='a'*64,
+                upload_called=True,returncode=0,bvid='BV1Xa4j6zEVQ')
+    if outcome=='missing':result=None
+    if outcome=='wrong_task':result['task_id']='ly-upload-another-task'
+    if outcome=='wrong_hash':result['video_sha256']='b'*64
+    if outcome=='timeout':result.update(returncode=-1,bvid=None,error_type='TimeoutExpired')
+    monkeypatch.setattr(client,'connection',lambda:(None,None,None,None))
+    monkeypatch.setitem(sys.modules,'publish_fresh_six',SimpleNamespace(prepare_async_tasks=lambda *a:None))
+    monkeypatch.setitem(sys.modules,'catchup_from_inventory',SimpleNamespace(
+        tracked_request=lambda *a,**kw:SimpleNamespace(status='Succeeded'),task_result=lambda _:result))
+    monkeypatch.setattr(fc,'gh',lambda *a,**kw:{'content':base64.b64encode(b'{}').decode()})
+    if outcome=='success':
+        process=client.execute(binding)
+        assert process.returncode==0 and process.stdout=='BV1Xa4j6zEVQ'
+    else:
+        with pytest.raises(transport.RemoteUploadPending):client.execute(binding)
+
+
+def test_clock_never_retries_ambiguous_dispatch():
+    calls=[]
+    def gh(method,path,data=None,**kw):
+        calls.append(method)
+        if method=='GET':return {'workflow_runs':[]}
+        raise TimeoutError('response lost after accepted POST')
+    with pytest.raises(TimeoutError):publish_clock.request(gh)
+    assert calls==['GET','POST']
+
+
+def test_runner_uses_original_publisher_and_stops_on_pending(monkeypatch):
+    monkeypatch.setattr(fc,'load_state',lambda:{})
+    monkeypatch.setattr(fc,'catchup_deficit',lambda _:4)
+    monkeypatch.setattr(publish_on_runner,'capability',lambda:True)
+    monkeypatch.setattr(fc,'run_with_lease',lambda kind,action:action())
+    monkeypatch.setattr(fc,'flush_logs',lambda:None)
+    attempts=[]
+    def publisher(event):
+        attempts.append(event)
+        return {'published':1} if len(attempts)==1 else {'published':0,'upload_remote_pending':1}
+    monkeypatch.setattr(fc,'publish_catchup',publisher)
+    monkeypatch.setenv('LINYUAN_PUBLISH_BACKEND','legacy')
+    result=publish_on_runner.run()
+    assert result['published']==1 and len(attempts)==2
+    assert all(x=={'triggerName':'publish-catchup'} for x in attempts)
+
+
+def test_publish_workflow_uses_main_and_live_clock_passes_preview_false():
+    import yaml
+    workflow=yaml.safe_load((ROOT/'.github/workflows/linyuan-publish-runner.yml').read_text())
+    events=workflow.get('on',workflow.get(True))
+    assert events['schedule']==[{'cron':'2 2,6,8,13 * * *'}]
+    assert events['workflow_dispatch']['inputs']['preview']['default'] is True
+    assert workflow['jobs']['publish']['steps'][0]['with']['ref']=='main'
+    assert workflow['concurrency']['cancel-in-progress'] is False

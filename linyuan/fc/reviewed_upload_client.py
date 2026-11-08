@@ -94,13 +94,15 @@ def execute(binding):
             import index as fc
             receipt=fc.gh('GET','/contents/linyuan/.automation/upload_tasks/'+binding['task_id']+'.json?ref=main',timeout=20)
             result=json.loads(base64.b64decode(receipt['content'])).get('result')
-        if (not task or task.status!='Succeeded' or not isinstance(result,dict)
+        if (not task or task.status not in {'Succeeded','Failed','Stopped','Expired','Invalid'} or not isinstance(result,dict)
                 or result.get('protocol')!=VERSION or result.get('task_id')!=binding['task_id']):
             raise RemoteUploadPending('Reviewed transfer outcome is unknown')
         if (result.get('upload_called') is True and result.get('returncode')==0
                 and re.fullmatch(r'BV[a-zA-Z0-9]{10}',str(result.get('bvid') or ''))
                 and result.get('video_sha256')==binding.get('video_sha256')):
-            return subprocess.CompletedProcess([],0,result['bvid'],'')
+            process=subprocess.CompletedProcess([],0,result['bvid'],'')
+            process.upload_metrics=result
+            return process
         # Even a terminal CLI error can follow a successful platform submission.
         # Preserve the ordinary authenticated archive reconciliation path.
         if result.get('upload_called') is True:

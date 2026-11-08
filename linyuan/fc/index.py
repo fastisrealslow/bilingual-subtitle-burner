@@ -5424,6 +5424,8 @@ def publish_handler(event=None, context=None):
         return {"published": 0, "upload_timeout": 1}
     out = (r.stdout or "") + (r.stderr or "")
     e['upload_process_result']=dict(completed_at=int(time.time()),returncode=r.returncode)
+    if remote_upload and getattr(r,'upload_metrics',None):
+        e['upload_transport_result']=r.upload_metrics
     if save_state(st) is False:
         shutil.rmtree(tmp, ignore_errors=True)
         return {'published':0,'upload_result_not_saved':1}
