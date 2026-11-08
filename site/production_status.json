@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794170801,
-  "inventory_updated_at": 1794170766,
+  "updated_at": 1794170962,
+  "inventory_updated_at": 1794170956,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 118,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 32,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 30,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 30,
-        "landscape": 88
+        "portrait": 32,
+        "landscape": 86
       },
       "full_schedule_days": 10,
       "required_week_shortfall": 0,
@@ -249,16 +249,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794170799,
+    "updated_at": 1794170960,
     "records": 16837,
     "video_records": 14320,
-    "initial_candidates": 216,
-    "duration_eligible_records": 32,
-    "candidate_count": 32,
-    "known_duration_candidates": 32,
+    "initial_candidates": 214,
+    "duration_eligible_records": 30,
+    "candidate_count": 30,
+    "known_duration_candidates": 30,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3598,
+      "already_attempted_or_cooling": 3600,
       "speaker_unconfirmed": 8586,
       "clip_title": 1465,
       "unrelated": 81,
@@ -271,22 +271,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV11UydYXEvY",
-        "title": "林园 P1 林园：17年前就看好茅台，因为它是赚钱机器",
-        "source": "bilibili_collection",
-        "author": "俊逸来了",
-        "url": "https://www.bilibili.com/video/BV11UydYXEvY",
-        "duration_sec": 68.0
-      },
-      {
-        "key": "bilibili_search:BV1rrE162Ej1",
-        "title": "林园 P1 mmexport1781259913555",
-        "source": "bilibili_collection",
-        "author": "阳光灿烂正向",
-        "url": "https://www.bilibili.com/video/BV1rrE162Ej1",
-        "duration_sec": 149.0
-      },
       {
         "key": "bilibili_search:BV1RB5M6JEcc",
         "title": "林园 P1 林园：你们投了别怪我",
@@ -532,8 +516,8 @@
   "inventory": {
     "verified_live": 118,
     "verified_audio_card": 0,
-    "verified_landscape": 88,
-    "verified_portrait": 30,
+    "verified_landscape": 86,
+    "verified_portrait": 32,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -545,13 +529,14 @@
     "complete": 192,
     "failed": 2246,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 146,
     "ready": 32,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 4
+    "retry_queued": 2,
+    "running": 4,
+    "queued": 2
   },
   "tasks": [
     {
@@ -49006,14 +48991,14 @@
     },
     {
       "slug": "ly-1108-d599a6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794164927,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794171723,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -49147,6 +49132,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42520710664",
       "run_started_at": "2026-11-08T20:33:15Z",
       "run_updated_at": "2026-11-08T20:33:27Z"
+    },
+    {
+      "slug": "ly-1108-13c947",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1794170865,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42521924981,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42521924981",
+      "run_started_at": "2026-11-08T20:47:44Z",
+      "run_updated_at": "2026-11-08T20:47:44Z"
+    },
+    {
+      "slug": "ly-1108-5c215e",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1794170877,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42521941530,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42521941530",
+      "run_started_at": "2026-11-08T20:47:56Z",
+      "run_updated_at": "2026-11-08T20:47:56Z"
     }
   ],
   "runs": {
@@ -74449,6 +74470,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42513541971",
       "run_number": 4158,
       "display_title": "中文源出片 · ly-1108-d599a6"
+    },
+    "ly-1108-5c215e": {
+      "id": 42521941530,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-11-08T20:47:56Z",
+      "updated_at": "2026-11-08T20:47:56Z",
+      "run_started_at": "2026-11-08T20:47:56Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42521941530",
+      "run_number": 4167,
+      "display_title": "中文源出片 · ly-1108-5c215e"
+    },
+    "ly-1108-13c947": {
+      "id": 42521924981,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-11-08T20:47:44Z",
+      "updated_at": "2026-11-08T20:47:44Z",
+      "run_started_at": "2026-11-08T20:47:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42521924981",
+      "run_number": 4166,
+      "display_title": "中文源出片 · ly-1108-13c947"
     },
     "ly-1108-04907d": {
       "id": 42520710664,
