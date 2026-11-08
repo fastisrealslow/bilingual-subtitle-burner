@@ -107906,7 +107906,47 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-03-31T12:58:39+00:00"
+   "publish_time": "2023-03-31T12:58:39+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-a78948",
+    "run_id": 42431358423,
+    "artifact_id": 13598829379,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7d428e94e7ce90ed7ed8499b55377f934a7502987a2d12e0aa20558c50ee0897",
+     "duration_sec": 1518.07,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1fm4y1B7Rz"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 413.30s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "source_check_report_id": 13598829379,
+   "source_check_run_id": 42431358423,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794105606
   },
   {
    "video_id": "BV1vUmjYwEVV",
