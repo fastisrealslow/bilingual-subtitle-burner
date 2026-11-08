@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1794181783,
-  "inventory_updated_at": 1794181558,
+  "updated_at": 1794181935,
+  "inventory_updated_at": 1794181927,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 121,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "verified_daily_stock": 122,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 121,
+      "verified_stock_snapshot": 122,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 33,
-        "landscape": 88
+        "portrait": 35,
+        "landscape": 87
       },
       "full_schedule_days": 11,
       "required_week_shortfall": 0,
@@ -249,28 +249,52 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794181781,
-    "records": 16884,
-    "video_records": 14367,
-    "initial_candidates": 185,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "updated_at": 1794181933,
+    "records": 16896,
+    "video_records": 14379,
+    "initial_candidates": 188,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3641,
-      "speaker_unconfirmed": 8614,
-      "clip_title": 1467,
+      "already_attempted_or_cooling": 3643,
+      "speaker_unconfirmed": 8615,
+      "clip_title": 1468,
       "unrelated": 81,
       "no_video": 2517,
       "noise": 39,
-      "reference_only": 304,
+      "reference_only": 309,
       "ai_content": 36,
       "over_limit": 36,
       "too_short": 148,
       "duplicate_source": 0
     },
     "candidates": [
+      {
+        "key": "bilibili_search:BV1iAjB6kE2U",
+        "title": "林园 P1 lv_0_20260619201423",
+        "source": "bilibili_collection",
+        "author": "滚雪球财务自由",
+        "url": "https://www.bilibili.com/video/BV1iAjB6kE2U",
+        "duration_sec": 38.0
+      },
+      {
+        "key": "bilibili_search:BV1ky4y1b7sz",
+        "title": "林园 P1 林园：基建的繁荣与酒的上涨呈现正相关，未来基建和地产需求减少的话，会影响白酒需求",
+        "source": "bilibili_collection",
+        "author": "旺财学堂",
+        "url": "https://www.bilibili.com/video/BV1ky4y1b7sz",
+        "duration_sec": 91.0
+      },
+      {
+        "key": "bilibili_search:BV1Dp4y1s7Fy",
+        "title": "林园 P1 大佬林园：目前管理规模已达千亿，我们不做销售都是老客户",
+        "source": "bilibili_collection",
+        "author": "旺财学堂",
+        "url": "https://www.bilibili.com/video/BV1Dp4y1s7Fy",
+        "duration_sec": 97.0
+      },
       {
         "key": "bilibili_search:BV1Wi4y1F7yS",
         "title": "林园 P1 大佬林园：不要浪费危机购买好机会，我说的高是等待，不是追高买",
@@ -282,14 +306,14 @@
     ]
   },
   "inventory": {
-    "verified_live": 121,
+    "verified_live": 122,
     "verified_audio_card": 0,
-    "verified_landscape": 88,
-    "verified_portrait": 33,
+    "verified_landscape": 87,
+    "verified_portrait": 35,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 121,
+    "daily_mix_usable": 122,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -300,11 +324,10 @@
     "interrupted": 6,
     "excluded": 65,
     "experiment_fallback": 151,
-    "ready": 33,
+    "ready": 34,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4,
-    "awaiting_validation": 1
+    "running": 4
   },
   "tasks": [
     {
@@ -49425,8 +49448,8 @@
     },
     {
       "slug": "ly-1108-54d009",
-      "status": "awaiting_validation",
-      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
+      "status": "ready",
+      "detail": "2 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1794177874,
         "failed": null,
@@ -75486,6 +75509,28 @@
       "run_number": 4205,
       "display_title": "中文源出片 · ly-1108-8be062"
     },
+    "ly-1108-2e24f8": {
+      "id": 42536451617,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-08T23:42:24Z",
+      "updated_at": "2026-11-08T23:49:32Z",
+      "run_started_at": "2026-11-08T23:42:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536451617",
+      "run_number": 4209,
+      "display_title": "中文源出片 · ly-1108-2e24f8"
+    },
+    "ly-1108-54d009": {
+      "id": 42531733603,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-08T22:44:34Z",
+      "updated_at": "2026-11-08T23:47:47Z",
+      "run_started_at": "2026-11-08T22:44:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42531733603",
+      "run_number": 4196,
+      "display_title": "中文源出片 · ly-1108-54d009"
+    },
     "ly-1108-4b476a": {
       "id": 42536976697,
       "status": "in_progress",
@@ -75508,17 +75553,6 @@
       "run_number": 4210,
       "display_title": "中文源出片 · ly-1108-cc269f"
     },
-    "ly-1108-2e24f8": {
-      "id": 42536451617,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-08T23:42:24Z",
-      "updated_at": "2026-11-08T23:49:32Z",
-      "run_started_at": "2026-11-08T23:42:24Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536451617",
-      "run_number": 4209,
-      "display_title": "中文源出片 · ly-1108-2e24f8"
-    },
     "ly-1108-c04f76": {
       "id": 42534005951,
       "status": "in_progress",
@@ -75529,17 +75563,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42534005951",
       "run_number": 4203,
       "display_title": "中文源出片 · ly-1108-c04f76"
-    },
-    "ly-1108-54d009": {
-      "id": 42531733603,
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-08T22:44:34Z",
-      "updated_at": "2026-11-08T23:47:47Z",
-      "run_started_at": "2026-11-08T22:44:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42531733603",
-      "run_number": 4196,
-      "display_title": "中文源出片 · ly-1108-54d009"
     },
     "ly-1108-8fb491": {
       "id": 42524384678,
