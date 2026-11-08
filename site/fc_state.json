@@ -113025,7 +113025,72 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-11-04T15:47:01+00:00"
+   "publish_time": "2024-11-04T15:47:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-8be062",
+    "run_id": 42534036185,
+    "artifact_id": 13639572652,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8ea9928d6033e0c17df7a54a1a05f22d807468455b329026466faea3b48c9568",
+     "duration_sec": 808.13,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1EiDWYPEQ6"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 297.23s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 244.93s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 558.80s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42534036185,
+    "artifact_id": 13639572652,
+    "name": "production-reject-ly-1108-8be062",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 297.23s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1cNNM66EEe",
@@ -113138,7 +113203,8 @@
    },
    "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"钢钢老板都是钢钢铁。\", \"suspect_quote\": \"钢钢老板都是钢钢铁\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'钢钢'为异常字母堆积，无法确定实体；'钢钢铁'语义不通，疑似截断或粘连错误。\"}, {\"sentence_id\": 24, \"quote\": \"所以那些就脑子有问题的，他想着这个，哎，现在这一说这个低估值的，就银行地产低估值，那是P一是低，P一低，他养了多少人呢？\", \"suspect_quote\": \"P一是低\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'P一'为异常字符，无法确定实体，疑似将英文字母 P 误识为汉字'一'。\"}]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1EG4y1Q7Hy",
@@ -113161,7 +113227,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-01-25T04:04:59+00:00"
+   "publish_time": "2023-01-25T04:04:59+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-1bbd6a",
+    "run_id": 42536003368,
+    "artifact_id": 13639358605,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e251d0a6fca084a5df4279bb50445a4990124adad4bc077179137923a24099f9",
+     "duration_sec": 115.73,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1EG4y1Q7Hy"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42536003368,
+    "artifact_id": 13639358605,
+    "name": "production-reject-ly-1108-1bbd6a",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1FK411u7Ph",
@@ -219180,6 +219279,20 @@
    "video_id": "BV1SK411M7HX",
    "ts": 1794181291,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"钢钢老板都是钢钢铁。\", \"suspect_quote\": \"钢钢老板都是钢钢铁\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'钢钢'为异常字母堆积，无法确定实体；'钢钢铁'语义不通，疑似截断或粘连错误。\"}, {\"sentence_id\": 24, \"quote\": \"所以那些就脑子有问题的，他想着这个，哎，现在这一说这个低估值的，就银行地产低估值，那是P一是低，P一低，他养了多少人呢？\", \"suspect_quote\": \"P一是低\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'P一'为异常字符，无法确定实体，疑似将英文字母 P 误识为汉字'一'。\"}]"
+  },
+  {
+   "slug": "ly-1108-1bbd6a",
+   "key": "bilibili_search:BV1EG4y1Q7Hy",
+   "video_id": "BV1EG4y1Q7Hy",
+   "ts": 1794181676,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1108-8be062",
+   "key": "bilibili_search:BV1EiDWYPEQ6",
+   "video_id": "BV1EiDWYPEQ6",
+   "ts": 1794181679,
+   "error": "整段取景预检：源 297.23s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
