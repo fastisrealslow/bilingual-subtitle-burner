@@ -38,27 +38,21 @@ try:
     tasks=getattr(body,'tasks',[]) or []
     report['async_tasks']=[]
     for task in tasks:
-        row={k:getattr(task,k,None) for k in ['task_id','status','started_time','ended_time','created_time','invocation_id']}
-        payload=getattr(task,'payload',None)
-        try:
-            parsed=json.loads(payload or '{}');row['trigger']=parsed.get('triggerName')
-        except (ValueError,TypeError):pass
+        data=task.to_map()
+        row={k:v for k,v in data.items() if any(x in k.lower() for x in ['time','duration','status','taskid','payload'])}
+        row['available_keys']=sorted(data)
         report['async_tasks'].append(row)
-except Exception as exc:report['async_tasks_error']=error(exc)
-client=AcsClient(os.environ['ALIYUN_AK'],os.environ['ALIYUN_SK'],'cn-hangzhou',auto_retry=False,timeout=30)
-report['bills']=[]
-for cycle,day in [('2026-10',None),('2026-11',None),('2026-11','2026-11-07')]:
-    request=DescribeInstanceBillRequest();request.set_accept_format('json')
-    request.set_BillingCycle(cycle);request.set_ProductCode('fc');request.set_IsBillingItem(True);request.set_MaxResults(300)
-    request.set_Granularity('DAILY' if day else 'MONTHLY')
-    if day:request.set_BillingDate(day)
+    report['task_details']=[]
+    for task in tasks[:12]:
+        try:
+            detail=fc.get_async_task_with_options(function,task.task_id,m.GetAsyncTaskRequest(qualifier='LATEST'),{},runtime).body.to_map()
+            report['task_details'].append(detail)
+        except Exception as exc:report['task_details'].append(error(exc))
     try:
-        response=json.loads(client.do_action_with_exception(request));data=response.get('Data') or {}
-        fields=['InstanceID','ProductCode','ProductName','ProductType','BillingItem','BillingItemCode','BillingDate','Usage','UsageUnit','ListPrice','ListPriceUnit','PretaxAmount','PretaxGrossAmount','AfterDiscountAmount','DeductedByResourcePackage','Currency','ServicePeriod','ServicePeriodUnit']
-        report['bills'].append(dict(cycle=cycle,day=day,code=response.get('Code'),complete=not data.get('NextToken'),rows=[{k:r[k] for k in fields if k in r} for r in data.get('Items') or []]))
-    except Exception as exc:
-        report['bills'].append(dict(cycle=cycle,day=day,**error(exc)))
-        if 'forbid' in str(report['bills'][-1].get('error_code','')).lower() or 'denied' in str(report['bills'][-1].get('error_code','')).lower():break
+        functions=fc.list_functions_with_options(m.ListFunctionsRequest(limit=100),{},runtime).body
+        report['regional_functions']=[{k:getattr(f,k,None) for k in ['function_name','cpu','memory_size','timeout','runtime']} for f in functions.functions]
+    except Exception as exc:report['regional_functions_error']=error(exc)
+except Exception as exc:report['async_tasks_error']=error(exc)
 payload=json.dumps(report,ensure_ascii=False,default=str).encode()
 Path('/tmp/audit-key.pub').write_text(PUBLIC_KEY)
 chunks=[]
