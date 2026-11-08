@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794098358,
+  "updated_at": 1794098548,
   "inventory_updated_at": 1794098353,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 106,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -241,16 +241,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794098357,
+    "updated_at": 1794098546,
     "records": 16575,
     "video_records": 14060,
-    "initial_candidates": 183,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 182,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3544,
+      "already_attempted_or_cooling": 3545,
       "speaker_unconfirmed": 8471,
       "clip_title": 1443,
       "no_video": 2515,
@@ -262,16 +262,7 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:4646566659100502",
-        "title": "#茅台股东林园控诉买不到茅台酒#，#持有300亿茅台还跟个叫花子一样抽签买酒#。\n\n6月9日，在茅台股东大会上，林园投资",
-        "source": "weibo_search",
-        "author": "胡江波在北京",
-        "url": "https://m.weibo.cn/detail/4646566659100502",
-        "duration_sec": 34.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 106,
@@ -287,15 +278,15 @@
   },
   "counts": {
     "complete": 190,
-    "failed": 2203,
+    "failed": 2204,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 9,
     "excluded": 64,
     "experiment_fallback": 129,
     "ready": 30,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -47760,11 +47751,11 @@
     },
     {
       "slug": "ly-1108-ff0564",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1034, 2: 0.1642, 3: 0.0519, 4: 0.1405, 5: 0.2792, 6: 0.1965, 7: 0.1275, 8: 0.0794, 9: 0.0394, 10: 0.1871, 11: 0.1515, 12: 0.0915, 13: 0.1729, 14: 0.3235, 15: 0.1768, 16: 0.1743, 17: 0.2292, 18: 0.2101}",
       "signature": {
         "ts": 1794098065,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -47775,6 +47766,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42430355970",
       "run_started_at": "2026-11-08T00:34:25Z",
       "run_updated_at": "2026-11-08T00:36:57Z"
+    },
+    {
+      "slug": "ly-1108-b3fccd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794098503,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42430917805,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42430917805",
+      "run_started_at": "2026-11-08T00:41:43Z",
+      "run_updated_at": "2026-11-08T00:41:46Z"
     }
   ],
   "runs": {
@@ -72406,6 +72415,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42430355970",
       "run_number": 4093,
       "display_title": "中文源出片 · ly-1108-ff0564"
+    },
+    "ly-1108-b3fccd": {
+      "id": 42430917805,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T00:41:43Z",
+      "updated_at": "2026-11-08T00:41:46Z",
+      "run_started_at": "2026-11-08T00:41:43Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42430917805",
+      "run_number": 4094,
+      "display_title": "中文源出片 · ly-1108-b3fccd"
     },
     "ly-1108-93569d": {
       "id": 42430345730,
