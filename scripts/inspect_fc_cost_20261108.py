@@ -51,6 +51,22 @@ try:
     try:
         functions=fc.list_functions_with_options(m.ListFunctionsRequest(limit=100),{},runtime).body
         report['regional_functions']=[{k:getattr(f,k,None) for k in ['function_name','cpu','memory_size','timeout','runtime']} for f in functions.functions]
+        report['other_functions']=[]
+        for f in functions.functions:
+            if f.function_name==function:continue
+            record={'function_name':f.function_name}
+            for method,model in [('get_scaling_config','GetScalingConfigRequest'),('get_provision_config','GetProvisionConfigRequest')]:
+                if not hasattr(fc,method+'_with_options') or not hasattr(m,model):continue
+                try:
+                    ctor=getattr(m,model);kwargs={'qualifier':'LATEST'} if 'qualifier' in inspect.signature(ctor).parameters else {}
+                    response=getattr(fc,method+'_with_options')(f.function_name,ctor(**kwargs),{},runtime).body
+                    record[method]=response.to_map()
+                except Exception as exc:record[method]=error(exc)
+            try:
+                ts=fc.list_triggers_with_options(f.function_name,m.ListTriggersRequest(limit=100),{},runtime).body.triggers
+                record['triggers']=[dict(name=t.trigger_name,type=t.trigger_type,config=json.loads(t.trigger_config)) for t in ts]
+            except Exception as exc:record['triggers_error']=error(exc)
+            report['other_functions'].append(record)
     except Exception as exc:report['regional_functions_error']=error(exc)
 except Exception as exc:report['async_tasks_error']=error(exc)
 payload=json.dumps(report,ensure_ascii=False,default=str).encode()
