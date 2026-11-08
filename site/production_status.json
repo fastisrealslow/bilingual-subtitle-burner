@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794181214,
+  "updated_at": 1794181385,
   "inventory_updated_at": 1794181210,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 121,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -249,16 +249,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794181213,
+    "updated_at": 1794181384,
     "records": 16884,
     "video_records": 14367,
-    "initial_candidates": 186,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 185,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3640,
+      "already_attempted_or_cooling": 3641,
       "speaker_unconfirmed": 8614,
       "clip_title": 1467,
       "unrelated": 81,
@@ -271,14 +271,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1FK411u7Ph",
-        "title": "林园 P1 大佬林园：牛市里大多数都会有表现，关注优质企业才是根本",
-        "source": "bilibili_collection",
-        "author": "旺财学堂",
-        "url": "https://www.bilibili.com/video/BV1FK411u7Ph",
-        "duration_sec": 96.0
-      },
       {
         "key": "bilibili_search:BV1Wi4y1F7yS",
         "title": "林园 P1 大佬林园：不要浪费危机购买好机会，我说的高是等待，不是追高买",
@@ -303,15 +295,15 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2281,
+    "failed": 2282,
     "paused": 5,
-    "interrupted": 6,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 151,
     "ready": 33,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -49630,11 +49622,11 @@
     },
     {
       "slug": "ly-1108-d01d84",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 14, \"quote\": \"钢钢老板都是钢钢铁。\", \"suspect_quote\": \"钢钢老板都是钢钢铁\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'钢钢'为异常字母堆积，无法确定实体；'钢钢铁'语义不通，疑似截断或粘连错误。\"}, {\"sentence_id\": 24, \"quote\": \"所以那些就脑子有问题的，他想着这个，哎，现在这一说这个低估值的，就银行地产低估值，那是P一是低，P一低，他养了多少人呢？\", \"suspect_quote\": \"P一是低\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'P一'为异常字符，无法确定实体，疑似将英文字母 P 误识为汉字'一'。\"}]",
       "signature": {
         "ts": 1794180023,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49663,6 +49655,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536003368",
       "run_started_at": "2026-11-08T23:36:42Z",
       "run_updated_at": "2026-11-08T23:36:46Z"
+    },
+    {
+      "slug": "ly-1108-2e24f8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794181345,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42536451617,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536451617",
+      "run_started_at": "2026-11-08T23:42:24Z",
+      "run_updated_at": "2026-11-08T23:42:28Z"
     }
   ],
   "runs": {
@@ -75406,17 +75416,6 @@
       "run_number": 4206,
       "display_title": "中文源出片 · ly-1108-d2dcd5"
     },
-    "ly-1108-1bbd6a": {
-      "id": 42536003368,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-08T23:36:42Z",
-      "updated_at": "2026-11-08T23:36:46Z",
-      "run_started_at": "2026-11-08T23:36:42Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536003368",
-      "run_number": 4208,
-      "display_title": "中文源出片 · ly-1108-1bbd6a"
-    },
     "ly-1108-d01d84": {
       "id": 42534694387,
       "status": "completed",
@@ -75427,6 +75426,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42534694387",
       "run_number": 4207,
       "display_title": "中文源出片 · ly-1108-d01d84"
+    },
+    "ly-1108-2e24f8": {
+      "id": 42536451617,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T23:42:24Z",
+      "updated_at": "2026-11-08T23:42:28Z",
+      "run_started_at": "2026-11-08T23:42:24Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536451617",
+      "run_number": 4209,
+      "display_title": "中文源出片 · ly-1108-2e24f8"
+    },
+    "ly-1108-1bbd6a": {
+      "id": 42536003368,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-08T23:36:42Z",
+      "updated_at": "2026-11-08T23:36:46Z",
+      "run_started_at": "2026-11-08T23:36:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42536003368",
+      "run_number": 4208,
+      "display_title": "中文源出片 · ly-1108-1bbd6a"
     },
     "ly-1108-8be062": {
       "id": 42534036185,
