@@ -109292,7 +109292,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未表达独立观点，仅是对主持人问题的确认和背景补充，属于问答互动中的回应部分，而非完整表达。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1yW4y1e7FR",
@@ -109550,7 +109551,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1CmM9zbEEW",
@@ -109640,7 +109642,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[1]，scan_different=[]，confidence=0.98，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.5166}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV185T56yEfv",
@@ -109663,7 +109666,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-29T04:16:09+00:00"
+   "publish_time": "2026-06-29T04:16:09+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-2fe119",
+    "run_id": 42457090998,
+    "artifact_id": 13608236945,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d078fa67bbfa847d0148802c0e10606c47cb6e0624fbf1e2a2c0e15a9fe2f51d",
+     "duration_sec": 85.38,
+     "resolution": {
+      "width": 884,
+      "height": 1920,
+      "short_edge": 884
+     },
+     "source_url": "https://www.bilibili.com/video/BV185T56yEfv"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42457090998,
+    "artifact_id": 13608236945,
+    "name": "production-reject-ly-1108-2fe119",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Nz4y167tm",
@@ -215348,6 +215384,13 @@
    "video_id": "BV1E541197wX",
    "ts": 1794121638,
    "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未表达独立观点，仅是对主持人问题的确认和背景补充，属于问答互动中的回应部分，而非完整表达。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1108-2fe119",
+   "key": "bilibili_search:BV185T56yEfv",
+   "video_id": "BV185T56yEfv",
+   "ts": 1794122042,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
