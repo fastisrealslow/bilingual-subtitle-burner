@@ -111988,7 +111988,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-09-27T05:30:31+00:00"
+   "publish_time": "2022-09-27T05:30:31+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-a41cc3",
+    "run_id": 42528665087,
+    "artifact_id": 13636982303,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "2994a111617a95545e1b86e26ddbe00da69113b0ff1d050d5918e450c30b9752",
+     "duration_sec": 162.37,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1jg411m7eB"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但但从心方面，你是哪些？\", \"suspect_quote\": \"但但从心方面，你是哪些？\", \"kind\": \"unintelligible_term\", \"reason\": \"“但但从心”疑似严重识别污染或口误，“你是哪些”在上下文中语义不通，无法确定具体身份或意图。\"}, {\"sentence_id\": 3, \"quote\": \"你学会，你达到人生达到外部了，外界的这个诱惑你都没有。\", \"suspect_quote\": \"外界的这个诱惑你都没有\", \"kind\": \"unintelligible_term\", \"reas"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42528665087,
+    "artifact_id": 13636982303,
+    "name": "production-reject-ly-1108-a41cc3",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但但从心方面，你是哪些？\", \"suspect_quote\": \"但但从心方面，你是哪些？\", \"kind\": \"unintelligible_term\", \"reason\": \"“但但从心”疑似严重识别污染或口误，“你是哪些”在上下文中语义不通，无法确定具体身份或意图。\"}, {\"sentence_id\": 3, \"quote\": \"你学会，你达到人生达到外部了，外界的这个诱惑你都没有。\", \"suspect_quote\": \"外界的这个诱惑你都没有\", \"kind\": \"unintelligible_term\", \"reason\": \"“外部”疑似识别错误，结合语境应为“境界”或类似词汇，原词无法准确表达含义。\"}, {\"sentence_id\": 6, \"quote\": \"股市因为天天都有天天都有涨停板，一个老师像就像那个吧，是吧？\", \"suspect_quote\": \"股市因为天天都有天天都有涨停板\", \"kind\": \"unintelligible_term\", \"reason\": \"“天天都有”重复出现，疑似识别污染或口吃未处理，影响句子流畅性和理解。\"}, {\"sentence_id\": 11, \"quote\": \"你要去可能，那一定是会会搞得你一个不过出货，是吧？\", \"suspect_quote\": \"那一定是会会搞得你一个不过出货\", \"kind\": \"unintelligible_term\", \"reason\": \"“会会”疑似口吃或识别冗余，“一个不过出货”语义不明，无法确定具体动作或含义。\"}, {\"sentence_id\": 19, \"quote\": \"你这你这电视啊，就是给大家传递了这样的一个道理，杨老师所讲的，做事情肯定也是先树人啊。\", \"suspect_quote\": \"你这你这电视啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“你这你这”疑似口吃或识别冗余，“电视”在上下文中语义不明，无法确定具体指代对象。\"}, {\"sentence_id\": 26, \"quote\": \"你卖，为什么不卖？\", \"suspect_quote\": \"你卖，为什么不卖？\", \"kind\": \"unintelligible_term\", \"reason\": \"“你卖”疑似识别错误，结合语境应为“你持有”或类似词汇，原词无法准确表达含义。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Eh3xz7Ee9",
@@ -112101,7 +112134,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 87%（BV1fN4b61EVy）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1SbuGzWE5x",
@@ -112124,7 +112158,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-07-11T13:55:50+00:00"
+   "publish_time": "2025-07-11T13:55:50+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-9e7c90",
+    "run_id": 42529805148,
+    "artifact_id": 13636903391,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a187c3deacd1c578ceacf8179d31302abc79d9e42a279b32e0f6e6c95523f596",
+     "duration_sec": 141.7,
+     "resolution": {
+      "width": 1920,
+      "height": 882,
+      "short_edge": 882
+     },
+     "source_url": "https://www.bilibili.com/video/BV1SbuGzWE5x"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42529805148,
+    "artifact_id": 13636903391,
+    "name": "production-reject-ly-1108-9e7c90",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1BixgeJEBN",
@@ -218056,6 +218123,20 @@
    "video_id": "BV1Eh3xz7Ee9",
    "ts": 1794176734,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1108-9e7c90",
+   "key": "bilibili_search:BV1SbuGzWE5x",
+   "video_id": "BV1SbuGzWE5x",
+   "ts": 1794177099,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1108-a41cc3",
+   "key": "bilibili_search:BV1jg411m7eB",
+   "video_id": "BV1jg411m7eB",
+   "ts": 1794177102,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"但但从心方面，你是哪些？\", \"suspect_quote\": \"但但从心方面，你是哪些？\", \"kind\": \"unintelligible_term\", \"reason\": \"“但但从心”疑似严重识别污染或口误，“你是哪些”在上下文中语义不通，无法确定具体身份或意图。\"}, {\"sentence_id\": 3, \"quote\": \"你学会，你达到人生达到外部了，外界的这个诱惑你都没有。\", \"suspect_quote\": \"外界的这个诱惑你都没有\", \"kind\": \"unintelligible_term\", \"reason\": \"“外部”疑似识别错误，结合语境应为“境界”或类似词汇，原词无法准确表达含义。\"}, {\"sentence_id\": 6, \"quote\": \"股市因为天天都有天天都有涨停板，一个老师像就像那个吧，是吧？\", \"suspect_quote\": \"股市因为天天都有天天都有涨停板\", \"kind\": \"unintelligible_term\", \"reason\": \"“天天都有”重复出现，疑似识别污染或口吃未处理，影响句子流畅性和理解。\"}, {\"sentence_id\": 11, \"quote\": \"你要去可能，那一定是会会搞得你一个不过出货，是吧？\", \"suspect_quote\": \"那一定是会会搞得你一个不过出货\", \"kind\": \"unintelligible_term\", \"reason\": \"“会会”疑似口吃或识别冗余，“一个不过出货”语义不明，无法确定具体动作或含义。\"}, {\"sentence_id\": 19, \"quote\": \"你这你这电视啊，就是给大家传递了这样的一个道理，杨老师所讲的，做事情肯定也是先树人啊。\", \"suspect_quote\": \"你这你这电视啊\", \"kind\": \"unintelligible_term\", \"reason\": \"“你这你这”疑似口吃或识别冗余，“电视”在上下文中语义不明，无法确定具体指代对象。\"}, {\"sentence_id\": 26, \"quote\": \"你卖，为什么不卖？\", \"suspect_quote\": \"你卖，为什么不卖？\", \"kind\": \"unintelligible_term\", \"reason\": \"“你卖”疑似识别错误，结合语境应为“你持有”或类似词汇，原词无法准确表达含义。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
