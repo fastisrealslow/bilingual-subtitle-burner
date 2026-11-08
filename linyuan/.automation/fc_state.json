@@ -109740,7 +109740,76 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2026-04-18T11:11:53+00:00"
+   "publish_time": "2026-04-18T11:11:53+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-a3ec8d",
+    "run_id": 42457525948,
+    "artifact_id": 13609293299,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e39d393fef16d0341ca325759e6faef93254b5c05cbd8c8e65e49b4534c2b555",
+     "duration_sec": 616.1,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1jCdHBfEKJ"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 92%（BV1Aeat6iExx）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 554.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 81%（BV1WGpv6hEqL）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"所以说过去，所以说林元老师，你也是让我们这个尊重常识的判断，而不是尊重一些剧情或者一厢情愿的判断，对吧？\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，ASR 识别为“林元”属于专名错写，需复核原音确认是否为同音误识。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未给出针对'如何积累投资经验'的具体方法或明确结论，仅泛泛而谈常识判断并以否定句式收尾，缺乏实质性观点支撑。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 254.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/247，总帧数1234；身份匹配但人脸短边不足96px的帧数247"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 162.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 74.13s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42457525948,
+    "artifact_id": 13609293299,
+    "name": "production-reject-ly-1108-a3ec8d",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 92%（BV1Aeat6iExx）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "video_id": "BV1Pe411y7Bp",
@@ -109851,7 +109920,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（404x272），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1N7421N7cR",
@@ -215587,6 +215657,13 @@
    "video_id": "BV1xatv6jEyd",
    "ts": 1794123515,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（404x272），画质不达标"
+  },
+  {
+   "slug": "ly-1108-a3ec8d",
+   "key": "bilibili_search:BV1jCdHBfEKJ",
+   "video_id": "BV1jCdHBfEKJ",
+   "ts": 1794124351,
+   "error": "与已发布内容文字指纹重复：转写片段重合 92%（BV1Aeat6iExx）"
   }
  ],
  "reviewed_third_video_0910": {
