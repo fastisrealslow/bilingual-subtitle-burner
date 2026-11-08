@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794117974,
+  "updated_at": 1794118133,
   "inventory_updated_at": 1794117971,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 109,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 8,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -61,10 +61,10 @@
     "active": true,
     "verified_treatment": {
       "portrait": 0,
-      "landscape": 1
+      "landscape": 0
     },
-    "consecutive_fallbacks": 1,
-    "actual_treatment_published": 6,
+    "consecutive_fallbacks": 0,
+    "actual_treatment_published": 7,
     "valid_comparison_days": 1,
     "daily": [
       {
@@ -237,19 +237,19 @@
       },
       {
         "date": "2026-11-08",
-        "published": 1,
-        "treatment": 0,
+        "published": 2,
+        "treatment": 1,
         "controls": 1,
         "fallback": 0,
         "valid_comparison": false
       }
     ],
     "status": "needs_attention",
-    "alert": "insufficient_treatment_by_layout"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794117973,
+    "updated_at": 1794118133,
     "records": 16667,
     "video_records": 14152,
     "initial_candidates": 190,
@@ -350,16 +350,16 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 191,
-    "failed": 2212,
+    "complete": 192,
+    "failed": 2213,
     "paused": 5,
     "interrupted": 10,
     "excluded": 65,
     "experiment_fallback": 134,
-    "ready": 31,
+    "ready": 30,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -47932,13 +47932,13 @@
     },
     {
       "slug": "ly-story-9ec1809949",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1794106391,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
@@ -48112,11 +48112,11 @@
     },
     {
       "slug": "ly-1108-6ae754",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 58%（BV1RCn76bE4M）",
       "signature": {
         "ts": 1794116584,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -48166,8 +48166,8 @@
     },
     {
       "slug": "ly-1108-308dd1",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794117481,
         "failed": null,
@@ -48180,7 +48180,7 @@
       "run_id": 42452796002,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42452796002",
       "run_started_at": "2026-11-08T05:58:00Z",
-      "run_updated_at": "2026-11-08T05:58:09Z"
+      "run_updated_at": "2026-11-08T06:05:10Z"
     }
   ],
   "runs": {
@@ -73013,10 +73013,10 @@
     },
     "ly-1108-308dd1": {
       "id": 42452796002,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-08T05:58:00Z",
-      "updated_at": "2026-11-08T05:58:09Z",
+      "updated_at": "2026-11-08T06:05:10Z",
       "run_started_at": "2026-11-08T05:58:00Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42452796002",
       "run_number": 4115,
