@@ -108063,7 +108063,80 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-20T09:35:47+00:00"
+   "publish_time": "2026-06-20T09:35:47+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-3af932",
+    "run_id": 42439240566,
+    "artifact_id": 13602447744,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a47fd3252ea254a337b1fa15a87c5a6aa1d2f79a867ad693a34f05d64b933a14",
+     "duration_sec": 2040.4,
+     "resolution": {
+      "width": 1896,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1hFjn6QEWa"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）在时间线上早于'零六'（2006），导致区间混乱；且口语填充词'呃'未清理，造成实际动作时间点不明。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价值大概我出生二十九块钱"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配64/644，总帧数2897；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配480/602，总帧数605；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配43/211，总帧数838；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 75%（BV1sw4A6XES7）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）在时间线上早于'零六'（2006），导致区间混乱；且口语填充词'呃'未清理，造成实际动作时间点不明。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价值大概我出生二十九块钱"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配64/644，总帧数2897；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42439240566,
+    "artifact_id": 13602447744,
+    "name": "production-reject-ly-1108-3af932",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1fm4y1B7Rz",
@@ -108194,7 +108267,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1kz4y1Y7VJ",
@@ -213390,6 +213464,13 @@
    "video_id": "BV1uSVL6wEfk",
    "ts": 1794108676,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1108-3af932",
+   "key": "bilibili_search:BV1hFjn6QEWa",
+   "video_id": "BV1hFjn6QEWa",
+   "ts": 1794109165,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
   }
  ],
  "reviewed_third_video_0910": {
