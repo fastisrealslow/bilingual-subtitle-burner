@@ -107792,7 +107792,80 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-06-11T08:55:13+00:00"
+   "publish_time": "2023-06-11T08:55:13+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1108-093f85",
+    "run_id": 42430333828,
+    "artifact_id": 13602265100,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "bfe3f5aeb6f31f5265936a838b93fb8f29da5053bedce3c550205585331ba46e",
+     "duration_sec": 3727.23,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1ho4y1N733"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"说这个话的人啊，他就是个二调子，就干啥事他不清楚，他是笨蛋，你知道吧？\", \"suspect_quote\": \"二调子\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中‘二调子’含义不明，无法确认是否为特定称谓或误识别；需音频核实。\"}, {\"sentence_id\": 11, \"quote\": \"我们知道的这些头部企业，它的需求量只是，就是供应量只只有需求量的百分之七。\", \"suspect_quote\": \"只只有\", \"kind\": \"unintelligible_term\","
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2922.90s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片存在持续黑色填充边"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3081.40s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3688.33s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配3057/4305，总帧数6238；身份匹配但人脸短边不足96px的帧数1248"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1747/2248，总帧数2501；身份匹配但人脸短边不足96px的帧数472"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配497/2327，总帧数9149；身份匹配但人脸短边不足96px的帧数1830"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42430333828,
+    "artifact_id": 13602265100,
+    "name": "production-reject-ly-1108-093f85",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"说这个话的人啊，他就是个二调子，就干啥事他不清楚，他是笨蛋，你知道吧？\", \"suspect_quote\": \"二调子\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中‘二调子’含义不明，无法确认是否为特定称谓或误识别；需音频核实。\"}, {\"sentence_id\": 11, \"quote\": \"我们知道的这些头部企业，它的需求量只是，就是供应量只只有需求量的百分之七。\", \"suspect_quote\": \"只只有\", \"kind\": \"unintelligible_term\", \"reason\": \"‘只只有’为重复冗余，疑似识别污染或口误；需音频核实。\"}, {\"sentence_id\": 15, \"quote\": \"你都没搞清楚，他就是我们现在一百个人喝喝的。\", \"suspect_quote\": \"一百个人喝喝的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一百个人喝喝的’表述含糊，疑似识别错误或口误；需音频核实。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1vUmjYwEVV",
@@ -213237,6 +213310,13 @@
    "video_id": "BV1ec4n67EAd",
    "ts": 1794105303,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1108-093f85",
+   "key": "bilibili_search:BV1ho4y1N733",
+   "video_id": "BV1ho4y1N733",
+   "ts": 1794107728,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"说这个话的人啊，他就是个二调子，就干啥事他不清楚，他是笨蛋，你知道吧？\", \"suspect_quote\": \"二调子\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中‘二调子’含义不明，无法确认是否为特定称谓或误识别；需音频核实。\"}, {\"sentence_id\": 11, \"quote\": \"我们知道的这些头部企业，它的需求量只是，就是供应量只只有需求量的百分之七。\", \"suspect_quote\": \"只只有\", \"kind\": \"unintelligible_term\", \"reason\": \"‘只只有’为重复冗余，疑似识别污染或口误；需音频核实。\"}, {\"sentence_id\": 15, \"quote\": \"你都没搞清楚，他就是我们现在一百个人喝喝的。\", \"suspect_quote\": \"一百个人喝喝的\", \"kind\": \"unintelligible_term\", \"reason\": \"‘一百个人喝喝的’表述含糊，疑似识别错误或口误；需音频核实。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
