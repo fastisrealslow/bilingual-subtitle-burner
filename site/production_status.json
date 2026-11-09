@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794213761,
-  "inventory_updated_at": 1794213722,
+  "updated_at": 1794217758,
+  "inventory_updated_at": 1794217750,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 122,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 8,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 34,
-        "landscape": 88
+        "portrait": 31,
+        "landscape": 91
       },
-      "full_schedule_days": 11,
+      "full_schedule_days": 10,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -61,7 +61,7 @@
     "active": true,
     "verified_treatment": {
       "portrait": 0,
-      "landscape": 0
+      "landscape": 1
     },
     "consecutive_fallbacks": 0,
     "actual_treatment_published": 7,
@@ -245,11 +245,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "insufficient_treatment_by_layout"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794213759,
+    "updated_at": 1794217756,
     "records": 16961,
     "video_records": 14444,
     "initial_candidates": 192,
@@ -340,8 +340,8 @@
   "inventory": {
     "verified_live": 122,
     "verified_audio_card": 0,
-    "verified_landscape": 88,
-    "verified_portrait": 34,
+    "verified_landscape": 91,
+    "verified_portrait": 31,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
@@ -356,10 +356,9 @@
     "interrupted": 9,
     "excluded": 65,
     "experiment_fallback": 153,
-    "ready": 34,
+    "ready": 35,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -49930,8 +49929,8 @@
     },
     {
       "slug": "ly-1109-9dc0dc",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1794211027,
         "failed": null,
@@ -49944,7 +49943,7 @@
       "run_id": 42582539015,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42582539015",
       "run_started_at": "2026-11-09T07:57:06Z",
-      "run_updated_at": "2026-11-09T07:57:11Z"
+      "run_updated_at": "2026-11-09T09:46:34Z"
     },
     {
       "slug": "ly-1109-ec8984",
@@ -75975,10 +75974,10 @@
     },
     "ly-1109-9dc0dc": {
       "id": 42582539015,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-11-09T07:57:06Z",
-      "updated_at": "2026-11-09T07:57:11Z",
+      "updated_at": "2026-11-09T09:46:34Z",
       "run_started_at": "2026-11-09T07:57:06Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42582539015",
       "run_number": 4221,
