@@ -113574,7 +113574,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-06T02:27:32+00:00"
+   "publish_time": "2021-01-06T02:27:32+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1109-bacfc1",
+    "run_id": 42537956383,
+    "artifact_id": 13639948481,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9f24fc37b37e27724a8dc29d1696fdc98dea387d77e89a866608fdb950fe234b",
+     "duration_sec": 96.7,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Dp4y1s7Fy"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42537956383,
+    "artifact_id": 13639948481,
+    "name": "production-reject-ly-1109-bacfc1",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Wi4y1F7yS",
@@ -113630,7 +113663,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：核心观点集中在句 0-4，但结尾处嘉宾从‘祝投资顺利’直接跳到对熊市和危机的讨论（句 7-12），导致关于‘牛市初期机会’的结论（句 6）与后续对熊市的论述逻辑断裂。若以‘抓住牛市初期机会’为独立成片的核心观点，则后续内容属于无关话题或片尾寒暄后的发散，破坏了从规律到行动建议的完整闭环；反之，若将全段视为一次完整的‘市场认知与心态’分享，则句 7-12 是对前文规律的补充论证，但原话中句 6 作为结尾祝福后突然转折，使得‘抓住机会’这一结论缺乏后续支撑或过渡，存在结构上的不连贯。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -219682,6 +219716,13 @@
    "video_id": "BV1Wi4y1F7yS",
    "ts": 1794183328,
    "error": "完整观点验收未通过：complete_argument；完整性理由：核心观点集中在句 0-4，但结尾处嘉宾从‘祝投资顺利’直接跳到对熊市和危机的讨论（句 7-12），导致关于‘牛市初期机会’的结论（句 6）与后续对熊市的论述逻辑断裂。若以‘抓住牛市初期机会’为独立成片的核心观点，则后续内容属于无关话题或片尾寒暄后的发散，破坏了从规律到行动建议的完整闭环；反之，若将全段视为一次完整的‘市场认知与心态’分享，则句 7-12 是对前文规律的补充论证，但原话中句 6 作为结尾祝福后突然转折，使得‘抓住机会’这一结论缺乏后续支撑或过渡，存在结构上的不连贯。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1109-bacfc1",
+   "key": "bilibili_search:BV1Dp4y1s7Fy",
+   "video_id": "BV1Dp4y1s7Fy",
+   "ts": 1794183709,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
