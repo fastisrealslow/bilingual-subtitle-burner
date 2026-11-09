@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794183205,
+  "updated_at": 1794183427,
   "inventory_updated_at": 1794183197,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 122,
-    "active_or_recovering_sources": 4,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -249,7 +249,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794183202,
+    "updated_at": 1794183425,
     "records": 16911,
     "video_records": 14394,
     "initial_candidates": 184,
@@ -286,7 +286,7 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2289,
+    "failed": 2290,
     "paused": 5,
     "interrupted": 6,
     "excluded": 65,
@@ -294,7 +294,7 @@
     "ready": 34,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -49739,8 +49739,8 @@
     },
     {
       "slug": "ly-1109-bacfc1",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794182489,
         "failed": null,
@@ -49753,15 +49753,15 @@
       "run_id": 42537956383,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42537956383",
       "run_started_at": "2026-11-09T00:01:28Z",
-      "run_updated_at": "2026-11-09T00:01:33Z"
+      "run_updated_at": "2026-11-09T00:15:47Z"
     },
     {
       "slug": "ly-1109-5e13f6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：complete_argument；完整性理由：核心观点集中在句 0-4，但结尾处嘉宾从‘祝投资顺利’直接跳到对熊市和危机的讨论（句 7-12），导致关于‘牛市初期机会’的结论（句 6）与后续对熊市的论述逻辑断裂。若以‘抓住牛市初期机会’为独立成片的核心观点，则后续内容属于无关话题或片尾寒暄后的发散，破坏了从规律到行动建议的完整闭环；反之，若将全段视为一次完整的‘市场认知与心态’分享，则句 7-12 是对前文规律的补充论证，但原话中句 6 作为结尾祝福后突然转折，使得‘抓住机会’这一结论缺乏后续支撑或过渡，存在结构上的不连贯。；原文问题：[]",
       "signature": {
         "ts": 1794182496,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -75627,10 +75627,10 @@
     },
     "ly-1109-bacfc1": {
       "id": 42537956383,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-09T00:01:28Z",
-      "updated_at": "2026-11-09T00:01:33Z",
+      "updated_at": "2026-11-09T00:15:47Z",
       "run_started_at": "2026-11-09T00:01:28Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42537956383",
       "run_number": 4214,
