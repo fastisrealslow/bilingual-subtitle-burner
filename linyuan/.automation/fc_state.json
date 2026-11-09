@@ -113714,7 +113714,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-14T05:38:00+00:00"
+   "publish_time": "2022-06-14T05:38:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1109-667e13",
+    "run_id": 42545719882,
+    "artifact_id": 13643549365,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "eaddaa82e51d21750b2a9b319e1ce527dc51693bcfcdc802590b0de27f3b5ac8",
+     "duration_sec": 274.96,
+     "resolution": {
+      "width": 960,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1s94y127SR"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人在句 0-2 提问，嘉宾在句 4-13 回应但始终未给出具体财富判断或明确结论，仅表达不确定状态（‘没去算’、‘记不住’、‘搞不清’），缺乏可独立成片的观点证据。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配34/257，总帧数1113；身份匹配但人脸短边不足96px的帧数223"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42545719882,
+    "artifact_id": 13643549365,
+    "name": "production-reject-ly-1109-667e13",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Do3E6KEHe",
@@ -113827,7 +113876,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1MNs6zzEZD",
@@ -219941,6 +219991,13 @@
    "video_id": "BV1Rz4y1z7on",
    "ts": 1794188872,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1109-667e13",
+   "key": "bilibili_search:BV1s94y127SR",
+   "video_id": "BV1s94y127SR",
+   "ts": 1794189260,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
