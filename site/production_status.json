@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1794182725,
+  "updated_at": 1794182985,
   "inventory_updated_at": 1794182719,
   "continuity": {
     "daily_target": 4,
@@ -249,7 +249,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794182723,
+    "updated_at": 1794182983,
     "records": 16911,
     "video_records": 14394,
     "initial_candidates": 184,
@@ -286,9 +286,9 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2286,
+    "failed": 2289,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 5,
     "excluded": 65,
     "experiment_fallback": 151,
     "ready": 34,
@@ -49685,11 +49685,11 @@
     },
     {
       "slug": "ly-1108-4b476a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/292，总帧数1458；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1794181741,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49703,11 +49703,11 @@
     },
     {
       "slug": "ly-1108-68be75",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794182094,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -49721,11 +49721,11 @@
     },
     {
       "slug": "ly-1108-9f351b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794182103,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -75603,6 +75603,17 @@
       "run_number": 4211,
       "display_title": "中文源出片 · ly-1108-4b476a"
     },
+    "ly-1108-9f351b": {
+      "id": 42537448984,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-08T23:55:03Z",
+      "updated_at": "2026-11-09T00:02:57Z",
+      "run_started_at": "2026-11-08T23:55:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42537448984",
+      "run_number": 4213,
+      "display_title": "中文源出片 · ly-1108-9f351b"
+    },
     "ly-1109-5e13f6": {
       "id": 42537966008,
       "status": "in_progress",
@@ -75624,17 +75635,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42537956383",
       "run_number": 4214,
       "display_title": "中文源出片 · ly-1109-bacfc1"
-    },
-    "ly-1108-9f351b": {
-      "id": 42537448984,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-08T23:55:03Z",
-      "updated_at": "2026-11-09T00:02:57Z",
-      "run_started_at": "2026-11-08T23:55:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42537448984",
-      "run_number": 4213,
-      "display_title": "中文源出片 · ly-1108-9f351b"
     },
     "ly-1108-c04f76": {
       "id": 42534005951,
