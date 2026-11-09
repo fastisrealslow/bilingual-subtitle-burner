@@ -113737,7 +113737,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-26T08:30:27+00:00"
+   "publish_time": "2026-07-26T08:30:27+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1109-660095",
+    "run_id": 42545730542,
+    "artifact_id": 13643472909,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "83cd6d0ab0fe93809f3d51f9a69e3652610627102f01868beb8ced2ed838d0d8",
+     "duration_sec": 66.64,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Do3E6KEHe"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：原话中无清晰的投资判断或结论性陈述，仅包含零散的个人特质描述和模糊反问，无法构成有效观点证据。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42545730542,
+    "artifact_id": 13643472909,
+    "name": "production-reject-ly-1109-660095",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：原话中无清晰的投资判断或结论性陈述，仅包含零散的个人特质描述和模糊反问，无法构成有效观点证据。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Rz4y1z7on",
@@ -113793,7 +113826,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -219859,6 +219893,13 @@
    "video_id": "BV1MNs6zzEZD",
    "ts": 1794188086,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标"
+  },
+  {
+   "slug": "ly-1109-660095",
+   "key": "bilibili_search:BV1Do3E6KEHe",
+   "video_id": "BV1Do3E6KEHe",
+   "ts": 1794188513,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：原话中无清晰的投资判断或结论性陈述，仅包含零散的个人特质描述和模糊反问，无法构成有效观点证据。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
