@@ -113770,7 +113770,8 @@
    },
    "last_error": "完整观点验收未通过：complete_argument；完整性理由：原话中无清晰的投资判断或结论性陈述，仅包含零散的个人特质描述和模糊反问，无法构成有效观点证据。；原文问题：[]",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Rz4y1z7on",
@@ -113793,7 +113794,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-01T05:59:50+00:00"
+   "publish_time": "2021-01-01T05:59:50+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1109-a00480",
+    "run_id": 42545741642,
+    "artifact_id": 13643553078,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d9a04549d5f0a37f6720bbfa60a93df9262c0106489a31cc5e2540fb97846cfa",
+     "duration_sec": 114.3,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Rz4y1z7on"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42545741642,
+    "artifact_id": 13643553078,
+    "name": "production-reject-ly-1109-a00480",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1MNs6zzEZD",
@@ -219900,6 +219934,13 @@
    "video_id": "BV1Do3E6KEHe",
    "ts": 1794188513,
    "error": "完整观点验收未通过：complete_argument；完整性理由：原话中无清晰的投资判断或结论性陈述，仅包含零散的个人特质描述和模糊反问，无法构成有效观点证据。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1109-a00480",
+   "key": "bilibili_search:BV1Rz4y1z7on",
+   "video_id": "BV1Rz4y1z7on",
+   "ts": 1794188872,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
