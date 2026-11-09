@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794188722,
+  "updated_at": 1794188934,
   "inventory_updated_at": 1794188718,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 121,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -249,7 +249,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794188721,
+    "updated_at": 1794188933,
     "records": 16933,
     "video_records": 14416,
     "initial_candidates": 184,
@@ -286,15 +286,14 @@
   },
   "counts": {
     "complete": 192,
-    "failed": 2293,
+    "failed": 2294,
     "paused": 5,
     "interrupted": 7,
     "excluded": 65,
     "experiment_fallback": 153,
     "ready": 34,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 1
   },
   "tasks": [
     {
@@ -49793,8 +49792,8 @@
     },
     {
       "slug": "ly-1109-667e13",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794187686,
         "failed": null,
@@ -49807,7 +49806,7 @@
       "run_id": 42545719882,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42545719882",
       "run_started_at": "2026-11-09T01:28:06Z",
-      "run_updated_at": "2026-11-09T01:28:10Z"
+      "run_updated_at": "2026-11-09T01:48:32Z"
     },
     {
       "slug": "ly-1109-660095",
@@ -49829,11 +49828,11 @@
     },
     {
       "slug": "ly-1109-a00480",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
       "signature": {
         "ts": 1794187702,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -75794,10 +75793,10 @@
     },
     "ly-1109-667e13": {
       "id": 42545719882,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-09T01:28:06Z",
-      "updated_at": "2026-11-09T01:28:10Z",
+      "updated_at": "2026-11-09T01:48:32Z",
       "run_started_at": "2026-11-09T01:28:06Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42545719882",
       "run_number": 4217,
