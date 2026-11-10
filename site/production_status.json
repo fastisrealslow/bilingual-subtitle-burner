@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794352024,
+  "updated_at": 1794352415,
   "inventory_updated_at": 1794352016,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 130,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 4,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 1,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794352022,
+    "updated_at": 1794352414,
     "records": 17311,
     "video_records": 14773,
-    "initial_candidates": 189,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 186,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8825,
-      "already_attempted_or_cooling": 3748,
+      "already_attempted_or_cooling": 3751,
       "unrelated": 82,
       "clip_title": 1488,
       "no_video": 2538,
@@ -279,30 +279,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1EbW36xEtV",
-        "title": "林园：英伟达不是垄断生意，芯片最终一定会过剩",
-        "source": "bilibili_search",
-        "author": "雷达财经",
-        "url": "https://www.bilibili.com/video/BV1EbW36xEtV",
-        "duration_sec": 23.0
-      },
-      {
-        "key": "bilibili_search:BV1LRWg6SEei",
-        "title": "林园：白酒行业绝不会消失，因为人类需要酒带来快乐",
-        "source": "bilibili_search",
-        "author": "雷达财经",
-        "url": "https://www.bilibili.com/video/BV1LRWg6SEei",
-        "duration_sec": 27.0
-      },
-      {
-        "key": "bilibili_search:BV1D1W36yEdP",
-        "title": "林园：赚了指数不赚钱，背后是“指数”在不断调整",
-        "source": "bilibili_search",
-        "author": "雷达财经",
-        "url": "https://www.bilibili.com/video/BV1D1W36yEdP",
-        "duration_sec": 28.0
-      },
       {
         "key": "bilibili_search:BV1hFWu6qEYP",
         "title": "林园：大盘走势不强劲时，赚钱的人也会很小心",
@@ -327,15 +303,15 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2351,
+    "failed": 2353,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 151,
     "ready": 40,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 5
   },
   "tasks": [
     {
@@ -51364,11 +51340,11 @@
     },
     {
       "slug": "ly-1110-3894d6",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794351455,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51382,11 +51358,11 @@
     },
     {
       "slug": "ly-1110-e35bb7",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配326/481，总帧数773；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1794351464,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51396,7 +51372,61 @@
       "run_id": 42919232847,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42919232847",
       "run_started_at": "2026-11-10T22:57:44Z",
-      "run_updated_at": "2026-11-10T22:57:48Z"
+      "run_updated_at": "2026-11-10T23:06:13Z"
+    },
+    {
+      "slug": "ly-1110-004ddc",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794352353,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42921416922,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42921416922",
+      "run_started_at": "2026-11-10T23:12:33Z",
+      "run_updated_at": "2026-11-10T23:12:37Z"
+    },
+    {
+      "slug": "ly-1110-096235",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794352362,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42921438102,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42921438102",
+      "run_started_at": "2026-11-10T23:12:42Z",
+      "run_updated_at": "2026-11-10T23:12:46Z"
+    },
+    {
+      "slug": "ly-1110-d28b20",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794352372,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42921461165,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42921461165",
+      "run_started_at": "2026-11-10T23:12:51Z",
+      "run_updated_at": "2026-11-10T23:12:56Z"
     }
   ],
   "runs": {
@@ -78207,17 +78237,6 @@
       "run_number": 4322,
       "display_title": "中文源出片 · ly-1110-552013"
     },
-    "ly-1110-e35bb7": {
-      "id": 42919232847,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-10T22:57:44Z",
-      "updated_at": "2026-11-10T22:57:48Z",
-      "run_started_at": "2026-11-10T22:57:44Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42919232847",
-      "run_number": 4326,
-      "display_title": "中文源出片 · ly-1110-e35bb7"
-    },
     "ly-1110-3894d6": {
       "id": 42919210927,
       "status": "completed",
@@ -78228,6 +78247,50 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42919210927",
       "run_number": 4325,
       "display_title": "中文源出片 · ly-1110-3894d6"
+    },
+    "ly-1110-d28b20": {
+      "id": 42921461165,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T23:12:51Z",
+      "updated_at": "2026-11-10T23:12:56Z",
+      "run_started_at": "2026-11-10T23:12:51Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42921461165",
+      "run_number": 4329,
+      "display_title": "中文源出片 · ly-1110-d28b20"
+    },
+    "ly-1110-096235": {
+      "id": 42921438102,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T23:12:42Z",
+      "updated_at": "2026-11-10T23:12:46Z",
+      "run_started_at": "2026-11-10T23:12:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42921438102",
+      "run_number": 4328,
+      "display_title": "中文源出片 · ly-1110-096235"
+    },
+    "ly-1110-004ddc": {
+      "id": 42921416922,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T23:12:33Z",
+      "updated_at": "2026-11-10T23:12:37Z",
+      "run_started_at": "2026-11-10T23:12:33Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42921416922",
+      "run_number": 4327,
+      "display_title": "中文源出片 · ly-1110-004ddc"
+    },
+    "ly-1110-e35bb7": {
+      "id": 42919232847,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-10T22:57:44Z",
+      "updated_at": "2026-11-10T23:06:13Z",
+      "run_started_at": "2026-11-10T22:57:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42919232847",
+      "run_number": 4326,
+      "display_title": "中文源出片 · ly-1110-e35bb7"
     },
     "ly-1110-8c025e": {
       "id": 42919191894,
