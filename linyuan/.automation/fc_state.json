@@ -119103,7 +119103,8 @@
    },
    "last_error": "动态取景连续2.03秒缺少人脸",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1LRWg6SEei",
@@ -119159,7 +119160,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1D1W36yEdP",
@@ -119215,7 +119217,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1hFWu6qEYP",
@@ -119238,7 +119241,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T11:17:10+00:00"
+   "publish_time": "2026-11-10T11:17:10+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-371c7e",
+    "run_id": 42922156583,
+    "artifact_id": 13812597493,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b53f225a3bde1c38ba59c29d3a1d8648060e3c8ee20bec0847c10a2223c7f545",
+     "duration_sec": 32.83,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1hFWu6qEYP"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42922156583,
+    "artifact_id": 13812597493,
+    "name": "production-reject-ly-1110-371c7e",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -227411,6 +227447,13 @@
    "video_id": "BV1EbW36xEtV",
    "ts": 1794353097,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1110-371c7e",
+   "key": "bilibili_search:BV1hFWu6qEYP",
+   "video_id": "BV1hFWu6qEYP",
+   "ts": 1794353445,
+   "error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）"
   }
  ],
  "reviewed_third_video_0910": {
