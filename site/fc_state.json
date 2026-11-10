@@ -117988,7 +117988,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-16T23:16:06+00:00"
+   "publish_time": "2026-08-16T23:16:06+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-3183d4",
+    "run_id": 42883842990,
+    "artifact_id": 13795323292,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9567d42a3c11b392e491b64c79102b4f1d3b6a2dd1edff01243ede4a38194d0a",
+     "duration_sec": 52.31,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1sXbh6uEao"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42883842990,
+    "artifact_id": 13795323292,
+    "name": "production-reject-ly-1110-3183d4",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VGAFMJFTQ",
@@ -226072,6 +226105,13 @@
    "video_id": "BV1Mi4y157Jk",
    "ts": 1794338223,
    "error": "动态取景连续2.03秒缺少人脸"
+  },
+  {
+   "slug": "ly-1110-3183d4",
+   "key": "bilibili_search:BV1sXbh6uEao",
+   "video_id": "BV1sXbh6uEao",
+   "ts": 1794339289,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
