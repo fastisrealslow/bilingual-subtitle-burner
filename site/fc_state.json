@@ -114911,7 +114911,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5167761396861032",
@@ -115157,7 +115158,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1nY4y157BP",
@@ -115363,7 +115365,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2018-05-04T23:24:44+08:00"
+   "publish_time": "2018-05-04T23:24:44+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42775979999,
+    "artifact_id": 13744405414,
+    "name": "source-reject-ly-1110-73fcbd",
+    "retained": true
+   },
+   "last_error": "原始素材短边 368 < 480（368x640），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4236646566247806",
@@ -222381,6 +222393,13 @@
    "video_id": "BV1354y137Qa",
    "ts": 1794295893,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1110-73fcbd",
+   "key": "weibo_search:4236096134589103",
+   "video_id": "http://f.us.sinaimg.cn/000USx6ylx07kcVX99HW01040200kVep0k010.mp4",
+   "ts": 1794296418,
+   "error": "原始素材短边 368 < 480（368x640），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
