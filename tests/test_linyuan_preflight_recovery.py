@@ -441,3 +441,21 @@ def test_cache_recovery_does_not_retry_after_failed_source_gate(monkeypatch):
         dict(name='素材质量门禁',conclusion='failure'),
         dict(name='复用同源失败任务的已完成证据',conclusion='failure')])]))
     assert not fc._recover_preflight_failure(state,entry,run,[])
+
+
+@pytest.mark.parametrize('code',[401,403,422,503])
+def test_unavailable_old_comparison_cannot_reopen_source_or_stop_other_admission(monkeypatch,code):
+    import urllib.error
+    state,entry,run,calls=evidence(monkeypatch,changed='linyuan/caption_lines.py')
+    entry.update(failed=True,last_error='完整词句无法放入两行',source_url='https://example.com/mother')
+    before=deepcopy(entry)
+    def api(method,path,*args,**kwargs):
+        assert method=='GET' and path=='/compare/old...main'
+        raise urllib.error.HTTPError('https://api.github.test/compare',code,'unavailable',{},None)
+    monkeypatch.setattr(fc,'gh',api)
+    if code==422:
+        assert not fc._recover_changed_production_rule(state,entry,run)
+    else:
+        with pytest.raises(urllib.error.HTTPError):fc._recover_changed_production_rule(state,entry,run)
+    assert entry['failed'] is True and entry['quality_retries']==before['quality_retries']
+    assert not entry.get('automatic_rule_recoveries')

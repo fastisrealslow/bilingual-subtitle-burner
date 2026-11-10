@@ -214,6 +214,12 @@ def test_clock_cutover_rejects_a_fabricated_or_wrong_file_receipt(tmp_path):
     assert accept.assert_clock_acceptance(tmp_path)==proof
     (tmp_path/accept.FILES[0]).write_text('different untested uploader')
     with pytest.raises(SystemExit,match='different code'):accept.assert_clock_acceptance(tmp_path)
+    # The historical receipt remains valid after later repairs, but cannot
+    # authorize a first cutover of different code (the strict default above).
+    assert accept.assert_clock_acceptance(tmp_path,require_current_code=False)==proof
+    proof['code_hashes'][accept.FILES[0]]='not a code digest'
+    (tmp_path/accept.PROOF).write_text(json.dumps(proof))
+    with pytest.raises(SystemExit):accept.assert_clock_acceptance(tmp_path,require_current_code=False)
 
 
 def test_future_canary_cannot_publish_before_an_arbitrary_time(monkeypatch):

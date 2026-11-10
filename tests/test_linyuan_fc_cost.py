@@ -208,7 +208,9 @@ def test_runner_preview_never_invokes_fc_or_writes_intent(monkeypatch):
 def test_rollout_stays_disabled_until_live_acceptance():
     if fc_cost_policy.RUNNER_PUBLISH_ENABLED:
         from rollout_acceptance import assert_clock_acceptance
-        assert_clock_acceptance(ROOT)
+        # Retain the real historical activation receipt across later source
+        # repairs; configure_timers still requires current code at first cutover.
+        assert_clock_acceptance(ROOT,require_current_code=False)
     else:
         assert fc_cost_policy.RUNNER_PUBLISH_ENABLED is False
     assert fc.MAX_PUBLISH_PER_DAY==4 and sorted(fc.PUBLISH_HOURS)==[10,14,16,21]
