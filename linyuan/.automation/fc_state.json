@@ -117679,7 +117679,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配325/480，总帧数770；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5363818058225122",
@@ -117702,7 +117703,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T21:29:03+08:00"
+   "publish_time": "2026-11-10T21:29:03+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-9d5135",
+    "run_id": 42876045929,
+    "artifact_id": 13792831413,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c991abdc40b78513579fb0de50bfc5ca8fe1d620989de7478da330cf950742f3",
+     "duration_sec": 22.9,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5363818058225122"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42876045929,
+    "artifact_id": 13792831413,
+    "name": "production-reject-ly-1110-9d5135",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -225728,6 +225762,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/RpTTU5uUlx08Cgvurdm8010412007rRQ0E010.mp4",
    "ts": 1794335428,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配325/480，总帧数770；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1110-9d5135",
+   "key": "weibo_search:5363818058225122",
+   "video_id": "https://f.video.weibocdn.com/o0/XMSiM089lx08CgtBy9os010412008nAc0E010.mp4",
+   "ts": 1794336132,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
