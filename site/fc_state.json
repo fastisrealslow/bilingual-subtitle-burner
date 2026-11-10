@@ -115807,7 +115807,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-04T10:54:27+00:00"
+   "publish_time": "2026-06-04T10:54:27+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-e27577",
+    "run_id": 42778824769,
+    "artifact_id": 13746351525,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "33f68e410d4118d61776406a26c12056898cdf0f1aebbbed07ea1f3947fdb73d",
+     "duration_sec": 388.66,
+     "resolution": {
+      "width": 884,
+      "height": 1920,
+      "short_edge": 884
+     },
+     "source_url": "https://www.bilibili.com/video/BV1LGEw6mEhh"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42778824769,
+    "artifact_id": 13746351525,
+    "name": "production-reject-ly-1110-e27577",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1LuuM6rEGc",
@@ -223362,6 +223407,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/w6Wa4mJIgx08CeAdQRWw01041200aV5q0E010.mp4",
    "ts": 1794298529,
    "error": "真人动态区仍有稳定来源角标：[(0.0, 0.10212765957446808, 0.1518987341772152, 0.225531914893617)]"
+  },
+  {
+   "slug": "ly-1110-e27577",
+   "key": "bilibili_search:BV1LGEw6mEhh",
+   "video_id": "BV1LGEw6mEhh",
+   "ts": 1794299532,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
