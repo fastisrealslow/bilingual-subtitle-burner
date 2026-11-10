@@ -116505,7 +116505,8 @@
    },
    "last_error": "真人窗口完整人脸抽帧不足：4/6，拒绝裁头/裁下巴或空镜",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV16f4y1C7yT",
@@ -116639,7 +116640,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2021-04-06T08:58:09+00:00"
+   "publish_time": "2021-04-06T08:58:09+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-e82759",
+    "run_id": 42789999197,
+    "artifact_id": 13751830044,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "12e74cea739a72bc3213a0a51cac60c5086d2a5c7b3249b2097a8246cb099beb",
+     "duration_sec": 61.3,
+     "resolution": {
+      "width": 1904,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1fV411n7YS"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/366，总帧数1823；身份匹配但人脸短边不足96px的帧数276"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42789999197,
+    "artifact_id": 13751830044,
+    "name": "production-reject-ly-1110-e82759",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/366，总帧数1823；身份匹配但人脸短边不足96px的帧数276",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4405089156041680",
@@ -116690,7 +116724,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-11-04T09:18:22+00:00"
+   "publish_time": "2025-11-04T09:18:22+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42791469635,
+    "artifact_id": 13750964666,
+    "name": "source-reject-ly-1110-b178ad",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -224165,6 +224209,20 @@
    "video_id": "BV1f8411d7MM",
    "ts": 1794303058,
    "error": "真人窗口完整人脸抽帧不足：4/6，拒绝裁头/裁下巴或空镜"
+  },
+  {
+   "slug": "ly-1110-b178ad",
+   "key": "bilibili_search:BV1vc1yB8EXp",
+   "video_id": "BV1vc1yB8EXp",
+   "ts": 1794303459,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标"
+  },
+  {
+   "slug": "ly-1110-e82759",
+   "key": "bilibili_search:BV1fV411n7YS",
+   "video_id": "BV1fV411n7YS",
+   "ts": 1794303460,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/366，总帧数1823；身份匹配但人脸短边不足96px的帧数276"
   }
  ],
  "reviewed_third_video_0910": {
