@@ -115591,7 +115591,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-09T16:59:49+08:00"
+   "publish_time": "2026-11-09T16:59:49+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-1954a6",
+    "run_id": 42778786602,
+    "artifact_id": 13744609721,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e0c58c4890e865be30e0d066bd5556a08a6492f31401526dbade42788acf383f",
+     "duration_sec": 43.7,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5363387915569599"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.10212765957446808, 0.1518987341772152, 0.225531914893617)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42778786602,
+    "artifact_id": 13744609721,
+    "name": "production-reject-ly-1110-1954a6",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.0, 0.10212765957446808, 0.1518987341772152, 0.225531914893617)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1MF411r7GG",
@@ -115660,7 +115693,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-08T03:43:38+00:00"
+   "publish_time": "2026-08-08T03:43:38+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-25dc75",
+    "run_id": 42779748488,
+    "artifact_id": 13745139070,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1fa70f37105efc5a4e32b10dec17335d40e9cc327e050483644e28ea1c7fb991",
+     "duration_sec": 159.13,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1LuuM6rEGc"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV1fHn167EUf）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42779748488,
+    "artifact_id": 13745139070,
+    "name": "production-reject-ly-1110-25dc75",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1fHn167EUf）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -222660,6 +222726,20 @@
    "video_id": "BV1nY4y157BP",
    "ts": 1794297324,
    "error": "字幕逐字时间倒退或重叠"
+  },
+  {
+   "slug": "ly-1110-25dc75",
+   "key": "bilibili_search:BV1LuuM6rEGc",
+   "video_id": "BV1LuuM6rEGc",
+   "ts": 1794298527,
+   "error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1fHn167EUf）"
+  },
+  {
+   "slug": "ly-1110-1954a6",
+   "key": "weibo_search:5363387915569599",
+   "video_id": "https://f.video.weibocdn.com/u0/w6Wa4mJIgx08CeAdQRWw01041200aV5q0E010.mp4",
+   "ts": 1794298529,
+   "error": "真人动态区仍有稳定来源角标：[(0.0, 0.10212765957446808, 0.1518987341772152, 0.225531914893617)]"
   }
  ],
  "reviewed_third_video_0910": {
