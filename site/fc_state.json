@@ -115929,7 +115929,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2018-05-04T23:33:15+08:00"
+   "publish_time": "2018-05-04T23:33:15+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-98b9b6",
+    "run_id": 42783556200,
+    "artifact_id": 13748365017,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "236224a748bc8908ac9b00d47a2e6a68b09509c300b85953ea1ce42ca38327fc",
+     "duration_sec": 37.55,
+     "resolution": {
+      "width": 480,
+      "height": 844,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4236098279013664"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42783556200,
+    "artifact_id": 13748365017,
+    "name": "production-reject-ly-1110-98b9b6",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1PY4y1x7zi",
@@ -223519,6 +223552,13 @@
    "video_id": "BV1LGEw6mEhh",
    "ts": 1794299532,
    "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+  },
+  {
+   "slug": "ly-1110-98b9b6",
+   "key": "weibo_search:4236098279013664",
+   "video_id": "https://f.us.sinaimg.cn/001wvIGtlx07kcWwOs3m010402004iEv0k010.mp4",
+   "ts": 1794300337,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
