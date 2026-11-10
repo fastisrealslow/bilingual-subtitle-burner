@@ -1,0 +1,142 @@
+name: 14点真实稿件降本试跑与证据验收
+on:
+  push:
+    branches: [ops/fc-cost-live-canary-20261110]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-publish-runner
+  cancel-in-progress: false
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 免费CI准备已验证的质检与QN上传依赖
+        run: |
+          pip install -q requests numpy pillow pyyaml 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
+          pip install -q -r linyuan/fc/runtime-requirements.txt
+          pip install -q --only-binary=biliup,stream-gears biliup==0.4.91
+          sudo iptables -t mangle -A OUTPUT -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1300
+          bash linyuan/ci_install_media_tools.sh
+      - name: 在免费CI等到正常发布档前，不占用FC或全局发布租约
+        run: |
+          python - <<'PYWAIT'
+          import datetime,time
+          target=datetime.datetime(2026,11,10,13,57,20,tzinfo=datetime.timezone(datetime.timedelta(hours=8))).timestamp()
+          if time.time()>target+120:raise SystemExit('This one-slot canary window has passed')
+          while time.time()<target:
+              print('Waiting on free CI for the normal 14:00 slot',flush=True)
+              time.sleep(min(45,target-time.time()))
+          PYWAIT
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 核对境内补位通道已就绪，按原档位最多发布一条
+        run: |
+          python - <<'PYCANARY'
+          import sys,os,json,time,datetime,hashlib,base64
+          from pathlib import Path
+          sys.path[:0]=['linyuan','linyuan/fc']
+          import index as fc
+          import fc_cost_policy as policy
+          from publish_on_runner import run
+          from reviewed_upload_client import capability
+          from bili_archive_status import archive_status
+          from rollout_acceptance import proof_for_publication,assert_clock_acceptance,PROOF,FILES
+          report=dict(verified=False,promoted=False,target_slot='2026-11-10 14')
+          target=datetime.datetime(2026,11,10,14,tzinfo=fc.experiment.CST).timestamp()
+          try:
+              assert policy.UPLOAD_BACKEND=='ci-preferred'
+              if not capability():raise RuntimeError('Domestic fallback runtime is not the validated current code')
+              # Wait until two minutes before the slot, then hold the same
+              # shared lease used by the old timer. The actual publisher still
+              # runs only when the original slot is due.
+              while time.time()<target-119:time.sleep(min(5,target-119-time.time()))
+              if time.time()>target:raise RuntimeError('One-slot priority window was missed')
+              result=run(max_slots=1,backend='ci-preferred',not_before=target)
+              report['publication']=result
+              ids=result.get('new_bvids') or []
+              if len(ids)!=1:raise RuntimeError('No single new publication receipt; do not fabricate or replay')
+              bvid=ids[0]
+              deadline=time.monotonic()+20*60
+              while True:
+                  creator=archive_status([bvid],fc.OWNER_MID,fc.COOKIES_JSON)
+                  if creator.get('owner_verified') and creator.get('public_count')==1:break
+                  if time.monotonic()>deadline:raise RuntimeError('Real BVID retained; public review still pending')
+                  time.sleep(45)
+              current=fc.load_state()
+              proof=proof_for_publication(current,bvid,creator,report['target_slot'])
+              proof.update(canary_run_id=os.environ['GITHUB_RUN_ID'],verified_at=int(time.time()))
+              Path(PROOF).parent.mkdir(parents=True,exist_ok=True)
+              Path(PROOF).write_text(json.dumps(proof,ensure_ascii=False,indent=2)+'\n')
+              Path('linyuan/.automation/fc_state.json').write_text(json.dumps(current,ensure_ascii=False))
+              assert_clock_acceptance()
+              report.update(verified=True,bvid=bvid,proof=proof)
+              # Enabling is a compare-and-swap of only these two flags and the
+              # real acceptance receipt. Recheck code before every ref retry;
+              # never overwrite concurrent source/state/code improvements.
+              for attempt in range(5):
+                  ref=fc.gh('GET','/git/ref/heads/main',timeout=20);head=ref['object']['sha']
+                  for name,expected in proof['code_hashes'].items():
+                      actual=fc.gh('GET','/contents/'+name+'?ref='+head,raw=True,timeout=20)
+                      if hashlib.sha256(actual).hexdigest()!=expected:
+                          raise RuntimeError('Main code changed after live acceptance; retain staged rollout')
+                  commit=fc.gh('GET','/git/commits/'+head,timeout=20)
+                  source=fc.gh('GET','/contents/linyuan/fc_cost_policy.py?ref='+head,raw=True,timeout=20).decode()
+                  if 'RUNNER_PUBLISH_ENABLED=True' in source and 'CI_CLOCK_ENABLED=True' in source:
+                      report['promoted']=True;report['promotion']='already_enabled';break
+                  if source.count('RUNNER_PUBLISH_ENABLED=False')!=1 or source.count('CI_CLOCK_ENABLED=False')!=1:
+                      raise RuntimeError('Unexpected activation policy; retain staged rollout')
+                  enabled=source.replace('RUNNER_PUBLISH_ENABLED=False','RUNNER_PUBLISH_ENABLED=True').replace('CI_CLOCK_ENABLED=False','CI_CLOCK_ENABLED=True')
+                  entries=[]
+                  for name,content in [('linyuan/fc_cost_policy.py',enabled),(PROOF,json.dumps(proof,ensure_ascii=False,indent=2)+'\n')]:
+                      blob=fc.gh('POST','/git/blobs',dict(content=content,encoding='utf-8'),timeout=30)
+                      entries.append(dict(path=name,mode='100644',type='blob',sha=blob['sha']))
+                  tree=fc.gh('POST','/git/trees',dict(base_tree=commit['tree']['sha'],tree=entries),timeout=30)
+                  new=fc.gh('POST','/git/commits',dict(message='perf(cost): activate CI publication after verified public canary',tree=tree['sha'],parents=[head]),timeout=30)
+                  try:
+                      fc.gh('PATCH','/git/refs/heads/main',dict(sha=new['sha'],force=False),timeout=30)
+                      report.update(promoted=True,promotion_commit=new['sha']);break
+                  except Exception:
+                      if attempt==4:raise
+                      time.sleep(2)
+              if report['promoted']:
+                  # GITHUB_TOKEN pushes do not trigger other push workflows;
+                  # explicitly start the existing complete deployment checks.
+                  fc.gh('POST','/actions/workflows/fc-production-deploy.yml/dispatches',{'ref':'main'},timeout=20)
+                  report['activation_deployment_requested']=True
+          except Exception as exc:
+              report['error_type']=type(exc).__name__
+              report['reason']=str(exc)[:180] if isinstance(exc,(RuntimeError,ValueError,AssertionError)) else 'Inspect retained durable receipt before any retry'
+          finally:
+              Path('fc-cost-live-canary.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+              print(json.dumps(report,ensure_ascii=False))
+          if not report['verified'] or not report['promoted']:
+              raise SystemExit('Live activation not complete; inspect retained publication proof before any retry')
+          PYCANARY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-live-canary
+          path: |
+            fc-cost-live-canary.json
+            linyuan/.automation/fc_cost_rollout.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
