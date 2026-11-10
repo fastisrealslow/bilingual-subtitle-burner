@@ -4123,7 +4123,15 @@ def _recover_changed_production_rule(st, candidate, run):
                          'transcript-text-only-evidence-v1') else [reason]))
              and not (x[0]=='caption-source-clock-v5' and reason.startswith('封面生成/'))]
     if not matches:return False
-    changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
+    try:
+        changed=gh('GET',f"/compare/{run['head_sha']}...main").get('files',[])
+    except urllib.error.HTTPError as exc:
+        if exc.code!=422:raise
+        # Old/oversized comparisons are unavailable evidence, not proof that
+        # a rejected source is repaired. Keep it rejected and admit other stock.
+        log_event('rule_recovery_deferred','历史版本差异暂不可读取，保留原质检结论',
+                  str(candidate.get('slug') or ''))
+        return False
     def affected(case,file):
         if file.get('filename') not in case[2]:return False
         if case[0]=='caption-standalone-reply-v1':

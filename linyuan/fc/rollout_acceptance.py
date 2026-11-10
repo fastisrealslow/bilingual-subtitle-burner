@@ -14,7 +14,7 @@ def code_hashes(root):
     return {name:hashlib.sha256((Path(root)/name).read_bytes()).hexdigest() for name in FILES}
 
 
-def assert_clock_acceptance(root=None):
+def assert_clock_acceptance(root=None, *, require_current_code=True):
     root=Path(root) if root else Path(__file__).resolve().parents[2]
     try:
         proof=json.loads((root/PROOF).read_text())
@@ -26,7 +26,10 @@ def assert_clock_acceptance(root=None):
             or proof.get('experiment_compliant') is not True
             or not re.fullmatch(r'BV[a-zA-Z0-9]{10}',str(proof.get('bvid') or ''))
             or not re.fullmatch('[a-f0-9]{64}',str(proof.get('sha256') or ''))
-            or proof.get('code_hashes')!=code_hashes(root)):
+            or not isinstance(proof.get('code_hashes'),dict)
+            or set(proof['code_hashes'])!=set(FILES)
+            or any(not re.fullmatch('[a-f0-9]{64}',str(v)) for v in proof['code_hashes'].values())
+            or (require_current_code and proof['code_hashes']!=code_hashes(root))):
         raise SystemExit('CI clock cutover proof is missing or belongs to different code')
     receipts=[p for v in state.get('published',{}).values() for p in v.get('parts',[])
         if p.get('status')=='published' and p.get('bvid')==proof['bvid']
