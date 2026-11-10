@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794337238,
+  "updated_at": 1794337490,
   "inventory_updated_at": 1794337231,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 129,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 4,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 3,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,16 +257,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794337236,
+    "updated_at": 1794337489,
     "records": 17216,
     "video_records": 14696,
-    "initial_candidates": 188,
-    "duration_eligible_records": 4,
-    "candidate_count": 4,
-    "known_duration_candidates": 4,
+    "initial_candidates": 187,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3714,
+      "already_attempted_or_cooling": 3715,
       "speaker_unconfirmed": 8785,
       "unrelated": 82,
       "clip_title": 1485,
@@ -296,14 +296,6 @@
         "duration_sec": 22.96
       },
       {
-        "key": "bilibili_search:BV11oT96EEJa",
-        "title": "林园 P1 林园：就像经营工厂总有淡旺季，用开工厂的心态做#股票 #投资#价值投资",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV11oT96EEJa",
-        "duration_sec": 115.0
-      },
-      {
         "key": "bilibili_search:BV1sXbh6uEao",
         "title": "林园 P1 林园：八千元入市，一年翻了32倍！#林园#赚钱 #理财 #名人",
         "source": "bilibili_collection",
@@ -327,15 +319,15 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2337,
+    "failed": 2338,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 148,
     "ready": 40,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -51076,11 +51068,11 @@
     },
     {
       "slug": "ly-1110-c428eb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794336640,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51109,6 +51101,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42880324697",
       "run_started_at": "2026-11-10T18:57:00Z",
       "run_updated_at": "2026-11-10T18:57:05Z"
+    },
+    {
+      "slug": "ly-1110-d3d15c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794337448,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42881518941,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42881518941",
+      "run_started_at": "2026-11-10T19:04:07Z",
+      "run_updated_at": "2026-11-10T19:04:13Z"
     }
   ],
   "runs": {
@@ -77742,6 +77752,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42879279153",
       "run_number": 4308,
       "display_title": "中文源出片 · ly-1110-c428eb"
+    },
+    "ly-1110-d3d15c": {
+      "id": 42881518941,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T19:04:07Z",
+      "updated_at": "2026-11-10T19:04:13Z",
+      "run_started_at": "2026-11-10T19:04:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42881518941",
+      "run_number": 4310,
+      "display_title": "中文源出片 · ly-1110-d3d15c"
     },
     "ly-1110-d8704d": {
       "id": 42880324697,
