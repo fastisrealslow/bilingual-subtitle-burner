@@ -1,0 +1,71 @@
+name: 免费CI多分片上传复测（不创建稿件）
+on:
+  push:
+    branches: [ops/ci-upload-large-probe-20261110]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q --only-binary=biliup,stream-gears biliup==0.4.91
+      - name: 生成纯测试视频并核对传输路径
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          sudo iptables -t mangle -A OUTPUT -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1300
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc2=size=1280x720:rate=25 -f lavfi -i sine=frequency=440 -t 90 -c:v libx264 -preset ultrafast -b:v 8M -c:a aac -shortest /tmp/ci-transport-probe.mp4
+          python - <<'PYPROBE'
+          import os,json,time,signal,logging,io,contextlib
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          from biliup.plugins.bili_webup import BiliBili,Data
+          from requests.adapters import HTTPAdapter
+          logging.disable(logging.CRITICAL)
+          values=json.loads(os.environ['BILIBILI_COOKIES'])
+          entries=(values.get('cookie_info') or {}).get('cookies') or values.get('cookies') or []
+          cookies={c['name']:str(c['value']) for c in entries}
+          assert cookies.get('DedeUserID')=='275211725' and cookies.get('bili_jct')
+          def forbidden(*a,**kw):raise AssertionError('Submission disabled in transport probe')
+          for name in ['submit','submit_web','submit_client','cover_up']:
+              setattr(BiliBili,name,forbidden)
+          def alarm(*a):raise TimeoutError('Upload-only transport probe deadline')
+          signal.signal(signal.SIGALRM,alarm)
+          results=[]
+          for line in ['qn']:
+              report=dict(line=line,file_bytes=Path('/tmp/ci-transport-probe.mp4').stat().st_size,upload_complete=False,submission_api_calls=0,fc_invocations=0)
+              start=time.monotonic();signal.alarm(180)
+              try:
+                  with contextlib.redirect_stdout(io.StringIO()),contextlib.redirect_stderr(io.StringIO()):
+                      client=BiliBili(Data())
+                      session=client._BiliBili__session
+                      session.mount('https://',HTTPAdapter(max_retries=0))
+                      request=session.request
+                      def guarded(method,url,*a,**kw):
+                          p=urlsplit(url)
+                          allowed=(p.hostname=='api.bilibili.com' and p.path=='/x/web-interface/nav' and method.upper()=='GET') or (p.hostname=='member.bilibili.com' and p.path=='/preupload' and method.upper()=='GET') or (p.hostname and p.hostname.endswith('.bilivideo.com'))
+                          if not allowed:raise AssertionError('Non-transport API blocked')
+                          return request(method,url,*a,**kw)
+                      session.request=guarded
+                      client.login_by_cookies(cookies)
+                      result=client.upload_file('/tmp/ci-transport-probe.mp4',lines=line,tasks=1)
+                      report['upload_complete']=bool(result and result.get('filename'))
+              except Exception as exc:report['error_type']=type(exc).__name__
+              finally:
+                  signal.alarm(0);report['seconds']=round(time.monotonic()-start,3)
+              results.append(report)
+          Path('ci-upload-large-probe.json').write_text(json.dumps(dict(publications_created=0,results=results),indent=2))
+          print(json.dumps(dict(publications_created=0,results=results)))
+          PYPROBE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-upload-large-probe
+          path: ci-upload-large-probe.json
+          if-no-files-found: warn
+          retention-days: 7
