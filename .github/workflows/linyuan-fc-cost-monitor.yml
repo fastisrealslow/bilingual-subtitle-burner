@@ -1,0 +1,37 @@
+name: FC日度执行费用估算（只读）
+on:
+  schedule:
+    - cron: '20 14 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-fc-cost-monitor
+  cancel-in-progress: false
+jobs:
+  estimate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装只读控制面依赖
+        run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 只读执行记录，不调用函数，不将估算冒充账单
+        run: python linyuan/fc/cost_monitor.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-daily-estimate
+          path: fc-cost-daily-estimate.json
+          retention-days: 14
+          if-no-files-found: warn
