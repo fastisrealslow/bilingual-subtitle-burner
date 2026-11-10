@@ -117646,7 +117646,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T21:56:24+08:00"
+   "publish_time": "2026-11-10T21:56:24+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-821bf1",
+    "run_id": 42873230780,
+    "artifact_id": 13790697924,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c65be489632e9e2a21456346a3fa8744cd2ea5b7f5948165ba73d6ccbe199495",
+     "duration_sec": 25.89,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5363824941335798"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配325/480，总帧数770；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42873230780,
+    "artifact_id": 13790697924,
+    "name": "production-reject-ly-1110-821bf1",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配325/480，总帧数770；身份匹配但人脸短边不足96px的帧数0",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -225665,6 +225698,13 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2611/10/4i74raisq7x/SD/4i74raisq7x-mobile.mp4",
    "ts": 1794315138,
    "error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）"
+  },
+  {
+   "slug": "ly-1110-821bf1",
+   "key": "weibo_search:5363824941335798",
+   "video_id": "https://f.video.weibocdn.com/o0/RpTTU5uUlx08Cgvurdm8010412007rRQ0E010.mp4",
+   "ts": 1794335428,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配325/480，总帧数770；身份匹配但人脸短边不足96px的帧数0"
   }
  ],
  "reviewed_third_video_0910": {
