@@ -1,4 +1,4 @@
-"""Coordinate existing publication gates on CI, keeping domestic upload on FC."""
+"""Coordinate existing publication gates on CI with a domestic fallback."""
 import json
 import os
 from pathlib import Path

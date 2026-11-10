@@ -309,3 +309,11 @@ def test_live_canary_proof_requires_the_actual_public_same_experiment_and_slot(t
     if bad=='backend':part['upload_backend']='fc-reviewed'
     if bad=='experiment':part['publishing_experiment']['compliant']=False
     with pytest.raises(ValueError):accept.proof_for_publication(state,bvid,creator,slot,tmp_path)
+
+
+def test_hard_deadline_escapes_the_sdk_timeout_retry_handler():
+    import time
+    with pytest.raises(upload.UploadDeadlineExpired):
+        with upload.deadline(.02):
+            try:time.sleep(.2)
+            except TimeoutError:pytest.fail('SDK would retry and swallow this deadline')

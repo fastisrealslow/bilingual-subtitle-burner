@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 安装现有质检依赖（国内投稿依赖保留在 FC）
+      - name: 安装原质检与已验证上传依赖
         run: |
           pip install -q requests numpy pillow 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
           pip install -q --only-binary=biliup,stream-gears biliup==0.4.91

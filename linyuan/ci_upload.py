@@ -18,6 +18,10 @@ import time
 from upload_transport import RemoteUploadPending
 
 
+class UploadDeadlineExpired(RuntimeError):
+    """Not TimeoutError: the SDK catches and retries that exception internally."""
+
+
 class UploadNotSubmitted(RuntimeError):
     """Positive evidence that no archive creation was accepted on this route."""
 
@@ -48,7 +52,7 @@ def command_values(cmd):
 @contextmanager
 def deadline(seconds):
     old=signal.getsignal(signal.SIGALRM)
-    def expired(*_):raise TimeoutError('CI upload deadline exceeded')
+    def expired(*_):raise UploadDeadlineExpired('CI upload deadline exceeded')
     signal.signal(signal.SIGALRM,expired)
     signal.setitimer(signal.ITIMER_REAL,seconds)
     try:yield
