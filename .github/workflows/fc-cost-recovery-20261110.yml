@@ -1,0 +1,116 @@
+name: FC恢复后降本核验与统计时钟切换
+on:
+  push:
+    branches: [ops/fc-cost-recovery-20261110]
+permissions:
+  contents: write
+  actions: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests pyyaml alibabacloud-fc20230330 alibabacloud-tea-openapi aliyun-python-sdk-core aliyun-python-sdk-bssopenapi -r linyuan/fc/runtime-requirements.txt
+      - name: 核验恢复状态、关闭重复时钟；账单只输出加密文件
+        run: |
+          python - <<'PYOPS'
+          import sys,os,io,json,time,statistics,collections,base64,subprocess,hashlib
+          from pathlib import Path
+          from datetime import datetime,timezone,timedelta
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import index as fc
+          from verify_production import verify_config_health,configure_observation_timer
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          PUBLIC_KEY='-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3DsAcPb96NQA4nJGZpj\nj9QOFLSwrRf9ZEyb6uruJsMpTS3i2VJZ8M+v6O6GgWqfBcluZv30IhJItqOEuDpj\nSViFx+C8/HUjETEwcRiUkf5igi/KkH+y6x6zVh9wUdVnaP8kGs/Hg6/89NYNthwi\nNBLCJJgfds7S/YHQeXqUOXvPSWJYx8T95XLz94lhvu4CpUNfenEc9piBYI9ipUSN\nxiTgvP7bvWbnskUjCtnQYSdTDLnrJLjGgV8PC47XlFhBz0noQ3uNFioQxNqVjff9\nrI7TwjWO9xKCPo/NK+QTIbKs0WSd+BHX5LySRDTEyWRhZ0sFhYWEtRR9VUiw+Upz\njwIDAQAB\n-----END PUBLIC KEY-----\n'
+          private=dict(observed_at=time.time(),billing=[],task_samples=[])
+          report=dict(observed_at=time.time(),function_invocations=0,upload_invocations=0)
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ.get('FC_REGION','cn-hangzhou')+'.aliyuncs.com'))
+          function=os.environ.get('FC_FUNCTION_NAME','fc-develop')
+          runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+          def error(exc):return dict(error_type=type(exc).__name__,code=str(getattr(exc,'code','')),billing_blocked='debt' in str(exc).lower())
+          try:
+              cfg=client.get_function_with_options(function,m.GetFunctionRequest(qualifier='LATEST'),{},runtime).body
+              report['resources']={k:getattr(cfg,k,None) for k in ['cpu','memory_size','disk_size','timeout']}
+              scaling=client.get_scaling_config_with_options(function,m.GetScalingConfigRequest(qualifier='LATEST'),{},runtime).body.to_map()
+              report['scaling']={k:v for k,v in scaling.items() if k in ['currentInstances','minInstances','targetInstances']}
+              response=client.invoke_function_with_options(function,m.InvokeFunctionRequest(qualifier='LATEST',body=io.BytesIO(b'{"triggerName":"diagnose-config"}')),m.InvokeFunctionHeaders(x_fc_invocation_type='Sync'),runtime)
+              report['function_invocations']+=1
+              raw=response.body.read() if hasattr(response.body,'read') else response.body
+              health=json.loads(raw);private['health']=health
+              try:verify_config_health(health);report['runtime_current']=True
+              except SystemExit as exc:report.update(runtime_current=False,runtime_mismatch=str(exc)[:180])
+              report['deployed_cost_policy']=health.get('fc_cost_policy')
+              # Control-plane timer update is independent of code deployment.
+              # Require a recent successful trusted CI collector before retiring its paid backup.
+              runs=fc.gh('GET','/actions/workflows/linyuan-experiment-observations.yml/runs?per_page=10',timeout=20)['workflow_runs']
+              recent=[r for r in runs if r.get('head_branch')=='main' and r.get('conclusion')=='success' and (r.get('head_repository') or {}).get('full_name')==fc.REPO and time.time()-datetime.fromisoformat(r['updated_at'].replace('Z','+00:00')).timestamp()<7200]
+              assert recent,'No recent successful CI collector; retain paid backup'
+              def protected():
+                  ts=client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},runtime).body.triggers
+                  return {t.trigger_name:dict(type=t.trigger_type,qualifier=t.qualifier,config=json.loads(t.trigger_config)) for t in ts if t.trigger_name in {'publish','dispatch'}}
+              before=protected();assert set(before)=={'publish','dispatch'}
+              assert before['publish']['config'].get('enable') is True and before['publish']['config'].get('cronExpression')=='0 0 2,6,8,13 * * *'
+              report['observation_timer']=configure_observation_timer(client,function,m,runtime)
+              assert protected()==before,'Protected publication/source timers changed'
+              report['protected_timers_unchanged']=True
+          except Exception as exc:report['cloud_error']=error(exc)
+          try:
+              tasks=client.list_async_tasks_with_options(function,m.ListAsyncTasksRequest(qualifier='LATEST',limit=100,include_payload=True),{},runtime).body.tasks
+              groups=collections.defaultdict(list)
+              for task in tasks:
+                  row=task.to_map();private['task_samples'].append(row)
+                  try:trigger=json.loads(row.get('taskPayload') or '{}').get('triggerName','unknown')
+                  except (ValueError,TypeError):trigger='unknown'
+                  ms=row.get('durationMs')
+                  if ms is None and row.get('endTime') and row.get('startedTime'):ms=row['endTime']-row['startedTime']
+                  if ms is not None:groups[trigger].append(ms/1000)
+              report['async_execution_sample']={k:dict(count=len(v),seconds=round(sum(v),3),median_seconds=round(statistics.median(v),3),max_seconds=round(max(v),3)) for k,v in groups.items()}
+              report['async_sample_complete_bill']=False
+          except Exception as exc:report['task_read_error']=error(exc)
+          try:
+              from aliyunsdkcore.client import AcsClient
+              from aliyunsdkbssopenapi.request.v20171214.DescribeInstanceBillRequest import DescribeInstanceBillRequest
+              bills=AcsClient(os.environ['ALIYUN_AK'],os.environ['ALIYUN_SK'],'cn-hangzhou',auto_retry=False,timeout=30)
+              for cycle,product in [('2026-10','fc'),('2026-11','fc'),('2026-10','cdt'),('2026-11','cdt')]:
+                  request=DescribeInstanceBillRequest();request.set_accept_format('json');request.set_BillingCycle(cycle);request.set_ProductCode(product);request.set_IsBillingItem(True);request.set_MaxResults(300);request.set_Granularity('MONTHLY')
+                  data=json.loads(bills.do_action_with_exception(request));private['billing'].append(dict(cycle=cycle,product=product,data=data))
+              report['billing_read']='available_encrypted_only'
+          except Exception as exc:
+              code=exc.get_error_code() if hasattr(exc,'get_error_code') else str(getattr(exc,'code',''))
+              report['billing_read']=str(code);private['billing_error']=error(exc)
+          private['report']=report
+          payload=json.dumps(private,ensure_ascii=False,default=str).encode()
+          Path('/tmp/cost-audit.pub').write_text(PUBLIC_KEY)
+          chunks=[]
+          for start in range(0,len(payload),160):
+              encrypted=subprocess.run(['openssl','pkeyutl','-encrypt','-pubin','-inkey','/tmp/cost-audit.pub','-pkeyopt','rsa_padding_mode:oaep','-pkeyopt','rsa_oaep_md:sha256'],input=payload[start:start+160],capture_output=True,check=True).stdout
+              chunks.append(base64.b64encode(encrypted).decode())
+          Path('fc-cost-recovery.encrypted.json').write_text(json.dumps(dict(encrypted_chunks=chunks)))
+          Path('fc-cost-recovery.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          PYOPS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-recovery
+          path: |
+            fc-cost-recovery.json
+            fc-cost-recovery.encrypted.json
+          retention-days: 7
+          if-no-files-found: error
