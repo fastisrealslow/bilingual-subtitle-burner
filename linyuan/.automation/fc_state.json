@@ -118325,7 +118325,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4979215638990336",
@@ -118381,7 +118382,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4979158354758120",
@@ -118437,7 +118439,8 @@
    },
    "last_error": "整段取景预检：源 7.30s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VGAFL2IVV",
@@ -118460,7 +118463,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T21:29"
+   "publish_time": "2026-11-10T21:29",
+   "production_failure_summary": {
+    "slug": "ly-1110-ec4510",
+    "run_id": 42889855761,
+    "artifact_id": 13799025282,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7f44d9f5772153da257c511289f611bccffe0e8cb532fc96f73687625994f885",
+     "duration_sec": 22.93,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1110-ec4510.mp4"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42889855761,
+    "artifact_id": 13799025282,
+    "name": "production-reject-ly-1110-ec4510",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -226563,6 +226599,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/J3LJ0KFylx08aUbMrZII01041201sf940E010.mp4",
    "ts": 1794340875,
    "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）"
+  },
+  {
+   "slug": "ly-1110-ec4510",
+   "key": "netease_video:VGAFL2IVV",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/10/6nttdj3mrb0/SD/6nttdj3mrb0-mobile.mp4",
+   "ts": 1794341306,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
