@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794300575,
+  "updated_at": 1794300772,
   "inventory_updated_at": 1794300568,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 124,
-    "active_or_recovering_sources": 7,
-    "waiting_candidates": 29,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 28,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794300573,
+    "updated_at": 1794300770,
     "records": 17113,
     "video_records": 14593,
-    "initial_candidates": 215,
-    "duration_eligible_records": 29,
-    "candidate_count": 29,
-    "known_duration_candidates": 8,
+    "initial_candidates": 214,
+    "duration_eligible_records": 28,
+    "candidate_count": 28,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 21,
     "excluded": {
       "speaker_unconfirmed": 8724,
-      "already_attempted_or_cooling": 3665,
+      "already_attempted_or_cooling": 3666,
       "clip_title": 1482,
       "unrelated": 81,
       "no_video": 2520,
@@ -279,14 +279,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV12u4y1R7Mq",
-        "title": "林园 P1 2023-05林园聊地产：态度鲜明，只是感叹人变化太大了。",
-        "source": "bilibili_collection",
-        "author": "林园门下走狗",
-        "url": "https://www.bilibili.com/video/BV12u4y1R7Mq",
-        "duration_sec": 141.0
-      },
       {
         "key": "bilibili_search:BV1C64y1R7PR",
         "title": "林园 P1 1623252408393.mp4",
@@ -527,15 +519,15 @@
   },
   "counts": {
     "complete": 194,
-    "failed": 2311,
+    "failed": 2314,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "excluded": 71,
     "experiment_fallback": 155,
     "ready": 36,
     "validation_failed": 2,
     "retry_queued": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -50664,11 +50656,11 @@
     },
     {
       "slug": "ly-1110-a16570",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794299995,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -50682,11 +50674,11 @@
     },
     {
       "slug": "ly-1110-f6c5a4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）",
       "signature": {
         "ts": 1794300003,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -50700,11 +50692,11 @@
     },
     {
       "slug": "ly-1110-2ef856",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "工作流步骤失败，未形成素材不合格结论：render",
       "signature": {
         "ts": 1794300012,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -50769,6 +50761,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42785274983",
       "run_started_at": "2026-11-10T08:46:35Z",
       "run_updated_at": "2026-11-10T08:46:40Z"
+    },
+    {
+      "slug": "ly-1110-8fb14f",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794300730,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42786003395,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42786003395",
+      "run_started_at": "2026-11-10T08:52:10Z",
+      "run_updated_at": "2026-11-10T08:52:14Z"
     }
   ],
   "runs": {
@@ -77051,6 +77061,28 @@
       "run_number": 4266,
       "display_title": "中文源出片 · ly-1110-f6c5a4"
     },
+    "ly-1110-a16570": {
+      "id": 42784403841,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-10T08:39:55Z",
+      "updated_at": "2026-11-10T08:47:33Z",
+      "run_started_at": "2026-11-10T08:39:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42784403841",
+      "run_number": 4265,
+      "display_title": "中文源出片 · ly-1110-a16570"
+    },
+    "ly-1110-8fb14f": {
+      "id": 42786003395,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T08:52:10Z",
+      "updated_at": "2026-11-10T08:52:14Z",
+      "run_started_at": "2026-11-10T08:52:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42786003395",
+      "run_number": 4271,
+      "display_title": "中文源出片 · ly-1110-8fb14f"
+    },
     "ly-1110-13a719": {
       "id": 42785274983,
       "status": "in_progress",
@@ -77083,17 +77115,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42785241672",
       "run_number": 4268,
       "display_title": "中文源出片 · ly-1110-31f31b"
-    },
-    "ly-1110-a16570": {
-      "id": 42784403841,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-10T08:39:55Z",
-      "updated_at": "2026-11-10T08:47:33Z",
-      "run_started_at": "2026-11-10T08:39:55Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42784403841",
-      "run_number": 4265,
-      "display_title": "中文源出片 · ly-1110-a16570"
     },
     "ly-1110-ce7968": {
       "id": 42783578261,
