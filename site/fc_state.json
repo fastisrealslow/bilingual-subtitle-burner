@@ -115027,7 +115027,25 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-05-18T21:05:43+08:00"
+   "publish_time": "2025-05-18T21:05:43+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-236d10",
+    "run_id": 42773612298,
+    "artifact_id": 13743086996,
+    "accepted": 0,
+    "source_context": null,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：render"
+     }
+    ]
+   },
+   "source_check_report_id": 13743086996,
+   "source_check_run_id": 42773612298,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：render",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794296371
   },
   {
    "key": "weibo_search:5167745395590625",
@@ -115160,7 +115178,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2018-05-25T18:44:52+08:00"
+   "publish_time": "2018-05-25T18:44:52+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42774516688,
+    "artifact_id": 13743282295,
+    "name": "source-reject-ly-1110-a5b586",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0748, 2: -0.0029, 3: -0.0739, 4: -0.0507, 5: -0.029, 6: -0.0224, 7: -0.0241, 8: -0.0625, 9: -0.0401, 10: -0.0348, 11: -0.0014, 12: 0.0038, 13: -0.0428, 14: -0.0505, 15: 0.023, 16: 0.0817, 17: 0.0181, 18: 0.0167}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -222111,6 +222139,13 @@
    "video_id": "BV1vs376uE5b",
    "ts": 1794294632,
    "error": "与已发布内容文字指纹重复：转写片段重合 92%（BV1yxxX6xEAU）"
+  },
+  {
+   "slug": "ly-1110-a5b586",
+   "key": "weibo_search:4243635853404833",
+   "video_id": "http://miaopai.video.weibocdn.com/YT9XoG0glx07kK6iQMgw01040205EQTc0E023",
+   "ts": 1794295470,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0748, 2: -0.0029, 3: -0.0739, 4: -0.0507, 5: -0.029, 6: -0.0224, 7: -0.0241, 8: -0.0625, 9: -0.0401, 10: -0.0348, 11: -0.0014, 12: 0.0038, 13: -0.0428, 14: -0.0505, 15: 0.023, 16: 0.0817, 17: 0.0181, 18: 0.0167}"
   }
  ],
  "reviewed_third_video_0910": {
