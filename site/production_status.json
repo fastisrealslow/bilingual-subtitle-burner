@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794313595,
+  "updated_at": 1794314187,
   "inventory_updated_at": 1794313587,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 128,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,16 +257,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794313593,
+    "updated_at": 1794314185,
     "records": 17195,
     "video_records": 14675,
-    "initial_candidates": 186,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 184,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3705,
+      "already_attempted_or_cooling": 3707,
       "speaker_unconfirmed": 8777,
       "unrelated": 82,
       "clip_title": 1485,
@@ -278,24 +278,7 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "netease_video:VGAFEFH3T",
-        "title": "林园：赚了指数不赚钱，背后是“指数”在不断调整",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VGAFEFH3T.html",
-        "duration_sec": 27.32
-      },
-      {
-        "key": "netease_video:VGAFDE41A",
-        "title": "林园：大盘走势不强劲时，赚钱的人也会很小心",
-        "source": "netease_video",
-        "author": "网易视频",
-        "url": "https://www.163.com/v/video/VGAFDE41A.html",
-        "duration_sec": 32.96
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 128,
@@ -311,7 +294,7 @@
   },
   "counts": {
     "complete": 194,
-    "failed": 2331,
+    "failed": 2332,
     "paused": 5,
     "interrupted": 8,
     "excluded": 71,
@@ -319,7 +302,7 @@
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 1
+    "running": 2
   },
   "tasks": [
     {
@@ -50790,8 +50773,8 @@
     },
     {
       "slug": "ly-1110-58182a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794306690,
         "failed": null,
@@ -50804,7 +50787,7 @@
       "run_id": 42799868014,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799868014",
       "run_started_at": "2026-11-10T10:31:29Z",
-      "run_updated_at": "2026-11-10T10:31:34Z"
+      "run_updated_at": "2026-11-10T12:29:29Z"
     },
     {
       "slug": "ly-1110-e9e4e4",
@@ -50862,11 +50845,11 @@
     },
     {
       "slug": "ly-1110-6bbaa3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不通，疑似识别污染。\"}, {\"sentence_id\": 9, \"quote\": \"啊，只是他们这个这现在中国这个，这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个医药企业的效率是不好。\", \"suspect_quote\": \"不是有序的竞争\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定结构“不是”与后续描述存在逻辑矛盾或识别不清，需核实原意。\"}]",
       "signature": {
         "ts": 1794312167,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -50877,6 +50860,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42812415238",
       "run_started_at": "2026-11-10T12:02:46Z",
       "run_updated_at": "2026-11-10T12:23:54Z"
+    },
+    {
+      "slug": "ly-1110-7f87fa",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794314101,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42816990065,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42816990065",
+      "run_started_at": "2026-11-10T12:35:01Z",
+      "run_updated_at": "2026-11-10T12:35:05Z"
+    },
+    {
+      "slug": "ly-1110-305c17",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794314126,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42817049612,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42817049612",
+      "run_started_at": "2026-11-10T12:35:25Z",
+      "run_updated_at": "2026-11-10T12:35:30Z"
     }
   ],
   "runs": {
@@ -77412,12 +77431,34 @@
       "run_number": 4297,
       "display_title": "中文源出片 · ly-1110-6bbaa3"
     },
-    "ly-1110-58182a": {
-      "id": 42799868014,
+    "ly-1110-305c17": {
+      "id": 42817049612,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-10T12:35:25Z",
+      "updated_at": "2026-11-10T12:35:30Z",
+      "run_started_at": "2026-11-10T12:35:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42817049612",
+      "run_number": 4299,
+      "display_title": "中文源出片 · ly-1110-305c17"
+    },
+    "ly-1110-7f87fa": {
+      "id": 42816990065,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T12:35:01Z",
+      "updated_at": "2026-11-10T12:35:05Z",
+      "run_started_at": "2026-11-10T12:35:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42816990065",
+      "run_number": 4298,
+      "display_title": "中文源出片 · ly-1110-7f87fa"
+    },
+    "ly-1110-58182a": {
+      "id": 42799868014,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-10T10:31:29Z",
-      "updated_at": "2026-11-10T10:31:34Z",
+      "updated_at": "2026-11-10T12:29:29Z",
       "run_started_at": "2026-11-10T10:31:29Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799868014",
       "run_number": 4293,
