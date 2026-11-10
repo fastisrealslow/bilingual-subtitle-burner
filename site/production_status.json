@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794337983,
+  "updated_at": 1794338319,
   "inventory_updated_at": 1794337977,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 128,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 3,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,16 +257,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794337982,
+    "updated_at": 1794338317,
     "records": 17216,
     "video_records": 14696,
-    "initial_candidates": 187,
-    "duration_eligible_records": 3,
-    "candidate_count": 3,
-    "known_duration_candidates": 3,
+    "initial_candidates": 186,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3715,
+      "already_attempted_or_cooling": 3716,
       "speaker_unconfirmed": 8785,
       "unrelated": 82,
       "clip_title": 1485,
@@ -294,14 +294,6 @@
         "author": "网易视频",
         "url": "https://www.163.com/v/video/VGAFL2IVV.html",
         "duration_sec": 22.96
-      },
-      {
-        "key": "bilibili_search:BV1sXbh6uEao",
-        "title": "林园 P1 林园：八千元入市，一年翻了32倍！#林园#赚钱 #理财 #名人",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1sXbh6uEao",
-        "duration_sec": 53.0
       }
     ]
   },
@@ -319,9 +311,9 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2338,
+    "failed": 2340,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 148,
     "ready": 40,
@@ -51086,11 +51078,11 @@
     },
     {
       "slug": "ly-1110-d8704d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景连续2.03秒缺少人脸",
       "signature": {
         "ts": 1794337020,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51104,11 +51096,11 @@
     },
     {
       "slug": "ly-1110-d3d15c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794337448,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51118,7 +51110,25 @@
       "run_id": 42881518941,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42881518941",
       "run_started_at": "2026-11-10T19:04:07Z",
-      "run_updated_at": "2026-11-10T19:04:13Z"
+      "run_updated_at": "2026-11-10T19:13:12Z"
+    },
+    {
+      "slug": "ly-1110-3183d4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794338276,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42883842990,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42883842990",
+      "run_started_at": "2026-11-10T19:17:55Z",
+      "run_updated_at": "2026-11-10T19:18:00Z"
     }
   ],
   "runs": {
@@ -77753,17 +77763,6 @@
       "run_number": 4308,
       "display_title": "中文源出片 · ly-1110-c428eb"
     },
-    "ly-1110-d3d15c": {
-      "id": 42881518941,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-10T19:04:07Z",
-      "updated_at": "2026-11-10T19:04:13Z",
-      "run_started_at": "2026-11-10T19:04:07Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42881518941",
-      "run_number": 4310,
-      "display_title": "中文源出片 · ly-1110-d3d15c"
-    },
     "ly-1110-d8704d": {
       "id": 42880324697,
       "status": "completed",
@@ -77774,6 +77773,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42880324697",
       "run_number": 4309,
       "display_title": "中文源出片 · ly-1110-d8704d"
+    },
+    "ly-1110-3183d4": {
+      "id": 42883842990,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T19:17:55Z",
+      "updated_at": "2026-11-10T19:18:00Z",
+      "run_started_at": "2026-11-10T19:17:55Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42883842990",
+      "run_number": 4311,
+      "display_title": "中文源出片 · ly-1110-3183d4"
+    },
+    "ly-1110-d3d15c": {
+      "id": 42881518941,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-10T19:04:07Z",
+      "updated_at": "2026-11-10T19:13:12Z",
+      "run_started_at": "2026-11-10T19:04:07Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42881518941",
+      "run_number": 4310,
+      "display_title": "中文源出片 · ly-1110-d3d15c"
     },
     "ly-1110-96362e": {
       "id": 42871216570,
