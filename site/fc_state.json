@@ -116929,7 +116929,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T19:15:52+08:00"
+   "publish_time": "2026-11-10T19:15:52+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-e9e4e4",
+    "run_id": 42809977811,
+    "artifact_id": 13760694763,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d4c358d96ec7be1ca513b151f27f3ad846abaf0f57327a96830f0772ce048488",
+     "duration_sec": 32.88,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5363784541537556"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42809977811,
+    "artifact_id": 13760694763,
+    "name": "production-reject-ly-1110-e9e4e4",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5363789111499544",
@@ -116952,7 +116985,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T19:34:01+08:00"
+   "publish_time": "2026-11-10T19:34:01+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-491ea5",
+    "run_id": 42809997362,
+    "artifact_id": 13762028482,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cd56e1f05c79ae3a1ee2cb373ccd5c6671301a479ea73fd6ac1d7a7d70399575",
+     "duration_sec": 27.24,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5363789111499544"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42809997362,
+    "artifact_id": 13762028482,
+    "name": "production-reject-ly-1110-491ea5",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1D24y1n7Kc",
@@ -116975,7 +117041,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-02-21T15:17:00+00:00"
+   "publish_time": "2023-02-21T15:17:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-55175e",
+    "run_id": 42810020904,
+    "artifact_id": 13760469919,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ff91122159f960f89e152f8cb5c7944048e6df3fb10a7ac68dda5ea22462cda1",
+     "duration_sec": 87.87,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1D24y1n7Kc"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42810020904,
+    "artifact_id": 13760469919,
+    "name": "production-reject-ly-1110-55175e",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -224478,6 +224577,27 @@
    "video_id": "BV1uz4y1t7UN",
    "ts": 1794305518,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1110-55175e",
+   "key": "bilibili_search:BV1D24y1n7Kc",
+   "video_id": "BV1D24y1n7Kc",
+   "ts": 1794311774,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1110-491ea5",
+   "key": "weibo_search:5363789111499544",
+   "video_id": "https://f.video.weibocdn.com/o0/JxoBEGwclx08CglIBs2A010412007WRQ0E010.mp4",
+   "ts": 1794311775,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1110-e9e4e4",
+   "key": "weibo_search:5363784541537556",
+   "video_id": "https://f.video.weibocdn.com/o0/lSIYVG3jlx08CgksGQ0o0104120099pi0E010.mp4",
+   "ts": 1794311776,
+   "error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）"
   }
  ],
  "reviewed_third_video_0910": {
