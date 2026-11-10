@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794306493,
+  "updated_at": 1794306730,
   "inventory_updated_at": 1794306489,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 126,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794306492,
+    "updated_at": 1794306729,
     "records": 17187,
     "video_records": 14667,
-    "initial_candidates": 185,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 184,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8776,
-      "already_attempted_or_cooling": 3700,
+      "already_attempted_or_cooling": 3701,
       "unrelated": 82,
       "clip_title": 1485,
       "no_video": 2520,
@@ -278,16 +278,7 @@
       "too_short": 148,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1XtWt6cEpA",
-        "title": "261106林园接受天玉专访：从投资周期到人生哲学（完整版），视频来源于@天玉朋友圈。",
-        "source": "bilibili_search",
-        "author": "极简投资99",
-        "url": "https://www.bilibili.com/video/BV1XtWt6cEpA",
-        "duration_sec": 3185.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 126,
@@ -310,8 +301,8 @@
     "experiment_fallback": 155,
     "ready": 37,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "running": 3
+    "retry_queued": 1,
+    "running": 6
   },
   "tasks": [
     {
@@ -50655,42 +50646,6 @@
       "run_updated_at": "2026-11-10T09:58:59Z"
     },
     {
-      "slug": "ly-1110-221889",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1794303988,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1794306222,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 42793511047,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793511047",
-      "run_started_at": "2026-11-10T09:46:27Z",
-      "run_updated_at": "2026-11-10T09:48:10Z"
-    },
-    {
-      "slug": "ly-1110-51e934",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1794303997,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1794306214,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 42793534837,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793534837",
-      "run_started_at": "2026-11-10T09:46:37Z",
-      "run_updated_at": "2026-11-10T09:50:02Z"
-    },
-    {
       "slug": "ly-1110-bc3fce",
       "status": "failed",
       "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2439, 2: 0.2895, 3: 0.2615, 4: 0.2571, 5: 0.2732, 6: 0.24, 7: 0.2766, 8: 0.2382, 9: 0.2732, 10: 0.2629, 11: 0.2812, 12: 0.2782, 13: 0.2795, 14: 0.2535, 15: 0.24, 16: 0.2352, 17: 0.2528, 18: 0.2667}",
@@ -50779,6 +50734,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42798094502",
       "run_started_at": "2026-11-10T10:19:00Z",
       "run_updated_at": "2026-11-10T10:19:05Z"
+    },
+    {
+      "slug": "ly-1110-51e934",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794306674,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42799832808,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799832808",
+      "run_started_at": "2026-11-10T10:31:14Z",
+      "run_updated_at": "2026-11-10T10:31:19Z"
+    },
+    {
+      "slug": "ly-1110-221889",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794306682,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42799851189,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799851189",
+      "run_started_at": "2026-11-10T10:31:22Z",
+      "run_updated_at": "2026-11-10T10:31:26Z"
+    },
+    {
+      "slug": "ly-1110-58182a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794306690,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42799868014,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799868014",
+      "run_started_at": "2026-11-10T10:31:29Z",
+      "run_updated_at": "2026-11-10T10:31:34Z"
     }
   ],
   "runs": {
@@ -77128,14 +77137,14 @@
       "display_title": "中文源出片 · ly-1110-01a08f"
     },
     "ly-1110-221889": {
-      "id": 42793511047,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-10T09:46:27Z",
-      "updated_at": "2026-11-10T09:48:10Z",
-      "run_started_at": "2026-11-10T09:46:27Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793511047",
-      "run_number": 4284,
+      "id": 42799851189,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T10:31:22Z",
+      "updated_at": "2026-11-10T10:31:26Z",
+      "run_started_at": "2026-11-10T10:31:22Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799851189",
+      "run_number": 4292,
       "display_title": "中文源出片 · ly-1110-221889"
     },
     "ly-1110-b922c3": {
@@ -77183,14 +77192,14 @@
       "display_title": "中文源出片 · ly-1110-af79cd"
     },
     "ly-1110-51e934": {
-      "id": 42793534837,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-10T09:46:37Z",
-      "updated_at": "2026-11-10T09:50:02Z",
-      "run_started_at": "2026-11-10T09:46:37Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793534837",
-      "run_number": 4285,
+      "id": 42799832808,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T10:31:14Z",
+      "updated_at": "2026-11-10T10:31:19Z",
+      "run_started_at": "2026-11-10T10:31:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799832808",
+      "run_number": 4291,
       "display_title": "中文源出片 · ly-1110-51e934"
     },
     "ly-1110-973739": {
@@ -77236,6 +77245,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42795487884",
       "run_number": 4287,
       "display_title": "中文源出片 · ly-1110-5216ac"
+    },
+    "ly-1110-58182a": {
+      "id": 42799868014,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T10:31:29Z",
+      "updated_at": "2026-11-10T10:31:34Z",
+      "run_started_at": "2026-11-10T10:31:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42799868014",
+      "run_number": 4293,
+      "display_title": "中文源出片 · ly-1110-58182a"
     },
     "ly-1110-919b9f": {
       "id": 42798094502,
