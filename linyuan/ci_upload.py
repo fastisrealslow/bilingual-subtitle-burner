@@ -120,7 +120,12 @@ def execute(cmd,expected_sha256,owner_mid):
                 # this "web unsupported" rejection. It accepted no archive.
                 raise UploadNotSubmitted('web_submit_explicitly_unsupported')
             if response.get('code')!=0 or not re.fullmatch(r'BV[a-zA-Z0-9]{10}',str(bvid or '')):
-                raise RemoteUploadPending('CI submit needs authenticated archive reconciliation')
+                pending=RemoteUploadPending('CI submit needs authenticated archive reconciliation')
+                code=response.get('code')
+                pending.safe_evidence=dict(backend='github-qn',phase='submit_response',
+                    response_code=code if type(code) is int else None,
+                    response_parsed=True,video_sha256=expected_sha256,checked_at=int(time.time()))
+                raise pending
         process=subprocess.CompletedProcess(cmd,0,bvid,'')
         process.upload_metrics=dict(backend='github-qn',upload_called=True,fc_invocations=0,
             video_sha256=expected_sha256,bvid=bvid,total_seconds=round(time.monotonic()-started,3),
@@ -129,7 +134,11 @@ def execute(cmd,expected_sha256,owner_mid):
     except (UploadNotSubmitted,RemoteUploadPending):raise
     except Exception as exc:
         if submission_entered:
-            raise RemoteUploadPending('CI submit outcome is unknown: '+type(exc).__name__) from exc
+            pending=RemoteUploadPending('CI submit outcome is unknown: '+type(exc).__name__)
+            pending.safe_evidence=dict(backend='github-qn',phase='submit_response',
+                response_parsed=False,error_type=type(exc).__name__,
+                video_sha256=expected_sha256,checked_at=int(time.time()))
+            raise pending from exc
         raise UploadNotSubmitted(type(exc).__name__) from exc
     finally:
         logging.disable(old_disable)

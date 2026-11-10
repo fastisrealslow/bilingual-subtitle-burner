@@ -317,3 +317,23 @@ def test_hard_deadline_escapes_the_sdk_timeout_retry_handler():
         with upload.deadline(.02):
             try:time.sleep(.2)
             except TimeoutError:pytest.fail('SDK would retry and swallow this deadline')
+
+
+def test_pending_submit_retains_only_safe_response_evidence(case):
+    case.client.submit_web=lambda:{'code':-500,'message':'secret csrf must never be stored','data':None}
+    with pytest.raises(RemoteUploadPending) as err:upload.execute(case.cmd,case.sha,275211725)
+    evidence=err.value.safe_evidence
+    assert evidence['response_code']==-500 and evidence['response_parsed'] is True
+    assert evidence['video_sha256']==case.sha
+    assert 'secret' not in json.dumps(evidence) and 'message' not in evidence
+
+
+def test_pending_evidence_is_saved_without_invoking_a_second_uploader(monkeypatch,fallback):
+    fc,state,entry,part,calls=fallback
+    def unknown(*a):
+        pending=RemoteUploadPending('pending')
+        pending.safe_evidence={'response_code':-500,'video_sha256':'a'*64}
+        raise pending
+    monkeypatch.setattr(strategy,'upload_on_ci',unknown)
+    with pytest.raises(RemoteUploadPending):strategy.execute(fc,state,entry,part,[],'.')
+    assert calls==['save'] and entry['upload_ci_outcome']['response_code']==-500

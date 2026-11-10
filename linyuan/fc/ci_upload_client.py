@@ -15,6 +15,12 @@ def execute(fc,state,entry,part,cmd,directory):
     sha=(part.get('fingerprints') or {}).get('sha256')
     try:
         return upload_on_ci(cmd,sha,fc.OWNER_MID)
+    except RemoteUploadPending as exc:
+        evidence=getattr(exc,'safe_evidence',None)
+        if evidence:
+            entry['upload_ci_outcome']=evidence
+            fc.save_state(state)
+        raise
     except UploadNotSubmitted as exc:
         entry['upload_ci_pre_submit_failure']=dict(error_type=str(exc)[:100],checked_at=int(time.time()))
     # A health probe uses the legacy read-only route, never a publisher event.
