@@ -1,0 +1,70 @@
+name: FC降本切换后只读回读与正常任务验证
+on:
+  push:
+    branches: [ops/fc-cost-post-cutover-audit-20261110]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests pyyaml alibabacloud-fc20230330 alibabacloud-tea-openapi -r linyuan/fc/runtime-requirements.txt
+      - name: 不调用函数，核对云端时钟和正常工作流
+        run: |
+          python - <<'PY'
+          import os,sys,json,time
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import index as fc
+          import fc_cost_policy as p
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          assert p.RUNNER_PUBLISH_ENABLED and p.CI_CLOCK_ENABLED
+          assert 'rule_recovery_deferred' in Path('linyuan/fc/index.py').read_text()
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+          fn=os.environ['FC_FUNCTION_NAME']
+          triggers={t.trigger_name:t for t in client.list_triggers_with_options(fn,m.ListTriggersRequest(limit=100),{},runtime).body.triggers}
+          timer=p.publish_timer(); actual=json.loads(triggers['publish'].trigger_config)
+          assert actual['enable'] is True and actual['cronExpression']==timer['cron'] and json.loads(actual['payload'])==timer['payload']
+          assert all(json.loads(triggers[k].trigger_config)['enable'] is False for k in ['dispatch','experiment-observations'])
+          cfg=client.get_function_with_options(fn,m.GetFunctionRequest(qualifier='LATEST'),{},runtime).body
+          assert (cfg.cpu,cfg.memory_size,cfg.disk_size,cfg.timeout)==(.5,1024,10240,7200)
+          scaling=client.get_scaling_config_with_options(fn,m.GetScalingConfigRequest(qualifier='LATEST'),{},runtime).body
+          assert scaling.min_instances==0
+          current=fc.load_state()
+          report=dict(verified=True,function_invocations=0,cloud_timers=dict(publish=timer,dispatch=False,statistics=False),min_instances=0,
+              daily_publish=current.get('daily_publish'),workflow_requests=[])
+          for name,inputs in [('linyuan-publish-runner.yml',dict(preview='false',canary='false')),
+                              ('linyuan-source-inventory.yml',{}),('linyuan-fc-cost-monitor.yml',{})]:
+              payload=dict(ref='main')
+              if inputs:payload['inputs']=inputs
+              fc.gh('POST','/actions/workflows/'+name+'/dispatches',payload,timeout=20)
+              report['workflow_requests'].append(name)
+          Path('fc-cost-post-cutover.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-post-cutover
+          path: fc-cost-post-cutover.json
+          if-no-files-found: warn
+          retention-days: 7
