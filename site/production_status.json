@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794297583,
+  "updated_at": 1794297884,
   "inventory_updated_at": 1794297575,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 121,
-    "active_or_recovering_sources": 8,
-    "waiting_candidates": 43,
+    "active_or_recovering_sources": 12,
+    "waiting_candidates": 42,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794297581,
+    "updated_at": 1794297882,
     "records": 17113,
     "video_records": 14593,
-    "initial_candidates": 229,
-    "duration_eligible_records": 43,
-    "candidate_count": 43,
-    "known_duration_candidates": 19,
+    "initial_candidates": 228,
+    "duration_eligible_records": 42,
+    "candidate_count": 42,
+    "known_duration_candidates": 18,
     "unknown_duration_candidates": 24,
     "excluded": {
       "speaker_unconfirmed": 8744,
-      "already_attempted_or_cooling": 3631,
+      "already_attempted_or_cooling": 3632,
       "clip_title": 1482,
       "unrelated": 81,
       "no_video": 2520,
@@ -279,14 +279,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1LuuM6rEGc",
-        "title": "林园 P1 林园：高科技和快消品最大的区别在于投资的“确定性” #财经#经济#价值投资#林园#股票",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1LuuM6rEGc",
-        "duration_sec": 160.0
-      },
       {
         "key": "weibo_search:4451896917627369",
         "title": "《走进资本市场》林园专访(上) （分享自 @优酷） http://t.cn/AinWE1GV ​​​",
@@ -641,13 +633,13 @@
     "complete": 193,
     "failed": 2305,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 6,
     "excluded": 67,
     "experiment_fallback": 159,
     "ready": 34,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "running": 5
+    "retry_queued": 6,
+    "running": 6
   },
   "tasks": [
     {
@@ -50632,14 +50624,14 @@
     },
     {
       "slug": "ly-1110-2ef856",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794296883,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794299595,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -50650,14 +50642,14 @@
     },
     {
       "slug": "ly-1110-f6c5a4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794296893,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794299587,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -50668,14 +50660,14 @@
     },
     {
       "slug": "ly-1110-a16570",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794296902,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794298679,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -50737,6 +50729,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42778824769",
       "run_started_at": "2026-11-10T07:56:29Z",
       "run_updated_at": "2026-11-10T07:56:34Z"
+    },
+    {
+      "slug": "ly-1110-25dc75",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794297844,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42779748488,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42779748488",
+      "run_started_at": "2026-11-10T08:04:04Z",
+      "run_updated_at": "2026-11-10T08:04:08Z"
     }
   ],
   "runs": {
@@ -76941,6 +76951,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42777825697",
       "run_number": 4252,
       "display_title": "中文源出片 · ly-1110-2ef856"
+    },
+    "ly-1110-25dc75": {
+      "id": 42779748488,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T08:04:04Z",
+      "updated_at": "2026-11-10T08:04:08Z",
+      "run_started_at": "2026-11-10T08:04:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42779748488",
+      "run_number": 4258,
+      "display_title": "中文源出片 · ly-1110-25dc75"
     },
     "ly-1110-e27577": {
       "id": 42778824769,
