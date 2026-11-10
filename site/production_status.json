@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794336392,
+  "updated_at": 1794336686,
   "inventory_updated_at": 1794336388,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 128,
     "active_or_recovering_sources": 5,
-    "waiting_candidates": 6,
+    "waiting_candidates": 5,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794336391,
+    "updated_at": 1794336685,
     "records": 17216,
     "video_records": 14696,
-    "initial_candidates": 190,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 189,
+    "duration_eligible_records": 5,
+    "candidate_count": 5,
+    "known_duration_candidates": 5,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 3713,
       "speaker_unconfirmed": 8785,
-      "already_attempted_or_cooling": 3712,
       "unrelated": 82,
       "clip_title": 1485,
       "no_video": 2520,
@@ -279,14 +279,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5363829357940572",
-        "title": "【林园：白酒行业绝不会消失，因为人类需要酒带来快乐】\n近日，深圳林园投资董事长林园在一次访谈中表示，白酒行业绝不会消失，",
-        "source": "weibo_search",
-        "author": "雷达财经",
-        "url": "https://m.weibo.cn/detail/5363829357940572",
-        "duration_sec": 26.0
-      },
       {
         "key": "bilibili_search:BV1Mi4y157Jk",
         "title": "林园 P1 林园：投资就是要投垄断，这是最好的投资方向",
@@ -345,7 +337,7 @@
     "complete": 195,
     "failed": 2336,
     "paused": 5,
-    "interrupted": 7,
+    "interrupted": 8,
     "excluded": 80,
     "experiment_fallback": 148,
     "ready": 40,
@@ -51074,8 +51066,8 @@
     },
     {
       "slug": "ly-1110-29047b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794336181,
         "failed": null,
@@ -51088,7 +51080,25 @@
       "run_id": 42877995842,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42877995842",
       "run_started_at": "2026-11-10T18:43:01Z",
-      "run_updated_at": "2026-11-10T18:43:05Z"
+      "run_updated_at": "2026-11-10T18:49:38Z"
+    },
+    {
+      "slug": "ly-1110-c428eb",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794336640,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42879279153,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42879279153",
+      "run_started_at": "2026-11-10T18:50:40Z",
+      "run_updated_at": "2026-11-10T18:50:44Z"
     }
   ],
   "runs": {
@@ -77701,12 +77711,23 @@
       "run_number": 4304,
       "display_title": "中文源出片 · ly-1110-8ba230"
     },
-    "ly-1110-29047b": {
-      "id": 42877995842,
+    "ly-1110-c428eb": {
+      "id": 42879279153,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-10T18:50:40Z",
+      "updated_at": "2026-11-10T18:50:44Z",
+      "run_started_at": "2026-11-10T18:50:40Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42879279153",
+      "run_number": 4308,
+      "display_title": "中文源出片 · ly-1110-c428eb"
+    },
+    "ly-1110-29047b": {
+      "id": 42877995842,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-10T18:43:01Z",
-      "updated_at": "2026-11-10T18:43:05Z",
+      "updated_at": "2026-11-10T18:49:38Z",
       "run_started_at": "2026-11-10T18:43:01Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42877995842",
       "run_number": 4307,
