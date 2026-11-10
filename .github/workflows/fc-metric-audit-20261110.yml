@@ -1,0 +1,71 @@
+name: FC全函数用量只读核验（不调用函数）
+on:
+  push:
+    branches: [ops/fc-metric-audit-20261110]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q aliyun-python-sdk-core aliyun-python-sdk-cms alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 分辨视频函数和其他函数的调用量，原始数据加密
+        run: |
+          python - <<'PYCMS'
+          import os,json,time,base64,subprocess,hashlib
+          from pathlib import Path
+          from aliyunsdkcore.client import AcsClient
+          from aliyunsdkcms.request.v20190101.DescribeMetricListRequest import DescribeMetricListRequest
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          PUBLIC_KEY='-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3DsAcPb96NQA4nJGZpj\nj9QOFLSwrRf9ZEyb6uruJsMpTS3i2VJZ8M+v6O6GgWqfBcluZv30IhJItqOEuDpj\nSViFx+C8/HUjETEwcRiUkf5igi/KkH+y6x6zVh9wUdVnaP8kGs/Hg6/89NYNthwi\nNBLCJJgfds7S/YHQeXqUOXvPSWJYx8T95XLz94lhvu4CpUNfenEc9piBYI9ipUSN\nxiTgvP7bvWbnskUjCtnQYSdTDLnrJLjGgV8PC47XlFhBz0noQ3uNFioQxNqVjff9\nrI7TwjWO9xKCPo/NK+QTIbKs0WSd+BHX5LySRDTEyWRhZ0sFhYWEtRR9VUiw+Upz\njwIDAQAB\n-----END PUBLIC KEY-----\n'
+          region=os.environ.get('FC_REGION','cn-hangzhou')
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+region+'.aliyuncs.com'))
+          runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=30000,autoretry=False)
+          functions=client.list_functions_with_options(m.ListFunctionsRequest(limit=100),{},runtime).body.functions
+          cms=AcsClient(os.environ['ALIYUN_AK'],os.environ['ALIYUN_SK'],region,auto_retry=False,timeout=30)
+          private=dict(function_invocations=0,series=[]);summary=[]
+          stop=False
+          for f in functions:
+              row=dict(name='video_pipeline' if f.function_name=='fc-develop' else 'other_function_'+hashlib.sha256(f.function_name.encode()).hexdigest()[:8],metrics={})
+              for metric in ['FunctionTotalInvocations','FunctionAvgDuration']:
+                  req=DescribeMetricListRequest();req.set_accept_format('json');req.set_Namespace('acs_fc');req.set_MetricName(metric);req.set_Period('3600');req.set_StartTime('2026-11-01 00:00:00');req.set_EndTime(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime()));req.set_Dimensions(json.dumps({'region':region,'serviceName':'','functionName':f.function_name}))
+                  try:
+                      result=json.loads(cms.do_action_with_exception(req));private['series'].append(dict(function=f.function_name,metric=metric,result=result))
+                      points=json.loads(result.get('Datapoints') or '[]')
+                      row['metrics'][metric]=dict(points=len(points),available=bool(points),complete=not result.get('NextToken'))
+                      if metric=='FunctionTotalInvocations' and points:
+                          row['metrics'][metric]['observed_count']=sum(p.get('Sum',0) for p in points)
+                  except Exception as exc:
+                      code=exc.get_error_code() if hasattr(exc,'get_error_code') else str(getattr(exc,'code',''))
+                      row['metrics'][metric]=dict(error_type=type(exc).__name__,code=code)
+                      stop=True;break
+              summary.append(row)
+              if stop:break
+          private['summary']=summary
+          payload=json.dumps(private,default=str).encode();Path('/tmp/cms.pub').write_text(PUBLIC_KEY);chunks=[]
+          for start in range(0,len(payload),160):
+              data=subprocess.run(['openssl','pkeyutl','-encrypt','-pubin','-inkey','/tmp/cms.pub','-pkeyopt','rsa_padding_mode:oaep','-pkeyopt','rsa_oaep_md:sha256'],input=payload[start:start+160],capture_output=True,check=True).stdout;chunks.append(base64.b64encode(data).decode())
+          Path('fc-metrics.encrypted.json').write_text(json.dumps(dict(encrypted_chunks=chunks)))
+          report=dict(function_invocations=0,enabled_new_monitoring=False,summary=summary)
+          Path('fc-metrics-summary.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
+          PYCMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-metrics-audit
+          path: |
+            fc-metrics.encrypted.json
+            fc-metrics-summary.json
+          retention-days: 7
+          if-no-files-found: error
