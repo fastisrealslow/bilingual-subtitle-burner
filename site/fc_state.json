@@ -119070,7 +119070,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T13:31:35+00:00"
+   "publish_time": "2026-11-10T13:31:35+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-004ddc",
+    "run_id": 42921416922,
+    "artifact_id": 13812452282,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "dd93c5a2f929b61e47e5cda1d982040e07cae25dba0c431b51658072c53291c3",
+     "duration_sec": 22.83,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1EbW36xEtV"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42921416922,
+    "artifact_id": 13812452282,
+    "name": "production-reject-ly-1110-004ddc",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.03秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1LRWg6SEei",
@@ -119093,7 +119126,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T14:14:57+00:00"
+   "publish_time": "2026-11-10T14:14:57+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-096235",
+    "run_id": 42921438102,
+    "artifact_id": 13812532557,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "79164addca7de1e0bda49c36f73e711f26a50880f878e538e9c8973770d49d84",
+     "duration_sec": 26.67,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1LRWg6SEei"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42921438102,
+    "artifact_id": 13812532557,
+    "name": "production-reject-ly-1110-096235",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1D1W36yEdP",
@@ -119116,7 +119182,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T11:35:18+00:00"
+   "publish_time": "2026-11-10T11:35:18+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-d28b20",
+    "run_id": 42921461165,
+    "artifact_id": 13812336708,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ba3d84a494c4164d50a92e55b81aa9fd416533edd7cb4b70b40bda8a6fda6edd",
+     "duration_sec": 27.17,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1D1W36yEdP"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42921461165,
+    "artifact_id": 13812336708,
+    "name": "production-reject-ly-1110-d28b20",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1hFWu6qEYP",
@@ -227291,6 +227390,27 @@
    "video_id": "BV1sjW36eEpK",
    "ts": 1794352277,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1110-d28b20",
+   "key": "bilibili_search:BV1D1W36yEdP",
+   "video_id": "BV1D1W36yEdP",
+   "ts": 1794353096,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1110-096235",
+   "key": "bilibili_search:BV1LRWg6SEei",
+   "video_id": "BV1LRWg6SEei",
+   "ts": 1794353096,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1110-004ddc",
+   "key": "bilibili_search:BV1EbW36xEtV",
+   "video_id": "BV1EbW36xEtV",
+   "ts": 1794353097,
+   "error": "动态取景连续2.03秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
