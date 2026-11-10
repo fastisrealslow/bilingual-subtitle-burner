@@ -116183,7 +116183,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/423，总帧数2111；身份匹配但人脸短边不足96px的帧数423",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1shuM64Eyg",
@@ -116239,7 +116240,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/460，总帧数2298；身份匹配但人脸短边不足96px的帧数460",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV13Egx6pE3x",
@@ -116319,7 +116321,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-08-09T10:49:16+00:00"
+   "publish_time": "2023-08-09T10:49:16+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-8fb14f",
+    "run_id": 42786003395,
+    "artifact_id": 13749149472,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "fbfc700d88d538c9721d7aea25736c2ed671a69bae2a6a5a5841080bd4cd1ed6",
+     "duration_sec": 140.43,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV12u4y1R7Mq"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42786003395,
+    "artifact_id": 13749149472,
+    "name": "production-reject-ly-1110-8fb14f",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4451896917627369",
@@ -223926,6 +223961,13 @@
    "video_id": "BV1TBEK6jEYV",
    "ts": 1794301514,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/423，总帧数2111；身份匹配但人脸短边不足96px的帧数423"
+  },
+  {
+   "slug": "ly-1110-8fb14f",
+   "key": "bilibili_search:BV12u4y1R7Mq",
+   "video_id": "BV12u4y1R7Mq",
+   "ts": 1794301962,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
