@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794335961,
+  "updated_at": 1794336224,
   "inventory_updated_at": 1794335953,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 127,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 7,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 6,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794335958,
+    "updated_at": 1794336222,
     "records": 17216,
     "video_records": 14696,
-    "initial_candidates": 191,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 190,
+    "duration_eligible_records": 6,
+    "candidate_count": 6,
+    "known_duration_candidates": 6,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8785,
-      "already_attempted_or_cooling": 3711,
+      "already_attempted_or_cooling": 3712,
       "unrelated": 82,
       "clip_title": 1485,
       "no_video": 2520,
@@ -279,14 +279,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "weibo_search:5363809452824954",
-        "title": "【林园：我反复告诉自己，投资一定要投垄断】\n近日，深圳林园投资董事长林园在一次访谈中表示，他反复提醒自己投资一定要投垄断",
-        "source": "weibo_search",
-        "author": "雷达财经",
-        "url": "https://m.weibo.cn/detail/5363809452824954",
-        "duration_sec": 25.0
-      },
       {
         "key": "weibo_search:5363829357940572",
         "title": "【林园：白酒行业绝不会消失，因为人类需要酒带来快乐】\n近日，深圳林园投资董事长林园在一次访谈中表示，白酒行业绝不会消失，",
@@ -351,15 +343,16 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2335,
+    "failed": 2336,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 148,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 4,
+    "awaiting_validation": 1
   },
   "tasks": [
     {
@@ -51028,8 +51021,8 @@
     },
     {
       "slug": "ly-1110-8ba230",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "awaiting_validation",
+      "detail": "生产已完成，等待实际成片复验；尚不计入可发布库存",
       "signature": {
         "ts": 1794333810,
         "failed": null,
@@ -51042,7 +51035,7 @@
       "run_id": 42871243918,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42871243918",
       "run_started_at": "2026-11-10T18:03:29Z",
-      "run_updated_at": "2026-11-10T18:03:34Z"
+      "run_updated_at": "2026-11-10T18:39:04Z"
     },
     {
       "slug": "ly-1110-821bf1",
@@ -51064,11 +51057,11 @@
     },
     {
       "slug": "ly-1110-9d5135",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794335485,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51079,6 +51072,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42876045929",
       "run_started_at": "2026-11-10T18:31:25Z",
       "run_updated_at": "2026-11-10T18:36:58Z"
+    },
+    {
+      "slug": "ly-1110-29047b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794336181,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42877995842,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42877995842",
+      "run_started_at": "2026-11-10T18:43:01Z",
+      "run_updated_at": "2026-11-10T18:43:05Z"
     }
   ],
   "runs": {
@@ -77680,12 +77691,23 @@
       "run_number": 4306,
       "display_title": "中文源出片 · ly-1110-9d5135"
     },
-    "ly-1110-8ba230": {
-      "id": 42871243918,
+    "ly-1110-29047b": {
+      "id": 42877995842,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-10T18:43:01Z",
+      "updated_at": "2026-11-10T18:43:05Z",
+      "run_started_at": "2026-11-10T18:43:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42877995842",
+      "run_number": 4307,
+      "display_title": "中文源出片 · ly-1110-29047b"
+    },
+    "ly-1110-8ba230": {
+      "id": 42871243918,
+      "status": "completed",
+      "conclusion": "success",
       "created_at": "2026-11-10T18:03:29Z",
-      "updated_at": "2026-11-10T18:03:34Z",
+      "updated_at": "2026-11-10T18:39:04Z",
       "run_started_at": "2026-11-10T18:03:29Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42871243918",
       "run_number": 4304,
