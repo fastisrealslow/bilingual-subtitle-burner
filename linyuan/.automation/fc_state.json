@@ -114992,7 +114992,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-25T12:42:00+00:00"
+   "publish_time": "2022-05-25T12:42:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-fb93c0",
+    "run_id": 42774500822,
+    "artifact_id": 13744965820,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1db921881c3c57abbbb637c2fbe19c25f7fe8c67365103c3c2f446ed878a6938",
+     "duration_sec": 423.2,
+     "resolution": {
+      "width": 1278,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1nY4y157BP"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕逐字时间倒退或重叠"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42774500822,
+    "artifact_id": 13744965820,
+    "name": "production-reject-ly-1110-fb93c0",
+    "retained": true
+   },
+   "last_error": "字幕逐字时间倒退或重叠",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4243635853404833",
@@ -115185,7 +115218,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4236096134589103",
@@ -115275,7 +115309,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1tZ4y1b7Fk",
@@ -222506,6 +222541,13 @@
    "video_id": "https://f.video.weibocdn.com/A8tcrvpZlx07EsORmRHi01041202i43q0E010.mp4",
    "ts": 1794296834,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1110-fb93c0",
+   "key": "bilibili_search:BV1nY4y157BP",
+   "video_id": "BV1nY4y157BP",
+   "ts": 1794297324,
+   "error": "字幕逐字时间倒退或重叠"
   }
  ],
  "reviewed_third_video_0910": {
