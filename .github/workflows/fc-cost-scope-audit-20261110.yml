@@ -1,0 +1,71 @@
+name: FC降本范围只读核验
+on:
+  push:
+    branches: [ops/fc-cost-scope-audit-20261110]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 验证新的只读估算任务，不调用函数
+        run: python linyuan/fc/cost_monitor.py
+      - name: 检查其他函数是否存在额外异步执行，详情只保存加密文件
+        run: |
+          python - <<'PYAUDIT'
+          import os,sys,json,time,base64,subprocess
+          from pathlib import Path
+          from datetime import datetime
+          sys.path.insert(0,'linyuan/fc')
+          from cost_monitor import collect,CST
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          PUBLIC_KEY='-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3DsAcPb96NQA4nJGZpj\nj9QOFLSwrRf9ZEyb6uruJsMpTS3i2VJZ8M+v6O6GgWqfBcluZv30IhJItqOEuDpj\nSViFx+C8/HUjETEwcRiUkf5igi/KkH+y6x6zVh9wUdVnaP8kGs/Hg6/89NYNthwi\nNBLCJJgfds7S/YHQeXqUOXvPSWJYx8T95XLz94lhvu4CpUNfenEc9piBYI9ipUSN\nxiTgvP7bvWbnskUjCtnQYSdTDLnrJLjGgV8PC47XlFhBz0noQ3uNFioQxNqVjff9\nrI7TwjWO9xKCPo/NK+QTIbKs0WSd+BHX5LySRDTEyWRhZ0sFhYWEtRR9VUiw+Upz\njwIDAQAB\n-----END PUBLIC KEY-----\n'
+          client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+          now=datetime.now(CST);start=now.replace(day=1,hour=0,minute=0,second=0,microsecond=0)
+          private=dict(observed_at=time.time(),other_functions=[])
+          functions=client.list_functions_with_options(m.ListFunctionsRequest(limit=100),{},runtime).body.functions
+          for fn in functions:
+              name=fn.function_name
+              if name==os.environ['FC_FUNCTION_NAME']:continue
+              row=dict(function=name)
+              try:
+                  row['estimate']=collect(client,name,m,runtime,start_ms=int(start.timestamp()*1000),end_ms=int(now.timestamp()*1000))
+                  row['scaling']=client.get_scaling_config_with_options(name,m.GetScalingConfigRequest(qualifier='LATEST'),{},runtime).body.to_map()
+              except Exception as exc:row['error']=dict(type=type(exc).__name__,code=str(getattr(exc,'code','')))
+              private['other_functions'].append(row)
+          # Never print another application's execution details or account billing.
+          payload=json.dumps(private,ensure_ascii=False,default=str).encode();Path('/tmp/fc-scope.pub').write_text(PUBLIC_KEY)
+          chunks=[]
+          for n in range(0,len(payload),160):
+              out=subprocess.run(['openssl','pkeyutl','-encrypt','-pubin','-inkey','/tmp/fc-scope.pub','-pkeyopt','rsa_padding_mode:oaep','-pkeyopt','rsa_oaep_md:sha256'],input=payload[n:n+160],capture_output=True,check=True).stdout
+              chunks.append(base64.b64encode(out).decode())
+          Path('fc-cost-scope.encrypted.json').write_text(json.dumps(dict(encrypted_chunks=chunks)))
+          print(json.dumps(dict(other_functions_checked=len(private['other_functions']),function_invocations=0,details='encrypted_only')))
+          PYAUDIT
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-cost-scope-audit
+          path: |
+            fc-cost-daily-estimate.json
+            fc-cost-scope.encrypted.json
+          retention-days: 7
+          if-no-files-found: warn
