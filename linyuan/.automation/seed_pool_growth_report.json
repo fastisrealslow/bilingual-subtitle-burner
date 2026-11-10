@@ -6,10 +6,10 @@
       "haokan": 11,
       "netease": 0,
       "yicai": 9,
-      "weibo": 960,
-      "bilibili": 2757
+      "weibo": 965,
+      "bilibili": 2762
     },
-    "total": 3788,
+    "total": 3798,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -20,13 +20,13 @@
       "netease": 0,
       "yicai": 9,
       "weibo": 965,
-      "bilibili": 2762
+      "bilibili": 2766
     },
-    "total": 3798,
+    "total": 3802,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 10,
+  "added_count": 4,
   "providers": {
     "bilibili": {
       "baseline": {
@@ -35,10 +35,10 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 960,
-          "bilibili": 2757
+          "weibo": 965,
+          "bilibili": 2762
         },
-        "total": 3788,
+        "total": 3798,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -46,38 +46,38 @@
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "added_count": 5,
+      "added_count": 4,
       "errors": [],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
       "search_pages": {
-        "林园 达仁堂": [
+        "林园 苹果 腾讯": [
           13,
           14
         ],
-        "林园 同仁堂": [
+        "林园 分红": [
           13,
           14
         ],
-        "林园 白酒": [
+        "林园 垄断": [
           13,
           14
         ]
       },
       "added_bvids": [
-        "BV1C9nmz5Eht",
-        "BV1RP411q7mq",
-        "BV1ZYsHziE3u",
-        "BV1fp4y1q7KP",
-        "BV1m6hXz9EA4"
+        "BV1oMJ76bEHW",
+        "BV1kfgm6eEjh",
+        "BV1Nw411b7Dt",
+        "BV1fF411m73w"
       ],
       "pending_lead_count": 129,
       "roles": {
-        "catalog_only": 4,
-        "mother_candidate": 1
+        "mother_candidate": 1,
+        "catalog_only": 3
       },
       "new_long_parent_count": 0,
       "verification": {
-        "verified_metadata": 5
+        "not_verified": 26,
+        "verified_metadata": 4
       },
       "after": {
         "counts": {
@@ -85,45 +85,57 @@
           "haokan": 11,
           "netease": 0,
           "yicai": 9,
-          "weibo": 960,
-          "bilibili": 2762
+          "weibo": 965,
+          "bilibili": 2766
         },
-        "total": 3793,
+        "total": 3802,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_errors": {},
+      "verification_errors": {
+        "ValueError": 26
+      },
       "verification_http_status": {},
-      "verification_api_codes": {}
+      "verification_api_codes": {
+        "0": 25,
+        "62002": 1
+      }
     },
     "weibo": {
       "provider": "weibo",
       "target": 5000,
-      "before": 3793,
-      "added_count": 5,
+      "before": 3802,
+      "added_count": 0,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
-      "discovery_leads": 696,
-      "eligible_checks": 5,
-      "deferred_checks": 92,
-      "exact_checks": 5,
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "5314214987565488",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466203919969931",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        }
+      ],
+      "discovery_leads": 691,
+      "eligible_checks": 2,
+      "deferred_checks": 90,
+      "exact_checks": 2,
       "known_duplicate_leads": 599,
       "long_checks": 0,
-      "added_mids": [
-        "5363829357940572",
-        "5363809452824954",
-        "5363824941335798",
-        "5363818058225122",
-        "4979158354758120"
-      ],
-      "after": 3798
+      "after": 3802
     }
   },
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "remaining_to_target": 1202,
+  "remaining_to_target": 1198,
   "counting_policy": "unique_parent_video_ids_not_parts_queries_or_accepted_stock"
 }
