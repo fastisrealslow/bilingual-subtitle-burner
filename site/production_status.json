@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794340665,
+  "updated_at": 1794340981,
   "inventory_updated_at": 1794340660,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 128,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -257,7 +257,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794340663,
+    "updated_at": 1794340980,
     "records": 17258,
     "video_records": 14720,
     "initial_candidates": 185,
@@ -294,15 +294,15 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2343,
+    "failed": 2346,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 8,
     "excluded": 80,
     "experiment_fallback": 148,
     "ready": 40,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 2
   },
   "tasks": [
     {
@@ -51133,11 +51133,11 @@
     },
     {
       "slug": "ly-1110-43b7a5",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）",
       "signature": {
         "ts": 1794339660,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51151,11 +51151,11 @@
     },
     {
       "slug": "ly-1110-6e6bc8",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 91%（BV1kSYk6yEx7）",
       "signature": {
         "ts": 1794339678,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51169,11 +51169,11 @@
     },
     {
       "slug": "ly-1110-e1e14b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "整段取景预检：源 7.30s，来源角标覆盖必须保留的人脸或头顶区域",
       "signature": {
         "ts": 1794340116,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51183,12 +51183,12 @@
       "run_id": 42888962531,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42888962531",
       "run_started_at": "2026-11-10T19:48:35Z",
-      "run_updated_at": "2026-11-10T19:48:40Z"
+      "run_updated_at": "2026-11-10T19:57:02Z"
     },
     {
       "slug": "ly-1110-ec4510",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794340438,
         "failed": null,
@@ -51201,7 +51201,7 @@
       "run_id": 42889855761,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42889855761",
       "run_started_at": "2026-11-10T19:53:58Z",
-      "run_updated_at": "2026-11-10T19:54:02Z"
+      "run_updated_at": "2026-11-10T20:00:09Z"
     }
   ],
   "runs": {
@@ -77915,10 +77915,10 @@
     },
     "ly-1110-ec4510": {
       "id": 42889855761,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-10T19:53:58Z",
-      "updated_at": "2026-11-10T19:54:02Z",
+      "updated_at": "2026-11-10T20:00:09Z",
       "run_started_at": "2026-11-10T19:53:58Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42889855761",
       "run_number": 4316,
@@ -77926,10 +77926,10 @@
     },
     "ly-1110-e1e14b": {
       "id": 42888962531,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-10T19:48:35Z",
-      "updated_at": "2026-11-10T19:48:40Z",
+      "updated_at": "2026-11-10T19:57:02Z",
       "run_started_at": "2026-11-10T19:48:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42888962531",
       "run_number": 4315,
