@@ -116744,7 +116744,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2439, 2: 0.2895, 3: 0.2615, 4: 0.2571, 5: 0.2732, 6: 0.24, 7: 0.2766, 8: 0.2382, 9: 0.2732, 10: 0.2629, 11: 0.2812, 12: 0.2782, 13: 0.2795, 14: 0.2535, 15: 0.24, 16: 0.2352, 17: 0.2528, 18: 0.2667}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1uz4y1t7UN",
@@ -116767,7 +116768,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-07-20T10:49:49+00:00"
+   "publish_time": "2023-07-20T10:49:49+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-5216ac",
+    "run_id": 42795487884,
+    "artifact_id": 13753741826,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8b81b2a974e12d752fc1f4a8d1a789004f748e498e97de5939f7305cab431e7a",
+     "duration_sec": 75.1,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1uz4y1t7UN"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42795487884,
+    "artifact_id": 13753741826,
+    "name": "production-reject-ly-1110-5216ac",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4497529955667900",
@@ -224293,6 +224327,13 @@
    "video_id": "BV1v2Vg6ZEUk",
    "ts": 1794305140,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2439, 2: 0.2895, 3: 0.2615, 4: 0.2571, 5: 0.2732, 6: 0.24, 7: 0.2766, 8: 0.2382, 9: 0.2732, 10: 0.2629, 11: 0.2812, 12: 0.2782, 13: 0.2795, 14: 0.2535, 15: 0.24, 16: 0.2352, 17: 0.2528, 18: 0.2667}"
+  },
+  {
+   "slug": "ly-1110-5216ac",
+   "key": "bilibili_search:BV1uz4y1t7UN",
+   "video_id": "BV1uz4y1t7UN",
+   "ts": 1794305518,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
