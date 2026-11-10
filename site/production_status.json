@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794335299,
+  "updated_at": 1794335528,
   "inventory_updated_at": 1794335294,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 128,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794335297,
+    "updated_at": 1794335527,
     "records": 17216,
     "video_records": 14696,
-    "initial_candidates": 192,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 8,
+    "initial_candidates": 191,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8785,
-      "already_attempted_or_cooling": 3710,
+      "already_attempted_or_cooling": 3711,
       "unrelated": 82,
       "clip_title": 1485,
       "no_video": 2520,
@@ -280,20 +280,20 @@
     },
     "candidates": [
       {
-        "key": "weibo_search:5363818058225122",
-        "title": "【林园：英伟达不是垄断生意，芯片最终一定会过剩】\n近日，深圳林园投资董事长林园在一次访谈中表示，英伟达不是垄断生意，只是",
-        "source": "weibo_search",
-        "author": "雷达财经",
-        "url": "https://m.weibo.cn/detail/5363818058225122",
-        "duration_sec": 22.0
-      },
-      {
         "key": "weibo_search:5363809452824954",
         "title": "【林园：我反复告诉自己，投资一定要投垄断】\n近日，深圳林园投资董事长林园在一次访谈中表示，他反复提醒自己投资一定要投垄断",
         "source": "weibo_search",
         "author": "雷达财经",
         "url": "https://m.weibo.cn/detail/5363809452824954",
         "duration_sec": 25.0
+      },
+      {
+        "key": "weibo_search:5363829357940572",
+        "title": "【林园：白酒行业绝不会消失，因为人类需要酒带来快乐】\n近日，深圳林园投资董事长林园在一次访谈中表示，白酒行业绝不会消失，",
+        "source": "weibo_search",
+        "author": "雷达财经",
+        "url": "https://m.weibo.cn/detail/5363829357940572",
+        "duration_sec": 26.0
       },
       {
         "key": "bilibili_search:BV1Mi4y157Jk",
@@ -334,14 +334,6 @@
         "author": "价值投资和科技股",
         "url": "https://www.bilibili.com/video/BV1sXbh6uEao",
         "duration_sec": 53.0
-      },
-      {
-        "key": "weibo_search:5363829357940572",
-        "title": "【林园：白酒行业绝不会消失，因为人类需要酒带来快乐】\n近日，深圳林园投资董事长林园在一次访谈中表示，白酒行业绝不会消失，",
-        "source": "weibo_search",
-        "author": "雷达财经",
-        "url": "https://m.weibo.cn/detail/5363829357940572",
-        "duration_sec": 26.0
       }
     ]
   },
@@ -359,15 +351,15 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2334,
+    "failed": 2335,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 148,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -51054,11 +51046,11 @@
     },
     {
       "slug": "ly-1110-821bf1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配325/480，总帧数770；身份匹配但人脸短边不足96px的帧数0",
       "signature": {
         "ts": 1794334492,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51069,6 +51061,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42873230780",
       "run_started_at": "2026-11-10T18:14:52Z",
       "run_updated_at": "2026-11-10T18:25:09Z"
+    },
+    {
+      "slug": "ly-1110-9d5135",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794335485,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42876045929,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42876045929",
+      "run_started_at": "2026-11-10T18:31:25Z",
+      "run_updated_at": "2026-11-10T18:31:29Z"
     }
   ],
   "runs": {
@@ -77658,6 +77668,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42873230780",
       "run_number": 4305,
       "display_title": "中文源出片 · ly-1110-821bf1"
+    },
+    "ly-1110-9d5135": {
+      "id": 42876045929,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-10T18:31:25Z",
+      "updated_at": "2026-11-10T18:31:29Z",
+      "run_started_at": "2026-11-10T18:31:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42876045929",
+      "run_number": 4306,
+      "display_title": "中文源出片 · ly-1110-9d5135"
     },
     "ly-1110-8ba230": {
       "id": 42871243918,
