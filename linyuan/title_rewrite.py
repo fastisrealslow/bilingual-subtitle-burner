@@ -1471,6 +1471,10 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     source = compact(transcript)
     if any(not evidence_usable(q) or compact(q) not in source for q in evidence):
         return '观点证据不是这段真实原文'
+    from title_quantity_context import ordinal_total_error
+    ordinal_issue = ordinal_total_error(title, cover, transcript, evidence)
+    if ordinal_issue:
+        return ordinal_issue
     hedge_issue = unsupported_hedge_error(title, cover, evidence)
     if hedge_issue:
         return hedge_issue
@@ -2184,6 +2188,10 @@ def error(title, proof, transcript=None, speaker='林园'):
     evidence = proof.get('evidence')
     if not isinstance(evidence, list) or not evidence or any(not isinstance(q, str) for q in evidence):
         return '标题缺少完整原文证据'
+    from title_quantity_context import ordinal_total_error
+    ordinal_issue = ordinal_total_error(title, proof['cover'], transcript or ''.join(evidence), evidence)
+    if ordinal_issue:
+        return ordinal_issue
     directive_issue=unsupported_trade_directive_error(title,proof['cover'],transcript or ''.join(evidence))
     if directive_issue:return directive_issue
     range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
