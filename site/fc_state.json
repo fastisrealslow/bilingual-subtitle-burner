@@ -114280,7 +114280,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-05-27T09:13:20+00:00"
+   "publish_time": "2025-05-27T09:13:20+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-c334c8",
+    "run_id": 42738103245,
+    "artifact_id": 13732023444,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "126d2575d11c13bbb8ef0c1f99e41e6861cddba0dc3b45ad67a8f72989a580be",
+     "duration_sec": 1623.0,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1mujozhE7F"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1150.92s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1030.12s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 930.12s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42738103245,
+    "artifact_id": 13732023444,
+    "name": "production-reject-ly-1110-c334c8",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 1150.92s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4628930709427715",
@@ -220885,6 +220934,13 @@
    "video_id": "BV1s94y127SR",
    "ts": 1794189260,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1110-c334c8",
+   "key": "bilibili_search:BV1mujozhE7F",
+   "video_id": "BV1mujozhE7F",
+   "ts": 1794284090,
+   "error": "整段取景预检：源 1150.92s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
