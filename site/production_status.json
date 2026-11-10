@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794304270,
+  "updated_at": 1794304528,
   "inventory_updated_at": 1794304262,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 127,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -257,7 +257,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794304268,
+    "updated_at": 1794304526,
     "records": 17113,
     "video_records": 14593,
     "initial_candidates": 184,
@@ -294,15 +294,15 @@
   },
   "counts": {
     "complete": 194,
-    "failed": 2322,
+    "failed": 2323,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 6,
     "excluded": 71,
     "experiment_fallback": 155,
     "ready": 37,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "running": 3
+    "retry_queued": 4,
+    "running": 2
   },
   "tasks": [
     {
@@ -50629,11 +50629,11 @@
     },
     {
       "slug": "ly-1110-af79cd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 合流文件 ffprobe 失败：[mov,mp4,m4a,3gp,3g2,mj2 @ 0x62012f77d000] moov atom not found\n/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.mp4: Inv",
       "signature": {
         "ts": 1794303506,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -50665,14 +50665,14 @@
     },
     {
       "slug": "ly-1110-221889",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794303988,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794306222,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -50683,21 +50683,21 @@
     },
     {
       "slug": "ly-1110-51e934",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794303997,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794306214,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 42793534837,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793534837",
       "run_started_at": "2026-11-10T09:46:37Z",
-      "run_updated_at": "2026-11-10T09:46:41Z"
+      "run_updated_at": "2026-11-10T09:50:02Z"
     }
   ],
   "runs": {
@@ -77068,17 +77068,6 @@
       "run_number": 4278,
       "display_title": "中文源出片 · ly-1110-2f96df"
     },
-    "ly-1110-51e934": {
-      "id": 42793534837,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-10T09:46:37Z",
-      "updated_at": "2026-11-10T09:46:41Z",
-      "run_started_at": "2026-11-10T09:46:37Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793534837",
-      "run_number": 4285,
-      "display_title": "中文源出片 · ly-1110-51e934"
-    },
     "ly-1110-b922c3": {
       "id": 42787849204,
       "status": "completed",
@@ -77122,6 +77111,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42792403526",
       "run_number": 4282,
       "display_title": "中文源出片 · ly-1110-af79cd"
+    },
+    "ly-1110-51e934": {
+      "id": 42793534837,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-10T09:46:37Z",
+      "updated_at": "2026-11-10T09:50:02Z",
+      "run_started_at": "2026-11-10T09:46:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42793534837",
+      "run_number": 4285,
+      "display_title": "中文源出片 · ly-1110-51e934"
     },
     "ly-1110-973739": {
       "id": 42792425300,
