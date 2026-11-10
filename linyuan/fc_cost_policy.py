@@ -2,7 +2,7 @@
 VERSION=2026111001
 TARGET_RATIO=0.10
 # Enable only after packaged runtime, worker protocol and CI preview pass.
-RUNNER_PUBLISH_ENABLED=False
+RUNNER_PUBLISH_ENABLED=True
 UPLOAD_BACKEND="ci-preferred"
 # Analytics already runs independently on CI. The half-hour backup replaces the
 # paid hourly FC wake-up without changing 24/72/168h observation windows.
@@ -16,7 +16,7 @@ def estimate_compute(seconds,calls=1,*,cpu=0.5,memory_gb=1):
 
 # The visible schedule remains 10/14/16/21. After live acceptance, standard CI
 # owns it; one late domestic recovery can fill any missed original slots.
-CI_CLOCK_ENABLED=False
+CI_CLOCK_ENABLED=True
 RECOVERY_TRIGGER='publish-recovery'
 LEGACY_PUBLISH_CRON='0 0 2,6,8,13 * * *'
 RECOVERY_CRON='0 55 13 * * *'
