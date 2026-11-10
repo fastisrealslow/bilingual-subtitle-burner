@@ -117157,7 +117157,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-10T19:33"
+   "publish_time": "2026-11-10T19:33",
+   "production_failure_summary": {
+    "slug": "ly-1110-7f87fa",
+    "run_id": 42816990065,
+    "artifact_id": 13764752683,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d183a481cffd18a23362eaae9e2a875ffbfcd6d856f4dcd65030adb8ae7fb68f",
+     "duration_sec": 27.29,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1110-7f87fa.mp4"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42816990065,
+    "artifact_id": 13764752683,
+    "name": "production-reject-ly-1110-7f87fa",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VGAFDE41A",
@@ -224711,6 +224744,13 @@
    "video_id": "BV1gU4y1776s",
    "ts": 1794313714,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不通，疑似识别污染。\"}, {\"sentence_id\": 9, \"quote\": \"啊，只是他们这个这现在中国这个，这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个医药企业的效率是不好。\", \"suspect_quote\": \"不是有序的竞争\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定结构“不是”与后续描述存在逻辑矛盾或识别不清，需核实原意。\"}]"
+  },
+  {
+   "slug": "ly-1110-7f87fa",
+   "key": "netease_video:VGAFEFH3T",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/10/6jxmb8asa5n/SD/6jxmb8asa5n-mobile.mp4",
+   "ts": 1794314720,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
