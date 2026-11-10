@@ -206,7 +206,11 @@ def test_runner_preview_never_invokes_fc_or_writes_intent(monkeypatch):
 
 
 def test_rollout_stays_disabled_until_live_acceptance():
-    assert fc_cost_policy.RUNNER_PUBLISH_ENABLED is False
+    if fc_cost_policy.RUNNER_PUBLISH_ENABLED:
+        from rollout_acceptance import assert_clock_acceptance
+        assert_clock_acceptance(ROOT)
+    else:
+        assert fc_cost_policy.RUNNER_PUBLISH_ENABLED is False
     assert fc.MAX_PUBLISH_PER_DAY==4 and sorted(fc.PUBLISH_HOURS)==[10,14,16,21]
     assert fc_cost_policy.estimate_compute(100)==pytest.approx(65.0075)
 
@@ -263,7 +267,7 @@ def test_publish_workflow_uses_main_and_live_clock_passes_preview_false():
     import yaml
     workflow=yaml.safe_load((ROOT/'.github/workflows/linyuan-publish-runner.yml').read_text())
     events=workflow.get('on',workflow.get(True))
-    assert events['schedule']==[{'cron':'2 2,6,8,13 * * *'}]
+    assert events['schedule']==[{'cron':'2 2,6,8,13 * * *'},{'cron':'17,47 * * * *'}]
     assert events['workflow_dispatch']['inputs']['preview']['default'] is True
     assert workflow['jobs']['publish']['steps'][0]['with']['ref']=='main'
     assert workflow['concurrency']['cancel-in-progress'] is False

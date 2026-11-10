@@ -35,11 +35,30 @@ def capability():
     result=json.loads(raw)
     if response.status_code!=200 or (result.get('fc_cost_policy') or {}).get('upload_protocol')!=VERSION:
         return False
+    return compatible_upload_health(result)
+
+
+def compatible_upload_health(result):
+    """Activation flags may lead deployment; actual worker/quality hashes may not."""
+    from copy import deepcopy
+    import index as fc
+    import fc_cost_policy as policy
     from verify_production import verify_config_health
-    try:
-        verify_config_health(result)
-    except SystemExit:
+    expected=fc.production_config()['fc_cost_policy']
+    actual=result.get('fc_cost_policy') or {}
+    dynamic={'runner_publish_enabled','policy_sha256','publish_timer'}
+    if (set(actual)!=set(expected) or type(actual.get('runner_publish_enabled')) is not bool
+            or not re.fullmatch('[a-f0-9]{64}',str(actual.get('policy_sha256') or ''))
+            or any(actual.get(k)!=v for k,v in expected.items() if k not in dynamic)):
         return False
+    clocks=[dict(cron=policy.LEGACY_PUBLISH_CRON,payload={'triggerName':'publish'},recovery=False),
+            dict(cron=policy.RECOVERY_CRON,payload={'triggerName':policy.RECOVERY_TRIGGER,
+                 'purpose':'last_chance_daily_four'},recovery=True)]
+    if actual.get('publish_timer') not in clocks:return False
+    normalized=deepcopy(result)
+    for key in dynamic:normalized['fc_cost_policy'][key]=expected[key]
+    try:verify_config_health(normalized)
+    except SystemExit:return False
     return True
 
 

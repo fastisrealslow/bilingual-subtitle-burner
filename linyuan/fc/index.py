@@ -2032,6 +2032,7 @@ def production_config():
             "editorial_code_sha256": hashlib.sha256(Path(editorial.__file__).read_bytes()).hexdigest(),
             "fc_cost_policy": dict(version=fc_cost_policy.VERSION,target_ratio=fc_cost_policy.TARGET_RATIO,
                 runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION,
+                upload_backend=fc_cost_policy.UPLOAD_BACKEND,publish_timer=fc_cost_policy.publish_timer(),
                 upload_transport_sha256=hashlib.sha256(Path(upload_transport.__file__).read_bytes()).hexdigest(),
                 policy_sha256=hashlib.sha256(Path(fc_cost_policy.__file__).read_bytes()).hexdigest(),
                 clock_sha256=hashlib.sha256(Path(publish_clock.__file__).read_bytes()).hexdigest()),
@@ -2059,6 +2060,8 @@ def handler(event, context):
         return production_config()
     if name == upload_transport.TRIGGER:
         return upload_transport.worker(sys.modules[__name__],evt)
+    if name == fc_cost_policy.RECOVERY_TRIGGER:
+        return publish_clock.recover(sys.modules[__name__])
     if name == 'publish' and fc_cost_policy.RUNNER_PUBLISH_ENABLED:
         return publish_clock.request(gh)
     if name == observation_clock.TRIGGER:
@@ -5267,9 +5270,11 @@ def publish_handler(event=None, context=None):
             log.info(f"层路径不存在: {path}")
     
     # The reviewed CI backend imports biliup only in the domestic FC worker.
-    remote_upload = os.environ.get("LINYUAN_PUBLISH_BACKEND") == "reviewed-upload"
+    upload_backend = os.environ.get("LINYUAN_PUBLISH_BACKEND")
+    remote_upload = upload_backend == "reviewed-upload"
+    ci_primary = upload_backend == "ci-preferred"
     try:
-        if not remote_upload:
+        if not (remote_upload or ci_primary):
             import biliup
             log.info(f"✓ biliup 可用: {biliup.__file__}")
     except ImportError as e:
@@ -5367,7 +5372,8 @@ def publish_handler(event=None, context=None):
     e["uploading"] = True
     e["uploading_ts"] = int(time.time())
     e["upload_title"] = title
-    for old_result in ('upload_process_result','upload_reconciliation','upload_reconciled_at'):
+    for old_result in ('upload_process_result','upload_reconciliation','upload_reconciled_at',
+                       'upload_transport','upload_transport_result','upload_ci_pre_submit_failure'):
         e.pop(old_result,None)
     e['upload_part_index'] = k
     e['upload_parts_total'] = parts_total
@@ -5410,15 +5416,29 @@ def publish_handler(event=None, context=None):
     try:
         if remote_upload:
             r = upload_client.execute(binding)
+        elif ci_primary:
+            from importlib import import_module
+            ci_client=import_module("ci_upload_client")
+            try:
+                r=ci_client.execute(sys.modules[__name__],st,e,part,cmd,tmp/slug)
+            except ci_client.UploadDefinitelyNotStarted:
+                # Positive evidence: CI accepted no submission and FC was never
+                # invoked. This is distinct from any ambiguous upload outcome.
+                e.pop("uploading",None);e.pop("uploading_ts",None)
+                e["upload_process_result"]=dict(completed_at=int(time.time()),outcome="not_started")
+                save_state(st)
+                shutil.rmtree(tmp,ignore_errors=True)
+                return {"published":0,"upload_definitely_not_started":1}
         else:
             r = subprocess.run(cmd, capture_output=True, text=True,
                                timeout=1620, env=env)
     except upload_transport.RemoteUploadPending:
         # Remote work may still be running: do not record a fictitious process
         # completion, release its intent, or issue a second upload.
-        log_event("upload_pending",f"{slug} 等待境内上传回执",binding["task_id"])
+        task_id=(e.get("upload_transport") or {}).get("task_id")
+        log_event("upload_pending",f"{slug} 等待上传回执",task_id or "CI submit response pending")
         shutil.rmtree(tmp,ignore_errors=True)
-        return {"published":0,"upload_remote_pending":1,"task_id":binding["task_id"]}
+        return {"published":0,"upload_remote_pending":1,"task_id":task_id}
     except subprocess.TimeoutExpired:
         e['upload_process_result']=dict(completed_at=int(time.time()),outcome='timeout')
         save_state(st)
@@ -5428,7 +5448,7 @@ def publish_handler(event=None, context=None):
         return {"published": 0, "upload_timeout": 1}
     out = (r.stdout or "") + (r.stderr or "")
     e['upload_process_result']=dict(completed_at=int(time.time()),returncode=r.returncode)
-    if remote_upload and getattr(r,'upload_metrics',None):
+    if (remote_upload or ci_primary) and getattr(r,'upload_metrics',None):
         e['upload_transport_result']=r.upload_metrics
     if save_state(st) is False:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -5463,6 +5483,9 @@ def publish_handler(event=None, context=None):
         # parts 列表：每条 part 记 bvid+title+ts，修复「长视频拆多条标题丢全」的 bug（2026-08-27）
         parts_log = list(prev_pub.get("parts", []))
         parts_log.append({"status": "published", "bvid": bvid, "title": title,
+                          "upload_backend": (getattr(r,"upload_metrics",{}) or {}).get("backend",
+                              "fc-reviewed" if remote_upload or ci_primary else "fc-legacy"),
+                          "upload_metrics": getattr(r,"upload_metrics",None),
                           "click_packaging_policy": (part.get('copy_identity') or meta_info.get('copy_identity') or {}).get('click_packaging_policy'),
                           "publishing_experiment": experiment_receipt,
                           **({'scheduled_slot':publication_plan['slot']} if publication_plan else {}),

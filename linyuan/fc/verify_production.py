@@ -32,15 +32,22 @@ def configure_timers(client, function, m, read_runtime):
     # The runner retires hourly FC dispatch only after a successful admission.
     # Preserve that disabled state across later code deployments.
     # Publish at 10/14/16/21 Beijing time, with the first item at 10:00.
-    desired = {'dispatch':'0 37 * * * *', 'publish':'0 0 2,6,8,13 * * *'}
+    import fc_cost_policy
+    publication=fc_cost_policy.publish_timer()
+    desired = {'dispatch':'0 37 * * * *', 'publish':publication['cron']}
     response = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
     triggers = {t.trigger_name:t for t in response.body.triggers}
+    if publication['recovery'] and ('publish' not in triggers or
+            json.loads(triggers['publish'].trigger_config).get('cronExpression')!=publication['cron']):
+        from rollout_acceptance import assert_clock_acceptance
+        assert_clock_acceptance()
     for name, cron in desired.items():
         if name not in triggers or triggers[name].trigger_type != 'timer':
             raise SystemExit('Expected production timer is missing: '+name)
         config = json.loads(triggers[name].trigger_config)
         enabled = config.get('enable', True) if name == 'dispatch' else True
-        config.update(cronExpression=cron,enable=enabled,payload=json.dumps({'triggerName':name}))
+        config.update(cronExpression=cron,enable=enabled,payload=json.dumps(
+            publication['payload'] if name=='publish' else {'triggerName':name}))
         client.update_trigger_with_options(function,name,m.UpdateTriggerRequest(body=m.UpdateTriggerInput(
             qualifier='LATEST',trigger_config=json.dumps(config))),{},read_runtime)
     updated = client.list_triggers_with_options(function,m.ListTriggersRequest(limit=100),{},read_runtime)
@@ -52,6 +59,8 @@ def configure_timers(client, function, m, read_runtime):
             if ((config.get('enable') != expected_enabled[trigger.trigger_name])
                     or config.get('cronExpression') != desired[trigger.trigger_name]):
                 raise SystemExit('Timer read-back mismatch: '+trigger.trigger_name)
+            if trigger.trigger_name=='publish' and json.loads(config.get('payload') or '{}')!=publication['payload']:
+                raise SystemExit('Publication timer payload read-back mismatch')
             if trigger.qualifier != 'LATEST':
                 raise SystemExit('Timer is pinned to an obsolete function version')
             timer_proof.append({'name':trigger.trigger_name,'qualifier':trigger.qualifier,'config':config})
@@ -79,6 +88,7 @@ def verify_config_health(health, root=None):
     import publish_clock
     expected_cost=dict(version=fc_cost_policy.VERSION,target_ratio=fc_cost_policy.TARGET_RATIO,
         runner_publish_enabled=fc_cost_policy.RUNNER_PUBLISH_ENABLED,upload_protocol=upload_transport.VERSION,
+        upload_backend=fc_cost_policy.UPLOAD_BACKEND,publish_timer=fc_cost_policy.publish_timer(),
         upload_transport_sha256=hashlib.sha256((root/"linyuan/upload_transport.py").read_bytes()).hexdigest(),
         policy_sha256=hashlib.sha256((root/"linyuan/fc_cost_policy.py").read_bytes()).hexdigest(),
         clock_sha256=hashlib.sha256((root/"linyuan/publish_clock.py").read_bytes()).hexdigest())

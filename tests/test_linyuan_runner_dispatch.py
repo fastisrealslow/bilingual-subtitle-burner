@@ -172,7 +172,9 @@ def test_broken_publication_schedule_blocks_retirement():
 
 
 @pytest.mark.parametrize('enabled', [True, False])
-def test_later_deployment_preserves_dispatch_migration_state(enabled):
+def test_later_deployment_preserves_dispatch_migration_state(enabled,monkeypatch):
+    import fc_cost_policy
+    monkeypatch.setattr(fc_cost_policy,"RUNNER_PUBLISH_ENABLED",False)
     client = TimerClient(dispatch_enabled=enabled)
     proof = verify.configure_timers(client, 'fc', MODELS, NS())
     configs = {row['name']: row['config'] for row in proof}

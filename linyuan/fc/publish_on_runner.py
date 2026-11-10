@@ -1,4 +1,4 @@
-"""Coordinate existing publication gates on CI, keeping domestic upload on FC."""
+"""Coordinate existing publication gates on CI with a domestic fallback."""
 import json
 import os
 from pathlib import Path
@@ -7,21 +7,35 @@ import index as fc
 from reviewed_upload_client import capability
 
 
-def run(*,preview=False,max_slots=4):
+def run(*,preview=False,max_slots=4,backend=None,not_before=None):
     if type(max_slots) is not int or not 1<=max_slots<=4:
         raise ValueError("Invalid bounded publication count")
+    import time
+    if not_before is not None:
+        from datetime import datetime
+        if type(not_before) not in (int,float):raise ValueError('Invalid slot clock')
+        local=datetime.fromtimestamp(not_before,fc.experiment.CST)
+        now=datetime.fromtimestamp(time.time(),fc.experiment.CST)
+        if (not 0<=not_before-time.time()<=120 or local.date()!=now.date()
+                or local.hour not in fc.PUBLISH_HOURS or (local.minute,local.second,local.microsecond)!=(0,0,0)):
+            raise ValueError('Canary may reserve only the next ordinary slot for two minutes')
     initial=fc.load_state()
     due=fc.catchup_deficit(initial)
     if preview:
         return dict(preview=True,due=due,inventory=fc.source_inventory(initial),published=0)
-    if not due:
+    if not due and not_before is None:
         return dict(published=0,reason='no_due_slot')
-    if not capability():
+    import fc_cost_policy
+    backend=backend or getattr(fc_cost_policy,"UPLOAD_BACKEND","reviewed-upload")
+    if backend not in {"reviewed-upload","ci-preferred"}:raise ValueError("Unknown publication backend")
+    if backend=="reviewed-upload" and not capability():
         # Do not send a new transport event to an obsolete runtime. The legacy
         # publisher/timer remains available until the verified rollout switch.
         raise RuntimeError('FC reviewed-upload capability is unavailable; no upload intent written')
-    os.environ['LINYUAN_PUBLISH_BACKEND']='reviewed-upload'
+    os.environ['LINYUAN_PUBLISH_BACKEND']=backend
     def publish_due():
+        if not_before is not None:
+            while time.time()<not_before:time.sleep(min(5,not_before-time.time()))
         results=[]
         for _ in range(max_slots):
             state=fc.load_state()
