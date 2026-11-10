@@ -19,5 +19,8 @@ def test_half_hour_runner_keeps_single_queue_and_existing_capacity_limits():
 
 def test_publish_timer_remains_four_slots_not_half_hour_forced_posting():
     script=(ROOT/'linyuan/fc/verify_production.py').read_text()
-    assert "'publish':'0 0 2,6,8,13 * * *'" in script
+    import fc_cost_policy
+    assert fc_cost_policy.LEGACY_PUBLISH_CRON=='0 0 2,6,8,13 * * *'
+    assert 'fc_cost_policy.publish_timer()' in script
+    assert sorted(FC.PUBLISH_HOURS)==[10,14,16,21]
     assert "name == 'dispatch' else True" in script

@@ -15,3 +15,26 @@ def request(gh):
     # Never repeat an ambiguous POST, and never fall through to a second uploader.
     gh('POST',f'/actions/workflows/{WORKFLOW}/dispatches',{'ref':'main','inputs':{'preview':'false'}},timeout=20)
     return dict(scheduled=True,workflow=WORKFLOW,ref='main',published=0)
+
+
+def recover(fc):
+    """One late domestic safety net; no paid lease wait or empty log writes."""
+    if not fc.catchup_deficit(fc.load_state()):
+        return dict(published=0,reason='due_slots_already_complete')
+    import os
+    previous=os.environ.get('LINYUAN_PUBLISH_BACKEND')
+    os.environ['LINYUAN_PUBLISH_BACKEND']='legacy'
+    def due():
+        results=[]
+        for _ in range(4):
+            result=fc.publish_catchup(dict(triggerName='publish-catchup'))
+            results.append(result)
+            if not result.get('published'):break
+        return dict(published=sum(r.get('published',0) for r in results),
+                    recovery=True,attempts=results)
+    try:
+        return fc.run_with_lease('publish',due,wait_seconds=0)
+    finally:
+        if previous is None:os.environ.pop('LINYUAN_PUBLISH_BACKEND',None)
+        else:os.environ['LINYUAN_PUBLISH_BACKEND']=previous
+        fc.flush_logs()

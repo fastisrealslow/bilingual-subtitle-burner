@@ -24,8 +24,16 @@ def retire_hourly_timer(client, function, models, runtime):
     if not publish or publish.trigger_type != 'timer':
         raise RuntimeError('Publication timer is missing; keep dispatch unchanged')
     publish_config = json.loads(publish.trigger_config)
-    if (publish_config.get('enable') is not True
-            or publish_config.get('cronExpression') != '0 0 2,6,8,13 * * *'
+    import fc_cost_policy
+    timer=fc_cost_policy.publish_timer()
+    expected_payload=timer['payload']
+    try:actual_payload=json.loads(publish_config.get('payload') or '{}')
+    except (TypeError,ValueError):actual_payload=None
+    normal=(publish_config.get('cronExpression')==fc_cost_policy.LEGACY_PUBLISH_CRON
+            and actual_payload=={'triggerName':'publish'})
+    recovery=(timer['recovery'] and publish_config.get('cronExpression')==timer['cron']
+              and actual_payload==expected_payload)
+    if (publish_config.get('enable') is not True or not (normal or recovery)
             or publish.qualifier != 'LATEST'):
         raise RuntimeError('Publication timer differs from daily four; keep dispatch unchanged')
     if not dispatch or dispatch.trigger_type != 'timer':

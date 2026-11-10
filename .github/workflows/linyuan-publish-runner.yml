@@ -1,8 +1,10 @@
-name: 林园发布协调（境内仅上传）
+name: 林园日更四条（CI主传、境内补位）
 on:
   schedule:
     # Backup for the FC clock. The existing slot ledger caps four per day.
     - cron: '2 2,6,8,13 * * *'
+    # A delayed hosted cron or temporary source lease must not lose a slot.
+    - cron: '17,47 * * * *'
   workflow_dispatch:
     inputs:
       preview:
@@ -41,6 +43,8 @@ jobs:
       - name: 安装现有质检依赖（国内投稿依赖保留在 FC）
         run: |
           pip install -q requests numpy pillow 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
+          pip install -q --only-binary=biliup,stream-gears biliup==0.4.91
+          sudo iptables -t mangle -A OUTPUT -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1300
           pip install -q -r linyuan/fc/runtime-requirements.txt
           bash linyuan/ci_install_media_tools.sh
       - name: 按实际库存与原配额发布，未启用时只预检
