@@ -17,6 +17,14 @@ import invoke_reviewed_updates as reviewed
 import state_read
 
 
+@pytest.fixture
+def legacy_publication_backend(monkeypatch):
+    # These cases exercise durable FC task recovery regardless of the live
+    # coordinator switch. Never let a unit test dispatch a real workflow.
+    import fc_cost_policy
+    monkeypatch.setattr(fc_cost_policy,'RUNNER_PUBLISH_ENABLED',False)
+
+
 @pytest.mark.parametrize('error', [ConnectionResetError(), TimeoutError(),
     urllib.error.URLError('reset'), urllib.error.HTTPError('https://test',503,'busy',{},None)])
 def test_read_retries_transient_errors_and_returns_exact_receipt(monkeypatch, error):
@@ -71,7 +79,7 @@ def test_lost_acceptance_is_reconciled_without_another_invocation(monkeypatch):
 
 
 @pytest.mark.parametrize('status',['Failed','Stopped','Expired','Invalid','Running','Unknown'])
-def test_failed_or_unresolved_task_exits_unsuccessfully_and_keeps_receipt(monkeypatch,tmp_path,status):
+def test_failed_or_unresolved_task_exits_unsuccessfully_and_keeps_receipt(monkeypatch,tmp_path,status,legacy_publication_backend):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(catchup,'state',lambda:{})
     monkeypatch.setattr(catchup.fc,'source_inventory',lambda _: {})
@@ -99,7 +107,7 @@ def test_successful_empty_dispatch_and_existing_video_are_not_new_publications(m
     assert receipt['outcome']=='completed_without_new_publication'
 
 
-def test_state_read_failure_preserves_successful_task_for_reconciliation(monkeypatch,tmp_path):
+def test_state_read_failure_preserves_successful_task_for_reconciliation(monkeypatch,tmp_path,legacy_publication_backend):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(catchup,'state',Mock(side_effect=[{},ConnectionResetError()]))
     monkeypatch.setattr(catchup.fc,'source_inventory',lambda _: {})
@@ -118,7 +126,7 @@ def test_fc_terminal_event_exposes_busy_noop_instead_of_empty_return_payload():
     assert catchup.task_result(NS(return_payload='not json')) is None
 
 
-def test_successful_platform_status_without_publication_fails_gate(monkeypatch,tmp_path):
+def test_successful_platform_status_without_publication_fails_gate(monkeypatch,tmp_path,legacy_publication_backend):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(catchup,'state',lambda:{})
     monkeypatch.setattr(catchup.fc,'source_inventory',lambda _: {})
@@ -127,3 +135,22 @@ def test_successful_platform_status_without_publication_fails_gate(monkeypatch,t
     with pytest.raises(SystemExit,match='no new receipt'):catchup.main()
     receipt=json.loads(Path('catchup-receipt.json').read_text())
     assert receipt['function_result']['publisher_busy']==1 and receipt['new_bvids']==[]
+
+
+def test_enabled_ci_clock_requests_one_workflow_without_invoking_fc(monkeypatch,tmp_path):
+    import fc_cost_policy
+    import publish_clock
+    monkeypatch.setattr(fc_cost_policy,'RUNNER_PUBLISH_ENABLED',True)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(catchup,'state',lambda:{})
+    monkeypatch.setattr(catchup.fc,'source_inventory',lambda _: {})
+    monkeypatch.setattr(catchup,'inventory_action',lambda *args:'publish-catchup')
+    request=Mock(return_value={'requested':True})
+    monkeypatch.setattr(publish_clock,'request',request)
+    monkeypatch.setattr(catchup,'run_inventory_task',lambda _:pytest.fail('CI publication must not invoke FC'))
+    monkeypatch.setattr(catchup.fc,'gh',Mock(side_effect=AssertionError('Unit tests must not access the network')))
+    catchup.main()
+    request.assert_called_once_with(catchup.fc.gh)
+    receipt=json.loads(Path('catchup-receipt.json').read_text())
+    assert receipt['backend']=='github'
+    assert receipt['outcome']=='publisher_workflow_requested' and receipt['new_bvids']==[]
