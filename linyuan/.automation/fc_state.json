@@ -117100,7 +117100,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-09-01T14:51:39+00:00"
+   "publish_time": "2021-09-01T14:51:39+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1110-6bbaa3",
+    "run_id": 42812415238,
+    "artifact_id": 13763989120,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6cb496600939113f3d36bc627ad8eb8af0fa56cca80fe6dc0d6bd92f91fc82bb",
+     "duration_sec": 603.07,
+     "resolution": {
+      "width": 1920,
+      "height": 1072,
+      "short_edge": 1072
+     },
+     "source_url": "https://www.bilibili.com/video/BV1gU4y1776s"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不通，疑似识别污染。\"}, {\"sentence_id\": 9, \"quote\": \"啊，只是他们这个这现在中国这个，这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个医药企业的效率是不好。\", \"suspect_quote\": \"不是有序的竞争\", \"kind\": \"ambiguous_n"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42812415238,
+    "artifact_id": 13763989120,
+    "name": "production-reject-ly-1110-6bbaa3",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不通，疑似识别污染。\"}, {\"sentence_id\": 9, \"quote\": \"啊，只是他们这个这现在中国这个，这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个医药企业的效率是不好。\", \"suspect_quote\": \"不是有序的竞争\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定结构“不是”与后续描述存在逻辑矛盾或识别不清，需核实原意。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -224624,6 +224657,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/lSIYVG3jlx08CgksGQ0o0104120099pi0E010.mp4",
    "ts": 1794311776,
    "error": "与已发布内容文字指纹重复：转写片段重合 83%（BV1MZxN6FEEs）"
+  },
+  {
+   "slug": "ly-1110-6bbaa3",
+   "key": "bilibili_search:BV1gU4y1776s",
+   "video_id": "BV1gU4y1776s",
+   "ts": 1794313714,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 6, \"quote\": \"十年之内，中国这个医药企业一定要产产生这个全世界的这个做到第一的。\", \"suspect_quote\": \"产产生\", \"kind\": \"unintelligible_term\", \"reason\": \"重复用词导致语义不通，疑似识别污染。\"}, {\"sentence_id\": 9, \"quote\": \"啊，只是他们这个这现在中国这个，这个就是，不是有序的竞争，现在没有形成这个这个行业的寡头，所以它就是这个医药企业的效率是不好。\", \"suspect_quote\": \"不是有序的竞争\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定结构“不是”与后续描述存在逻辑矛盾或识别不清，需核实原意。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
