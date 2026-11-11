@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794380111,
+  "updated_at": 1794380343,
   "inventory_updated_at": 1794380103,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 136,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 5,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -265,16 +265,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794380109,
+    "updated_at": 1794380341,
     "records": 17373,
     "video_records": 14835,
-    "initial_candidates": 190,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 189,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3795,
+      "already_attempted_or_cooling": 3796,
       "speaker_unconfirmed": 8837,
       "unrelated": 82,
       "clip_title": 1490,
@@ -287,14 +287,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV13XWL6xEKj",
-        "title": "林园：白酒总销量在减少，但行业龙头的增长空间还很大",
-        "source": "bilibili_search",
-        "author": "雷达财经",
-        "url": "https://www.bilibili.com/video/BV13XWL6xEKj",
-        "duration_sec": 24.0
-      },
       {
         "key": "bilibili_search:BV1hY4y1g7mP",
         "title": "林园 P1 林园：谈疫苗概念的板块赛道",
@@ -343,15 +335,15 @@
   },
   "counts": {
     "complete": 196,
-    "failed": 2375,
+    "failed": 2376,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 153,
     "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -51938,11 +51930,11 @@
     },
     {
       "slug": "ly-1111-9a146c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 50%（BV1254n6qETb）",
       "signature": {
         "ts": 1794379473,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -52007,6 +51999,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42975397900",
       "run_started_at": "2026-11-11T06:51:55Z",
       "run_updated_at": "2026-11-11T06:51:59Z"
+    },
+    {
+      "slug": "ly-1111-a7102d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794380299,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42976113759,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42976113759",
+      "run_started_at": "2026-11-11T06:58:19Z",
+      "run_updated_at": "2026-11-11T06:58:23Z"
     }
   ],
   "runs": {
@@ -79168,6 +79178,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42971334796",
       "run_number": 4353,
       "display_title": "中文源出片 · ly-story-200b33fbac"
+    },
+    "ly-1111-a7102d": {
+      "id": 42976113759,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T06:58:19Z",
+      "updated_at": "2026-11-11T06:58:23Z",
+      "run_started_at": "2026-11-11T06:58:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42976113759",
+      "run_number": 4362,
+      "display_title": "中文源出片 · ly-1111-a7102d"
     },
     "ly-1111-e56c11": {
       "id": 42975397900,
