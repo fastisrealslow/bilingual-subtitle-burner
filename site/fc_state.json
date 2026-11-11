@@ -120964,7 +120964,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-24T08:24:46+00:00"
+   "publish_time": "2026-05-24T08:24:46+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-20c897",
+    "run_id": 42973213036,
+    "artifact_id": 13834628298,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "88553a7f78ce12bdf63da8c1312c6aa5871575282d24261ce5e78e770039c030",
+     "duration_sec": 309.7,
+     "resolution": {
+      "width": 960,
+      "height": 1920,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1kZGj6DE53"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42973213036,
+    "artifact_id": 13834628298,
+    "name": "production-reject-ly-1111-20c897",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5364075290690722",
@@ -120987,7 +121020,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T14:31:12+08:00"
+   "publish_time": "2026-11-11T14:31:12+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42974535827,
+    "artifact_id": 13834842827,
+    "name": "source-reject-ly-1111-78fe1a",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5364042082290997",
@@ -230191,6 +230234,20 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/3lu7h1hnlzv/SD/3lu7h1hnlzv-mobile.mp4",
    "ts": 1794371081,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1111-78fe1a",
+   "key": "weibo_search:5364075290690722",
+   "video_id": "https://f.video.weibocdn.com/u0/ZlS5Jjelgx08ChBLPurK01041200jMg10E010.mp4",
+   "ts": 1794379841,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1111-20c897",
+   "key": "bilibili_search:BV1kZGj6DE53",
+   "video_id": "BV1kZGj6DE53",
+   "ts": 1794379842,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
