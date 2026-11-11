@@ -122112,7 +122112,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5364116043861979",
@@ -122168,7 +122169,8 @@
    },
    "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5364133503437451",
@@ -122224,7 +122226,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5364132569678148",
@@ -122281,7 +122284,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T18:02:26+08:00"
+   "publish_time": "2026-11-11T18:02:26+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-87fe35",
+    "run_id": 43022015743,
+    "artifact_id": 13855811616,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e6cb40950ae279cf5ef823f90c5735ded4f7e59fb7721fe9870dab52880531b6",
+     "duration_sec": 29.19,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5364128451660551"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43022015743,
+    "artifact_id": 13855811616,
+    "name": "production-reject-ly-1111-87fe35",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -231990,6 +232026,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/qJjwgBOalx08ChMUoKvu010412006yQN0E010.mp4",
    "ts": 1794401015,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1111-87fe35",
+   "key": "weibo_search:5364128451660551",
+   "video_id": "https://f.video.weibocdn.com/o0/rolYs4Edlx08ChQisf3i01041200ebzr0E010.mp4",
+   "ts": 1794401469,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
