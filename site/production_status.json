@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794363863,
+  "updated_at": 1794364082,
   "inventory_updated_at": 1794363854,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 135,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -265,17 +265,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794363861,
+    "updated_at": 1794364080,
     "records": 17348,
     "video_records": 14810,
-    "initial_candidates": 186,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 185,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 3783,
       "speaker_unconfirmed": 8829,
-      "already_attempted_or_cooling": 3782,
       "unrelated": 82,
       "clip_title": 1490,
       "no_video": 2538,
@@ -286,16 +286,7 @@
       "too_short": 149,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5363990777564087",
-        "title": "#财经# 【林园：从军工到AI 企业发展是由需求端决定的】#微博视频号续航计划# http://t.cn/AXYO17i",
-        "source": "weibo_search",
-        "author": "资本大事纪",
-        "url": "https://m.weibo.cn/detail/5363990777564087",
-        "duration_sec": 136.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 135,
@@ -313,13 +304,13 @@
     "complete": 196,
     "failed": 2368,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 151,
     "ready": 43,
     "validation_failed": 2,
-    "retry_queued": 1,
-    "running": 1
+    "retry_queued": 2,
+    "running": 2
   },
   "tasks": [
     {
@@ -51708,14 +51699,14 @@
     },
     {
       "slug": "ly-1110-28b2bb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794361536,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794365794,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -51723,6 +51714,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42941254483",
       "run_started_at": "2026-11-11T01:45:36Z",
       "run_updated_at": "2026-11-11T02:21:49Z"
+    },
+    {
+      "slug": "ly-1111-997753",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794364064,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42946178312,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42946178312",
+      "run_started_at": "2026-11-11T02:27:44Z",
+      "run_updated_at": "2026-11-11T02:27:49Z"
     }
   ],
   "runs": {
@@ -78774,6 +78783,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42941254483",
       "run_number": 4346,
       "display_title": "中文源出片 · ly-1110-28b2bb"
+    },
+    "ly-1111-997753": {
+      "id": 42946178312,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T02:27:44Z",
+      "updated_at": "2026-11-11T02:27:49Z",
+      "run_started_at": "2026-11-11T02:27:44Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42946178312",
+      "run_number": 4347,
+      "display_title": "中文源出片 · ly-1111-997753"
     },
     "ly-1111-4e0f80": {
       "id": 42938786425,
