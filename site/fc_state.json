@@ -120991,7 +120991,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1uh4y1e7Tk",
@@ -121471,7 +121472,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-06-23T07:06:00+00:00"
+   "publish_time": "2022-06-23T07:06:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-2ea2db",
+    "run_id": 42976905569,
+    "artifact_id": 13836788640,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cf503f61ca7babcf126fca127a2d21a7fa7bd669ed0b08c5d7b8af3d7c119210",
+     "duration_sec": 153.0,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1hY4y1g7mP"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "成片存在持续黑色填充边"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42976905569,
+    "artifact_id": 13836788640,
+    "name": "production-reject-ly-1111-2ea2db",
+    "retained": true
+   },
+   "last_error": "成片存在持续黑色填充边",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV16dNv6JEQe",
@@ -121611,7 +121645,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1Aan96CEyB）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VGAHCFMU6",
@@ -121634,7 +121669,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T13:37"
+   "publish_time": "2026-11-11T13:37",
+   "production_failure_summary": {
+    "slug": "ly-1111-6d37a9",
+    "run_id": 42979113910,
+    "artifact_id": 13836683680,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e6523099c0c22be96f19d95615a637778e33b45d07db56e83a9e81e049768f93",
+     "duration_sec": 20.93,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1111-6d37a9.mp4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配41/144，总帧数512；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42979113910,
+    "artifact_id": 13836683680,
+    "name": "production-reject-ly-1111-6d37a9",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配41/144，总帧数512；身份匹配但人脸短边不足96px的帧数0",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VGAH7VR4A",
@@ -121657,7 +121725,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T12:18"
+   "publish_time": "2026-11-11T12:18",
+   "production_failure_summary": {
+    "slug": "ly-1111-c2867b",
+    "run_id": 42979153206,
+    "artifact_id": 13836927062,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9a102ede1ae00f1aa81fca1771e89d1bace2d165aa364ec77b81fa76e98ffb67",
+     "duration_sec": 22.77,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1111-c2867b.mp4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 50%（BV1254n6qETb）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42979153206,
+    "artifact_id": 13836927062,
+    "name": "production-reject-ly-1111-c2867b",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 50%（BV1254n6qETb）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -230915,6 +231016,27 @@
    "video_id": "BV1F64y1T7zH",
    "ts": 1794382222,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1111-c2867b",
+   "key": "netease_video:VGAH7VR4A",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/4bfsebl1aek/SD/4bfsebl1aek-mobile.mp4",
+   "ts": 1794382691,
+   "error": "与已发布内容文字指纹重复：转写片段重合 50%（BV1254n6qETb）"
+  },
+  {
+   "slug": "ly-1111-6d37a9",
+   "key": "netease_video:VGAHCFMU6",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/1827vdew2yi/SD/1827vdew2yi-mobile.mp4",
+   "ts": 1794382691,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配41/144，总帧数512；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1111-2ea2db",
+   "key": "bilibili_search:BV1hY4y1g7mP",
+   "video_id": "BV1hY4y1g7mP",
+   "ts": 1794382692,
+   "error": "成片存在持续黑色填充边"
   }
  ],
  "reviewed_third_video_0910": {
