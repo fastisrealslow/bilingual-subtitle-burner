@@ -119661,7 +119661,8 @@
    },
    "last_error": "整段取景预检：源 360.00s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1pduT6nENF",
@@ -119763,7 +119764,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 86%（BV1kSYk6yEx7）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1GT4y1T7XD",
@@ -119819,7 +119821,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1HRXfBNE65",
@@ -119865,7 +119868,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2019-08-28T13:16:41+08:00"
+   "publish_time": "2019-08-28T13:16:41+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42937186602,
+    "artifact_id": 13819445660,
+    "name": "source-reject-ly-1111-668674",
+    "retained": true
+   },
+   "last_error": "原始素材短边 300 < 480（400x300），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -228101,6 +228114,13 @@
    "video_id": "BV1phNw6tEBu",
    "ts": 1794359453,
    "error": "整段取景预检：源 360.00s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1111-668674",
+   "key": "weibo_search:4410251677578956",
+   "video_id": "https://f.video.weibocdn.com/000NgXpBlx07wzstK4UU01041200bnJs0E010.mp4",
+   "ts": 1794359850,
+   "error": "原始素材短边 300 < 480（400x300），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
