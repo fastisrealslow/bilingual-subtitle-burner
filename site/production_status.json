@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794400408,
+  "updated_at": 1794400693,
   "inventory_updated_at": 1794400400,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 136,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -265,16 +265,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794400406,
+    "updated_at": 1794400691,
     "records": 17389,
     "video_records": 14851,
-    "initial_candidates": 186,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 185,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3809,
+      "already_attempted_or_cooling": 3810,
       "speaker_unconfirmed": 8843,
       "unrelated": 82,
       "clip_title": 1490,
@@ -286,16 +286,7 @@
       "too_short": 149,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5364128451660551",
-        "title": "【林园：工业产品质量趋同，最后拼的都是价格】\n近日，深圳林园投资董事长林园在一次访谈中表示，工业产品质量一定越来越趋同，",
-        "source": "weibo_search",
-        "author": "雷达财经",
-        "url": "https://m.weibo.cn/detail/5364128451660551",
-        "duration_sec": 29.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 136,
@@ -311,15 +302,15 @@
   },
   "counts": {
     "complete": 197,
-    "failed": 2389,
+    "failed": 2390,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 10,
     "excluded": 81,
     "experiment_fallback": 153,
     "ready": 43,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 3
+    "running": 1
   },
   "tasks": [
     {
@@ -52140,8 +52131,8 @@
     },
     {
       "slug": "ly-1111-d74f54",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794400106,
         "failed": null,
@@ -52154,12 +52145,12 @@
       "run_id": 43020626300,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020626300",
       "run_started_at": "2026-11-11T12:28:26Z",
-      "run_updated_at": "2026-11-11T12:28:30Z"
+      "run_updated_at": "2026-11-11T12:34:47Z"
     },
     {
       "slug": "ly-1111-e0a663",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794400115,
         "failed": null,
@@ -52172,12 +52163,12 @@
       "run_id": 43020645359,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020645359",
       "run_started_at": "2026-11-11T12:28:34Z",
-      "run_updated_at": "2026-11-11T12:28:39Z"
+      "run_updated_at": "2026-11-11T12:37:47Z"
     },
     {
       "slug": "ly-1111-f31f66",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794400123,
         "failed": null,
@@ -52190,15 +52181,15 @@
       "run_id": 43020664624,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020664624",
       "run_started_at": "2026-11-11T12:28:43Z",
-      "run_updated_at": "2026-11-11T12:28:47Z"
+      "run_updated_at": "2026-11-11T12:34:57Z"
     },
     {
       "slug": "ly-1111-3fd770",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[3, 6]，scan_same=[16]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1946, 2: 0.2786, 3: 0.0903, 4: 0.122, 5: 0.1207, 6: 0.0481, 7: 0.1667, 8: 0.3324, 9: 0.1002, 10: 0.0831, 11: 0.0919, 12: 0.3534, 13: 0.309, 14: -0.0111, 15: 0.0644, 16: 0.5875, 17: 0.2487, 18: 0.2153}",
       "signature": {
         "ts": 1794400133,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -52209,6 +52200,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020687567",
       "run_started_at": "2026-11-11T12:28:52Z",
       "run_updated_at": "2026-11-11T12:31:01Z"
+    },
+    {
+      "slug": "ly-1111-87fe35",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794400679,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43022015743,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43022015743",
+      "run_started_at": "2026-11-11T12:37:59Z",
+      "run_updated_at": "2026-11-11T12:38:07Z"
     }
   ],
   "runs": {
@@ -79536,12 +79545,23 @@
       "run_number": 4376,
       "display_title": "中文源出片 · ly-1111-3fd770"
     },
-    "ly-1111-f31f66": {
-      "id": 43020664624,
+    "ly-1111-87fe35": {
+      "id": 43022015743,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-11T12:37:59Z",
+      "updated_at": "2026-11-11T12:38:07Z",
+      "run_started_at": "2026-11-11T12:37:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43022015743",
+      "run_number": 4377,
+      "display_title": "中文源出片 · ly-1111-87fe35"
+    },
+    "ly-1111-f31f66": {
+      "id": 43020664624,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-11T12:28:43Z",
-      "updated_at": "2026-11-11T12:28:47Z",
+      "updated_at": "2026-11-11T12:34:57Z",
       "run_started_at": "2026-11-11T12:28:43Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020664624",
       "run_number": 4375,
@@ -79549,10 +79569,10 @@
     },
     "ly-1111-e0a663": {
       "id": 43020645359,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-11T12:28:34Z",
-      "updated_at": "2026-11-11T12:28:39Z",
+      "updated_at": "2026-11-11T12:37:47Z",
       "run_started_at": "2026-11-11T12:28:34Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020645359",
       "run_number": 4374,
@@ -79560,10 +79580,10 @@
     },
     "ly-1111-d74f54": {
       "id": 43020626300,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-11T12:28:26Z",
-      "updated_at": "2026-11-11T12:28:30Z",
+      "updated_at": "2026-11-11T12:34:47Z",
       "run_started_at": "2026-11-11T12:28:26Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43020626300",
       "run_number": 4373,
