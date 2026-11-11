@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794370514,
+  "updated_at": 1794370795,
   "inventory_updated_at": 1794370508,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 136,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -265,7 +265,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794370513,
+    "updated_at": 1794370793,
     "records": 17352,
     "video_records": 14814,
     "initial_candidates": 185,
@@ -302,7 +302,7 @@
   },
   "counts": {
     "complete": 196,
-    "failed": 2371,
+    "failed": 2372,
     "paused": 5,
     "interrupted": 8,
     "excluded": 80,
@@ -310,7 +310,7 @@
     "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -51771,11 +51771,11 @@
     },
     {
       "slug": "ly-1111-d88690",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794369932,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51789,8 +51789,8 @@
     },
     {
       "slug": "ly-1111-58b08a",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794370289,
         "failed": null,
@@ -51803,7 +51803,7 @@
       "run_id": 42957598422,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42957598422",
       "run_started_at": "2026-11-11T04:11:29Z",
-      "run_updated_at": "2026-11-11T04:11:33Z"
+      "run_updated_at": "2026-11-11T04:17:59Z"
     }
   ],
   "runs": {
@@ -78902,10 +78902,10 @@
     },
     "ly-1111-58b08a": {
       "id": 42957598422,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-11T04:11:29Z",
-      "updated_at": "2026-11-11T04:11:33Z",
+      "updated_at": "2026-11-11T04:17:59Z",
       "run_started_at": "2026-11-11T04:11:29Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42957598422",
       "run_number": 4352,
