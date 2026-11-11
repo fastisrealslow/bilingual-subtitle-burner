@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 45
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -132,6 +132,21 @@ HOST_BRIDGE = re.compile(
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
     r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
     r'|'+HOST_RECAP)
+
+# A request for the floor is a turn boundary, not part of the preceding
+# investment answer. Require either a situated audience address or explicit
+# 提问/发言; a bare “给我一个机会” can describe a business opportunity.
+FLOOR_REQUEST = re.compile(
+    r'^(?:[嗯啊呃，,\s]|好(?:的)?[，,]?)*'
+    r'(?:(?:这边|那边|前排|后排|现场)的?(?:朋友|观众)[，,\s]*'
+    r'(?:还是|请|麻烦|能不能|可不可以|能否|再|[，,\s])*给我(?:一个|一次)'
+    r'(?:提问|发言)?机会|'
+    r'(?:请|麻烦|能不能|可不可以|能否)(?:再)?给我(?:一个|一次)(?:提问|发言)机会)'
+    r'(?:吧|吗)?[。！？!?，,\s]*$')
+
+
+def host_bridge(text):
+    return HOST_BRIDGE.search(text) or FLOOR_REQUEST.search(text)
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
@@ -367,7 +382,7 @@ def boundary_error(cues,pick):
         if promotional_cta(u['text']):return '选段包含原片带货收尾，须在原始句界结束，不能保留小黄车广告'
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
-        if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
+        if FOLLOWUP.search(u['text']) or (i and host_bridge(u['text'])):
             question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
                 return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
@@ -428,8 +443,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if j is None:
             turn_ends.append(None);continue
         j=min([j]+[t-1 for t in transitions if i<t<=j])
-        j=min([j]+[t-1 for t in range(i+1,j+1) if HOST_BRIDGE.search(units[t]['text'])])
-        while j>i and (HOST_BRIDGE.search(units[j]['text'])
+        j=min([j]+[t-1 for t in range(i+1,j+1) if host_bridge(units[t]['text'])])
+        while j>i and (host_bridge(units[j]['text'])
                 or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])
                 or INCOMPLETE_TAIL.search(units[j]['text'])):j-=1
         turn_ends.append(j)
@@ -523,7 +538,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
                 i in self_sections or
                 speech_opening(units[i]['text']) or i in investment_sections or
                 (whole_source and editorial.CONTENT_POLICY=='reference_v1' and contextual_self_answer(units,cues,i))):continue
-        if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
+        if unresolved_question_tail(units[j]['text']) or host_bridge(units[j]['text']):continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         maximum=720 if whole_source and editorial.CONTENT_POLICY=='reference_v1' else 330
