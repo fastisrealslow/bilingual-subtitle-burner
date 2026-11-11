@@ -119026,7 +119026,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1303/1686，总帧数1910；身份匹配但人脸短边不足96px的帧数43",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1sjW36eEpK",
@@ -119494,7 +119495,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-07-20T11:30:00+00:00"
+   "publish_time": "2023-07-20T11:30:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42933439272,
+    "artifact_id": 13817771396,
+    "name": "source-reject-ly-1111-bc91df",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 474 < 480（854x474），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1FUjW61EcB",
@@ -119517,7 +119528,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-21T00:53:05+00:00"
+   "publish_time": "2026-06-21T00:53:05+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42933455274,
+    "artifact_id": 13817860799,
+    "name": "source-reject-ly-1111-39016c",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4418594047315730",
@@ -227734,6 +227755,20 @@
    "video_id": "BV1EbW36xEQ9",
    "ts": 1794357687,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1303/1686，总帧数1910；身份匹配但人脸短边不足96px的帧数43"
+  },
+  {
+   "slug": "ly-1111-39016c",
+   "key": "bilibili_search:BV1FUjW61EcB",
+   "video_id": "BV1FUjW61EcB",
+   "ts": 1794358200,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1111-bc91df",
+   "key": "bilibili_search:BV1bk4y157Au",
+   "video_id": "BV1bk4y157Au",
+   "ts": 1794358201,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 474 < 480（854x474），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
