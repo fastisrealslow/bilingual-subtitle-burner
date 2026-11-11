@@ -122751,7 +122751,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T18:21"
+   "publish_time": "2026-11-11T18:21",
+   "production_failure_summary": {
+    "slug": "ly-1111-d87d31",
+    "run_id": 43085526588,
+    "artifact_id": 13886796637,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c95374fb402dc48ffe4fa9092499748f2d7c1404d6fddbe9891bdc77ed861f3e",
+     "duration_sec": 22.17,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1111-d87d31.mp4"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43085526588,
+    "artifact_id": 13886796637,
+    "name": "production-reject-ly-1111-d87d31",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -232523,6 +232556,13 @@
    "video_id": "BV1tnxa6uEod",
    "ts": 1794424184,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1111-d87d31",
+   "key": "netease_video:VGAHSOLPR",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/10mzan7xzbe/SD/10mzan7xzbe-mobile.mp4",
+   "ts": 1794425295,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
