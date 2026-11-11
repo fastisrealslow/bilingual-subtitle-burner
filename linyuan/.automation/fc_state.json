@@ -121586,7 +121586,25 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-23T13:26:30+00:00"
+   "publish_time": "2025-10-23T13:26:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-d74f54",
+    "run_id": 42977671458,
+    "artifact_id": 13838770361,
+    "accepted": 0,
+    "source_context": null,
+    "failures": [
+     {
+      "stage": "asr-alignment",
+      "reason": "ASR强制对齐时序无效：core 180，2/141 个词；未形成素材不合格结论"
+     }
+    ]
+   },
+   "source_check_report_id": 13838770361,
+   "source_check_run_id": 42977671458,
+   "last_error": "ASR强制对齐时序无效：core 180，2/141 个词；未形成素材不合格结论",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794395057
   },
   {
    "key": "bilibili_search:BV1Pm421j7f9",
@@ -121703,7 +121721,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配41/144，总帧数512；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VGAH7VR4A",
@@ -121759,7 +121778,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 50%（BV1254n6qETb）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1AusfzUEaX",
@@ -121782,7 +121802,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-25T14:33:59+00:00"
+   "publish_time": "2025-10-25T14:33:59+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42981044490,
+    "artifact_id": 13837941528,
+    "name": "source-reject-ly-1111-636c05",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1cMbPzvEA2",
@@ -121805,7 +121835,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-08-10T10:13:09+00:00"
+   "publish_time": "2025-08-10T10:13:09+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-452ef3",
+    "run_id": 42981060660,
+    "artifact_id": 13837049020,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "83211dee1c8d69c32db74bd4c5f3beda1ab0c619eb04887c88e7a174a6f92e26",
+     "duration_sec": 106.6,
+     "resolution": {
+      "width": 846,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1cMbPzvEA2"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "源视频比选段短0.133秒，须重新核对音视频边界"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42981060660,
+    "artifact_id": 13837049020,
+    "name": "production-reject-ly-1111-452ef3",
+    "retained": true
+   },
+   "last_error": "源视频比选段短0.133秒，须重新核对音视频边界",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -231084,6 +231147,20 @@
    "video_id": "BV1hY4y1g7mP",
    "ts": 1794382692,
    "error": "成片存在持续黑色填充边"
+  },
+  {
+   "slug": "ly-1111-452ef3",
+   "key": "bilibili_search:BV1cMbPzvEA2",
+   "video_id": "BV1cMbPzvEA2",
+   "ts": 1794394154,
+   "error": "源视频比选段短0.133秒，须重新核对音视频边界"
+  },
+  {
+   "slug": "ly-1111-636c05",
+   "key": "bilibili_search:BV1AusfzUEaX",
+   "video_id": "BV1AusfzUEaX",
+   "ts": 1794394155,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
