@@ -1,5 +1,5 @@
 {
-  "run_id": "42922937428",
+  "run_id": "42937994426",
   "processed": 3,
   "inspected": 1,
   "historical_media_verified": 232,
@@ -11,9 +11,22 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -9012,11 +9025,15 @@
       "role": "mother",
       "family": "investor_call",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1794360508.403227,
+      "next_retry_at": 1794382108.403227,
+      "download_partial_bytes": 0
     },
     "f5024389a8958d90f8b7": {
       "url": "https://www.bilibili.com/video/BV1ec4n67EAd",
@@ -9074,11 +9091,15 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1794361108.4294424,
+      "next_retry_at": 1794382708.4294424,
+      "download_partial_bytes": 0
     },
     "7e533bc2874fc8190cd2": {
       "url": "https://www.bilibili.com/video/BV1Vt4x6PEfg",
@@ -9100,11 +9121,15 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1794360808.4167886,
+      "next_retry_at": 1794382408.4167886,
+      "download_partial_bytes": 0
     },
     "53f7c25d45df543247cb": {
       "url": "https://www.bilibili.com/video/BV1iPQuYXEaT",
@@ -9273,14 +9298,11 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
-      "status": "retry_wait",
-      "checked_at": 1794274793.459409,
-      "next_retry_at": 1794355008.535394,
+      "status": "searched",
+      "checked_at": 1794360207.4589586,
+      "next_retry_at": 1794403407.4589586,
       "found": 1,
-      "new_ids": [],
-      "attempts": 1,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1794333408.535394
+      "new_ids": []
     }
   }
 }
