@@ -1,5 +1,5 @@
 {
-  "run_id": "42972015761",
+  "run_id": "42980070256",
   "processed": 3,
   "inspected": 1,
   "historical_media_verified": 232,
@@ -7,13 +7,39 @@
   "pending": 290,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -5582,13 +5608,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 14,
+      "attempts": 15,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793973385.2516637,
-      "next_retry_at": 1794059785.2516637,
+      "last_attempt_at": 1794382866.4798453,
+      "next_retry_at": 1794469266.4798453,
       "download_partial_bytes": 0
     },
     "a1eacc7f2743e2f4fd82": {
@@ -8281,13 +8307,13 @@
       "family": "dadao_2026_06",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1793966180.4495118,
-      "next_retry_at": 1794052580.4495118,
+      "last_attempt_at": 1794382864.201978,
+      "next_retry_at": 1794469264.201978,
       "download_partial_bytes": 0
     },
     "f05504fea6aeae72b301": {
@@ -8779,13 +8805,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1793966178.2729135,
-      "next_retry_at": 1793987778.2729135,
+      "last_attempt_at": 1794382861.4230723,
+      "next_retry_at": 1794426061.4230723,
       "download_partial_bytes": 0
     },
     "f5e4a13c6fea6257eff0": {
@@ -9216,12 +9242,12 @@
     "investor_call|林园 投资者连线 完整版": {
       "status": "retry_wait",
       "checked_at": 1794187405.3650105,
-      "next_retry_at": 1794355008.535394,
+      "next_retry_at": 1794425761.0784514,
       "found": 4,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1794333408.535394
+      "last_attempt_at": 1794382561.0784514
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
       "status": "searched",
