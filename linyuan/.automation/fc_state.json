@@ -120575,7 +120575,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VGAH4THBG",
@@ -120598,7 +120599,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T11:25"
+   "publish_time": "2026-11-11T11:25",
+   "production_failure_summary": {
+    "slug": "ly-1111-58b08a",
+    "run_id": 42957598422,
+    "artifact_id": 13827982641,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d10ea298c180f7b19970f59ada8b5b6220a9755b297a2f6ca6d6f3e28071c80e",
+     "duration_sec": 23.17,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1111-58b08a.mp4"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42957598422,
+    "artifact_id": 13827982641,
+    "name": "production-reject-ly-1111-58b08a",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -229339,6 +229373,13 @@
    "key": "weibo_search:5364028411218200",
    "video_id": "https://f.video.weibocdn.com/o0/Xrghv393lx08Chp0quVy010412008sWg0E010.mp4",
    "ts": 1794370704,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1111-58b08a",
+   "key": "netease_video:VGAH4THBG",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/3lu7h1hnlzv/SD/3lu7h1hnlzv-mobile.mp4",
+   "ts": 1794371081,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
