@@ -120918,7 +120918,80 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-01-13T12:59:49+00:00"
+   "publish_time": "2024-01-13T12:59:49+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-2cae30",
+    "run_id": 42973176495,
+    "artifact_id": 13837011261,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e345112b61c4064d3fbb6932597f81fee9593d4c20a5bd65c67b73e7e0ba4af8",
+     "duration_sec": 1493.73,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1F64y1T7zH"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV1Aan96CEyB）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 为空：原话中主持人提问后，嘉宾回应为感叹、比喻及模糊陈述（如‘走的是一条艺术’），未形成针对‘股神’称号的明确判断或结论性解释；reasoning_range 虽包含连续原句，但内容不构成有效论证支撑 claim。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 65%（BV1MEe46yE8F）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 73%（BV1YAn46mEgJ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 69%（BV1cHeE66Euf）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 76%（BV1kSYk6yEx7）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 88%（BV13QHA6DEar）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：claim_quote 缺失：句 0 包含主持人提问（'您怎么看？'），且嘉宾未对巴菲特、索罗斯的方法给出明确判断性结论（仅说‘他们有，就方法应该都是对的’在句 1，但 claim_range 不能含提问句 0，导致无法形成独立完整的观点证据链；句 1 单独看仅为补充，缺乏前文语境支撑完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1082.77s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42973176495,
+    "artifact_id": 13837011261,
+    "name": "production-reject-ly-1111-2cae30",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1uh4y1e7Tk",
@@ -121501,7 +121574,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-04-14T04:50:48+00:00"
+   "publish_time": "2024-04-14T04:50:48+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-2ce0b4",
+    "run_id": 42977707390,
+    "artifact_id": 13837395306,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9de2c2821868b47a20f9a912a0d910929bda72d918759299c5efb9a94d3bfeb4",
+     "duration_sec": 303.13,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Pm421j7f9"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1Aan96CEyB）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42977707390,
+    "artifact_id": 13837395306,
+    "name": "production-reject-ly-1111-2ce0b4",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1Aan96CEyB）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VGAHCFMU6",
@@ -230791,6 +230901,20 @@
    "video_id": "BV1uh4y1e7Tk",
    "ts": 1794381532,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1111-2ce0b4",
+   "key": "bilibili_search:BV1Pm421j7f9",
+   "video_id": "BV1Pm421j7f9",
+   "ts": 1794382215,
+   "error": "与已发布内容文字指纹重复：转写片段重合 91%（BV1Aan96CEyB）"
+  },
+  {
+   "slug": "ly-1111-2cae30",
+   "key": "bilibili_search:BV1F64y1T7zH",
+   "video_id": "BV1F64y1T7zH",
+   "ts": 1794382222,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
