@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794357970,
+  "updated_at": 1794358326,
   "inventory_updated_at": 1794357964,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 133,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 7,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 4,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794357968,
+    "updated_at": 1794358325,
     "records": 17342,
     "video_records": 14804,
-    "initial_candidates": 192,
-    "duration_eligible_records": 7,
-    "candidate_count": 7,
-    "known_duration_candidates": 7,
+    "initial_candidates": 189,
+    "duration_eligible_records": 4,
+    "candidate_count": 4,
+    "known_duration_candidates": 4,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 8826,
-      "already_attempted_or_cooling": 3773,
+      "already_attempted_or_cooling": 3776,
       "unrelated": 82,
       "clip_title": 1490,
       "no_video": 2538,
@@ -279,30 +279,6 @@
       "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1phNw6tEBu",
-        "title": "林园 P1 林园：未来20年投资方向#林园#投资#股票 #价值投资",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1phNw6tEBu",
-        "duration_sec": 393.0
-      },
-      {
-        "key": "bilibili_search:BV1pduT6nENF",
-        "title": "林园 P1 林园：“择时”当然很重要 #财经#经济#价值投资#林园#股票",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1pduT6nENF",
-        "duration_sec": 124.0
-      },
-      {
-        "key": "bilibili_search:BV1dR4y1J7FD",
-        "title": "林园 P1 1635236841993.mp4",
-        "source": "bilibili_collection",
-        "author": "理财有我",
-        "url": "https://www.bilibili.com/video/BV1dR4y1J7FD",
-        "duration_sec": 165.0
-      },
       {
         "key": "bilibili_search:BV1b87X65E8y",
         "title": "林园 P1 【林园】林园：这次机会很大，比以往都要大几十年难遇！科技股也是方向，但是我不参与！点赞收藏别弄丢了！",
@@ -351,15 +327,15 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2359,
+    "failed": 2361,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 151,
     "ready": 42,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 2
+    "running": 5
   },
   "tasks": [
     {
@@ -51550,11 +51526,11 @@
     },
     {
       "slug": "ly-1111-bc91df",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 474 < 480（854x474），画质不达标",
       "signature": {
         "ts": 1794357741,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51568,11 +51544,11 @@
     },
     {
       "slug": "ly-1111-39016c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1794357748,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51601,6 +51577,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933471582",
       "run_started_at": "2026-11-11T00:42:35Z",
       "run_updated_at": "2026-11-11T00:42:39Z"
+    },
+    {
+      "slug": "ly-1111-d54f5b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794358260,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42934552272,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42934552272",
+      "run_started_at": "2026-11-11T00:51:00Z",
+      "run_updated_at": "2026-11-11T00:51:04Z"
+    },
+    {
+      "slug": "ly-1111-892724",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794358273,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42934579262,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42934579262",
+      "run_started_at": "2026-11-11T00:51:13Z",
+      "run_updated_at": "2026-11-11T00:51:17Z"
+    },
+    {
+      "slug": "ly-1111-3bece7",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794358281,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42934596591,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42934596591",
+      "run_started_at": "2026-11-11T00:51:21Z",
+      "run_updated_at": "2026-11-11T00:51:25Z"
     }
   ],
   "runs": {
@@ -78521,17 +78551,6 @@
       "run_number": 4324,
       "display_title": "中文源出片 · ly-1110-8c025e"
     },
-    "ly-1111-c23201": {
-      "id": 42933471582,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-11T00:42:35Z",
-      "updated_at": "2026-11-11T00:42:39Z",
-      "run_started_at": "2026-11-11T00:42:35Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933471582",
-      "run_number": 4336,
-      "display_title": "中文源出片 · ly-1111-c23201"
-    },
     "ly-1111-39016c": {
       "id": 42933455274,
       "status": "completed",
@@ -78553,6 +78572,50 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933439272",
       "run_number": 4334,
       "display_title": "中文源出片 · ly-1111-bc91df"
+    },
+    "ly-1111-3bece7": {
+      "id": 42934596591,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:51:21Z",
+      "updated_at": "2026-11-11T00:51:25Z",
+      "run_started_at": "2026-11-11T00:51:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42934596591",
+      "run_number": 4339,
+      "display_title": "中文源出片 · ly-1111-3bece7"
+    },
+    "ly-1111-892724": {
+      "id": 42934579262,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:51:13Z",
+      "updated_at": "2026-11-11T00:51:17Z",
+      "run_started_at": "2026-11-11T00:51:13Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42934579262",
+      "run_number": 4338,
+      "display_title": "中文源出片 · ly-1111-892724"
+    },
+    "ly-1111-d54f5b": {
+      "id": 42934552272,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:51:00Z",
+      "updated_at": "2026-11-11T00:51:04Z",
+      "run_started_at": "2026-11-11T00:51:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42934552272",
+      "run_number": 4337,
+      "display_title": "中文源出片 · ly-1111-d54f5b"
+    },
+    "ly-1111-c23201": {
+      "id": 42933471582,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:42:35Z",
+      "updated_at": "2026-11-11T00:42:39Z",
+      "run_started_at": "2026-11-11T00:42:35Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933471582",
+      "run_number": 4336,
+      "display_title": "中文源出片 · ly-1111-c23201"
     },
     "ly-1110-28b2bb": {
       "id": 42919170301,
