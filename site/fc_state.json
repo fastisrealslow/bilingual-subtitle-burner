@@ -122871,22 +122871,40 @@
    "publish_time": "2026-11-11T18:01",
    "production_failure_summary": {
     "slug": "ly-1111-3a9cc9",
-    "run_id": 43087792594,
-    "artifact_id": 13887557381,
+    "run_id": 43092524996,
+    "artifact_id": 13889592730,
     "accepted": 0,
-    "source_context": null,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "2cfdcfdf6e95dd4adfcbe25a4d947af096dc0a6860bb16be25bfce1fbf707802",
+     "duration_sec": 29.25,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1111-3a9cc9.mp4"
+    },
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：asr_prepare"
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
      }
     ]
    },
    "source_check_report_id": 13887557381,
    "source_check_run_id": 43087792594,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：asr_prepare",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43092524996,
+    "artifact_id": 13889592730,
+    "name": "production-reject-ly-1111-3a9cc9",
+    "retained": true
+   },
+   "source_quality_rejected": true
   }
  ],
  "makeup_receipts": {
@@ -232672,6 +232690,13 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/3dou8btx93s/SD/3dou8btx93s-mobile.mp4",
    "ts": 1794425822,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1111-3a9cc9",
+   "key": "netease_video:VGAHRJVOP",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/0hbq7rjwp1d/SD/0hbq7rjwp1d-mobile.mp4",
+   "ts": 1794427995,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
