@@ -120941,7 +120941,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-09-16T09:14:36+00:00"
+   "publish_time": "2023-09-16T09:14:36+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-e260f9",
+    "run_id": 42973195498,
+    "artifact_id": 13835384801,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "47405f8a26c22e2e1f6c9fd24508980a36bac70494f48045dc15c056e23d240a",
+     "duration_sec": 815.27,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1uh4y1e7Tk"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1yxxX6xEAU）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 470.33s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42973195498,
+    "artifact_id": 13835384801,
+    "name": "production-reject-ly-1111-e260f9",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1kZGj6DE53",
@@ -121316,7 +121373,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1hY4y1g7mP",
@@ -121362,7 +121420,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-15T04:04:00+00:00"
+   "publish_time": "2026-07-15T04:04:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-801291",
+    "run_id": 42976926607,
+    "artifact_id": 13836865518,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d216a26e33af2091ea864bf13daf7e6bb4bf5d09490416b38296a242d9f8c006",
+     "duration_sec": 45.97,
+     "resolution": {
+      "width": 720,
+      "height": 1280,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV16dNv6JEQe"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：claim_quote 为空：主持人提问（句 0）后，嘉宾虽口头回应‘有啊’，但后续内容（句 4-7）逻辑混乱，先提夜总会再提钓鱼，且句 5‘就是您主要精力是花在钓鱼’明显是将话题抛回给主持人或误听，未形成针对‘兴趣爱好’的完整、连贯的判断。结尾句 7 描述跳舞时间，与主题脱节，整体表达断裂，属于必要论述被切断（句 5 转折突兀）及指代不明（句 5 中‘您’指代不清，是问嘉宾还是主持人？），不符合独立成片要求。；原文问题：[[\"就是您主要精力是花在钓鱼。\", \"句中‘就是您主要精力是花在钓鱼’存在严重歧义：若‘您’指主持人，则与上下文（嘉宾谈自己爱好）矛盾；若指嘉"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 42976926607,
+    "artifact_id": 13836865518,
+    "name": "production-reject-ly-1111-801291",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：claim_quote 为空：主持人提问（句 0）后，嘉宾虽口头回应‘有啊’，但后续内容（句 4-7）逻辑混乱，先提夜总会再提钓鱼，且句 5‘就是您主要精力是花在钓鱼’明显是将话题抛回给主持人或误听，未形成针对‘兴趣爱好’的完整、连贯的判断。结尾句 7 描述跳舞时间，与主题脱节，整体表达断裂，属于必要论述被切断（句 5 转折突兀）及指代不明（句 5 中‘您’指代不清，是问嘉宾还是主持人？），不符合独立成片要求。；原文问题：[[\"就是您主要精力是花在钓鱼。\", \"句中‘就是您主要精力是花在钓鱼’存在严重歧义：若‘您’指主持人，则与上下文（嘉宾谈自己爱好）矛盾；若指嘉宾自己，则用词不当（应为‘我’）。此句导致观点主体混乱，影响理解，需音频复核确认原话。\"]]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1LzsGzrEiD",
@@ -230638,6 +230729,20 @@
    "video_id": "BV13XWL6xEKj",
    "ts": 1794380964,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1111-801291",
+   "key": "bilibili_search:BV16dNv6JEQe",
+   "video_id": "BV16dNv6JEQe",
+   "ts": 1794381528,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：claim_quote 为空：主持人提问（句 0）后，嘉宾虽口头回应‘有啊’，但后续内容（句 4-7）逻辑混乱，先提夜总会再提钓鱼，且句 5‘就是您主要精力是花在钓鱼’明显是将话题抛回给主持人或误听，未形成针对‘兴趣爱好’的完整、连贯的判断。结尾句 7 描述跳舞时间，与主题脱节，整体表达断裂，属于必要论述被切断（句 5 转折突兀）及指代不明（句 5 中‘您’指代不清，是问嘉宾还是主持人？），不符合独立成片要求。；原文问题：[[\"就是您主要精力是花在钓鱼。\", \"句中‘就是您主要精力是花在钓鱼’存在严重歧义：若‘您’指主持人，则与上下文（嘉宾谈自己爱好）矛盾；若指嘉宾自己，则用词不当（应为‘我’）。此句导致观点主体混乱，影响理解，需音频复核确认原话。\"]]"
+  },
+  {
+   "slug": "ly-1111-e260f9",
+   "key": "bilibili_search:BV1uh4y1e7Tk",
+   "video_id": "BV1uh4y1e7Tk",
+   "ts": 1794381532,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
