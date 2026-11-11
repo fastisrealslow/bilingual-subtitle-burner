@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794389727,
-  "inventory_updated_at": 1794389689,
+  "updated_at": 1794395210,
+  "inventory_updated_at": 1794395204,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 136,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -265,16 +265,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794389725,
+    "updated_at": 1794395208,
     "records": 17378,
     "video_records": 14840,
-    "initial_candidates": 186,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 185,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3804,
+      "already_attempted_or_cooling": 3805,
       "speaker_unconfirmed": 8837,
       "unrelated": 82,
       "clip_title": 1490,
@@ -286,16 +286,7 @@
       "too_short": 149,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5364084208042205",
-        "title": "林园：不涨那就睡觉等！ http://t.cn/AXYWBGSv ​​​",
-        "source": "weibo_search",
-        "author": "夏正阳1990",
-        "url": "https://m.weibo.cn/detail/5364084208042205",
-        "duration_sec": 43.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 136,
@@ -311,14 +302,14 @@
   },
   "counts": {
     "complete": 196,
-    "failed": 2387,
+    "failed": 2389,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 153,
-    "ready": 44,
+    "ready": 45,
     "validation_failed": 2,
-    "retry_queued": 1
+    "retry_queued": 2
   },
   "tasks": [
     {
@@ -52031,14 +52022,14 @@
     },
     {
       "slug": "ly-1111-d74f54",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794381086,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794395057,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -52103,11 +52094,11 @@
     },
     {
       "slug": "ly-1111-636c05",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标",
       "signature": {
         "ts": 1794382748,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -52121,11 +52112,11 @@
     },
     {
       "slug": "ly-1111-452ef3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "源视频比选段短0.133秒，须重新核对音视频边界",
       "signature": {
         "ts": 1794382756,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -52136,6 +52127,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42981060660",
       "run_started_at": "2026-11-11T07:39:16Z",
       "run_updated_at": "2026-11-11T07:49:23Z"
+    },
+    {
+      "slug": "ly-1111-06cf5c",
+      "status": "ready",
+      "detail": "1 条成片已验收，等待发布时段及配额",
+      "signature": {
+        "ts": 1794394220,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43006942883,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43006942883",
+      "run_started_at": "2026-11-11T10:50:20Z",
+      "run_updated_at": "2026-11-11T11:03:49Z"
     }
   ],
   "runs": {
@@ -79451,6 +79460,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42977671458",
       "run_number": 4365,
       "display_title": "中文源出片 · ly-1111-d74f54"
+    },
+    "ly-1111-06cf5c": {
+      "id": 43006942883,
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-11T10:50:20Z",
+      "updated_at": "2026-11-11T11:03:49Z",
+      "run_started_at": "2026-11-11T10:50:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43006942883",
+      "run_number": 4371,
+      "display_title": "中文源出片 · ly-1111-06cf5c"
     }
   }
 }
