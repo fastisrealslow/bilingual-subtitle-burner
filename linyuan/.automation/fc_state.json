@@ -123000,7 +123000,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-24T12:40:00+00:00"
+   "publish_time": "2022-05-24T12:40:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-0f6cda",
+    "run_id": 43108345159,
+    "artifact_id": 13895592881,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "4bc7947dbd3edd584e21bec8d28295a4c5fc7fbefd117a606f43b3b538e0a48a",
+     "duration_sec": 240.4,
+     "resolution": {
+      "width": 1468,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV14Y4y1t7m3"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43108345159,
+    "artifact_id": 13895592881,
+    "name": "production-reject-ly-1111-0f6cda",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1B54y1x7RM",
@@ -123023,7 +123056,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-03T03:08:53+00:00"
+   "publish_time": "2021-01-03T03:08:53+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-c4a8e8",
+    "run_id": 43108365061,
+    "artifact_id": 13896171718,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "962b32dd8eb2e0487b9d2dda7d5079747ebe102f7095e41adcaecd74a9c92fa3",
+     "duration_sec": 120.97,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1B54y1x7RM"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43108365061,
+    "artifact_id": 13896171718,
+    "name": "production-reject-ly-1111-c4a8e8",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1ZAUGBUEzq",
@@ -123113,7 +123179,8 @@
    },
    "last_error": "整段取景预检：源 20.00s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1sh41187pz",
@@ -123159,7 +123226,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-08-23T00:25:39+00:00"
+   "publish_time": "2025-08-23T00:25:39+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43110645030,
+    "artifact_id": 13896975408,
+    "name": "source-reject-ly-1111-ea442c",
+    "retained": true
+   },
+   "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1Sm421E7bn",
@@ -233035,6 +233112,27 @@
    "video_id": "BV1Jf1AYFE4S",
    "ts": 1794435449,
    "error": "整段取景预检：源 20.00s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1111-ea442c",
+   "key": "bilibili_search:BV1Keevz2EAR",
+   "video_id": "BV1Keevz2EAR",
+   "ts": 1794436064,
+   "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
+  },
+  {
+   "slug": "ly-1111-c4a8e8",
+   "key": "bilibili_search:BV1B54y1x7RM",
+   "video_id": "BV1B54y1x7RM",
+   "ts": 1794436068,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1111-0f6cda",
+   "key": "bilibili_search:BV14Y4y1t7m3",
+   "video_id": "BV14Y4y1t7m3",
+   "ts": 1794436069,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
