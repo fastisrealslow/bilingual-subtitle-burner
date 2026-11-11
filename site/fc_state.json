@@ -122728,7 +122728,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T17:14"
+   "publish_time": "2026-11-11T17:14",
+   "production_failure_summary": {
+    "slug": "ly-1111-7dbf5f",
+    "run_id": 43085468644,
+    "artifact_id": 13887400656,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d658238491aaa0edb0773e5363ee31d6f8cc0d9069b27c1ad8b58ee63b01f5c4",
+     "duration_sec": 25.09,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1111-7dbf5f.mp4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43085468644,
+    "artifact_id": 13887400656,
+    "name": "production-reject-ly-1111-7dbf5f",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "netease_video:VGAHSOLPR",
@@ -232605,6 +232638,13 @@
    "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/10mzan7xzbe/SD/10mzan7xzbe-mobile.mp4",
    "ts": 1794425295,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1111-7dbf5f",
+   "key": "netease_video:VGAHOSSK4",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/11/3dou8btx93s/SD/3dou8btx93s-mobile.mp4",
+   "ts": 1794425822,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
