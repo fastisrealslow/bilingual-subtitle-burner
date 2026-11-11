@@ -122511,7 +122511,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1EqWL6iEVS",
@@ -122567,7 +122568,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配50/174，总帧数617；身份匹配但人脸短边不足96px的帧数0",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1VBW167EZY",
@@ -122590,7 +122592,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T13:51:00+00:00"
+   "publish_time": "2026-11-11T13:51:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43082183747,
+    "artifact_id": 13884737991,
+    "name": "source-reject-ly-1111-a3c485",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1GzW162Ebc",
@@ -122613,7 +122625,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T12:47:00+00:00"
+   "publish_time": "2026-11-11T12:47:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43082208217,
+    "artifact_id": 13884068562,
+    "name": "source-reject-ly-1111-57d0de",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -232357,6 +232379,20 @@
    "video_id": "BV1QpWy6zEo6",
    "ts": 1794423214,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1111-57d0de",
+   "key": "bilibili_search:BV1GzW162Ebc",
+   "video_id": "BV1GzW162Ebc",
+   "ts": 1794423653,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1111-a3c485",
+   "key": "bilibili_search:BV1VBW167EZY",
+   "video_id": "BV1VBW167EZY",
+   "ts": 1794423654,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
