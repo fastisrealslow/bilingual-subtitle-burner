@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794357542,
+  "updated_at": 1794357797,
   "inventory_updated_at": 1794357536,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 134,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 7,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -257,17 +257,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794357541,
-    "records": 17316,
-    "video_records": 14778,
-    "initial_candidates": 185,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1794357796,
+    "records": 17342,
+    "video_records": 14804,
+    "initial_candidates": 192,
+    "duration_eligible_records": 7,
+    "candidate_count": 7,
+    "known_duration_candidates": 7,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 8825,
-      "already_attempted_or_cooling": 3755,
+      "speaker_unconfirmed": 8826,
+      "already_attempted_or_cooling": 3773,
       "unrelated": 82,
       "clip_title": 1490,
       "no_video": 2538,
@@ -278,7 +278,64 @@
       "too_short": 149,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1phNw6tEBu",
+        "title": "林园 P1 林园：未来20年投资方向#林园#投资#股票 #价值投资",
+        "source": "bilibili_collection",
+        "author": "价值投资和科技股",
+        "url": "https://www.bilibili.com/video/BV1phNw6tEBu",
+        "duration_sec": 393.0
+      },
+      {
+        "key": "bilibili_search:BV1pduT6nENF",
+        "title": "林园 P1 林园：“择时”当然很重要 #财经#经济#价值投资#林园#股票",
+        "source": "bilibili_collection",
+        "author": "价值投资和科技股",
+        "url": "https://www.bilibili.com/video/BV1pduT6nENF",
+        "duration_sec": 124.0
+      },
+      {
+        "key": "bilibili_search:BV1dR4y1J7FD",
+        "title": "林园 P1 1635236841993.mp4",
+        "source": "bilibili_collection",
+        "author": "理财有我",
+        "url": "https://www.bilibili.com/video/BV1dR4y1J7FD",
+        "duration_sec": 165.0
+      },
+      {
+        "key": "bilibili_search:BV1b87X65E8y",
+        "title": "林园 P1 【林园】林园：这次机会很大，比以往都要大几十年难遇！科技股也是方向，但是我不参与！点赞收藏别弄丢了！",
+        "source": "bilibili_collection",
+        "author": "唐晶晶的价值观",
+        "url": "https://www.bilibili.com/video/BV1b87X65E8y",
+        "duration_sec": 121.0
+      },
+      {
+        "key": "bilibili_search:BV1GT4y1T7XD",
+        "title": "林园 P1 大佬林园：熊末牛初的市场特点，就是少数股先大涨",
+        "source": "bilibili_collection",
+        "author": "旺财学堂",
+        "url": "https://www.bilibili.com/video/BV1GT4y1T7XD",
+        "duration_sec": 84.0
+      },
+      {
+        "key": "bilibili_search:BV1HRXfBNE65",
+        "title": "林园 P1 林园：怎么克服别的股票涨，自己股票不涨？我的方法就是等，睡大觉不去看盘。除非游资的超短线龙头战法，否则你只能",
+        "source": "bilibili_collection",
+        "author": "我真的是大川啊",
+        "url": "https://www.bilibili.com/video/BV1HRXfBNE65",
+        "duration_sec": 90.0
+      },
+      {
+        "key": "weibo_search:4410251677578956",
+        "title": "#林园炒股秘籍# “公司的经营情况，决定公司的股价……A股一千多家上市公司，符合我标准的，很少，也就二十来家”。2007",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4410251677578956",
+        "duration_sec": 147.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 134,
@@ -294,15 +351,15 @@
   },
   "counts": {
     "complete": 195,
-    "failed": 2358,
+    "failed": 2359,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 80,
     "experiment_fallback": 151,
     "ready": 42,
     "validation_failed": 2,
     "retry_queued": 1,
-    "running": 1
+    "running": 4
   },
   "tasks": [
     {
@@ -51313,11 +51370,11 @@
     },
     {
       "slug": "ly-1110-8c025e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1303/1686，总帧数1910；身份匹配但人脸短边不足96px的帧数43",
       "signature": {
         "ts": 1794351446,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -51490,6 +51547,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42924135942",
       "run_started_at": "2026-11-10T23:31:57Z",
       "run_updated_at": "2026-11-10T23:48:59Z"
+    },
+    {
+      "slug": "ly-1111-bc91df",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794357741,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42933439272,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933439272",
+      "run_started_at": "2026-11-11T00:42:20Z",
+      "run_updated_at": "2026-11-11T00:42:24Z"
+    },
+    {
+      "slug": "ly-1111-39016c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794357748,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42933455274,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933455274",
+      "run_started_at": "2026-11-11T00:42:28Z",
+      "run_updated_at": "2026-11-11T00:42:33Z"
+    },
+    {
+      "slug": "ly-1111-c23201",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794357756,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 42933471582,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933471582",
+      "run_started_at": "2026-11-11T00:42:35Z",
+      "run_updated_at": "2026-11-11T00:42:39Z"
     }
   ],
   "runs": {
@@ -78409,6 +78520,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42919191894",
       "run_number": 4324,
       "display_title": "中文源出片 · ly-1110-8c025e"
+    },
+    "ly-1111-c23201": {
+      "id": 42933471582,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:42:35Z",
+      "updated_at": "2026-11-11T00:42:39Z",
+      "run_started_at": "2026-11-11T00:42:35Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933471582",
+      "run_number": 4336,
+      "display_title": "中文源出片 · ly-1111-c23201"
+    },
+    "ly-1111-39016c": {
+      "id": 42933455274,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:42:28Z",
+      "updated_at": "2026-11-11T00:42:33Z",
+      "run_started_at": "2026-11-11T00:42:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933455274",
+      "run_number": 4335,
+      "display_title": "中文源出片 · ly-1111-39016c"
+    },
+    "ly-1111-bc91df": {
+      "id": 42933439272,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T00:42:20Z",
+      "updated_at": "2026-11-11T00:42:24Z",
+      "run_started_at": "2026-11-11T00:42:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/42933439272",
+      "run_number": 4334,
+      "display_title": "中文源出片 · ly-1111-bc91df"
     },
     "ly-1110-28b2bb": {
       "id": 42919170301,
