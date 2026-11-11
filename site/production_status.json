@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794419911,
+  "updated_at": 1794420241,
   "inventory_updated_at": 1794419902,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 135,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -265,16 +265,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794419909,
+    "updated_at": 1794420239,
     "records": 17392,
     "video_records": 14854,
-    "initial_candidates": 187,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "initial_candidates": 185,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 3811,
+      "already_attempted_or_cooling": 3813,
       "speaker_unconfirmed": 8843,
       "unrelated": 82,
       "clip_title": 1490,
@@ -286,24 +286,7 @@
       "too_short": 149,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5364082758912838",
-        "title": "林园：工业品牌贬值很快！ http://t.cn/AXYW1qmG ​​​",
-        "source": "weibo_search",
-        "author": "夏正阳1990",
-        "url": "https://m.weibo.cn/detail/5364082758912838",
-        "duration_sec": 99.0
-      },
-      {
-        "key": "bilibili_search:BV1q1Tz68EbR",
-        "title": "林园 P1 林园：我投资企业首先看创始团队的品质如何 #财经#投资#经济#价值投资",
-        "source": "bilibili_collection",
-        "author": "价值投资和科技股",
-        "url": "https://www.bilibili.com/video/BV1q1Tz68EbR",
-        "duration_sec": 84.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 135,
@@ -326,7 +309,9 @@
     "experiment_fallback": 153,
     "ready": 43,
     "validation_failed": 2,
-    "retry_queued": 1
+    "retry_queued": 1,
+    "running": 1,
+    "queued": 1
   },
   "tasks": [
     {
@@ -52234,6 +52219,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43022015743",
       "run_started_at": "2026-11-11T12:37:59Z",
       "run_updated_at": "2026-11-11T12:44:19Z"
+    },
+    {
+      "slug": "ly-1111-8083f4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794420217,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43074101029,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43074101029",
+      "run_started_at": "2026-11-11T18:03:36Z",
+      "run_updated_at": "2026-11-11T18:03:41Z"
+    },
+    {
+      "slug": "ly-1111-730bc1",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1794420225,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43074123721,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43074123721",
+      "run_started_at": "2026-11-11T18:03:45Z",
+      "run_updated_at": "2026-11-11T18:03:45Z"
     }
   ],
   "runs": {
@@ -79604,6 +79625,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43022015743",
       "run_number": 4377,
       "display_title": "中文源出片 · ly-1111-87fe35"
+    },
+    "ly-1111-730bc1": {
+      "id": 43074123721,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-11-11T18:03:45Z",
+      "updated_at": "2026-11-11T18:03:45Z",
+      "run_started_at": "2026-11-11T18:03:45Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43074123721",
+      "run_number": 4379,
+      "display_title": "中文源出片 · ly-1111-730bc1"
+    },
+    "ly-1111-8083f4": {
+      "id": 43074101029,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-11T18:03:36Z",
+      "updated_at": "2026-11-11T18:03:41Z",
+      "run_started_at": "2026-11-11T18:03:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43074101029",
+      "run_number": 4378,
+      "display_title": "中文源出片 · ly-1111-8083f4"
     }
   }
 }
