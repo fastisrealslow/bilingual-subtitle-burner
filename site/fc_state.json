@@ -122095,8 +122095,8 @@
    "publish_time": "2025-10-23T13:26:30+00:00",
    "production_failure_summary": {
     "slug": "ly-1111-d74f54",
-    "run_id": 43012573478,
-    "artifact_id": 13850869586,
+    "run_id": 43020626300,
+    "artifact_id": 13854653937,
     "accepted": 0,
     "source_context": null,
     "failures": [
@@ -122106,11 +122106,13 @@
      }
     ]
    },
-   "source_check_report_id": 13850869586,
-   "source_check_run_id": 43012573478,
+   "source_check_report_id": 13854653937,
+   "source_check_run_id": 43020626300,
    "last_error": "ASR强制对齐时序无效：core 180，2/141 个词；未形成素材不合格结论",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:5364116043861979",
@@ -122133,7 +122135,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T17:13:08+08:00"
+   "publish_time": "2026-11-11T17:13:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-e0a663",
+    "run_id": 43020645359,
+    "artifact_id": 13855098039,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "4ffa1f070f393ebf0ee46e9100575b3d92698805691c120163b6ec5dd5ef3201",
+     "duration_sec": 25.06,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5364116043861979"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43020645359,
+    "artifact_id": 13855098039,
+    "name": "production-reject-ly-1111-e0a663",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5364133503437451",
@@ -122156,7 +122191,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T18:22:31+08:00"
+   "publish_time": "2026-11-11T18:22:31+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1111-f31f66",
+    "run_id": 43020664624,
+    "artifact_id": 13854379054,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7a548c0e556733a43fad2f651e89b65333684a2d75bbe3e36b8338ed2b6bf62a",
+     "duration_sec": 22.13,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5364133503437451"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43020664624,
+    "artifact_id": 13854379054,
+    "name": "production-reject-ly-1111-f31f66",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5364132569678148",
@@ -122189,7 +122257,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[3, 6]，scan_same=[16]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1946, 2: 0.2786, 3: 0.0903, 4: 0.122, 5: 0.1207, 6: 0.0481, 7: 0.1667, 8: 0.3324, 9: 0.1002, 10: 0.0831, 11: 0.0919, 12: 0.3534, 13: 0.309, 14: -0.0111, 15: 0.0644, 16: 0.5875, 17: 0.2487, 18: 0.2153}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5364128451660551",
@@ -231907,6 +231976,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/QSTxUYAMlx08ChRpDTkc01041200ZH9T0E010.mp4",
    "ts": 1794400623,
    "error": "人物不一致或无法确认：林园；initial_same=[3, 6]，scan_same=[16]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1946, 2: 0.2786, 3: 0.0903, 4: 0.122, 5: 0.1207, 6: 0.0481, 7: 0.1667, 8: 0.3324, 9: 0.1002, 10: 0.0831, 11: 0.0919, 12: 0.3534, 13: 0.309, 14: -0.0111, 15: 0.0644, 16: 0.5875, 17: 0.2487, 18: 0.2153}"
+  },
+  {
+   "slug": "ly-1111-f31f66",
+   "key": "weibo_search:5364133503437451",
+   "video_id": "https://f.video.weibocdn.com/o0/GPYgrHtwlx08ChRG0ZBu010412006Cxn0E010.mp4",
+   "ts": 1794401014,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1111-e0a663",
+   "key": "weibo_search:5364116043861979",
+   "video_id": "https://f.video.weibocdn.com/o0/qJjwgBOalx08ChMUoKvu010412006yQN0E010.mp4",
+   "ts": 1794401015,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
