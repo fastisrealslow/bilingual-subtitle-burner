@@ -125387,7 +125387,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1uT4y1N7Sw",
@@ -125474,7 +125475,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-05-16T06:18:14+00:00"
+   "publish_time": "2025-05-16T06:18:14+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-0b8c42",
+    "run_id": 43209650967,
+    "artifact_id": 13941780492,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ed08e75dd07c75e348a35356e781848157fdb7a36f9aab5ae1373ae633f9317e",
+     "duration_sec": 168.67,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Y6ExzdEpy"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，咱有十七个品种，都作为药品注册成功了，包括苏效，包括青宫寿桃。\", \"suspect_quote\": \"苏效，包括青宫寿桃\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'苏效'和'青宫寿桃'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 6, \"quote\": \"那天宰皇怎么出去的呀？\", \"suspect_quote\": \"那天宰皇怎么出去的呀\", \"kind\": \"unintelligible_ter"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43209650967,
+    "artifact_id": 13941780492,
+    "name": "production-reject-ly-1112-0b8c42",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，咱有十七个品种，都作为药品注册成功了，包括苏效，包括青宫寿桃。\", \"suspect_quote\": \"苏效，包括青宫寿桃\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'苏效'和'青宫寿桃'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 6, \"quote\": \"那天宰皇怎么出去的呀？\", \"suspect_quote\": \"那天宰皇怎么出去的呀\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'宰皇'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡的。\", \"suspect_quote\": \"天宰皇啊\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'天宰皇'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 15, \"quote\": \"其实疫情以后，只有一个人这个万家的常识还是差的太远太远。\", \"suspect_quote\": \"万家的常识\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'万家'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 25, \"quote\": \"人家不用去安宫嘛，去安宫跟睡觉有什么区别呀？\", \"suspect_quote\": \"人家不用去安宫嘛\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'安宫'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 30, \"quote\": \"你是达人，他真的会演功的话，你说躺着都能演。\", \"suspect_quote\": \"达人，他真的会演功的话\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'达人'和'演功'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV18guizREbb",
@@ -236889,6 +236923,13 @@
    "video_id": "BV1SS411P7eB",
    "ts": 1794484282,
    "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
+  },
+  {
+   "slug": "ly-1112-0b8c42",
+   "key": "bilibili_search:BV1Y6ExzdEpy",
+   "video_id": "BV1Y6ExzdEpy",
+   "ts": 1794484296,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，咱有十七个品种，都作为药品注册成功了，包括苏效，包括青宫寿桃。\", \"suspect_quote\": \"苏效，包括青宫寿桃\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'苏效'和'青宫寿桃'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 6, \"quote\": \"那天宰皇怎么出去的呀？\", \"suspect_quote\": \"那天宰皇怎么出去的呀\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'宰皇'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡的。\", \"suspect_quote\": \"天宰皇啊\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'天宰皇'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 15, \"quote\": \"其实疫情以后，只有一个人这个万家的常识还是差的太远太远。\", \"suspect_quote\": \"万家的常识\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'万家'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 25, \"quote\": \"人家不用去安宫嘛，去安宫跟睡觉有什么区别呀？\", \"suspect_quote\": \"人家不用去安宫嘛\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'安宫'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 30, \"quote\": \"你是达人，他真的会演功的话，你说躺着都能演。\", \"suspect_quote\": \"达人，他真的会演功的话\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'达人'和'演功'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
