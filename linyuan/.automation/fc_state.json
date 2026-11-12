@@ -125378,7 +125378,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-06T06:57:16+00:00"
+   "publish_time": "2021-01-06T06:57:16+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-aeac5c",
+    "run_id": 43208627358,
+    "artifact_id": 13941443782,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "862cace41f8c7123a399c88e190c6ef7617e6248263fe775f3c3124e46cdc4ac",
+     "duration_sec": 80.63,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1uT4y1N7Sw"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕逐字时间倒退或重叠"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43208627358,
+    "artifact_id": 13941443782,
+    "name": "production-reject-ly-1112-aeac5c",
+    "retained": true
+   },
+   "last_error": "字幕逐字时间倒退或重叠",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1JT421m729",
@@ -125542,7 +125575,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5259652784719659",
@@ -236936,6 +236970,13 @@
    "video_id": "BV1Y6ExzdEpy",
    "ts": 1794484296,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"啊，咱有十七个品种，都作为药品注册成功了，包括苏效，包括青宫寿桃。\", \"suspect_quote\": \"苏效，包括青宫寿桃\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'苏效'和'青宫寿桃'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 6, \"quote\": \"那天宰皇怎么出去的呀？\", \"suspect_quote\": \"那天宰皇怎么出去的呀\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'宰皇'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 8, \"quote\": \"天宰皇啊，新加坡的。\", \"suspect_quote\": \"天宰皇啊\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'天宰皇'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 15, \"quote\": \"其实疫情以后，只有一个人这个万家的常识还是差的太远太远。\", \"suspect_quote\": \"万家的常识\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'万家'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}, {\"sentence_id\": 25, \"quote\": \"人家不用去安宫嘛，去安宫跟睡觉有什么区别呀？\", \"suspect_quote\": \"人家不用去安宫嘛\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'安宫'疑似为语音转写错误，无法确认是否为真实药品或品牌名称，存在实体错写风险。\"}, {\"sentence_id\": 30, \"quote\": \"你是达人，他真的会演功的话，你说躺着都能演。\", \"suspect_quote\": \"达人，他真的会演功的话\", \"kind\": \"unintelligible_term\", \"reason\": \"专名识别污染：'达人'和'演功'疑似为语音转写错误，无法确认是否为真实人名或特定称谓，存在实体错写风险。\"}]"
+  },
+  {
+   "slug": "ly-1112-aeac5c",
+   "key": "bilibili_search:BV1uT4y1N7Sw",
+   "video_id": "BV1uT4y1N7Sw",
+   "ts": 1794484703,
+   "error": "字幕逐字时间倒退或重叠"
   }
  ],
  "reviewed_third_video_0910": {
