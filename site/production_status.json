@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794506344,
+  "updated_at": 1794506522,
   "inventory_updated_at": 1794506337,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 137,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -273,7 +273,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794506342,
+    "updated_at": 1794506521,
     "records": 17584,
     "video_records": 15037,
     "initial_candidates": 187,
@@ -310,16 +310,15 @@
   },
   "counts": {
     "complete": 201,
-    "failed": 2442,
+    "failed": 2445,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 7,
     "excluded": 84,
     "experiment_fallback": 158,
     "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
-    "unknown": 2,
-    "running": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -53364,11 +53363,11 @@
     },
     {
       "slug": "ly-1112-97282a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794505752,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -53382,11 +53381,11 @@
     },
     {
       "slug": "ly-1112-b3d24a",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 86%（BV1nesd69Ens）",
       "signature": {
         "ts": 1794505761,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -53400,11 +53399,11 @@
     },
     {
       "slug": "ly-1112-fe5547",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794505769,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -53414,7 +53413,7 @@
       "run_id": 43273468993,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43273468993",
       "run_started_at": "2026-11-12T17:49:29Z",
-      "run_updated_at": "2026-11-12T17:49:33Z"
+      "run_updated_at": "2026-11-12T17:58:04Z"
     }
   ],
   "runs": {
@@ -81468,17 +81467,6 @@
       "run_number": 4452,
       "display_title": "中文源出片 · ly-1112-97282a"
     },
-    "ly-1112-fe5547": {
-      "id": 43273468993,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-12T17:49:29Z",
-      "updated_at": "2026-11-12T17:49:33Z",
-      "run_started_at": "2026-11-12T17:49:29Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43273468993",
-      "run_number": 4454,
-      "display_title": "中文源出片 · ly-1112-fe5547"
-    },
     "ly-1112-b3d24a": {
       "id": 43273444255,
       "status": "completed",
@@ -81489,6 +81477,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43273444255",
       "run_number": 4453,
       "display_title": "中文源出片 · ly-1112-b3d24a"
+    },
+    "ly-1112-fe5547": {
+      "id": 43273468993,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-12T17:49:29Z",
+      "updated_at": "2026-11-12T17:58:04Z",
+      "run_started_at": "2026-11-12T17:49:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43273468993",
+      "run_number": 4454,
+      "display_title": "中文源出片 · ly-1112-fe5547"
     }
   }
 }
