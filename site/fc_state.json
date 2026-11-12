@@ -123516,7 +123516,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-05T02:34:10+00:00"
+   "publish_time": "2026-06-05T02:34:10+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-468843",
+    "run_id": 43132244097,
+    "artifact_id": 13906048278,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "25a043cfdc208962d88a477eed68230c34b46a6c38d7f8446c874414d392cd81",
+     "duration_sec": 178.26,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Tm7B6iEEw"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43132244097,
+    "artifact_id": 13906048278,
+    "name": "production-reject-ly-1112-468843",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV14h41127Uy",
@@ -123572,7 +123605,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Ji4y1F7fz",
@@ -123628,7 +123662,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 88%（BV18B4j6iE9p）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1T1421D7tQ",
@@ -233567,6 +233602,13 @@
    "video_id": "BV14h41127Uy",
    "ts": 1794446552,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1112-468843",
+   "key": "bilibili_search:BV1Tm7B6iEEw",
+   "video_id": "BV1Tm7B6iEEw",
+   "ts": 1794446972,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
