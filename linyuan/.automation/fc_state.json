@@ -126254,7 +126254,43 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-12-20T08:34:47+00:00"
+   "publish_time": "2024-12-20T08:34:47+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-b4e7c3",
+    "run_id": 43285257250,
+    "artifact_id": 13978512290,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "36c92e3fe17de9e3a4135308f2d4a89450eea324db39928c65db6200c75e5b36",
+     "duration_sec": 2466.69,
+     "resolution": {
+      "width": 1092,
+      "height": 614,
+      "short_edge": 614
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Wnk1YLE86"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段以主持人串场或无关话题（如‘然后其他的方向’、‘您您您讲的这些领域的话’）开头和结尾，切断了嘉宾关于科技行业及具体板块（人工智能、半导体）的完整论述逻辑，导致无法独立成片表达一个完整的投资观点。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"现在我们看到很多就是这个品牌的消费估值息率都都是一个历历史最好的点啊。\", \"suspect_quote\": \"历历史\", \"kind\": \"unintelligible_term\", \"reason\": \"重复字导致专名/词汇污染，无法确定原意。\"}, {\"sentence_id\": 25, \"quote\": \"啊，最好的时期，没错哈，就是刚才林先生也提到一点，就是我们现在其实上面的政策对于我们股市的一个呵护，还是非常的明显的，因为在最近的十二月呃两次会议当中，工作中央经济工作会议和政治局会议，我们也提到了，就是要呵护我们的楼"
+     }
+    ]
+   },
+   "source_check_report_id": 13978512290,
+   "source_check_run_id": 43285257250,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1794514602
   },
   {
    "key": "bilibili_search:BV1vk4y157p8",
@@ -126767,7 +126803,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-30T08:38:38+00:00"
+   "publish_time": "2026-01-30T08:38:38+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43295070933,
+    "artifact_id": 13979486779,
+    "name": "source-reject-ly-1112-0de42c",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1nA411W7wS",
@@ -238604,6 +238650,13 @@
    "video_id": "BV1xv411x7qz",
    "ts": 1794512300,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"哎，他说投资了科东阿胶。\", \"suspect_quote\": \"科东阿胶\", \"kind\": \"unintelligible_term\", \"reason\": \"公司名异常，疑似将'科伦药业'或'东阿阿胶'误识别为'科东阿胶'，属专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
+  },
+  {
+   "slug": "ly-1112-0de42c",
+   "key": "bilibili_search:BV12B6vByEqe",
+   "video_id": "BV12B6vByEqe",
+   "ts": 1794513686,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
   }
  ],
  "reviewed_third_video_0910": {
