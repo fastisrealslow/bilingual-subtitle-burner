@@ -127094,7 +127094,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-22T08:19:12+00:00"
+   "publish_time": "2026-06-22T08:19:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-36e55c",
+    "run_id": 43316869397,
+    "artifact_id": 13989138868,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e046541d1a7fce56b3f46f1525c76d081a3fbcf636cd8a8666a7299aefe30f40",
+     "duration_sec": 770.87,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1uA7P6zEbT"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43316869397,
+    "artifact_id": 13989138868,
+    "name": "production-reject-ly-1112-36e55c",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1BA411272F",
@@ -127218,7 +127259,8 @@
    },
    "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -239065,6 +239107,13 @@
    "video_id": "BV1y64y1d7St",
    "ts": 1794522647,
    "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
+  },
+  {
+   "slug": "ly-1112-36e55c",
+   "key": "bilibili_search:BV1uA7P6zEbT",
+   "video_id": "BV1uA7P6zEbT",
+   "ts": 1794523035,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
