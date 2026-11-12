@@ -125323,7 +125323,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1j54y147ok",
@@ -125346,7 +125347,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-11T13:45:40+00:00"
+   "publish_time": "2021-01-11T13:45:40+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-8e16a0",
+    "run_id": 43205134222,
+    "artifact_id": 13938736717,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "aa08034bb0a51e62ca02e1f15bc2303ffe6b7db40de04607c2f57fb4a773decb",
+     "duration_sec": 112.2,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1j54y147ok"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：claim_range 仅包含嘉宾对‘消费股’这一具体板块的判断（句子 5-6），排除了主持人提问（句子 0）及嘉宾的泛泛之谈（句子 1-4）。句子 4 中‘公司应该是’疑似口误或听音错误，结合上下文语境应为‘消费股’，但按规则不得自行改写，故将句子 4 归入 reasoning_range 作为过渡性表述，而 claim_range 从明确指代‘消费股’的句子 5 开始。结尾句子 6 以‘买不下手’自然收束，无未回答的新问题或无关串场，符合独立成片要求。；原文问题：[[\"那您就是说您觉得公司应该是，下跌空间有限。\", \"原文‘那您就是说您觉得公司应该是’中‘公司’与上下文‘"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43205134222,
+    "artifact_id": 13938736717,
+    "name": "production-reject-ly-1112-8e16a0",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4406278463577072",
@@ -236606,6 +236644,13 @@
    "video_id": "BV1LY4y1o7X3",
    "ts": 1794481956,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1112-8e16a0",
+   "key": "bilibili_search:BV1j54y147ok",
+   "video_id": "BV1j54y147ok",
+   "ts": 1794482468,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
