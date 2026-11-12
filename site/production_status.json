@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794457052,
+  "updated_at": 1794457240,
   "inventory_updated_at": 1794457045,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 136,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -273,7 +273,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794457050,
+    "updated_at": 1794457239,
     "records": 17501,
     "video_records": 14957,
     "initial_candidates": 185,
@@ -310,16 +310,15 @@
   },
   "counts": {
     "complete": 198,
-    "failed": 2427,
+    "failed": 2429,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 82,
     "experiment_fallback": 157,
     "ready": 45,
     "validation_failed": 2,
     "retry_queued": 1,
-    "unknown": 2,
-    "running": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -53004,11 +53003,11 @@
     },
     {
       "slug": "ly-1112-4695e3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "完整观点验收未通过：standalone_opening；完整性理由：原话中嘉宾未能形成连贯的观点表达，关键句被切断或无实质内容（如‘那也没了’、‘嗯’），且未对提问做出有效回应，不符合独立成片所需的完整表达要求。；原文问题：[]",
       "signature": {
         "ts": 1794455846,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -53022,11 +53021,11 @@
     },
     {
       "slug": "ly-1112-a87ee5",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2437, 2: 0.2534, 3: 0.2404, 4: 0.2245, 5: 0.1943, 6: 0.2009, 7: 0.1899, 8: 0.1861, 9: 0.2536, 10: 0.2257, 11: 0.2486, 12: 0.167, 13: 0.1872, 14: 0.1596, 15: 0.2885, 16: 0.2622, 17: 0.1961, 18: 0.2022}",
       "signature": {
         "ts": 1794456863,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -53036,7 +53035,7 @@
       "run_id": 43153469232,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43153469232",
       "run_started_at": "2026-11-12T04:14:22Z",
-      "run_updated_at": "2026-11-12T04:14:27Z"
+      "run_updated_at": "2026-11-12T04:16:28Z"
     }
   ],
   "runs": {
@@ -80872,10 +80871,10 @@
     },
     "ly-1112-a87ee5": {
       "id": 43153469232,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-12T04:14:22Z",
-      "updated_at": "2026-11-12T04:14:27Z",
+      "updated_at": "2026-11-12T04:16:28Z",
       "run_started_at": "2026-11-12T04:14:22Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43153469232",
       "run_number": 4423,
