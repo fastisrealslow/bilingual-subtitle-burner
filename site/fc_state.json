@@ -124516,7 +124516,8 @@
    },
    "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1eGa8zBER7",
@@ -124539,7 +124540,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-09-05T06:36:21+00:00"
+   "publish_time": "2025-09-05T06:36:21+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-4695e3",
+    "run_id": 43151595477,
+    "artifact_id": 13913973850,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1ece285a1de0e7624c59865b6c34ee28b65cf8f3b30880978ceac37d5b805d46",
+     "duration_sec": 526.67,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1eGa8zBER7"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：原话中嘉宾未能形成连贯的观点表达，关键句被切断或无实质内容（如‘那也没了’、‘嗯’），且未对提问做出有效回应，不符合独立成片所需的完整表达要求。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43151595477,
+    "artifact_id": 13913973850,
+    "name": "production-reject-ly-1112-4695e3",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：原话中嘉宾未能形成连贯的观点表达，关键句被切断或无实质内容（如‘那也没了’、‘嗯’），且未对提问做出有效回应，不符合独立成片所需的完整表达要求。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1ksTg6HEba",
@@ -124562,7 +124596,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-28T13:02:29+00:00"
+   "publish_time": "2026-06-28T13:02:29+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43153469232,
+    "artifact_id": 13914817338,
+    "name": "source-reject-ly-1112-a87ee5",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2437, 2: 0.2534, 3: 0.2404, 4: 0.2245, 5: 0.1943, 6: 0.2009, 7: 0.1899, 8: 0.1861, 9: 0.2536, 10: 0.2257, 11: 0.2486, 12: 0.167, 13: 0.1872, 14: 0.1596, 15: 0.2885, 16: 0.2622, 17: 0.1961, 18: 0.2022}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -234935,6 +234979,20 @@
    "video_id": "BV1VJWy6rEwh",
    "ts": 1794456781,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1112-a87ee5",
+   "key": "bilibili_search:BV1ksTg6HEba",
+   "video_id": "BV1ksTg6HEba",
+   "ts": 1794457158,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.2437, 2: 0.2534, 3: 0.2404, 4: 0.2245, 5: 0.1943, 6: 0.2009, 7: 0.1899, 8: 0.1861, 9: 0.2536, 10: 0.2257, 11: 0.2486, 12: 0.167, 13: 0.1872, 14: 0.1596, 15: 0.2885, 16: 0.2622, 17: 0.1961, 18: 0.2022}"
+  },
+  {
+   "slug": "ly-1112-4695e3",
+   "key": "bilibili_search:BV1eGa8zBER7",
+   "video_id": "BV1eGa8zBER7",
+   "ts": 1794457159,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：原话中嘉宾未能形成连贯的观点表达，关键句被切断或无实质内容（如‘那也没了’、‘嗯’），且未对提问做出有效回应，不符合独立成片所需的完整表达要求。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
