@@ -1,10 +1,10 @@
 {
-  "run_id": "43214681095",
+  "run_id": "43272190894",
   "processed": 3,
-  "inspected": 0,
-  "historical_media_verified": 233,
+  "inspected": 1,
+  "historical_media_verified": 234,
   "cache_recovery_pending": 233,
-  "pending": 294,
+  "pending": 293,
   "audio_matches": [],
   "reference_refresh": {
     "status": "searched",
@@ -16,14 +16,8 @@
       "errors": [
         {
           "stage": "collection_page",
-          "season_id": 6790738,
-          "page": 1,
-          "error": "ValueError"
-        },
-        {
-          "stage": "collection_page",
           "season_id": 6285434,
-          "page": 1,
+          "page": 4,
           "error": "ValueError"
         },
         {
@@ -5966,13 +5960,13 @@
       "family": "zhejiang_2026_01",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 13,
+      "attempts": 14,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
-      "last_error": "CalledProcessError",
-      "last_attempt_at": 1794041018.3655114,
-      "next_retry_at": 1794127418.3655114,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1794506152.2524855,
+      "next_retry_at": 1794592552.2524855,
       "download_partial_bytes": 0
     },
     "5112d5ab9c905449087d": {
@@ -9242,22 +9236,51 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "CalledProcessError",
+      "last_attempt_at": 1794505852.242143,
+      "next_retry_at": 1794527452.242143,
+      "download_partial_bytes": 0
     },
     "6c13140a102fb9791d16": {
       "url": "https://www.bilibili.com/video/BV1Kv411t7Nd",
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 0,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "last_attempt_at": 1794505849.952941,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "7870c5cbcd851d5abfa0e9027666f3b001b1fe2a708c2f537d2d29212ab557e3",
+        "duration_sec": 1579.566,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 789.78
+          }
+        ],
+        "audio_fingerprint_count": 12736,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "43272190894"
     }
   },
   "searches": {
@@ -9270,20 +9293,17 @@
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "searched",
-      "checked_at": 1794434671.0901487,
-      "next_retry_at": 1794477871.0901487,
+      "checked_at": 1794505649.1335557,
+      "next_retry_at": 1794548849.1335557,
       "found": 0,
       "new_ids": []
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
-      "status": "retry_wait",
-      "checked_at": 1794369134.9458497,
-      "next_retry_at": 1794458522.2435527,
+      "status": "searched",
+      "checked_at": 1794505649.1335557,
+      "next_retry_at": 1794548849.1335557,
       "found": 4,
-      "new_ids": [],
-      "attempts": 1,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1794436922.2435527
+      "new_ids": []
     },
     "gelong_conversation|格隆对话林园 完整版": {
       "status": "retry_wait",
@@ -9378,14 +9398,11 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
-      "status": "retry_wait",
-      "checked_at": 1794360207.4589586,
-      "next_retry_at": 1794495881.8997762,
-      "found": 1,
-      "new_ids": [],
-      "attempts": 2,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1794452681.8997762
+      "status": "searched",
+      "checked_at": 1794505649.1335557,
+      "next_retry_at": 1794548849.1335557,
+      "found": 0,
+      "new_ids": []
     }
   }
 }
