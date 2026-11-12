@@ -124483,7 +124483,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-11T09:17:13+00:00"
+   "publish_time": "2026-11-11T09:17:13+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-958612",
+    "run_id": 43151582696,
+    "artifact_id": 13914771004,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e070f179ba861e0c8abe3030d04bbd2a5179fd2e6a7072a25afaa965b36f8f83",
+     "duration_sec": 25.0,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1VJWy6rEwh"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43151582696,
+    "artifact_id": 13914771004,
+    "name": "production-reject-ly-1112-958612",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1eGa8zBER7",
@@ -234872,6 +234905,13 @@
    "video_id": "BV1kh411q7Ra",
    "ts": 1794455257,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1112-958612",
+   "key": "bilibili_search:BV1VJWy6rEwh",
+   "video_id": "BV1VJWy6rEwh",
+   "ts": 1794456781,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
