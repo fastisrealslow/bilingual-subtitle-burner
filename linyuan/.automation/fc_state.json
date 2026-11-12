@@ -126595,7 +126595,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1xv411x7qz",
@@ -126618,7 +126619,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-03T03:04:20+00:00"
+   "publish_time": "2021-01-03T03:04:20+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-994926",
+    "run_id": 43288298748,
+    "artifact_id": 13978095072,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a5f4d141a100a2bda0d16ca52f992afba2fdc0adea426551a24d8a194ac243a1",
+     "duration_sec": 97.8,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1xv411x7qz"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"哎，他说投资了科东阿胶。\", \"suspect_quote\": \"科东阿胶\", \"kind\": \"unintelligible_term\", \"reason\": \"公司名异常，疑似将'科伦药业'或'东阿阿胶'误识别为'科东阿胶'，属专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43288298748,
+    "artifact_id": 13978095072,
+    "name": "production-reject-ly-1112-994926",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"哎，他说投资了科东阿胶。\", \"suspect_quote\": \"科东阿胶\", \"kind\": \"unintelligible_term\", \"reason\": \"公司名异常，疑似将'科伦药业'或'东阿阿胶'误识别为'科东阿胶'，属专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV13WHqeBEiq",
@@ -126641,7 +126675,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-09-01T15:51:51+00:00"
+   "publish_time": "2024-09-01T15:51:51+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1112-7d4c19",
+    "run_id": 43289488582,
+    "artifact_id": 13977136527,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e77309209b251987926b3d11e008bea63fd2ea5458462e296467a60187ac3527",
+     "duration_sec": 40.8,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV13WHqeBEiq"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43289488582,
+    "artifact_id": 13977136527,
+    "name": "production-reject-ly-1112-7d4c19",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1X7c4zUESQ",
@@ -126674,7 +126741,8 @@
    },
    "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -238451,6 +238519,20 @@
    "video_id": "BV1Ty3M6vE5t",
    "ts": 1794511857,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1112-7d4c19",
+   "key": "bilibili_search:BV13WHqeBEiq",
+   "video_id": "BV13WHqeBEiq",
+   "ts": 1794512299,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1112-994926",
+   "key": "bilibili_search:BV1xv411x7qz",
+   "video_id": "BV1xv411x7qz",
+   "ts": 1794512300,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"哎，他说投资了科东阿胶。\", \"suspect_quote\": \"科东阿胶\", \"kind\": \"unintelligible_term\", \"reason\": \"公司名异常，疑似将'科伦药业'或'东阿阿胶'误识别为'科东阿胶'，属专名错写。\", \"reported_kind\": \"ambiguous_number_or_negation\", \"kind_binding\": \"explicit_entity_contamination_negative_only\"}]"
   }
  ],
  "reviewed_third_video_0910": {
