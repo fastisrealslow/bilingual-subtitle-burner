@@ -127284,7 +127284,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-22T09:04:16+00:00"
+   "publish_time": "2026-07-22T09:04:16+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-db405e",
+    "run_id": 43335757338,
+    "artifact_id": 13998635926,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "984a4362d5294b32e808750812204d34f281a54bccecd8d892b5e85f9fbd0c3a",
+     "duration_sec": 114.2,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1UBgC6aEou"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.00秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43335757338,
+    "artifact_id": 13998635926,
+    "name": "production-reject-ly-1113-db405e",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.00秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV19t6qBFEdL",
@@ -127364,7 +127397,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-06T11:18:31+00:00"
+   "publish_time": "2026-06-06T11:18:31+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-62e1b5",
+    "run_id": 43335795304,
+    "artifact_id": 13997507843,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "013f8fa2b053f33ce51bebf6cf9e3386518452077b3dc60402b7c9502c1b87b7",
+     "duration_sec": 274.25,
+     "resolution": {
+      "width": 884,
+      "height": 1920,
+      "short_edge": 884
+     },
+     "source_url": "https://www.bilibili.com/video/BV14pEn6XEQ3"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "源视频比选段短0.433秒，须重新核对音视频边界"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43335795304,
+    "artifact_id": 13997507843,
+    "name": "production-reject-ly-1113-62e1b5",
+    "retained": true
+   },
+   "last_error": "源视频比选段短0.433秒，须重新核对音视频边界",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1W77Q6eECL",
@@ -127387,7 +127453,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-06T08:41:29+00:00"
+   "publish_time": "2026-06-06T08:41:29+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-83e694",
+    "run_id": 43335816068,
+    "artifact_id": 13997044970,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c14b1602ff47494738fc21a1af6843383570eea46a0e494b8d43c25a10864e5e",
+     "duration_sec": 169.25,
+     "resolution": {
+      "width": 884,
+      "height": 1920,
+      "short_edge": 884
+     },
+     "source_url": "https://www.bilibili.com/video/BV1W77Q6eECL"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43335816068,
+    "artifact_id": 13997044970,
+    "name": "production-reject-ly-1113-83e694",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -239248,6 +239347,27 @@
    "video_id": "BV19t6qBFEdL",
    "ts": 1794529832,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1113-83e694",
+   "key": "bilibili_search:BV1W77Q6eECL",
+   "video_id": "BV1W77Q6eECL",
+   "ts": 1794530238,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1113-62e1b5",
+   "key": "bilibili_search:BV14pEn6XEQ3",
+   "video_id": "BV14pEn6XEQ3",
+   "ts": 1794530239,
+   "error": "源视频比选段短0.433秒，须重新核对音视频边界"
+  },
+  {
+   "slug": "ly-1113-db405e",
+   "key": "bilibili_search:BV1UBgC6aEou",
+   "video_id": "BV1UBgC6aEou",
+   "ts": 1794530243,
+   "error": "动态取景连续2.00秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
