@@ -128066,7 +128066,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 53%（BV1ViW36DEim）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4978827751328991",
@@ -128122,7 +128123,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配382/798，总帧数2075；身份匹配但人脸短边不足96px的帧数271",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1DP41147KZ",
@@ -128178,7 +128180,8 @@
    },
    "last_error": "整段取景预检：源 4.87s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1NRWa6FEEe",
@@ -128201,7 +128204,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-13T02:59:30+00:00"
+   "publish_time": "2026-11-13T02:59:30+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-cd2ef0",
+    "run_id": 43385890569,
+    "artifact_id": 14019171070,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9c6be881d26f6ea70000fb6dbaba00626dbaa879c10d01f63450f51c1e99e89c",
+     "duration_sec": 23.83,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1NRWa6FEEe"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 62%（BV1ViW36DEim）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43385890569,
+    "artifact_id": 14019171070,
+    "name": "production-reject-ly-1113-cd2ef0",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 62%（BV1ViW36DEim）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1DK421a7u5",
@@ -128270,7 +128306,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-13T11:00"
+   "publish_time": "2026-11-13T11:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-e59667",
+    "run_id": 43386280274,
+    "artifact_id": 14018957994,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e3e7a22b965fda008c307f8c8fe1c53e7e85745d25898f06f015f0e2ec1fd703",
+     "duration_sec": 23.88,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/ly-1113-e59667.mp4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 59%（BV1ViW36DEim）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43386280274,
+    "artifact_id": 14018957994,
+    "name": "production-reject-ly-1113-e59667",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 59%（BV1ViW36DEim）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1LU4y147rd",
@@ -241041,6 +241110,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/ne1RijXblx08Ckz7ghjW010412009B6Z0E010.mp4",
    "ts": 1794555297,
    "error": "与已发布内容文字指纹重复：转写片段重合 53%（BV1ViW36DEim）"
+  },
+  {
+   "slug": "ly-1113-e59667",
+   "key": "netease_video:VGAM89A1G",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/13/2gsacm9lx48/SD/2gsacm9lx48-mobile.mp4",
+   "ts": 1794555745,
+   "error": "与已发布内容文字指纹重复：转写片段重合 59%（BV1ViW36DEim）"
+  },
+  {
+   "slug": "ly-1113-cd2ef0",
+   "key": "bilibili_search:BV1NRWa6FEEe",
+   "video_id": "BV1NRWa6FEEe",
+   "ts": 1794555745,
+   "error": "与已发布内容文字指纹重复：转写片段重合 62%（BV1ViW36DEim）"
   }
  ],
  "reviewed_third_video_0910": {
