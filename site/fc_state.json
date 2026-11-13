@@ -128950,7 +128950,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1994aegEjW",
@@ -128973,7 +128974,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-09-10T16:13:55+00:00"
+   "publish_time": "2024-09-10T16:13:55+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-b28aa6",
+    "run_id": 43391704940,
+    "artifact_id": 14021716814,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "08a8eec5954260f68f1959bb5f98f5dc3bc4f0ec839260c651cac04ac0b88efb",
+     "duration_sec": 63.43,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1994aegEjW"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43391704940,
+    "artifact_id": 14021716814,
+    "name": "production-reject-ly-1113-b28aa6",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1tK4y1z7im",
@@ -242286,6 +242320,13 @@
    "video_id": "BV13nWY63EKd",
    "ts": 1794558373,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1113-b28aa6",
+   "key": "bilibili_search:BV1994aegEjW",
+   "video_id": "BV1994aegEjW",
+   "ts": 1794558849,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
