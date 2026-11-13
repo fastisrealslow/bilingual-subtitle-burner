@@ -128294,7 +128294,8 @@
    },
    "last_error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1mmAfzKE38",
@@ -128350,7 +128351,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "netease_video:VGAM89A1G",
@@ -128453,7 +128455,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-04T02:24:12+00:00"
+   "publish_time": "2021-01-04T02:24:12+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-0e69ea",
+    "run_id": 43386963159,
+    "artifact_id": 14019996714,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "fbf5e5fbef0e7ca90a93fc116ee598b7d8c1f1822830606d2789f477e609eef7",
+     "duration_sec": 105.8,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Xv411x7fA"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43386963159,
+    "artifact_id": 14019996714,
+    "name": "production-reject-ly-1113-0e69ea",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1nF411F7aF",
@@ -128522,7 +128557,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-08-19T02:28:07+00:00"
+   "publish_time": "2023-08-19T02:28:07+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-5449bb",
+    "run_id": 43388648151,
+    "artifact_id": 14019334874,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c6f943f91fd1452188f6c24edd1403babf826355c082ab053097acec08c6932e",
+     "duration_sec": 60.53,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1784y1o7zP"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 15.80s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43388648151,
+    "artifact_id": 14019334874,
+    "name": "production-reject-ly-1113-5449bb",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 15.80s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -241252,6 +241320,20 @@
    "video_id": "BV1DK421a7u5",
    "ts": 1794556156,
    "error": "真人动态区检出跨帧变化的原素材字幕；中部字幕也须清理，不能叠加两套字幕"
+  },
+  {
+   "slug": "ly-1113-5449bb",
+   "key": "bilibili_search:BV1784y1o7zP",
+   "video_id": "BV1784y1o7zP",
+   "ts": 1794557168,
+   "error": "整段取景预检：源 15.80s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1113-0e69ea",
+   "key": "bilibili_search:BV1Xv411x7fA",
+   "video_id": "BV1Xv411x7fA",
+   "ts": 1794557169,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
