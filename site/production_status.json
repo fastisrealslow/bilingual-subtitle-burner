@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794555602,
+  "updated_at": 1794555849,
   "inventory_updated_at": 1794555594,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 135,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
@@ -281,7 +281,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794555600,
+    "updated_at": 1794555848,
     "records": 17730,
     "video_records": 15183,
     "initial_candidates": 189,
@@ -318,16 +318,16 @@
   },
   "counts": {
     "complete": 203,
-    "failed": 2473,
+    "failed": 2475,
     "paused": 5,
-    "interrupted": 9,
+    "interrupted": 8,
     "excluded": 86,
     "experiment_fallback": 156,
     "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 5
+    "running": 4
   },
   "tasks": [
     {
@@ -53966,11 +53966,11 @@
     },
     {
       "slug": "ly-1113-cd2ef0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 62%（BV1ViW36DEim）",
       "signature": {
         "ts": 1794554849,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -53984,8 +53984,8 @@
     },
     {
       "slug": "ly-1113-f5cd98",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1794554866,
         "failed": null,
@@ -53998,7 +53998,7 @@
       "run_id": 43385921747,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43385921747",
       "run_started_at": "2026-11-13T07:27:45Z",
-      "run_updated_at": "2026-11-13T07:27:50Z"
+      "run_updated_at": "2026-11-13T07:43:25Z"
     },
     {
       "slug": "ly-1113-8821c1",
@@ -54020,11 +54020,11 @@
     },
     {
       "slug": "ly-1113-e59667",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 59%（BV1ViW36DEim）",
       "signature": {
         "ts": 1794555051,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -82562,10 +82562,10 @@
     },
     "ly-1113-f5cd98": {
       "id": 43385921747,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-13T07:27:45Z",
-      "updated_at": "2026-11-13T07:27:50Z",
+      "updated_at": "2026-11-13T07:43:25Z",
       "run_started_at": "2026-11-13T07:27:45Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43385921747",
       "run_number": 4488,
