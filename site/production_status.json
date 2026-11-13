@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": 1794553001,
-  "inventory_updated_at": 1794552973,
+  "updated_at": 1794553438,
+  "inventory_updated_at": 1794553432,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 137,
+    "verified_daily_stock": 136,
     "active_or_recovering_sources": 1,
     "waiting_candidates": 4,
     "status": "covered",
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 137,
+      "verified_stock_snapshot": 136,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,7 +36,7 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 38,
+        "portrait": 37,
         "landscape": 99
       },
       "full_schedule_days": 12,
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 1,
+    "consecutive_fallbacks": 2,
     "actual_treatment_published": 9,
     "valid_comparison_days": 1,
     "daily": [
@@ -269,19 +269,19 @@
       },
       {
         "date": "2026-11-13",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "consecutive_fallbacks"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794553000,
+    "updated_at": 1794553436,
     "records": 17701,
     "video_records": 15154,
     "initial_candidates": 193,
@@ -338,24 +338,24 @@
     ]
   },
   "inventory": {
-    "verified_live": 137,
+    "verified_live": 136,
     "verified_audio_card": 0,
     "verified_landscape": 99,
-    "verified_portrait": 38,
+    "verified_portrait": 37,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 137,
+    "daily_mix_usable": 136,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
-    "complete": 202,
+    "complete": 203,
     "failed": 2470,
     "paused": 5,
     "interrupted": 7,
-    "excluded": 85,
-    "experiment_fallback": 158,
+    "excluded": 86,
+    "experiment_fallback": 156,
     "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
@@ -42298,8 +42298,8 @@
     },
     {
       "slug": "ly-1103-f1f756",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793730696,
         "failed": null,
@@ -42478,13 +42478,13 @@
     },
     {
       "slug": "ly-story-ceec322d2c",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793734763,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
