@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794557385,
+  "updated_at": 1794557734,
   "inventory_updated_at": 1794557378,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 136,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 5,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 2,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -269,9 +269,9 @@
       },
       {
         "date": "2026-11-13",
-        "published": 2,
+        "published": 3,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 1,
         "valid_comparison": false
       }
@@ -281,17 +281,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794557383,
+    "updated_at": 1794557732,
     "records": 17746,
     "video_records": 15199,
-    "initial_candidates": 194,
-    "duration_eligible_records": 5,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 191,
+    "duration_eligible_records": 2,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 9000,
-      "already_attempted_or_cooling": 3971,
+      "already_attempted_or_cooling": 3974,
       "unrelated": 83,
       "clip_title": 1513,
       "noise": 42,
@@ -304,36 +304,12 @@
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV13nWY63EKd",
-        "title": "林园 P1 林园：应该没有失误，至少在股市上这一块，没有买错过一只",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV13nWY63EKd",
-        "duration_sec": 25.0
-      },
-      {
-        "key": "bilibili_search:BV1994aegEjW",
-        "title": "林园 P1 studio_video_1725984367072.mp4",
-        "source": "bilibili_collection",
-        "author": "可爱的莫里",
-        "url": "https://www.bilibili.com/video/BV1994aegEjW",
-        "duration_sec": 64.0
-      },
-      {
         "key": "bilibili_search:BV1tK4y1z7im",
         "title": "林园 P1 股神林园总最新专访：你们咋老亏钱我给你们一些建议",
         "source": "bilibili_collection",
         "author": "基金经理说",
         "url": "https://www.bilibili.com/video/BV1tK4y1z7im",
         "duration_sec": 572.0
-      },
-      {
-        "key": "bilibili_search:BV1Fpni6dEJx",
-        "title": "林园 P1 (完整版) 林园 2024.7.10私募排排网采访 最大的机会就在眼前,老林就做医药股,别的不做,你说的那些",
-        "source": "reference_origin_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Fpni6dEJx",
-        "duration_sec": 3551.0
       },
       {
         "key": "bilibili_search:BV1hnWY63ETN",
@@ -358,17 +334,17 @@
     "publishable_now": 1
   },
   "counts": {
-    "complete": 203,
+    "complete": 204,
     "failed": 2479,
     "paused": 5,
-    "interrupted": 8,
-    "excluded": 86,
-    "experiment_fallback": 155,
+    "interrupted": 7,
+    "excluded": 89,
+    "experiment_fallback": 152,
     "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 3
+    "running": 6
   },
   "tasks": [
     {
@@ -47977,8 +47953,8 @@
     },
     {
       "slug": "ly-1108-3690f1",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1794108733,
         "failed": null,
@@ -48067,13 +48043,13 @@
     },
     {
       "slug": "ly-story-115982f304",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1794114652,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
@@ -51793,8 +51769,8 @@
     },
     {
       "slug": "ly-1111-b70358",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1794369349,
         "failed": null,
@@ -51865,8 +51841,8 @@
     },
     {
       "slug": "ly-story-200b33fbac",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1794377819,
         "failed": null,
@@ -54166,6 +54142,60 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43388648151",
       "run_started_at": "2026-11-13T07:50:35Z",
       "run_updated_at": "2026-11-13T07:59:11Z"
+    },
+    {
+      "slug": "ly-1113-11a8bf",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794557658,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43391652790,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43391652790",
+      "run_started_at": "2026-11-13T08:14:18Z",
+      "run_updated_at": "2026-11-13T08:14:22Z"
+    },
+    {
+      "slug": "ly-1113-e3358e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794557670,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43391678210,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43391678210",
+      "run_started_at": "2026-11-13T08:14:30Z",
+      "run_updated_at": "2026-11-13T08:14:34Z"
+    },
+    {
+      "slug": "ly-1113-b28aa6",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794557683,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43391704940,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43391704940",
+      "run_started_at": "2026-11-13T08:14:43Z",
+      "run_updated_at": "2026-11-13T08:14:47Z"
     }
   ],
   "runs": {
@@ -82636,6 +82666,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43388648151",
       "run_number": 4495,
       "display_title": "中文源出片 · ly-1113-5449bb"
+    },
+    "ly-1113-b28aa6": {
+      "id": 43391704940,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-13T08:14:43Z",
+      "updated_at": "2026-11-13T08:14:47Z",
+      "run_started_at": "2026-11-13T08:14:43Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43391704940",
+      "run_number": 4498,
+      "display_title": "中文源出片 · ly-1113-b28aa6"
+    },
+    "ly-1113-e3358e": {
+      "id": 43391678210,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-13T08:14:30Z",
+      "updated_at": "2026-11-13T08:14:34Z",
+      "run_started_at": "2026-11-13T08:14:30Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43391678210",
+      "run_number": 4497,
+      "display_title": "中文源出片 · ly-1113-e3358e"
+    },
+    "ly-1113-11a8bf": {
+      "id": 43391652790,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-13T08:14:18Z",
+      "updated_at": "2026-11-13T08:14:22Z",
+      "run_started_at": "2026-11-13T08:14:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43391652790",
+      "run_number": 4496,
+      "display_title": "中文源出片 · ly-1113-11a8bf"
     },
     "ly-1113-c65a29": {
       "id": 43388627637,
