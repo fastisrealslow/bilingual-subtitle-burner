@@ -129659,7 +129659,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 79%（BV1UVWm6GEFd）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV11UD4YQEA2",
@@ -129829,7 +129830,8 @@
    },
    "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1b64y1Z71k",
@@ -129852,7 +129854,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-03T02:57:31+00:00"
+   "publish_time": "2021-01-03T02:57:31+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-cb5b07",
+    "run_id": 43464339836,
+    "artifact_id": 14058342320,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b5a8f82eac0c8d9461cc20c895f7840a45985ff0c83288a0b810956230d935ca",
+     "duration_sec": 76.6,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1b64y1Z71k"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43464339836,
+    "artifact_id": 14058342320,
+    "name": "production-reject-ly-1113-cb5b07",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -243578,6 +243613,13 @@
    "video_id": "BV1SyfoBRELB",
    "ts": 1794587685,
    "error": "与已发布内容文字指纹重复：转写片段重合 79%（BV1UVWm6GEFd）"
+  },
+  {
+   "slug": "ly-1113-cb5b07",
+   "key": "bilibili_search:BV1b64y1Z71k",
+   "video_id": "BV1b64y1Z71k",
+   "ts": 1794589075,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
