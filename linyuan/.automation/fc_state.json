@@ -130035,7 +130035,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/775，总帧数3870；身份匹配但人脸短边不足96px的帧数775",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1BX4y1K7kb",
@@ -130058,7 +130059,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-13T05:10:54+00:00"
+   "publish_time": "2021-01-13T05:10:54+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-cb1bee",
+    "run_id": 43489243870,
+    "artifact_id": 14070130152,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "1517effa07378b04918eb19631f2b318df6528392dbc6125df0d9cf39b7a5dbd",
+     "duration_sec": 103.53,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1BX4y1K7kb"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.11550632911392406, 0.12127659574468085, 0.14082278481012658, 0.1425531914893617), (0.0, 0.723404255319149, 0.07120253164556962, 0.8659574468085106)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43489243870,
+    "artifact_id": 14070130152,
+    "name": "production-reject-ly-1113-cb1bee",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.11550632911392406, 0.12127659574468085, 0.14082278481012658, 0.1425531914893617), (0.0, 0.723404255319149, 0.07120253164556962, 0.8659574468085106)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1KFwjzLErQ",
@@ -243841,6 +243875,13 @@
    "video_id": "BV1BdGy6dE5C",
    "ts": 1794597669,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/775，总帧数3870；身份匹配但人脸短边不足96px的帧数775"
+  },
+  {
+   "slug": "ly-1113-cb1bee",
+   "key": "bilibili_search:BV1BX4y1K7kb",
+   "video_id": "BV1BX4y1K7kb",
+   "ts": 1794598123,
+   "error": "真人动态区仍有稳定来源角标：[(0.11550632911392406, 0.12127659574468085, 0.14082278481012658, 0.1425531914893617), (0.0, 0.723404255319149, 0.07120253164556962, 0.8659574468085106)]"
   }
  ],
  "reviewed_third_video_0910": {
