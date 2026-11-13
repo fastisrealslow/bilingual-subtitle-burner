@@ -130375,7 +130375,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-01T03:15:55+00:00"
+   "publish_time": "2021-01-01T03:15:55+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1113-6749d4",
+    "run_id": 43522399042,
+    "artifact_id": 14084167893,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f02b2758a20688b89d42627b4d1db78bac86ef5857ba529c739c7019562b64eb",
+     "duration_sec": 51.0,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1gX4y1M7SF"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"你可短暂，你我也可以投资行业嘛，我也可以组织个，我投资可短暂的行业。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 4, \"quote\": \"我觉得券商行业，我低估了，我我不买券商的正股，我买的可短暂。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43522399042,
+    "artifact_id": 14084167893,
+    "name": "production-reject-ly-1113-6749d4",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"你可短暂，你我也可以投资行业嘛，我也可以组织个，我投资可短暂的行业。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 4, \"quote\": \"我觉得券商行业，我低估了，我我不买券商的正股，我买的可短暂。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 7, \"quote\": \"首租本金今天是非常重要的啊！\", \"suspect_quote\": \"首租本金\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘申购本金’或类似术语误识别为‘首租本金’，属行业词错写。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -244164,6 +244197,13 @@
    "video_id": "BV1Kd4y1d7E7",
    "ts": 1794608723,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1113-6749d4",
+   "key": "bilibili_search:BV1gX4y1M7SF",
+   "video_id": "BV1gX4y1M7SF",
+   "ts": 1794611329,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"你可短暂，你我也可以投资行业嘛，我也可以组织个，我投资可短暂的行业。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 4, \"quote\": \"我觉得券商行业，我低估了，我我不买券商的正股，我买的可短暂。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 7, \"quote\": \"首租本金今天是非常重要的啊！\", \"suspect_quote\": \"首租本金\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘申购本金’或类似术语误识别为‘首租本金’，属行业词错写。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
