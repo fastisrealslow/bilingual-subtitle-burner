@@ -1295,17 +1295,31 @@ def candidate_duration(candidate):
 
 
 def dedup_by_title(cands, threshold=0.6):
-    """Keep the compatibility name, but deduplicate only an exact source/page.
+    """Deduplicate an exact page or the same native Weibo video object.
 
     Titles are discovery hints, not content fingerprints. The old character
     overlap/prefix rules erased different interviews, including all 30 eligible
     sources on 2026-09-16. Cross-URL reuploads are checked against actual media
-    and publication receipts later. Never discard their better source here.
+    and publication receipts later. Weibo repost pages can expose the exact
+    same platform object; collapse those before one admission fills all workers
+    with that same mother. Originals remain in the catalogue, without rejection.
     """
     result = {}
     for index, candidate in enumerate(cands):
         source = editorial.source_key(candidate.get('page_url') or candidate.get('video_url'))
-        key = source or candidate.get('key') or ('unknown', index)
+        from urllib.parse import urlsplit
+        page = urlsplit(candidate.get('page_url') or '')
+        extra = candidate.get('extra') or {}
+        if isinstance(extra, str):
+            try:extra = json.loads(extra)
+            except ValueError:extra = {}
+        object_id = extra.get('video_object_id') if isinstance(extra, dict) else None
+        # Only the exact platform-native identity counts. A matching title,
+        # author, generic ID, or claimed object on another host is not proof.
+        same_object = (page.scheme in {'http','https'} and not page.username
+            and not page.password and page.hostname in {'weibo.com','www.weibo.com','m.weibo.cn'}
+            and isinstance(object_id,str) and re.fullmatch(r'1034:[0-9]{8,24}',object_id))
+        key = ('weibo_video', object_id) if same_object else source or candidate.get('key') or ('unknown', index)
         previous = result.get(key)
         def score(row):
             duration = candidate_duration(row)
@@ -2584,7 +2598,9 @@ def _dispatch_admitted(event=None, context=None):
               json.dumps(admission, ensure_ascii=False))
     log.info(f"候选 {len(cands)} 条，本轮目标成功 {target} 条")
 
-    rel = staging_release_id()
+    # Public-page admissions need no FC upload or staging release. Resolve it
+    # lazily, only when the existing domestic transfer actually has media.
+    rel = None
     tmp = Path(tempfile.mkdtemp())
     success = 0
     # A new editorial rule must not leave already transcribed mothers stranded
@@ -2754,6 +2770,7 @@ def _dispatch_admitted(event=None, context=None):
                 c2 = dict(c)
                 c2["video_url"] = vurl
                 dur = download(c2, dest)
+                if rel is None:rel = staging_release_id()
                 asset_url = upload_asset(rel, dest)
             elif "weibo.c" in (c["page_url"] or ""):
                 # 微博 → 透传页面 URL 给 CI（2026-09-02 实测对比，见 test-source-fetch）：
@@ -2767,6 +2784,7 @@ def _dispatch_admitted(event=None, context=None):
                 # 其余有直链的 → FC 下载后上传到 staging release
                 dest = tmp / f"{c['slug']}.mp4"
                 dur = download(c, dest)
+                if rel is None:rel = staging_release_id()
                 asset_url = upload_asset(rel, dest)
             elif c["page_url"]:
                 # 非B站但无直链（腾讯新闻/抖音等）→ 透传页面 URL 给 CI
