@@ -1,0 +1,84 @@
+name: FC与流量只读私密核验
+on:
+  push:
+    branches: [ops/private-cloud-cost-20261114]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q aliyun-python-sdk-core aliyun-python-sdk-bssopenapi aliyun-python-sdk-cms cryptography
+      - name: 只读账单与监控，不调用函数，明细只保留密文
+        run: |
+          python - <<'PYAUDIT'
+          import os,json,base64,time
+          from pathlib import Path
+          from datetime import datetime,timedelta,timezone
+          from aliyunsdkcore.client import AcsClient
+          from aliyunsdkbssopenapi.request.v20171214.DescribeInstanceBillRequest import DescribeInstanceBillRequest
+          from aliyunsdkcms.request.v20170301.QueryMetricListRequest import QueryMetricListRequest
+          from cryptography.hazmat.primitives import serialization,hashes
+          from cryptography.hazmat.primitives.asymmetric import padding
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          REGION=os.environ.get('FC_REGION','cn-hangzhou');FN=os.environ.get('FC_FUNCTION_NAME','fc-develop')
+          PUBLIC_KEY='-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn90RjSuTlWl0ZrRaRK08\nuxcjZSs4Tr62flgzNrGHjEgfRNHpq5DOI1t4QISiih8fJRTXiPuWc9bp9oZ4n440\n1rFiErAByX33wOlb7WqB/UErWrnJIixP0WpqDjxch2qtnuHIEU6MRC/ksztJ1LP8\nQV8ygMjbgsxGgE+rVlyz6MabyjYY29TZcRlgq0LBy8/L5a3JpYZcAf/bWIV3BofG\nU5FgBNxN7c/z41YGVggLZvh64d86BCTBtuI0/6IpBwFfnZpMwUbC/4Ei6ytIfVg+\nCxkaN8J4coCBfgbmCSZpUd9g9CuhYWQAlhSNSXMo+qBnVNBIa2CWl4O7kV3n5JxE\neQIDAQAB\n-----END PUBLIC KEY-----\n'
+          CST=timezone(timedelta(hours=8));now=datetime.now(CST)
+          c=AcsClient(os.environ['ALIYUN_AK'],os.environ['ALIYUN_SK'],REGION,auto_retry=False,timeout=20)
+          private=dict(observed_at=now.isoformat(),billing=[],metrics=[])
+          report=dict(function_invocations=0,configuration_writes=0,billing_read='unavailable',metrics_read='unavailable',invoice_target_verified=False)
+          def err(e):
+           return str(e.get_error_code() if hasattr(e,'get_error_code') else type(e).__name__)
+          try:
+           req=DescribeInstanceBillRequest();req.set_accept_format('json');req.set_BillingCycle('2026-11');req.set_ProductCode('fc');req.set_IsBillingItem(True);req.set_MaxResults(300);req.set_Granularity('MONTHLY')
+           raw=json.loads(c.do_action_with_exception(req));private['billing'].append(dict(product='fc',cycle='2026-11',data=raw))
+           if raw.get('Success') is False or raw.get('Code') not in (None,'Success'):raise ValueError('Billing read not successful')
+           report['billing_read']='available_encrypted_only'
+           for product in ['fc','cdt']:
+            for day in ['2026-11-07','2026-11-12','2026-11-13']:
+             token=None
+             for page in range(6):
+              req=DescribeInstanceBillRequest();req.set_accept_format('json');req.set_BillingCycle(day[:7]);req.set_BillingDate(day);req.set_ProductCode(product);req.set_IsBillingItem(True);req.set_MaxResults(300);req.set_Granularity('DAILY')
+              if token:req.set_NextToken(token)
+              raw=json.loads(c.do_action_with_exception(req));private['billing'].append(dict(product=product,day=day,data=raw))
+              token=(raw.get('Data') or {}).get('NextToken')
+              if not token:break
+             if token:private['billing'].append(dict(product=product,day=day,incomplete=True))
+          except Exception as e:report['billing_read']=err(e)
+          try:
+           for day in ['2026-11-07','2026-11-12','2026-11-13']:
+            start=datetime.fromisoformat(day).replace(tzinfo=CST);end=start+timedelta(days=1)
+            for metric in ['FunctionTotalInvocations','FunctionTXBytesPerSec','FunctionRXBytesPerSec']:
+             req=QueryMetricListRequest();req.set_accept_format('json');req.set_Project('acs_fc');req.set_Metric(metric);req.set_Period('60');req.set_StartTime(str(int(start.timestamp()*1000)));req.set_EndTime(str(int(end.timestamp()*1000)));req.set_Dimensions(json.dumps(dict(region=REGION,serviceName='',functionName=FN)))
+             raw=json.loads(c.do_action_with_exception(req));private['metrics'].append(dict(day=day,metric=metric,data=raw))
+           report['metrics_read']='response_encrypted_only'
+          except Exception as e:report['metrics_read']=err(e)
+          private['report']=report
+          key=AESGCM.generate_key(bit_length=256);nonce=os.urandom(12);aad=b'linyuan-private-cloud-audit-20261114-v1'
+          cipher=AESGCM(key).encrypt(nonce,json.dumps(private,ensure_ascii=False).encode(),aad)
+          public=serialization.load_pem_public_key(PUBLIC_KEY.encode())
+          wrapped=public.encrypt(key,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+          Path('private-cost-audit.encrypted.json').write_text(json.dumps(dict(format='rsa-oaep-sha256-aes256gcm-v1',key=base64.b64encode(wrapped).decode(),nonce=base64.b64encode(nonce).decode(),ciphertext=base64.b64encode(cipher).decode())))
+          Path('private-cost-audit-status.json').write_text(json.dumps(report))
+          print(json.dumps(report))
+          PYAUDIT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: private-cost-audit
+          path: |
+            private-cost-audit-status.json
+            private-cost-audit.encrypted.json
+          retention-days: 7
+          if-no-files-found: error
