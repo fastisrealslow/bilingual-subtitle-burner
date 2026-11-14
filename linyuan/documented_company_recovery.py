@@ -11,8 +11,9 @@ import documented_company_story as D
 import verified_story_title_recovery as R
 
 ROOT=Path(__file__).resolve().parents[1]
-CPU_RUN=42230521924
-CPU_HEAD='77ee6980c79b2cdd8956735f52271626d7427eeb'
+# Real qwen3.5:9b replay of the current selector, positive case and controls.
+CPU_RUN=43605098370
+CPU_HEAD='fc701af8bda408e5db0719df2ec18796617b2646'
 DELIVERY_ARTIFACT=12953295426
 TIMELINE_ARTIFACT=13528993846
 

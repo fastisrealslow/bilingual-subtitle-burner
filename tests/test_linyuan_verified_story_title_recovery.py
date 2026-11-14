@@ -13,7 +13,7 @@ import verified_story_title_recovery as R
 
 @pytest.fixture(autouse=True)
 def fixed_experiment_window(monkeypatch):
-    monkeypatch.setattr(R.F.experiment,'preparing',lambda:True)
+    monkeypatch.setattr(R.F.experiment,'production_preparing',lambda:True)
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def test_unknown_response_or_any_existing_recovery_entry_cannot_replay(state,sto
 
 
 def test_closed_experiment_cannot_start_a_late_repair(state,stock,monkeypatch):
-    monkeypatch.setattr(R.F.experiment,'preparing',lambda:False)
+    monkeypatch.setattr(R.F.experiment,'production_preparing',lambda:False)
     assert R.plan(state,stock,[],[])[1]=='experiment_closed'
 
 
@@ -148,3 +148,14 @@ def test_seam_recovery_keeps_source_bans_and_worker_ceiling(state,stock):
     proof=seam_proof()
     assert R.plan(state,stock,[dict(status='queued')]*6,[],seam_proof=proof)[1]=='worker_limit'
     assert R.plan(state,stock,[],[dict(bvid='BV1iC4y1H7JN',no_reprint=1)],seam_proof=proof)[1]=='source_restricted'
+
+
+def test_daily_supply_recovery_is_not_closed_with_the_frozen_comparison(state,monkeypatch):
+    from datetime import datetime
+    now=datetime(2026,11,20,14,tzinfo=R.F.experiment.CST).timestamp()
+    monkeypatch.undo()
+    monkeypatch.setattr(R.F.experiment.time,'time',lambda:now)
+    stock=dict(inventory_fresh=True,experiment_ready={})
+    assert not R.F.experiment.preparing()
+    child,error=R.plan(state,stock,[],[])
+    assert error is None and child['slug']==R.CHILD
