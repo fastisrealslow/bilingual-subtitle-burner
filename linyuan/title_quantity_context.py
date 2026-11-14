@@ -5,7 +5,8 @@ talk. They supplement semantic review and do not verify the speaker's facts.
 """
 import re
 
-NUMBER = r'[零〇一二两三四五六七八九十百千0-9]+'
+NUMBER_CHARS = '零〇一二两三四五六七八九十百千0-9'
+NUMBER = rf'[{NUMBER_CHARS}]+'
 ANNUAL = r'每年|(?<![零〇一二两三四五六七八九十百千0-9])年(?:复合|符合)?增长|年均|年化'
 
 
@@ -30,6 +31,24 @@ def number(raw):
 
 def clean(text):
     return re.sub(r'[^\u4e00-\u9fff0-9%％.]', '', str(text))
+
+
+def ordinal_total_error(title, cover, source, evidence):
+    """An ordinal mention is not evidence for a completed event total.
+
+    Only inspect totals whose ordinal occurs in the source. Require a matching
+    cardinal count in selected guest evidence; do not infer completed history
+    from a host's reference to a next/current opportunity.
+    """
+    ordinals = {number(m[1]) for m in re.finditer(rf'第({NUMBER})次', clean(source))}
+    stated = {number(m[1]) for quote in evidence
+              for m in re.finditer(rf'(?<![第{NUMBER_CHARS}])({NUMBER})次', clean(quote))}
+    for copy in (title, cover):
+        for match in re.finditer(rf'(?<![第{NUMBER_CHARS}])({NUMBER})次', clean(copy)):
+            count = number(match[1])
+            if count in ordinals and count not in stated:
+                return '序数不能改成已发生的总次数；标题与封面中的次数须由所选嘉宾原文明确支持'
+    return None
 
 
 def population_contexts(source):
