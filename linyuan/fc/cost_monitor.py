@@ -67,6 +67,48 @@ def completed_day_window(now):
     return end-timedelta(days=1),end
 
 
+def delivery_metrics(state, *, start_ms, end_ms, experiment_id, experiment_version,
+                     treatment_target=2):
+    """Match spend to distinct published receipts in the same actual time window.
+
+    A planned slot, pending upload, relabelled baseline or duplicate BVID is not
+    an additional publication. This ledger audit is not a fresh public-view read.
+    """
+    if not 0<=start_ms<end_ms:raise ValueError('Invalid publication window')
+    rows=defaultdict(list)
+    for batch in (state.get('published') or {}).values():
+        for part in batch.get('parts') or [batch]:
+            ts=part.get('ts');bvid=part.get('bvid')
+            if (part.get('status')!='published' or not isinstance(bvid,str) or not bvid
+                    or type(ts) not in (int,float) or not math.isfinite(ts)
+                    or not start_ms<=ts*1000<end_ms):continue
+            rows[bvid].append(part)
+    durations=defaultdict(int);backends=defaultdict(int);treatment=0;conflicts=0
+    for copies in rows.values():
+        fields=('duration_sec','upload_backend','publishing_experiment')
+        if any(any(p.get(k)!=copies[0].get(k) for k in fields) for p in copies[1:]):
+            conflicts+=1;durations['unknown']+=1;backends['unknown']+=1
+            continue  # A conflicting duplicate cannot prove T or duration.
+        part=copies[0];seconds=part.get('duration_sec')
+        valid=(type(seconds) in (int,float) and math.isfinite(seconds) and seconds>0)
+        band=('unknown' if not valid else 'under_60' if seconds<60 else
+              '60_to_100' if seconds<=100 else 'over_100_under_120' if seconds<120 else '120_or_more')
+        durations[band]+=1
+        backend=part.get('upload_backend')
+        backends[backend if backend in {'github-qn','fc-reviewed'} else 'other_or_legacy']+=1
+        proof=part.get('publishing_experiment') or {}
+        treatment+=int(isinstance(proof,dict) and proof.get('experiment_id')==experiment_id
+            and proof.get('version')==experiment_version and proof.get('actual')=='field-story-v1'
+            and proof.get('planned')=='field-story-v1' and proof.get('compliant') is True
+            and proof.get('slot_number') in (2,4))
+    return dict(kind='persisted_publication_receipts_not_fresh_public_view',
+        published_receipts=len(rows),daily_target=4,publication_gap=max(0,4-len(rows)),
+        actual_treatment_receipts=treatment,treatment_target=treatment_target,
+        treatment_gap=max(0,treatment_target-treatment),duration_bands=dict(durations),
+        upload_backends=dict(backends),conflicting_receipts=conflicts,
+        experiment_id=experiment_id,experiment_version=experiment_version)
+
+
 def main():
     import os,json
     from pathlib import Path
@@ -81,6 +123,15 @@ def main():
         util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False),
         start_ms=int(start.timestamp()*1000),end_ms=int(end.timestamp()*1000))
     report['observed_date']=start.date().isoformat()
+    import sys
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+    import publishing_experiment as experiment
+    # Read existing receipts only: no publisher, source production or uploads.
+    state=json.loads((Path(__file__).resolve().parents[1]/'.automation/fc_state.json').read_text())
+    report['delivery']=delivery_metrics(state,start_ms=int(start.timestamp()*1000),
+        end_ms=int(end.timestamp()*1000),experiment_id=experiment.EXPERIMENT_ID,
+        experiment_version=experiment.VERSION,
+        treatment_target=2 if experiment.assignment((start+timedelta(hours=14)).timestamp()) else 0)
     Path('fc-cost-daily-estimate.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False))
     summary=os.environ.get('GITHUB_STEP_SUMMARY')
@@ -91,6 +142,11 @@ def main():
                     +'complete sample: '+str(report['complete_sample'])+'.\n\n'
                     +'Excludes synchronous calls, CDT, other functions and discounts. No function was invoked. '
                     +'The 10% invoice target remains unverified.\n')
+            delivery=report['delivery']
+            f.write('\nSame-day persisted publication receipts: '+str(delivery['published_receipts'])+'/4; '
+                +'compliant treatment: '+str(delivery['actual_treatment_receipts'])+'/'+str(delivery['treatment_target'])+'; '
+                +'60–100s videos: '+str(delivery['duration_bands'].get('60_to_100',0))+'. '
+                +'Missing output must not be presented as cost savings.\n')
 
 
 if __name__=='__main__':main()
