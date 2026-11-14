@@ -70,3 +70,59 @@ def test_delayed_cron_always_observes_one_complete_cst_day(clock,date):
 def test_daily_window_rejects_an_ambiguous_naive_clock():
     from datetime import datetime
     with pytest.raises(ValueError):m.completed_day_window(datetime(2026,11,14))
+
+
+def receipt(bvid='BV80',seconds=80,**extra):
+    return dict(status='published',bvid=bvid,ts=10,duration_sec=seconds,upload_backend='github-qn',**extra)
+
+
+def delivery(parts,**kwargs):
+    return m.delivery_metrics(dict(published=dict(batch=dict(parts=parts))),start_ms=0,end_ms=H,
+        experiment_id='test-cohort',experiment_version=1,**kwargs)
+
+
+def trial(**extra):
+    return dict(experiment_id='test-cohort',version=1,slot_number=2,
+        actual='field-story-v1',planned='field-story-v1',compliant=True,**extra)
+
+
+def test_cost_report_counts_80_second_output_and_does_not_hide_missing_daily_output():
+    r=delivery([receipt(),receipt('BVother',30)])
+    assert r['published_receipts']==2 and r['publication_gap']==2
+    assert r['duration_bands']==dict(under_60=1,**{'60_to_100':1})
+    assert r['treatment_gap']==2 and r['upload_backends']=={'github-qn':2}
+
+
+def test_pending_skipped_empty_and_wrong_window_do_not_fill_daily_target():
+    rows=[receipt(),{**receipt('BVpending'),'status':'uploading'},
+        {**receipt('BVskip'),'status':'skipped'},receipt(''),
+        {**receipt('BVnext'),'ts':H/1000},{**receipt('BVold'),'ts':-1}]
+    assert delivery(rows)['published_receipts']==1
+
+
+def test_duplicate_receipts_are_one_video_and_conflicting_proof_is_not_treatment():
+    row=receipt(publishing_experiment=trial())
+    r=delivery([row,dict(row)])
+    assert r['published_receipts']==1 and r['actual_treatment_receipts']==1
+    r=delivery([row,{**row,'publishing_experiment':{**trial(),'actual':'baseline'}}])
+    assert r['published_receipts']==1 and r['actual_treatment_receipts']==0
+    assert r['conflicting_receipts']==1
+
+
+@pytest.mark.parametrize('changes',[
+    dict(actual='baseline'),dict(planned='baseline'),dict(compliant=False),
+    dict(experiment_id='another-cohort'),dict(version=0),dict(slot_number=1),
+])
+def test_plans_fallbacks_other_cohorts_and_wrong_slots_are_not_compliant_treatment(changes):
+    proof={**trial(),**changes}
+    assert delivery([receipt(publishing_experiment=proof)])['actual_treatment_receipts']==0
+
+
+@pytest.mark.parametrize('seconds',[None,'80',float('nan'),True,-1])
+def test_unknown_duration_is_not_a_short_video(seconds):
+    assert delivery([receipt(seconds=seconds)])['duration_bands']=={'unknown':1}
+
+
+def test_finished_experiment_has_no_perpetual_treatment_gap():
+    r=delivery([receipt()],treatment_target=0)
+    assert r['treatment_target']==r['treatment_gap']==0
