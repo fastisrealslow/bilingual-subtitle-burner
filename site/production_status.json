@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794651082,
+  "updated_at": 1794651352,
   "inventory_updated_at": 1794651074,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 137,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -289,17 +289,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794651080,
+    "updated_at": 1794651350,
     "records": 17942,
     "video_records": 15391,
-    "initial_candidates": 191,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 190,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 9112,
-      "already_attempted_or_cooling": 4049,
+      "already_attempted_or_cooling": 4050,
       "noise": 45,
       "no_video": 2551,
       "unrelated": 84,
@@ -310,16 +310,7 @@
       "over_limit": 38,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1hk4y1Q7g4",
-        "title": "林园 P1 【2024.1.12林园访谈】对葛兰，胡锡进，巴菲特看法：公募不太懂，按规则就没问题；胡锡进心态和我们一样；",
-        "source": "bilibili_collection",
-        "author": "投资思维室",
-        "url": "https://www.bilibili.com/video/BV1hk4y1Q7g4",
-        "duration_sec": 126.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 137,
@@ -335,16 +326,16 @@
   },
   "counts": {
     "complete": 206,
-    "failed": 2513,
+    "failed": 2514,
     "paused": 5,
-    "interrupted": 8,
+    "interrupted": 7,
     "excluded": 96,
     "experiment_fallback": 153,
     "ready": 47,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -54991,11 +54982,11 @@
     },
     {
       "slug": "ly-1114-0b3b2c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794650412,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -55006,6 +54997,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43583158996",
       "run_started_at": "2026-11-14T10:00:11Z",
       "run_updated_at": "2026-11-14T10:09:02Z"
+    },
+    {
+      "slug": "ly-1114-e64b87",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794651308,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43584378581,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43584378581",
+      "run_started_at": "2026-11-14T10:15:08Z",
+      "run_updated_at": "2026-11-14T10:15:11Z"
     }
   ],
   "runs": {
@@ -84004,6 +84013,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43583158996",
       "run_number": 4545,
       "display_title": "中文源出片 · ly-1114-0b3b2c"
+    },
+    "ly-1114-e64b87": {
+      "id": 43584378581,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-14T10:15:08Z",
+      "updated_at": "2026-11-14T10:15:11Z",
+      "run_started_at": "2026-11-14T10:15:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43584378581",
+      "run_number": 4546,
+      "display_title": "中文源出片 · ly-1114-e64b87"
     },
     "ly-1114-6e2f3d": {
       "id": 43580666739,
