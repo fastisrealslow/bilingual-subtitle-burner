@@ -1,0 +1,80 @@
+name: 完整日FC消耗与实验库存只读回补
+on:
+  push:
+    branches: [ops/fc-complete-day-audit-20261114]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q alibabacloud-fc20230330 alibabacloud-tea-openapi
+      - name: 只读完整日执行记录，不调用任何函数
+        run: |
+          python - <<'PY'
+          import os,sys,json,datetime,collections
+          from pathlib import Path
+          sys.path.insert(0,'linyuan/fc')
+          from cost_monitor import collect,CST
+          from alibabacloud_fc20230330.client import Client
+          from alibabacloud_fc20230330 import models as m
+          from alibabacloud_tea_openapi import models as api
+          from alibabacloud_tea_util import models as util
+          c=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],endpoint='fcv3.'+os.environ['FC_REGION']+'.aliyuncs.com'))
+          runtime=util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False)
+          fn=os.environ['FC_FUNCTION_NAME'];reports=[]
+          for day in ['2026-11-10','2026-11-11','2026-11-12','2026-11-13']:
+              start=datetime.datetime.fromisoformat(day).replace(tzinfo=CST);end=start+datetime.timedelta(days=1)
+              begin_ms=int(start.timestamp()*1000);end_ms=int(end.timestamp()*1000)
+              row=collect(c,fn,m,runtime,start_ms=begin_ms,end_ms=end_ms)
+              row['observed_date']=day
+              groups=collections.Counter();token=None
+              for _ in range(20):
+                  kwargs=dict(qualifier='LATEST',limit=100,include_payload=True,started_time_begin=begin_ms,started_time_end=end_ms)
+                  if token:kwargs['next_token']=token
+                  body=c.list_async_tasks_with_options(fn,m.ListAsyncTasksRequest(**kwargs),{},runtime).body
+                  for task in body.tasks or []:
+                      raw=task.to_map()
+                      try:name=json.loads(raw.get('taskPayload') or '{}').get('triggerName','other')
+                      except (ValueError,TypeError):name='other'
+                      if name not in ['publish','publish-catchup','publish-recovery','reviewed-upload','dispatch-source-inventory','experiment-observations']:name='other'
+                      groups[name]+=1
+                  token=getattr(body,'next_token',None)
+                  if not token:break
+              row['trigger_counts']=dict(groups);reports.append(row)
+          triggers=c.list_triggers_with_options(fn,m.ListTriggersRequest(limit=100),{},runtime).body.triggers
+          clocks={t.trigger_name:json.loads(t.trigger_config) for t in triggers if t.trigger_name in ['publish','dispatch','experiment-observations']}
+          state=json.loads(Path('linyuan/.automation/fc_state.json').read_text());pubs=collections.defaultdict(lambda:dict(published=0,treatment=0,fallback=0))
+          for batch in state.get('published',{}).values():
+              for part in batch.get('parts',[]):
+                  if part.get('status')!='published' or not part.get('bvid'):continue
+                  exp=part.get('publishing_experiment') or {};day=str(exp.get('slot') or '')[:10]
+                  if not '2026-11-10'<=day<='2026-11-13':continue
+                  p=pubs[day];p['published']+=1
+                  p['treatment']+=int(exp.get('actual')=='field-story-v1' and exp.get('compliant') is True)
+                  p['fallback']+=int(exp.get('compliant') is False)
+          report=dict(function_invocations=0,days=reports,clocks=clocks,publications=dict(pubs),invoice_target_verified=False,
+              baseline=dict(observed_date='2026-11-07',estimated_cny=0.39362,completed_async_calls=40,
+              source='archived 2026-11-10 read-only async snapshot; same resource/hour-floor model; not invoice'))
+          Path('fc-complete-day-audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-complete-day-audit
+          path: fc-complete-day-audit.json
+          retention-days: 7
+          if-no-files-found: warn
