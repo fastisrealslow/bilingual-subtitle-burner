@@ -1,0 +1,16 @@
+name: 验证每日费用与实际发布回执报表
+on:
+  push:
+    branches: [ops/daily-cost-output-check-20261114]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: 执行现有只读日报，不调用生产或发布流程
+        run: gh workflow run linyuan-fc-cost-monitor.yml --repo fastisrealslow/bilingual-subtitle-burner --ref main
