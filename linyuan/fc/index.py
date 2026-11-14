@@ -3665,6 +3665,16 @@ def cover_quality_error(cover):
             if any(not (box[2]<=face[0] or box[0]>=face[2]
                          or box[3]<=face[1] or box[1]>=face[3]) for box in boxes):
                 return '宽版封面标题覆盖人物脸部'
+            if cover.get('style') == 'editorial' and cover.get('design_version') == 4:
+                try:
+                    panel = cover['portrait_panel']
+                    gap = panel[0] - max(box[2] for box in boxes)
+                    valid = (panel == [832,68,1152,652] and gap >= 24
+                             and cover.get('text_panel_gap') == gap)
+                except (KeyError, TypeError, ValueError, IndexError):
+                    valid = False
+                if not valid:
+                    return '封面文字与人物图片区域缺少安全间距'
     return None
 
 
