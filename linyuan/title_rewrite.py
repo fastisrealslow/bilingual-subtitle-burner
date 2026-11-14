@@ -1352,6 +1352,29 @@ def population_scope_error(title,cover,transcript):
 
 def research_scope_error(title, cover, transcript):
     source=compact(transcript)
+    # Research already understood and research worth doing are different
+    # predicates. Keep the object in the same source sentence: an unrelated
+    # admission of limited knowledge must not veto a separate research claim.
+    for copy in (title, cover):
+        for claim in re.finditer(r'(?:只有|唯有|仅有)([^，。！？；,:：!?;]{1,24}?)(?:可(?:以)?|值得|能)研究', copy):
+            target=compact(claim[1])
+            import jieba
+            objects=[word for word in jieba.cut(target) if len(word)>=2
+                     and word not in {'东西','行业','领域','公司','企业','产品'}]
+            sentences=re.split(r'[。！？!?；;]', transcript)
+            for sentence in sentences:
+                text=compact(sentence)
+                if (not any(word in text for word in objects) or
+                        not re.search(r'(?:研究|调研)(?:得|的)?(?:清楚|明白|透彻|透)', text) or
+                        not re.search(r'只有|唯有|仅有', text)):
+                    continue
+                # Explicit same-object eligibility is separate evidence. A
+                # question or negation cannot supply that affirmative claim.
+                supported=any(compact(claim[0]) in compact(s)
+                              and not re.search(r'不|没|并非|是否|难道|[？?]', s)
+                              for s in sentences)
+                if not supported:
+                    return '研究清楚的范围不能改写为唯一可研究的范围；标题和封面须保留原话的研究进展判断'
     # Oct10 real 9B control: “我跑的/我去的都还不错” was reviewed
     # as “上市企业整体不错，经营压力不大，大家信心很足”.
     # Keep this observed company-visit qualifier in each independent surface.
