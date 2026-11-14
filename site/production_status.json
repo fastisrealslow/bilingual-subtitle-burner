@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794656662,
+  "updated_at": 1794657035,
   "inventory_updated_at": 1794656655,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 137,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 8,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 0,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -289,17 +289,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794656660,
+    "updated_at": 1794657033,
     "records": 17972,
     "video_records": 15421,
-    "initial_candidates": 198,
-    "duration_eligible_records": 8,
-    "candidate_count": 8,
-    "known_duration_candidates": 6,
-    "unknown_duration_candidates": 2,
+    "initial_candidates": 190,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
+    "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 9171,
-      "already_attempted_or_cooling": 4010,
+      "speaker_unconfirmed": 9131,
+      "already_attempted_or_cooling": 4058,
       "noise": 45,
       "no_video": 2551,
       "unrelated": 84,
@@ -310,72 +310,7 @@
       "over_limit": 38,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:4509486884955506",
-        "title": "这是十多年前金融危机爆发时，在北京玉渊潭公园林园家里记者的采访，视频中，我们看到林园的酒柜里有贵州茅台、五粮液、片仔癀，",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4509486884955506",
-        "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:4509482271826786",
-        "title": "这是十多年前金融危机爆发时，在北京玉渊潭公园林园家里记者的采访，视频中，我们看到林园的酒柜里有贵州茅台、五粮液、片仔癀，",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4509482271826786",
-        "duration_sec": 0
-      },
-      {
-        "key": "weibo_search:5259984573039331",
-        "title": "2026年1月26日林园说",
-        "source": "weibo_search",
-        "author": "坚持长期主义投资之路",
-        "url": "https://m.weibo.cn/detail/5259984573039331",
-        "duration_sec": 5101.0
-      },
-      {
-        "key": "weibo_search:4403727782294195",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "minjiantouziren",
-        "url": "https://m.weibo.cn/detail/4403727782294195",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403724539760740",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "evian2015",
-        "url": "https://m.weibo.cn/detail/4403724539760740",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403676632094278",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "向彼得林奇看齐",
-        "url": "https://m.weibo.cn/detail/4403676632094278",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403675953141546",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "依然阳光oo",
-        "url": "https://m.weibo.cn/detail/4403675953141546",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403642528222916",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "爱杭州创业和投资",
-        "url": "https://m.weibo.cn/detail/4403642528222916",
-        "duration_sec": 390.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 137,
@@ -398,9 +333,9 @@
     "experiment_fallback": 155,
     "ready": 47,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2,
-    "running": 3
+    "running": 6
   },
   "tasks": [
     {
@@ -55101,21 +55036,21 @@
     },
     {
       "slug": "ly-1114-d3871b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794656407,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794657757,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 43591113714,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591113714",
       "run_started_at": "2026-11-14T11:40:07Z",
-      "run_updated_at": "2026-11-14T11:40:11Z"
+      "run_updated_at": "2026-11-14T11:43:46Z"
     },
     {
       "slug": "ly-1114-54d06d",
@@ -55152,6 +55087,78 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591137982",
       "run_started_at": "2026-11-14T11:40:24Z",
       "run_updated_at": "2026-11-14T11:40:28Z"
+    },
+    {
+      "slug": "ly-1114-2cdf29",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794656949,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43591815585,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591815585",
+      "run_started_at": "2026-11-14T11:49:09Z",
+      "run_updated_at": "2026-11-14T11:49:13Z"
+    },
+    {
+      "slug": "ly-1114-0d62da",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794656958,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43591827980,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591827980",
+      "run_started_at": "2026-11-14T11:49:18Z",
+      "run_updated_at": "2026-11-14T11:49:22Z"
+    },
+    {
+      "slug": "ly-1114-b5d9de",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794656971,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43591843775,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591843775",
+      "run_started_at": "2026-11-14T11:49:31Z",
+      "run_updated_at": "2026-11-14T11:49:35Z"
+    },
+    {
+      "slug": "ly-1114-3eeb9f",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794656981,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 43591857183,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591857183",
+      "run_started_at": "2026-11-14T11:49:41Z",
+      "run_updated_at": "2026-11-14T11:49:45Z"
     }
   ],
   "runs": {
@@ -84206,6 +84213,50 @@
       "run_number": 4542,
       "display_title": "中文源出片 · ly-1114-f197e6"
     },
+    "ly-1114-3eeb9f": {
+      "id": 43591857183,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-14T11:49:41Z",
+      "updated_at": "2026-11-14T11:49:45Z",
+      "run_started_at": "2026-11-14T11:49:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591857183",
+      "run_number": 4554,
+      "display_title": "中文源出片 · ly-1114-3eeb9f"
+    },
+    "ly-1114-b5d9de": {
+      "id": 43591843775,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-14T11:49:31Z",
+      "updated_at": "2026-11-14T11:49:35Z",
+      "run_started_at": "2026-11-14T11:49:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591843775",
+      "run_number": 4553,
+      "display_title": "中文源出片 · ly-1114-b5d9de"
+    },
+    "ly-1114-0d62da": {
+      "id": 43591827980,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-14T11:49:18Z",
+      "updated_at": "2026-11-14T11:49:22Z",
+      "run_started_at": "2026-11-14T11:49:18Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591827980",
+      "run_number": 4552,
+      "display_title": "中文源出片 · ly-1114-0d62da"
+    },
+    "ly-1114-2cdf29": {
+      "id": 43591815585,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-14T11:49:09Z",
+      "updated_at": "2026-11-14T11:49:13Z",
+      "run_started_at": "2026-11-14T11:49:09Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591815585",
+      "run_number": 4551,
+      "display_title": "中文源出片 · ly-1114-2cdf29"
+    },
     "ly-1114-4c61a8": {
       "id": 43591137982,
       "status": "in_progress",
@@ -84230,10 +84281,10 @@
     },
     "ly-1114-d3871b": {
       "id": 43591113714,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-14T11:40:07Z",
-      "updated_at": "2026-11-14T11:40:11Z",
+      "updated_at": "2026-11-14T11:43:46Z",
       "run_started_at": "2026-11-14T11:40:07Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43591113714",
       "run_number": 4548,
