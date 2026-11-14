@@ -2728,11 +2728,22 @@ def _dispatch_admitted(event=None, context=None):
                 asset_url = c["page_url"]
                 dur = 0
                 log.info("    B站源 → 透传页面 URL 给 CI 下载")
-            elif ci_public_source_page(c):
-                # Resolve the canonical finite player on the existing CI
-                # adapter; preserve source URL, real duration/quality checks.
+            elif ci_public_source_page(c) and (event or {}).get('execution_backend')=='github':
+                # Confirm this actual public player's finite source on CI.
+                # Temporary or unsupported reads retain the original domestic
+                # route; they are not evidence that the material is rejected.
+                try:
+                    # This branch is CI-only; the domestic ZIP deliberately
+                    # keeps its existing transfer implementation and dependencies.
+                    from importlib import import_module
+                    origin=import_module('ci_fetch_netease').resolve(ci_public_source_page(c))
+                except Exception as exc:
+                    mainland_deferred+=1
+                    log_event('source_transfer_fallback','公开原片CI预读取未确认，保留境内取源',type(exc).__name__)
+                    continue
+                dur=float(origin['declared_duration'])
+                validate_source_duration(dur)
                 asset_url=ci_public_source_page(c)
-                dur=0
                 log.info("    网易公开正文页 → 已验证CI取源，不经FC暂存")
             elif "news.qq.com" in (c["page_url"] or ""):
                 # 腾讯新闻：yt-dlp 下不了 blob 页面，FC 直接解析真直链下载
