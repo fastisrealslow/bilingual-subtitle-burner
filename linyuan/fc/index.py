@@ -2229,39 +2229,45 @@ def catchup_deficit(st, now=None):
     return min(1, max(0, MAX_PUBLISH_PER_DAY-count), len(due_publication_slots(st, now)))
 
 
+def cover_source_rank(meta):
+    """Prefer an already verified real frame within the same experiment group."""
+    style=meta.get('cover_style') or (meta.get('cover_proof') or {}).get('style')
+    return int(not (meta.get('cover_person_image_source')=='verified_source_frame'
+        and meta.get('cover_person_image_verified') is True
+        and style in {'scene','editorial','photo'}))
+
+
 def inventory_catchup_request(st, payload, now=None):
-    """Select the oldest due slot with a matching, current inspected video."""
+    """Select the oldest due slot, ranking actual remaining parts globally."""
     now = time.time() if now is None else now
     if not catchup_deficit(st, now) or not source_inventory(st, payload)['inventory_fresh']:
         return None
     latest = {e['slug']: e for e in _latest_dispatches(st)}
     for slot in due_publication_slots(st, now):
-        # Prefer Sunday's full interview. Missing optional long-form stock must
-        # not make the fourth daily slot impossible when a good portrait exists.
         for fallback in (False, True):
             plan=experiment.assignment(now,slot)
-            def record_rank(record):
-                eligible=[p for p in record.get('parts',[]) if p.get('status')=='verified'
-                          and content_fits_slot(p,latest.get(record.get('slug')),publication_slot_time(slot),fallback)]
-                return min((experiment.rank(p,plan) for p in eligible),default=2)
-            for record in sorted(payload.get('artifacts', []),key=record_rank):
-                if not inventory_record_current(record, now):continue
-                entry = latest.get(record.get('slug'))
-                if not entry or entry.get('failed') or record['slug'] in REVIEW_PAUSED_SLUGS:
-                    continue
-                for part in sorted(record.get('parts', []),key=lambda p:experiment.rank(p,plan)):
-                    if (part.get('status') != 'verified'
-                            or int(part.get('index', -1)) in processed_part_indices(entry)
-                            or inventory_publication_error(part,entry,st)
-                            or not content_fits_slot(part, entry, publication_slot_time(slot),fallback)
-                            or daily_mix_error(part, st.get('daily_publish') or {})):
-                        continue
-                    request = dict(batch_slug=record['slug'], artifact_id=record.get('artifact_id'),
-                        batch_remaining=1, makeup_slot=slot, expected_sha256=part.get('sha256'),
-                        title=part.get('title'), source_url=entry.get('source_url'))
-                    if fallback:request['weekly_full_fallback']=True
-                    if not makeup_request_error(request, st, now):
-                        return request
+            candidates=[]
+            for record in payload.get('artifacts', []):
+                if not inventory_record_current(record,now):continue
+                entry=latest.get(record.get('slug'))
+                if (not entry or entry.get('failed') or entry.get('uploading')
+                        or record['slug'] in REVIEW_PAUSED_SLUGS):continue
+                done=processed_part_indices(entry)
+                for part in record.get('parts',[]):
+                    if (part.get('status')=='verified' and int(part.get('index',-1)) not in done
+                            and content_fits_slot(part,entry,publication_slot_time(slot),fallback)):
+                        candidates.append((record,entry,part))
+            # Rank PARTS, not batches: a consumed or ineligible story in one
+            # batch must never promote its baseline sibling above a real T.
+            candidates.sort(key=lambda row:(experiment.rank(row[2],plan),cover_source_rank(row[2])))
+            for record,entry,part in candidates:
+                if (inventory_publication_error(part,entry,st)
+                        or daily_mix_error(part,st.get('daily_publish') or {})):continue
+                request=dict(batch_slug=record['slug'],artifact_id=record.get('artifact_id'),
+                    batch_remaining=1,makeup_slot=slot,expected_sha256=part.get('sha256'),
+                    title=part.get('title'),source_url=entry.get('source_url'))
+                if fallback:request['weekly_full_fallback']=True
+                if not makeup_request_error(request,st,now):return request
     return None
 
 
@@ -3021,7 +3027,7 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fa
                            or not inventory_publication_error(p,entry,publication_state))),
                      key=lambda p:(experiment.rank(p,experiment.assignment(now)) if now is not None else 0,
                                    slot_layout_rank(p,now) if now is not None else 0,
-                                   int(p['index'])))
+                                   cover_source_rank(p),int(p['index'])))
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
                          and (now is None or content_fits_slot(p,entry,now,weekly_fallback))),None)
@@ -5018,8 +5024,8 @@ def publish_handler(event=None, context=None):
                     and not inventory_publication_error(p,entry,st)
                     and content_fits_slot(p,entry,publication_slot_time(makeup_slot) if makeup_slot else now)]
             slot_time=publication_slot_time(makeup_slot) if makeup_slot else now
-            return min(((experiment.rank(p,publication_plan),slot_layout_rank(p,slot_time))
-                        for p in usable),default=(2,0))
+            return min(((experiment.rank(p,publication_plan),slot_layout_rank(p,slot_time),cover_source_rank(p))
+                        for p in usable),default=(2,0,1))
         pending.sort(key=pending_rank)
     # 遍历 pending，找到第一个有 artifact 的
     # 无 artifact 且未超重试次数 → 自动重试出片
@@ -5185,7 +5191,7 @@ def publish_handler(event=None, context=None):
         if not usable:
             return _continue_after_rejection(event, context, slug,
                 {'published': 0, 'no_content_for_slot': 1}, tmp)
-        usable.sort(key=lambda i:experiment.rank(parts[i],publication_plan))
+        usable.sort(key=lambda i:(experiment.rank(parts[i],publication_plan),cover_source_rank(parts[i])))
         k = usable[0] if publication_plan else k if k in usable else usable[0]
     part = parts[k]
     if makeup_slot and (not content_fits_slot(part, e, publication_slot_time(makeup_slot),
