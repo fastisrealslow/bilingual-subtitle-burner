@@ -1,11 +1,61 @@
 """Read actual daily receipts and creator visibility; never upload or retry."""
 from datetime import datetime, timezone, timedelta
 import json
+import math
 import os
 from pathlib import Path
 
 BEIJING=timezone(timedelta(hours=8))
 HOURS=(10,14,16,21)
+
+
+def public_treatment_day(state,creator,day,now):
+    """Count only authenticated archives public on this actual Beijing date.
+
+    ctime is submission, not publication. Missing/conflicting public clocks
+    remain unconfirmed. The same receipt/file/slot checks run on the subset.
+    """
+    import publishing_experiment as E
+    from fc.index import OWNER_MID
+    public={};unconfirmed=[]
+    if str(creator.get('owner_mid'))==str(OWNER_MID):
+        for row in creator.get('videos',[]):
+            if (not row.get('public') or row.get('state')!=0
+                    or str(row.get('mid'))!=str(OWNER_MID)
+                    or row.get('statistics_origin')!='authenticated-creator-read'):continue
+            pub=row.get('pubdate');ptime=(row.get('publication_clock_candidates') or {}).get('ptime')
+            valid=lambda v:type(v) in (int,float) and math.isfinite(v) and v>0
+            if valid(pub) and valid(ptime) and pub!=ptime:
+                unconfirmed.append(dict(bvid=row.get('bvid'),reason='publication_clocks_conflict'));continue
+            stamp=pub if valid(pub) else ptime if valid(ptime) else None
+            if stamp is None or stamp>now.timestamp():
+                unconfirmed.append(dict(bvid=row.get('bvid'),reason='publication_clock_unknown'));continue
+            public[row.get('bvid')]=(datetime.fromtimestamp(stamp,BEIJING).date().isoformat(),stamp)
+    filtered=dict(published={})
+    for slug,batch in (state.get('published') or {}).items():
+        # A successful upload response can arrive just after midnight even
+        # though the creator's public clock is before it. Project that verified
+        # clock read-only; never rewrite the stored submission receipt.
+        rows=[dict(p,ts=public[p['bvid']][1]) for p in batch.get('parts') or []
+              if p.get('bvid') in public and public[p['bvid']][0]==day]
+        if rows:filtered['published'][slug]=dict(parts=rows)
+    end=datetime.fromisoformat(day).replace(tzinfo=BEIJING)+timedelta(days=1)
+    observed=min(now.timestamp(),end.timestamp()-.001)
+    result=E.daily_requirement(filtered,observed)
+    due=2 if day<now.date().isoformat() else result['expected_by_now']
+    return dict(date=day,expected_by_now=due,confirmed_same_day_treatment=result['actual_treatment'],
+        passed=result['actual_treatment']>=due,unconfirmed_clocks=unconfirmed,
+        basis='authenticated_creator_publication_clock_and_distinct_receipt_file_slots')
+
+
+def prior_treatment_bvids(state,day):
+    import publishing_experiment as E
+    return list(dict.fromkeys(p['bvid'] for batch in (state.get('published') or {}).values()
+        for p in batch.get('parts') or [] if p.get('status')=='published' and p.get('bvid')
+        and E.delivery_receipt_matches(p.get('publishing_experiment'))
+        and p['publishing_experiment'].get('actual')==E.TREATMENT
+        and p['publishing_experiment'].get('compliant') is True
+        and p['publishing_experiment']['slot'][:10]==day))
 
 
 def experiment_receipts(state,now):
@@ -118,7 +168,9 @@ def experiment_recovery_needed(report):
     drafts=report.get('experiment_drafts') or {}
     executed=report['experiment']
     return bool(executed.get('missing_slots') or executed.get('noncompliant_slots')
-                or drafts and not drafts.get('passed'))
+                or drafts and not drafts.get('passed')
+                or report.get('previous_complete_day_treatment') and not report['previous_complete_day_treatment']['passed']
+                or report.get('today_treatment_visibility') and not report['today_treatment_visibility']['passed'])
 
 
 def main():
@@ -128,21 +180,28 @@ def main():
     _,state=read_state()
     now=datetime.now(BEIJING)
     report=daily_receipts(state,now)
+    import publishing_experiment as E
     bvids=[r['bvid'] for r in report['receipts']]
+    previous=(now.date()-timedelta(days=1)).isoformat()
+    prior_active=E.production_assignment(now.timestamp(),previous+' 21') is not None
+    query_bvids=list(dict.fromkeys(bvids+prior_treatment_bvids(state,previous))) if prior_active else bvids
     try:
-        creator=archive_status(bvids,OWNER_MID,os.environ['BILIBILI_COOKIES']) if bvids else dict(videos=[],public_count=0)
+        creator=archive_status(query_bvids,OWNER_MID,os.environ['BILIBILI_COOKIES'],include_statistics=True) if query_bvids else dict(videos=[],public_count=0)
         report['creator_verification']=creator
     except Exception as exc:
         creator=dict(videos=[],public_count=0,error_type=type(exc).__name__)
         report['creator_verification']=creator
     visible={r['bvid'] for r in creator.get('videos',[]) if r.get('public')}
     report['not_public_or_unconfirmed']=sorted(set(bvids)-visible)
-    report['public_check_passed']=len(visible)>=report['expected_by_now']
+    report['public_check_passed']=len(set(bvids)&visible)>=report['expected_by_now']
     report['experiment']=experiment_receipts(state,now)
-    import publishing_experiment as E
     report['daily_treatment_requirement']=E.daily_requirement(state,now.timestamp())
+    report['today_treatment_visibility']=public_treatment_day(state,creator,now.date().isoformat(),now)
+    if prior_active:report['previous_complete_day_treatment']=public_treatment_day(state,creator,previous,now)
     report['passed']=(report['receipt_check_passed'] and report['public_check_passed']
-                      and report['experiment']['passed'] and report['daily_treatment_requirement']['gap_by_now']==0)
+                      and report['experiment']['passed']
+                      and report['today_treatment_visibility']['passed']
+                      and (not prior_active or report['previous_complete_day_treatment']['passed']))
     stock=None
     if now.hour<HOURS[0] or report['experiment']['active']:
         stock=source_inventory(state)
@@ -155,13 +214,18 @@ def main():
         report['passed']=report['passed'] and report['opening_stock']['passed']
     Path('daily-publication-audit.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     summary=(f"{report['date']}：到当前应有 {report['expected_by_now']} 条；"
-             f"实际独立文件 {report['unique_verified_file_count']} 条，确认公开 {len(visible)} 条。")
+             f"实际独立文件 {report['unique_verified_file_count']} 条，确认公开 {len(set(bvids)&visible)} 条。")
     print(summary,flush=True)
     if report['experiment']['active']:
         trial=report['experiment']
         summary+=(f" 实验片实际发布 {trial['treatment_published']} 条；"
                   f"缺失时段 {trial['missing_slots']}；分组未达标 {trial['noncompliant_slots']}。")
         print(json.dumps(trial,ensure_ascii=False),flush=True)
+        visibility=report['today_treatment_visibility']
+        summary+=f" 当日公开时钟已核实的实验稿 {visibility['confirmed_same_day_treatment']}/2 条。"
+    if prior_active:
+        closing=report['previous_complete_day_treatment']
+        summary+=f" 上一完整日 {closing['date']} 公开实验稿 {closing['confirmed_same_day_treatment']}/2 条。"
     if report.get('experiment_drafts'):
         drafts=report['experiment_drafts']
         summary+=(f" 待发实验稿需 {drafts['required_distinct_drafts']} 条独立成片，"
