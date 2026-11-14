@@ -3,6 +3,22 @@ WORKFLOW='linyuan-publish-runner.yml'
 REPO='fastisrealslow/bilingual-subtitle-burner'
 
 
+def event_route(event, policy):
+    """FC timer names identify the timer; its custom message lives in payload."""
+    import json
+    name=str(event.get('triggerName',''))
+    if name!='publish' or not event.get('triggerTime'):return name
+    timer=policy.publish_timer()
+    if not timer['recovery']:return name
+    raw=event.get('payload')
+    if not isinstance(raw,str) or len(raw)>1024:return name
+    try:custom=json.loads(raw)
+    except (ValueError,TypeError):return name
+    # Recognize only this owned recovery message. Never merge arbitrary timer
+    # payload fields into publisher controls or infer an upload command.
+    return policy.RECOVERY_TRIGGER if custom==timer['payload'] else name
+
+
 def request(gh):
     rows=gh('GET',f'/actions/workflows/{WORKFLOW}/runs?per_page=5',timeout=15).get('workflow_runs')
     if not isinstance(rows,list):raise ValueError('Publisher clock run list unavailable')
