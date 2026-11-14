@@ -1072,6 +1072,10 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    from title_possible_existence import error as possible_existence_error
+    existence_issue = possible_existence_error(title, cover, transcript)
+    if existence_issue:
+        return existence_issue
     market_issue=market_order_scope_error(title,cover,transcript)
     if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
