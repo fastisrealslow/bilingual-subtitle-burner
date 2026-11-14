@@ -18,6 +18,17 @@ MAX_WINDOW_CHARS = 6000
 OVERLAP_SECONDS = 330
 
 
+def eligible_duration(duration):
+    """Cover speeches that exceed the structural reader's 720-second range.
+
+    This only enables source-sentence proposals. Clip duration, original text,
+    independent editorial review and the experiment's 1200-second mother floor
+    remain separate requirements.
+    """
+    return (type(duration) in (int, float) and math.isfinite(duration)
+            and 720 < duration <= 5400)
+
+
 def digest(value):
     return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True,
                                     separators=(',',':')).encode()).hexdigest()
@@ -115,7 +126,7 @@ def propose(cues,source_report,call,path,*,budget_sec=1200):
     source_sha=source_report.get('source_sha256')
     duration=source_report.get('duration_sec')
     if (source_report.get('passed') is not True or not re.fullmatch('[a-f0-9]{64}',str(source_sha))
-            or type(duration) not in (int,float) or not math.isfinite(duration) or not 900<=duration<=5400
+            or not eligible_duration(duration)
             or not cues or cues[-1]['end']>duration+1):
         raise ValueError('Keynote proposals require the current independently checked long mother')
     identity=dict(version=VERSION,source_sha256=source_sha,transcript_sha256=digest(cues))
