@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1794636160,
-  "inventory_updated_at": 1794636129,
+  "updated_at": 1794636618,
+  "inventory_updated_at": 1794636612,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
@@ -63,7 +63,7 @@
       "portrait": 0,
       "landscape": 0
     },
-    "consecutive_fallbacks": 3,
+    "consecutive_fallbacks": 4,
     "actual_treatment_published": 9,
     "valid_comparison_days": 1,
     "daily": [
@@ -277,10 +277,10 @@
       },
       {
         "date": "2026-11-14",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
         "controls": 1,
-        "fallback": 0,
+        "fallback": 1,
         "valid_comparison": false
       }
     ],
@@ -289,7 +289,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794636159,
+    "updated_at": 1794636616,
     "records": 17936,
     "video_records": 15385,
     "initial_candidates": 190,
@@ -322,15 +322,15 @@
     "landscape_target": 2,
     "daily_mix_usable": 137,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
     "complete": 205,
-    "failed": 2511,
+    "failed": 2512,
     "paused": 5,
-    "interrupted": 8,
-    "excluded": 92,
-    "experiment_fallback": 157,
+    "interrupted": 7,
+    "excluded": 96,
+    "experiment_fallback": 153,
     "ready": 47,
     "validation_failed": 2,
     "retry_queued": 1,
@@ -22921,7 +22921,7 @@
     {
       "slug": "ly-1019-6a26f5",
       "status": "experiment_fallback",
-      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792422078,
         "failed": null,
@@ -23047,12 +23047,12 @@
     {
       "slug": "ly-story-106072c713",
       "status": "experiment_fallback",
-      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792484728,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
@@ -23335,7 +23335,7 @@
     {
       "slug": "ly-story-d13b5dbaa8",
       "status": "experiment_fallback",
-      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792493526,
         "failed": null,
@@ -24001,7 +24001,7 @@
     {
       "slug": "ly-story-7524eb9e46",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792668652,
         "failed": false,
@@ -24109,7 +24109,7 @@
     {
       "slug": "ly-story-cc7384a98b",
       "status": "experiment_fallback",
-      "detail": "实验未达标；4 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；3 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1792681925,
         "failed": null,
@@ -41302,8 +41302,8 @@
     },
     {
       "slug": "ly-1103-d1fbc5",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793693864,
         "failed": null,
@@ -41320,8 +41320,8 @@
     },
     {
       "slug": "ly-story-aa3db855c9",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793699393,
         "failed": null,
@@ -52804,8 +52804,8 @@
     },
     {
       "slug": "ly-1112-90d5d3",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1794446608,
         "failed": null,
@@ -52984,8 +52984,8 @@
     },
     {
       "slug": "ly-story-94c44e703c",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1794455830,
         "failed": null,
@@ -54892,11 +54892,11 @@
     },
     {
       "slug": "ly-1114-610b79",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1794635495,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
