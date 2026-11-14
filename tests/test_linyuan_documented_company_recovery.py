@@ -25,7 +25,7 @@ def proof():
 
 @pytest.fixture
 def state(monkeypatch):
-    monkeypatch.setattr(R.F.experiment,'preparing',lambda:True)
+    monkeypatch.setattr(R.F.experiment,'production_preparing',lambda:True)
     return dict(dispatched=[dict(slug=R.ORIGINAL,source_url=R.SOURCE,editorial_profile=R.TREATMENT,
         experiment_mother_sha256=R.MOTHER,experiment_selection_revision=2026102201,
         selected_parts='1',quality_retries=2,source_check_attempts=2),

@@ -84,7 +84,7 @@ def plan(state, stock, active, seeds, *, seam_proof=None, documentary_proof=None
         if not any(e.get('slug')==CHILD for e in state.get('dispatched',[])):
             return None,'prior_title_retry_missing'
         child_slug=ASR_CHILD
-    if not F.experiment.preparing():return None,'experiment_closed'
+    if not F.experiment.production_preparing():return None,'experiment_closed'
     if any(e.get('slug')==child_slug for e in state.get('dispatched',[])):
         return None,'already_attempted_or_unresolved'
     if not stock.get('inventory_fresh'):
