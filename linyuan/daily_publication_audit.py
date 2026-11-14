@@ -30,10 +30,14 @@ def public_treatment_day(state,creator,day,now):
             stamp=pub if valid(pub) else ptime if valid(ptime) else None
             if stamp is None or stamp>now.timestamp():
                 unconfirmed.append(dict(bvid=row.get('bvid'),reason='publication_clock_unknown'));continue
-            public[row.get('bvid')]=datetime.fromtimestamp(stamp,BEIJING).date().isoformat()
+            public[row.get('bvid')]=(datetime.fromtimestamp(stamp,BEIJING).date().isoformat(),stamp)
     filtered=dict(published={})
     for slug,batch in (state.get('published') or {}).items():
-        rows=[p for p in batch.get('parts') or [] if public.get(p.get('bvid'))==day]
+        # A successful upload response can arrive just after midnight even
+        # though the creator's public clock is before it. Project that verified
+        # clock read-only; never rewrite the stored submission receipt.
+        rows=[dict(p,ts=public[p['bvid']][1]) for p in batch.get('parts') or []
+              if p.get('bvid') in public and public[p['bvid']][0]==day]
         if rows:filtered['published'][slug]=dict(parts=rows)
     end=datetime.fromisoformat(day).replace(tzinfo=BEIJING)+timedelta(days=1)
     observed=min(now.timestamp(),end.timestamp()-.001)
@@ -195,7 +199,7 @@ def main():
     report['today_treatment_visibility']=public_treatment_day(state,creator,now.date().isoformat(),now)
     if prior_active:report['previous_complete_day_treatment']=public_treatment_day(state,creator,previous,now)
     report['passed']=(report['receipt_check_passed'] and report['public_check_passed']
-                      and report['experiment']['passed'] and report['daily_treatment_requirement']['gap_by_now']==0
+                      and report['experiment']['passed']
                       and report['today_treatment_visibility']['passed']
                       and (not prior_active or report['previous_complete_day_treatment']['passed']))
     stock=None

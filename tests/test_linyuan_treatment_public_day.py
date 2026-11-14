@@ -48,6 +48,13 @@ def test_actual_creator_ptime_is_supported_without_using_ctime():
     assert public_treatment_day(state(rows),proof,DAY,NOW)['passed']
 
 
+def test_late_upload_response_does_not_override_verified_actual_public_day_or_mutate_receipt():
+    rows=[part(DAY,h) for h in (14,21)];proof=creator(rows)
+    rows[1]['ts']=clock('2026-11-15T00:02:00');before=deepcopy(rows)
+    assert public_treatment_day(state(rows),proof,DAY,NOW)['passed']
+    assert rows==before
+
+
 def test_a_delayed_midnight_audit_still_fails_yesterdays_zero_treatments():
     today=public_treatment_day(state([]),{},'2026-11-15',NOW)
     closing=public_treatment_day(state([]),{},DAY,NOW)
