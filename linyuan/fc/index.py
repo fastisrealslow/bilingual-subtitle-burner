@@ -2898,12 +2898,13 @@ def _dispatch_admitted(event=None, context=None):
     if mainland_deferred and success < target:
         return {'dispatched': success, 'requires_mainland_transfer': True}
     _process_retries(st)
-    if not cands and not success and time.time()-st.get('source_refresh_requested_at',0)>2*3600:
+    source_gap=(not cands or (any(initial_experiment_needs.values()) and not any(normal_deficits.values())))
+    if source_gap and not success and time.time()-st.get('source_refresh_requested_at',0)>2*3600:
         try:
             gh('POST','/actions/workflows/linyuan-monitor.yml/dispatches',{'ref':'main'})
             st['source_refresh_requested_at']=int(time.time())
             save_state(st)
-            log_event('source_refresh','候选耗尽，已请求自动补源','两小时内不重复请求')
+            log_event('source_refresh','当前缺口没有可派发候选，已请求自动补源','两小时内不重复请求')
         except Exception as exc:
             log.warning('自动补源请求失败：%s',type(exc).__name__)
     if not success:
