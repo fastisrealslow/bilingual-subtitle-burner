@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 46
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -132,6 +132,26 @@ HOST_BRIDGE = re.compile(
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
     r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
     r'|'+HOST_RECAP)
+
+
+def host_bridge_indices(units):
+    """Locate explicit addressed recaps and their numbered introductions.
+
+    An addressed interpretation followed by an inferred action is a host
+    bridge, not evidence of the guest issuing that action. Questions may
+    still remain with their answers under the existing boundary policy.
+    """
+    indices={i for i,u in enumerate(units) if HOST_BRIDGE.search(u['text'])}
+    addressed=re.compile(
+        r'^(?:好[，,]|那么[，,]?|那[，,]?)*您(?:觉得|认为|的意思是)'
+        r'[^。！？!?]{2,60}[，,](?:那|那么|所以)'
+        r'(?:我们)?(?:要做的就是|就应该|就需要)[^。！？!?]{2,60}[。！!]$')
+    numbered=re.compile(r'^好(?:的)?[，,][^。！？!?]{0,24}第一(?:呢|点|个)?[，,]')
+    for i,u in enumerate(units):
+        if not addressed.fullmatch(u['text']):continue
+        indices.add(i)
+        if i and numbered.search(units[i-1]['text']):indices.add(i-1)
+    return indices
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
@@ -357,6 +377,7 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    bridges=host_bridge_indices(units)
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
@@ -367,7 +388,7 @@ def boundary_error(cues,pick):
         if promotional_cta(u['text']):return '选段包含原片带货收尾，须在原始句界结束，不能保留小黄车广告'
         if OUTRO.search(u['text']):return '选段包含主持人结束语，不能当作嘉宾回答凑时长'
         if i and TOPIC_CHANGE.search(u['text']):return '选段跨越明确的换题语，须按完整话题重新选择'
-        if FOLLOWUP.search(u['text']) or (i and HOST_BRIDGE.search(u['text'])):
+        if FOLLOWUP.search(u['text']) or (i and i in bridges):
             question=next((j for j in range(i,len(units)) if question_unit(units[j]['text'])),None)
             if question is None or question==len(units)-1:
                 return '片尾带入下一问的铺垫却没有回答，不能借主持人问题凑时长'
@@ -382,6 +403,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
               or i>0 and PROMOTIONAL_REINTRO.search(u['text'])),len(units))
     natural_end=(end<len(units) or bool(whole_source and units and units[-1]['end']==len(cues)-1))
     units=units[:end]
+    bridges=host_bridge_indices(units)
     questions=[i for i,u in enumerate(units) if question_unit(u['text'])
                or BACKREF_QUESTION.search(u['text']) and host_premise_start(units,cues,i) is not None]
     # Adjacent questions from the same interviewer turn belong together.
@@ -428,8 +450,8 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         if j is None:
             turn_ends.append(None);continue
         j=min([j]+[t-1 for t in transitions if i<t<=j])
-        j=min([j]+[t-1 for t in range(i+1,j+1) if HOST_BRIDGE.search(units[t]['text'])])
-        while j>i and (HOST_BRIDGE.search(units[j]['text'])
+        j=min([j]+[t-1 for t in range(i+1,j+1) if t in bridges])
+        while j>i and (j in bridges
                 or re.search(r'谢谢|感谢|祝愿|再见',units[j]['text'])
                 or INCOMPLETE_TAIL.search(units[j]['text'])):j-=1
         turn_ends.append(j)
@@ -523,7 +545,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
                 i in self_sections or
                 speech_opening(units[i]['text']) or i in investment_sections or
                 (whole_source and editorial.CONTENT_POLICY=='reference_v1' and contextual_self_answer(units,cues,i))):continue
-        if unresolved_question_tail(units[j]['text']) or HOST_BRIDGE.search(units[j]['text']):continue
+        if unresolved_question_tail(units[j]['text']) or j in bridges:continue
         a,b=units[i]['start'],units[j]['end']
         duration=cues[b]['end']-cues[a]['start']
         maximum=720 if whole_source and editorial.CONTENT_POLICY=='reference_v1' else 330
