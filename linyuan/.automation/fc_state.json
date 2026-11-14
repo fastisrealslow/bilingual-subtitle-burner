@@ -130432,7 +130432,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-07-12T07:24:03+00:00"
+   "publish_time": "2026-07-12T07:24:03+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1114-a220e7",
+    "run_id": 43535042441,
+    "artifact_id": 14089158934,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d1210ce56787d58e6cb986525552041b34f38c6acb1b21a5fe8c6caf7cbb598f",
+     "duration_sec": 52.97,
+     "resolution": {
+      "width": 720,
+      "height": 960,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1a4Ng6AEUM"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 61%（BV1PcHp6tE4k）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43535042441,
+    "artifact_id": 14089158934,
+    "name": "production-reject-ly-1114-a220e7",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 61%（BV1PcHp6tE4k）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1km4y1L7FC",
@@ -130455,7 +130488,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-07-23T09:37:48+00:00"
+   "publish_time": "2023-07-23T09:37:48+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1114-ca3103",
+    "run_id": 43535060516,
+    "artifact_id": 14090185592,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "cc56b45331eba26e0da39dd5ceb58eb56d5ce5f38868ca62f6509b4dd051d70d",
+     "duration_sec": 48.97,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1km4y1L7FC"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43535060516,
+    "artifact_id": 14090185592,
+    "name": "production-reject-ly-1114-ca3103",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1CU4y1x7DF",
@@ -130478,7 +130544,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-01-06T07:04:50+00:00"
+   "publish_time": "2021-01-06T07:04:50+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1114-88b289",
+    "run_id": 43535076250,
+    "artifact_id": 14090270309,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "53fb6ea35be4fee76e1625fabec9f3219e73c9e13c28975950a7b2eaf91a7073",
+     "duration_sec": 55.57,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1CU4y1x7DF"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 34.67s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43535076250,
+    "artifact_id": 14090270309,
+    "name": "production-reject-ly-1114-88b289",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 34.67s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -244274,6 +244373,27 @@
    "video_id": "BV1gX4y1M7SF",
    "ts": 1794611329,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"你可短暂，你我也可以投资行业嘛，我也可以组织个，我投资可短暂的行业。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 4, \"quote\": \"我觉得券商行业，我低估了，我我不买券商的正股，我买的可短暂。\", \"suspect_quote\": \"可短暂\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘可转债’误识别为‘可短暂’，属严重专名错写。\"}, {\"sentence_id\": 7, \"quote\": \"首租本金今天是非常重要的啊！\", \"suspect_quote\": \"首租本金\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将‘申购本金’或类似术语误识别为‘首租本金’，属行业词错写。\"}]"
+  },
+  {
+   "slug": "ly-1114-88b289",
+   "key": "bilibili_search:BV1CU4y1x7DF",
+   "video_id": "BV1CU4y1x7DF",
+   "ts": 1794617309,
+   "error": "整段取景预检：源 34.67s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1114-ca3103",
+   "key": "bilibili_search:BV1km4y1L7FC",
+   "video_id": "BV1km4y1L7FC",
+   "ts": 1794617309,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1114-a220e7",
+   "key": "bilibili_search:BV1a4Ng6AEUM",
+   "video_id": "BV1a4Ng6AEUM",
+   "ts": 1794617310,
+   "error": "与已发布内容文字指纹重复：转写片段重合 61%（BV1PcHp6tE4k）"
   }
  ],
  "reviewed_third_video_0910": {
