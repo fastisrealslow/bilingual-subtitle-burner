@@ -52,3 +52,21 @@ def test_collector_reads_paginated_control_plane_without_invocation():
     assert requests[0]['started_time_begin']==0 and requests[0]['started_time_end']==H
     assert report['function_invocations']==0 and report['control_plane_only']
     assert report['complete_sample']
+
+
+@pytest.mark.parametrize('clock,date',[
+    ('2026-11-14T04:55:00+08:00','2026-11-13'),
+    ('2026-11-14T22:20:00+08:00','2026-11-13'),
+    ('2026-11-13T23:55:00+00:00','2026-11-13'),
+    ('2027-01-01T07:20:00+08:00','2026-12-31'),
+])
+def test_delayed_cron_always_observes_one_complete_cst_day(clock,date):
+    from datetime import datetime
+    start,end=m.completed_day_window(datetime.fromisoformat(clock))
+    assert start.date().isoformat()==date
+    assert start.hour==end.hour==0 and (end-start).total_seconds()==86400
+
+
+def test_daily_window_rejects_an_ambiguous_naive_clock():
+    from datetime import datetime
+    with pytest.raises(ValueError):m.completed_day_window(datetime(2026,11,14))
