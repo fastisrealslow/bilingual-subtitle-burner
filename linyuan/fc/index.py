@@ -2266,13 +2266,36 @@ def cover_source_rank(meta):
         and style in {'scene','editorial','photo'}))
 
 
+def treatment_wait_until(stock,plan,now=None):
+    """Give verified T supply a bounded chance before consuming its slot as C.
+
+    Return immediately; never sleep with a publisher lease or on paid FC.
+    Ordinary fallback remains after 15:40 / 21:40 CST, before the next control
+    slot or the existing 21:55 domestic recovery. No extra quota or timer.
+    """
+    if (not plan or plan.get('planned')!=experiment.TREATMENT
+            or stock.get('inventory_fresh') is not True or 'experiment_ready' not in stock):return None
+    ready=stock.get('experiment_ready') or {}
+    wide=int(ready.get('landscape') or 0);portrait=int(ready.get('portrait') or 0)
+    number=plan.get('slot_number')
+    if (number==2 and wide>0) or (number==4 and wide+portrait>0):return None
+    if number not in (2,4):return None
+    start=publication_slot_time(plan['slot'])
+    deadline=start+(100 if number==2 else 40)*60
+    stamp=time.time() if now is None else now
+    return deadline if start<=stamp<deadline else None
+
+
 def inventory_catchup_request(st, payload, now=None):
     """Select the oldest due slot, ranking actual remaining parts globally."""
     now = time.time() if now is None else now
-    if not catchup_deficit(st, now) or not source_inventory(st, payload)['inventory_fresh']:
+    if not catchup_deficit(st, now):return None
+    stock=source_inventory(st,payload)
+    if not stock['inventory_fresh']:
         return None
     latest = {e['slug']: e for e in _latest_dispatches(st)}
     for slot in due_publication_slots(st, now):
+        if treatment_wait_until(stock,experiment.production_assignment(now,slot),now):continue
         for fallback in (False, True):
             plan=experiment.production_assignment(now,slot)
             candidates=[]
@@ -5007,8 +5030,8 @@ def publish_handler(event=None, context=None):
         save_state(st)
         return {"published": 0}
     plan=experiment.production_assignment(now)
-    if (not batch_slug and not force_publish and plan
-            and not source_inventory(st)['inventory_fresh']):
+    publication_stock=source_inventory(st) if not batch_slug and not force_publish and plan else None
+    if publication_stock is not None and not publication_stock['inventory_fresh']:
         # With no fresh index, the latest-30-run scan can omit an older accepted
         # treatment and silently publish a control instead. A control slot can
         # also consume treatment stock without the inspected ranking. Do not infer that
@@ -5017,6 +5040,13 @@ def publish_handler(event=None, context=None):
         # exact original-slot catch-up path, normal daily cap and full gates.
         requested=request_inventory_refresh(st)
         return dict(published=0,inventory_unavailable=1,
+                    inventory_refresh_requested=int(requested))
+    waiting_until=treatment_wait_until(publication_stock or {},plan,now)
+    if waiting_until is not None:
+        requested=request_inventory_refresh(st)
+        log_event('experiment_wait','实验档位等待合格实验稿，暂不消耗普通稿补位',
+            json.dumps(dict(slot=plan['slot'],fallback_after=waiting_until),ensure_ascii=False))
+        return dict(published=0,waiting_for_treatment=1,fallback_after=waiting_until,
                     inventory_refresh_requested=int(requested))
     attempted = set((event or {}).get("_attempted_slugs") or []) \
         if isinstance(event, dict) else set()

@@ -119,7 +119,9 @@ def test_one_native_story_is_one_available_file_across_two_treatment_slots(monke
     ('2026-10-18',16,[10,14]),('2026-10-18',21,[10,14,16]),
     ('2026-11-22',21,[10,14,16])])
 def test_actual_weekly_makeup_can_select_its_verified_fallback(monkeypatch,day,hour,done):
-    now=stamp(f'{day}T{hour:02d}:05:00');monkeypatch.setattr(F.time,'time',lambda:now)
+    # A treatment slot gives production until 21:40 before ordinary fallback.
+    minute=45 if hour==21 else 5
+    now=stamp(f'{day}T{hour:02d}:{minute:02d}:00');monkeypatch.setattr(F.time,'time',lambda:now)
     entry=dict(slug='ready',source_url='https://source')
     part=dict(index=0,status='verified',sha256='a'*64,title='林园：具体经历',
         render_mode='live_video_card',resolution=dict(width=720,height=1280))
