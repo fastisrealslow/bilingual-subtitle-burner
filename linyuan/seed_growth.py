@@ -160,7 +160,7 @@ def long_replenishment_budget(base):
         admission=inventory['source_admission']
         seeds=json.loads((base/'bilibili_seeds.json').read_text())['seeds']
     except (OSError,ValueError,KeyError,TypeError):return 0
-    if not stock['inventory_fresh'] or not fc.experiment.preparing():return 0
+    if not stock['inventory_fresh'] or not fc.experiment.production_preparing():return 0
     ready=stock.get('experiment_ready') or {}
     if int(ready.get('landscape') or 0)>=2 and sum(ready.values())>=4:return 0
     if not isinstance(admission.get('candidates'),list):return 0

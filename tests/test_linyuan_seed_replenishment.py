@@ -84,3 +84,14 @@ def test_six_waiting_long_sources_or_absent_admission_evidence_do_not_expand_aga
     for admission in (dict(candidates=[dict(duration_sec=1800)]*6),{}):
         p.write_text(json.dumps(dict(source_admission=admission)))
         assert G.long_replenishment_budget(base)==0
+
+
+def test_daily_long_source_shortage_keeps_bounded_seed_refill_after_old_comparison_ends(base,monkeypatch):
+    from datetime import datetime
+    now=datetime(2026,11,20,8,tzinfo=F.experiment.CST).timestamp()
+    monkeypatch.setattr(G.time,'time',lambda:now)
+    assert not F.experiment.preparing(now)
+    assert G.long_replenishment_budget(base)==4
+    report=G.run(base,target=1,search=False,verify=verified,replenish_long=True)
+    assert report['added_count']==4 and not report['production_dispatch']
+    assert report['accepted_mp4_count']==0
