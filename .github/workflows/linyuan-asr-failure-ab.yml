@@ -1,0 +1,79 @@
+name: 林园实际失败原声 ASR 对照（不发布）
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/yield45-asr-ab-20261013]
+    paths:
+      - .github/workflows/linyuan-asr-failure-ab.yml
+      - linyuan/asr_failure_ab.py
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: linyuan-asr-failure-ab
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          name: mother-media-9182a4e0b1c0846432263c6894f37ab63d18a5013df754bc210d5f96bd9e8cfd
+          run-id: 38411607326
+          github-token: ${{ github.token }}
+          path: failure-mother
+      - name: 验证失败母片哈希并截取同一段原声
+        run: >-
+          python linyuan/asr_failure_ab.py prepare
+          --source failure-mother/video.mp4 --output failure-audio
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paired-failure-audio
+          path: failure-audio/
+          if-no-files-found: error
+          retention-days: 14
+  compare:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [current, finance-context, larger]
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: paired-failure-audio
+          path: failure-audio
+      - name: 安装 CPU 识别依赖
+        run: |
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install qwen-asr
+          pip freeze > requirements-observed.txt
+      - name: 同音频同时间轴对照识别（禁止生产字幕覆盖）
+        run: >-
+          python -u linyuan/asr_failure_ab.py infer
+          --audio failure-audio --output failure-results --profile '${{ matrix.profile }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asr-failure-${{ matrix.profile }}
+          path: |
+            failure-results/results.json
+            requirements-observed.txt
+          retention-days: 30
