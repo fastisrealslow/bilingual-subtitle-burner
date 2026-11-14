@@ -2751,6 +2751,21 @@ def _dispatch_admitted(event=None, context=None):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
+        full_week=weekly_full_request(c,st)
+        if (not recent_probe and not any(normal_deficits.values()) and not full_week
+                and not experiment.long_candidate(c) and dispatch_requires_mainland(c)):
+            # Unknown-duration exploration uses the existing native-page CI
+            # route. Do not start a paid domestic transfer just to discover
+            # another ordinary mother while ordinary shelves are already full.
+            continue
+        if (not recent_probe and not any(normal_deficits.values()) and not full_week
+                and not experiment.long_candidate(c)
+                and not experiment_duration_probe_allowed(c,st,active_runs,exp_needs,
+                    known_long_available=known_long_available,measured_duration=0)):
+            # Ordinary stock cannot fill a story deficit. Keep these catalogue
+            # candidates eligible for a future ordinary shortage; do not spend
+            # transfer/worker quota, or mark the source rejected, just for C.
+            continue
         if (event or {}).get('execution_backend') == 'github' and dispatch_requires_mainland(c):
             # A domestic-only source must not block later Bilibili/Weibo
             # candidates. Keep it untouched, finish runnable admissions, then
@@ -2818,7 +2833,6 @@ def _dispatch_admitted(event=None, context=None):
                 log.info(f"    非B站源 → 透传页面 URL 给 CI 下载: {c['page_url'][:60]}")
             else:
                 raise RuntimeError("无可用 URL")
-            full_week = weekly_full_request(c, st)
             output_layout = "landscape" if not full_week and landscape_admissions>0 else "portrait"
             editorial_profile=experiment.BASELINE
             long_source=(experiment.MIN_MOTHER_SECONDS<=dur<=MAX_DUR) if dur else experiment.long_candidate(c)
@@ -2834,6 +2848,12 @@ def _dispatch_admitted(event=None, context=None):
                 # Ties keep the existing W-first order; no running job changes.
                 output_layout=('portrait' if full_week or duration_probe
                                or exp_needs['portrait']>exp_needs['landscape'] else 'landscape')
+            if (dur==0 and editorial_profile!=experiment.TREATMENT and not recent_probe and not full_week
+                    and normal_deficits.get(output_layout,0)<=0):
+                # Another candidate may have consumed the remaining intent.
+                # An actually measured admitted mother retains its existing
+                # ordinary salvage path and source-duration evidence.
+                continue
             probe_requested_at=int(time.time())
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
@@ -2867,6 +2887,8 @@ def _dispatch_admitted(event=None, context=None):
             if output_layout=='landscape':landscape_admissions=max(0,landscape_admissions-1)
             if editorial_profile==experiment.TREATMENT:
                 experiment.consume_production_need(exp_needs,output_layout)
+            else:
+                normal_deficits[output_layout]=max(0,normal_deficits.get(output_layout,0)-1)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
         except Exception as e:
