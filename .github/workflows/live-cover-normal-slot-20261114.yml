@@ -1,0 +1,82 @@
+name: 10点正常日更封面验证（最多一条，不补额外配额）
+on:
+  push:
+    branches: [ops/live-cover-normal-slot-20261114]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: linyuan-publish-runner
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      ALIYUN_AK: ${{ secrets.ALIYUN_AK }}
+      ALIYUN_SK: ${{ secrets.ALIYUN_SK }}
+      FC_REGION: ${{ vars.FC_REGION || 'cn-hangzhou' }}
+      FC_FUNCTION_NAME: ${{ vars.FC_FUNCTION_NAME || 'fc-develop' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装正常发布与原质检依赖
+        run: |
+          pip install -q requests numpy pillow pyyaml 'opencv-python-headless<5' alibabacloud-fc20230330 alibabacloud-tea-openapi
+          pip install -q -r linyuan/fc/runtime-requirements.txt
+          pip install -q --only-binary=biliup,stream-gears biliup==0.4.91
+          sudo iptables -t mangle -A OUTPUT -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1300
+          bash linyuan/ci_install_media_tools.sh
+      - name: 在免费CI等待正常10点档
+        run: |
+          python - <<'PY'
+          import time,datetime
+          target=datetime.datetime(2026,11,14,9,58,tzinfo=datetime.timezone(datetime.timedelta(hours=8))).timestamp()
+          if time.time()>target+15*60:raise SystemExit('Normal-slot verification window passed')
+          while time.time()<target:time.sleep(min(30,target-time.time()))
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: 只执行到期正常档，保留完整配额、重复与实验门禁
+        run: |
+          python - <<'PY'
+          import sys,time,datetime,json
+          from pathlib import Path
+          sys.path[:0]=['linyuan/fc','linyuan']
+          import index as fc
+          from publish_on_runner import run
+          target=datetime.datetime(2026,11,14,10,tzinfo=fc.experiment.CST).timestamp()
+          now=time.time()
+          kwargs=dict(max_slots=1,backend='ci-preferred')
+          if target-120<=now<target:kwargs['not_before']=target
+          elif now<target:raise SystemExit('Not yet the validated normal slot window')
+          result=run(**kwargs)
+          report=dict(publication=result,cover_evidence=[])
+          state=fc.load_state();ids=set(result.get('new_bvids') or [])
+          stock=json.loads(fc.gh('GET','/contents/linyuan/.automation/source_inventory.json?ref=main',raw=True))
+          for slug,batch in state.get('published',{}).items():
+              for part in batch.get('parts',[]):
+                  if part.get('bvid') not in ids:continue
+                  matches=[p for r in stock.get('artifacts',[]) if r.get('slug')==slug for p in r.get('parts',[]) if p.get('index')==part.get('part_index')]
+                  report['cover_evidence'].append(dict(bvid=part['bvid'],title=part['title'],slug=slug,
+                      slot=part.get('scheduled_slot'),experiment=part.get('publishing_experiment'),
+                      actual_backend=part.get('upload_backend'),
+                      inspected_cover=[{k:p.get(k) for k in ['cover_person_image_source','cover_person_image_verified','cover_style']} for p in matches]))
+          Path('live-cover-normal-slot.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-cover-normal-slot
+          path: live-cover-normal-slot.json
+          retention-days: 7
+          if-no-files-found: warn
