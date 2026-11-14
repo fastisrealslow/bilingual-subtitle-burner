@@ -60,6 +60,13 @@ def collect(client,function,models,runtime,*,start_ms,end_ms,max_pages=20):
     return report
 
 
+def completed_day_window(now):
+    """The previous full CST day is stable even when the hosted cron is late."""
+    if now.tzinfo is None:raise ValueError('An aware clock is required')
+    end=now.astimezone(CST).replace(hour=0,minute=0,second=0,microsecond=0)
+    return end-timedelta(days=1),end
+
+
 def main():
     import os,json
     from pathlib import Path
@@ -67,12 +74,13 @@ def main():
     from alibabacloud_fc20230330 import models
     from alibabacloud_tea_openapi import models as api
     from alibabacloud_tea_util import models as util
-    now=datetime.now(CST); start=now.replace(hour=0,minute=0,second=0,microsecond=0)
+    start,end=completed_day_window(datetime.now(CST))
     client=Client(api.Config(access_key_id=os.environ['ALIYUN_AK'],access_key_secret=os.environ['ALIYUN_SK'],
         endpoint='fcv3.'+os.environ.get('FC_REGION','cn-hangzhou')+'.aliyuncs.com'))
     report=collect(client,os.environ.get('FC_FUNCTION_NAME','fc-develop'),models,
         util.RuntimeOptions(connect_timeout=10000,read_timeout=60000,autoretry=False),
-        start_ms=int(start.timestamp()*1000),end_ms=int(now.timestamp()*1000))
+        start_ms=int(start.timestamp()*1000),end_ms=int(end.timestamp()*1000))
+    report['observed_date']=start.date().isoformat()
     Path('fc-cost-daily-estimate.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False))
     summary=os.environ.get('GITHUB_STEP_SUMMARY')
