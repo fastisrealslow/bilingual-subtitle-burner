@@ -1,0 +1,38 @@
+name: 实验供给新增长源的官方元数据核验
+on:
+  push:
+    branches: [ops/story-source-lead-20261114]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q requests jieba pyyaml beautifulsoup4 lxml
+      - name: 只读官方单条元数据，不下载媒体、不入库、不投稿
+        run: |
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          sys.path[:0]=['linyuan','linyuan/fc']
+          from seed_campaign import verify_seed,metadata_session
+          lead=dict(bvid='BV18yEG6iEgv',discovery='public_web_exact_video')
+          row=verify_seed(lead,metadata_session())
+          Path('story-source-lead.json').write_text(json.dumps(dict(function_invocations=0,media_downloads=0,media_approved=False,seed_writes=0,observation=row),ensure_ascii=False,indent=2))
+          print(json.dumps(row,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: story-source-lead
+          path: story-source-lead.json
+          retention-days: 14
+          if-no-files-found: error
