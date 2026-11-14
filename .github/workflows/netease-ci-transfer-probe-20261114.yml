@@ -1,0 +1,59 @@
+name: 网易公开原片CI取源核验（不投稿、不调用FC）
+on:
+  push:
+    branches: [ops/netease-ci-transfer-probe-20261114]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 安装现有取源器依赖
+        run: |
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          pip install -q requests yt-dlp==2026.10.26
+      - name: 两条公开页面只下载验原片，不进入生产或投稿
+        run: |
+          python - <<'PY'
+          import os,sys,json,tempfile,hashlib
+          from pathlib import Path
+          sys.path.insert(0,'linyuan')
+          from ci_fetch_generic import fetch
+          from ci_fetch_bilibili import validate_media
+          pages=['https://www.163.com/v/video/VGAM89A1G.html','https://www.163.com/v/video/VGAFEFH3T.html']
+          rows=[]
+          with tempfile.TemporaryDirectory() as temp:
+              for i,page in enumerate(pages):
+                  root=Path(temp)/str(i);root.mkdir()
+                  row=dict(page=page,passed=False)
+                  out,err=os.dup(1),os.dup(2)
+                  try:
+                      # Never expose HLS/CDN response URLs, headers or raw
+                      # downloader stderr in this public repository's logs.
+                      with open(root/'private-download.log','w') as sink:
+                          os.dup2(sink.fileno(),1);os.dup2(sink.fileno(),2)
+                          path=fetch(page,root/'media',root/'failure.json',budget_sec=240)
+                          media=validate_media(path)
+                          row.update(passed=True,size_bytes=path.stat().st_size,media=media,sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+                  except Exception as exc:row['error_type']=type(exc).__name__
+                  finally:os.dup2(out,1);os.dup2(err,2);os.close(out);os.close(err)
+                  rows.append(row)
+          report=dict(backend='github',function_invocations=0,submission_calls=0,rows=rows)
+          Path('netease-ci-transfer-probe.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          if not all(r['passed'] for r in rows):raise SystemExit('CI transfer not verified; retain existing production route')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: netease-ci-transfer-probe
+          path: netease-ci-transfer-probe.json
+          retention-days: 7
+          if-no-files-found: warn
