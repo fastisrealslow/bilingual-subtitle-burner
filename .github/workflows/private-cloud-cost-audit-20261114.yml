@@ -29,7 +29,7 @@ jobs:
           from datetime import datetime,timedelta,timezone
           from aliyunsdkcore.client import AcsClient
           from aliyunsdkbssopenapi.request.v20171214.DescribeInstanceBillRequest import DescribeInstanceBillRequest
-          from aliyunsdkcms.request.v20170301.QueryMetricListRequest import QueryMetricListRequest
+          from aliyunsdkcms.request.v20190101.DescribeMetricListRequest import DescribeMetricListRequest
           from cryptography.hazmat.primitives import serialization,hashes
           from cryptography.hazmat.primitives.asymmetric import padding
           from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -61,7 +61,7 @@ jobs:
            for day in ['2026-11-07','2026-11-12','2026-11-13']:
             start=datetime.fromisoformat(day).replace(tzinfo=CST);end=start+timedelta(days=1)
             for metric in ['FunctionTotalInvocations','FunctionTXBytesPerSec','FunctionRXBytesPerSec']:
-             req=QueryMetricListRequest();req.set_accept_format('json');req.set_Project('acs_fc');req.set_Metric(metric);req.set_Period('60');req.set_StartTime(str(int(start.timestamp()*1000)));req.set_EndTime(str(int(end.timestamp()*1000)));req.set_Dimensions(json.dumps(dict(region=REGION,serviceName='',functionName=FN)))
+             req=DescribeMetricListRequest();req.set_accept_format('json');req.set_Namespace('acs_fc');req.set_MetricName(metric);req.set_Length('1440');req.set_Period('60');req.set_StartTime(str(int(start.timestamp()*1000)));req.set_EndTime(str(int(end.timestamp()*1000)));req.set_Dimensions(json.dumps(dict(region=REGION,serviceName='',functionName=FN)))
              raw=json.loads(c.do_action_with_exception(req));private['metrics'].append(dict(day=day,metric=metric,data=raw))
            report['metrics_read']='response_encrypted_only'
           except Exception as e:report['metrics_read']=err(e)
