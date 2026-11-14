@@ -21,6 +21,8 @@ START = '2026-10-18'
 END_EXCLUSIVE = '2026-11-17'
 HOURS = (10, 14, 16, 21)
 MIN_MOTHER_SECONDS = 1200
+DELIVERY_POLICY_ID = 'daily-two-field-stories-20261114'
+DELIVERY_POLICY_VERSION = 2026111401
 CST = timezone(timedelta(hours=8))
 # Exact company identity, not fuzzy name matching or a new source fact.
 # The bank uses 招行 as its own short name on cmbchina.com.
@@ -55,6 +57,83 @@ def preparing(now=None):
     """Prepare stock one day early; do not alter the completed day's slots."""
     local = datetime.fromtimestamp(time.time() if now is None else now, CST).date()
     return date.fromisoformat(START)-timedelta(days=1) <= local < date.fromisoformat(END_EXCLUSIVE)
+
+
+def production_preparing(now=None):
+    """The user's daily supply requirement outlives the fixed comparison."""
+    local=datetime.fromtimestamp(time.time() if now is None else now,CST).date()
+    return local>=date.fromisoformat(START)-timedelta(days=1)
+
+
+def production_assignment(now=None,makeup_slot=None):
+    """Keep the old cohort frozen; continue its two editorial slots afterwards.
+
+    Post-comparison receipts have a delivery-policy identity, never the old
+    experiment ID/version. Historical samples and assignments are unchanged.
+    """
+    original=assignment(now,makeup_slot)
+    if original:return original
+    local=datetime.fromtimestamp(time.time() if now is None else now,CST)
+    slot=makeup_slot or local.strftime('%Y-%m-%d %H')
+    try:
+        parsed=datetime.strptime(slot,'%Y-%m-%d %H')
+        if parsed.strftime('%Y-%m-%d %H')!=slot or parsed.hour not in HOURS or slot[:10]<END_EXCLUSIVE:
+            return None
+    except (ValueError,TypeError):return None
+    ordinal=HOURS.index(parsed.hour)+1
+    return dict(delivery_policy_id=DELIVERY_POLICY_ID,delivery_policy_version=DELIVERY_POLICY_VERSION,
+        slot=slot,slot_number=ordinal,planned=TREATMENT if ordinal in (2,4) else BASELINE)
+
+
+def delivery_receipt_matches(row):
+    """Recognize a receipt's exact policy, not a requested profile or label."""
+    if not isinstance(row,dict):return False
+    plan=production_assignment(makeup_slot=row.get('slot')) if row.get('slot') else None
+    if not plan:return False
+    identity=(('experiment_id','version') if 'experiment_id' in plan else
+              ('delivery_policy_id','delivery_policy_version'))
+    return (all(row.get(k)==plan[k] for k in (*identity,'slot','slot_number','planned'))
+        and (not row.get('experiment_id') if 'experiment_id' not in plan else True))
+
+
+def daily_requirement(state,now=None):
+    """Two distinct actual same-day T deliveries; seven complete days to stabilize.
+
+    Old comparison records remain untouched. Counter-only/pending/fallback,
+    duplicate BVID/file or cross-day make-up receipts never fill today's SLA.
+    """
+    stamp=time.time() if now is None else now
+    local=datetime.fromtimestamp(stamp,CST);today=local.date();by_video={};conflicts=set()
+    for batch in (state.get('published') or {}).values():
+        for part in batch.get('parts') or []:
+            row=part.get('publishing_experiment');bvid=part.get('bvid');ts=part.get('ts')
+            sha=(part.get('fingerprints') or {}).get('sha256')
+            if (part.get('status')!='published' or not bvid or not delivery_receipt_matches(row)
+                    or row.get('planned')!=TREATMENT or row.get('actual')!=TREATMENT
+                    or row.get('compliant') is not True or row.get('content_type')=='full_interview'
+                    or type(ts) not in (int,float) or not math.isfinite(ts) or not 0<ts<=stamp
+                    or not re.fullmatch('[a-f0-9]{64}',str(sha or ''))):continue
+            actual_day=datetime.fromtimestamp(ts,CST).date().isoformat()
+            if actual_day!=row['slot'][:10]:continue
+            signature=(actual_day,row['slot'],sha)
+            if bvid in by_video and by_video[bvid]!=signature:conflicts.add(bvid)
+            else:by_video[bvid]=signature
+    by_day={};seen_files=set()
+    for bvid,(day,slot,sha) in sorted(by_video.items(),key=lambda item:item[1]):
+        if bvid in conflicts or sha in seen_files:continue
+        seen_files.add(sha);by_day.setdefault(day,set()).add(slot)
+    days=[]
+    for offset in range(7,0,-1):
+        day=(today-timedelta(days=offset)).isoformat();count=len(by_day.get(day,()))
+        days.append(dict(date=day,actual_treatment=count,target=2,passed=count>=2))
+    count=len(by_day.get(today.isoformat(),()))
+    due=sum(local.hour>=hour for hour in (14,21)) if production_preparing(stamp) else 0
+    return dict(policy_id=DELIVERY_POLICY_ID,policy_version=DELIVERY_POLICY_VERSION,
+        active=production_preparing(stamp),date=today.isoformat(),daily_target=2,
+        actual_treatment=count,expected_by_now=due,gap_by_now=max(0,due-count),
+        remaining_today=max(0,2-count),today_passed=count>=2,
+        stable_7_complete_days=all(d['passed'] for d in days),complete_days=days,
+        conflicting_bvids=len(conflicts),basis='distinct_same_day_published_bvid_and_file_receipts')
 
 
 def digest(value):
@@ -518,7 +597,7 @@ def operational_status(state, ready, now=None):
         for part in info.get('parts') or []:
             row=part.get('publishing_experiment')
             if (part.get('status')=='published' and part.get('bvid') and isinstance(row,dict)
-                    and row.get('experiment_id')==EXPERIMENT_ID):
+                    and delivery_receipt_matches(row)):
                 receipts[row['slot']]=row
     planned=sorted((r for r in receipts.values() if r.get('planned')==TREATMENT),key=lambda r:r['slot'])
     streak=0
@@ -532,18 +611,22 @@ def operational_status(state, ready, now=None):
         controls=sum(r.get('planned')==BASELINE and r.get('actual')==BASELINE and r.get('compliant')
                      and r.get('content_type')!='full_interview' for r in rows)
         daily.append(dict(date=day,published=len(rows),treatment=treatment,controls=controls,
-            fallback=sum(not r.get('compliant') for r in rows),valid_comparison=len(rows)==4 and treatment==2 and controls==2))
+            fallback=sum(not r.get('compliant') for r in rows),valid_comparison=START<=day<END_EXCLUSIVE
+                and len(rows)==4 and treatment==2 and controls==2))
     fresh=ready is not None
     total=sum(ready.values()) if fresh else None
-    alert=('unknown_stock' if not fresh else 'consecutive_fallbacks' if streak>=2 else
+    requirement=daily_requirement(state,now)
+    alert=('unknown_stock' if not fresh else 'daily_treatment_gap' if requirement['gap_by_now'] else
+           'consecutive_fallbacks' if streak>=2 else
            'no_verified_treatment' if total==0 else
            'insufficient_treatment_by_layout' if int(ready.get('landscape') or 0)<2
                or total<4 else None)
     return dict(experiment_id=EXPERIMENT_ID,selection_revision=SELECTION_REVISION,
-        active=preparing(now),verified_treatment=ready,consecutive_fallbacks=streak,
+        active=production_preparing(now),comparison_active=preparing(now),
+        daily_requirement=requirement,verified_treatment=ready,consecutive_fallbacks=streak,
         actual_treatment_published=sum(r.get('compliant') and r.get('actual')==TREATMENT for r in planned),
         valid_comparison_days=sum(d['valid_comparison'] for d in daily),daily=daily,
-        status='inactive' if not preparing(now) else 'needs_attention' if alert else 'ready',alert=alert)
+        status='inactive' if not production_preparing(now) else 'needs_attention' if alert else 'ready',alert=alert)
 
 
 def attach_proof(meta, cues, selection, mother_seconds):
@@ -929,7 +1012,7 @@ def long_candidate(candidate):
 
 
 def production_deficits(inventory,state,active_runs,now=None):
-    if not preparing(now) or 'experiment_ready' not in inventory:return dict(portrait=0,landscape=0)
+    if not production_preparing(now) or 'experiment_ready' not in inventory:return dict(portrait=0,landscape=0)
     ready=inventory.get('experiment_ready') or {}
     wide=int(ready.get('landscape') or 0);portrait=int(ready.get('portrait') or 0)
     # Two days of real T: afternoon needs native wide; evening already accepts
@@ -954,7 +1037,7 @@ def consume_production_need(needs,layout):
 
 
 def receipt(meta, now=None, makeup_slot=None):
-    plan=assignment(now,makeup_slot)
+    plan=production_assignment(now,makeup_slot)
     if not plan:return None
     actual=actual_profile(meta)
     size=meta.get('resolution') or {}

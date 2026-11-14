@@ -31,7 +31,7 @@ def test_evening_draft_is_checked_early_and_expired_or_unknown_stock_cannot_pass
     tomorrow=experiment_stock_check(stock,now.replace(hour=21))
     assert tomorrow['remaining_slots']==['2026-10-26 14','2026-10-26 21']
     assert not tomorrow['passed']  # One remaining file cannot cover tomorrow's two slots.
-    assert experiment_stock_check(stock,now.replace(month=11,day=20)) is None
+    assert experiment_stock_check(stock,now.replace(month=11,day=20))['remaining_slots']==['2026-11-20 21']
 
 
 def trial_state(actuals):
@@ -40,8 +40,8 @@ def trial_state(actuals):
     for i,(hour,actual) in enumerate(zip((10,14,16,21),actuals)):
         p=part('BV'+str(i),str(i)*64,f'2026-10-21T{hour:02d}:00:00')
         planned=E.TREATMENT if hour in (14,21) else E.BASELINE
-        p['publishing_experiment']=dict(experiment_id=E.EXPERIMENT_ID,slot=f'2026-10-21 {hour:02d}',
-            planned=planned,actual=actual,compliant=planned==actual,reason='qualified_stock_fallback' if planned!=actual else None)
+        p['publishing_experiment']=dict(**E.assignment(makeup_slot=f'2026-10-21 {hour:02d}'),
+            actual=actual,compliant=planned==actual,reason='qualified_stock_fallback' if planned!=actual else None)
         rows.append(p)
     return dict(published=dict(batch=dict(parts=rows)))
 
@@ -70,7 +70,7 @@ def test_not_yet_due_trial_slots_and_dates_outside_trial_are_not_false_failures(
     from daily_publication_audit import experiment_receipts
     state=trial_state(['baseline']*4)
     assert experiment_receipts(state,datetime(2026,10,21,10,20,tzinfo=BEIJING))['passed']
-    assert experiment_receipts({},datetime(2026,11,20,23,50,tzinfo=BEIJING))['passed']
+    assert not experiment_receipts({},datetime(2026,11,20,23,50,tzinfo=BEIJING))['passed']
     assert not experiment_receipts({},datetime(2026,10,21,14,20,tzinfo=BEIJING))['passed']
 
 

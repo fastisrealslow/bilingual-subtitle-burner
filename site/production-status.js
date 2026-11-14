@@ -54,8 +54,12 @@
     if (stock === 0) return {status: 'stockout',
       message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${data.plan?.version === 2 ? `未来七天目标共 ${7 * target} 条。` : data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
     const experiment = snapshot.publishing_experiment;
-    const warning = experiment && experiment.active && experiment.status === 'needs_attention'
-      ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。` : '';
+    const requirement = experiment && experiment.daily_requirement;
+    const dailyWarning = requirement && requirement.active
+      && Number.isInteger(requirement.actual_treatment) && requirement.actual_treatment >= 0
+      ? ` 今日实验稿 ${requirement.actual_treatment}/2，尚需 ${Math.max(0, 2 - requirement.actual_treatment)} 条；${requirement.stable_7_complete_days ? '最近七个完整日均达到两条回执，公开状态仍以创作中心核验为准。' : '尚未连续七个完整日达到每天两条。'}` : '';
+    const warning = (experiment && experiment.active && experiment.status === 'needs_attention'
+      ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。` : '') + dailyWarning;
     const plan = data.plan;
     if (plan?.version === 2) {
       const counts = plan.verified_by_layout, needs = plan.daily_by_layout, reserves = plan.reserve_targets_by_layout;

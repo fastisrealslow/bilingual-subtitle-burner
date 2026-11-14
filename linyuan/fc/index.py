@@ -485,7 +485,7 @@ def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
     # Keep the weekly full interview in a control slot during this experiment;
     # otherwise Sunday's 21:00 full interview permanently occupies treatment #4.
-    full_hour=16 if experiment.assignment(time.time() if now is None else now) else WEEKLY_FULL_SLOT[1]
+    full_hour=16 if experiment.production_assignment(time.time() if now is None else now) else WEEKLY_FULL_SLOT[1]
     full_slot = (local.tm_wday, local.tm_hour) == (WEEKLY_FULL_SLOT[0],full_hour)
     full = meta.get('content_type') == 'full_interview'
     if ((entry or {}).get('weekly_full_week') and not full
@@ -498,7 +498,7 @@ def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     # A verified native story can fill the evening treatment slot without
     # recropping it or passing a baseline off as the experiment. Portrait
     # treatment remains preferred by the publisher's layout ranking below.
-    plan = experiment.assignment(time.time() if now is None else now)
+    plan = experiment.production_assignment(time.time() if now is None else now)
     if (plan and plan['slot_number'] == 4
             and experiment.actual_profile(meta) == experiment.TREATMENT
             and meta.get('render_mode') != 'audio_card'):
@@ -2274,7 +2274,7 @@ def inventory_catchup_request(st, payload, now=None):
     latest = {e['slug']: e for e in _latest_dispatches(st)}
     for slot in due_publication_slots(st, now):
         for fallback in (False, True):
-            plan=experiment.assignment(now,slot)
+            plan=experiment.production_assignment(now,slot)
             candidates=[]
             for record in payload.get('artifacts', []):
                 if not inventory_record_current(record,now):continue
@@ -2399,7 +2399,7 @@ def source_inventory(st, payload=None):
     seen_files=set();seen_sources={};seen_fingerprints=[]
     if valid:
         records=payload.get('artifacts',[])
-        if experiment.preparing():
+        if experiment.production_preparing():
             records=sorted(records,key=lambda r:not any(experiment.actual_profile(p)==experiment.TREATMENT
                 for p in r.get('parts',[]) if p.get('status')=='verified'))
         for record in records:
@@ -2523,7 +2523,8 @@ def request_inventory_refresh(st):
 
 def refresh_after_experiment_publication(st, receipt):
     """Consumption/fallback must wake replenishment without waiting for cron."""
-    if (not receipt or receipt.get('experiment_id')!=experiment.EXPERIMENT_ID
+    if (not receipt or (receipt.get('experiment_id')!=experiment.EXPERIMENT_ID
+                        and not experiment.delivery_receipt_matches(receipt))
             or receipt.get('planned')!=experiment.TREATMENT):return False
     return request_inventory_refresh(st)
 
@@ -2865,7 +2866,7 @@ def _dispatch_admitted(event=None, context=None):
                   f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"
                   f"库存新鲜={inventory['inventory_fresh']}")
     result={"dispatched": success, "attempted": len(cands)}
-    if experiment.preparing() and 'experiment_ready' in inventory:
+    if experiment.production_preparing() and 'experiment_ready' in inventory:
         ready=inventory['experiment_ready']
         active_treatment=any(r.get('status') in {'queued','in_progress'} and any(
             e.get('editorial_profile')==experiment.TREATMENT
@@ -3075,7 +3076,7 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fa
                       and int(p['index']) not in processed_part_indices(entry)
                       and (publication_state is None
                            or not inventory_publication_error(p,entry,publication_state))),
-                     key=lambda p:(experiment.rank(p,experiment.assignment(now)) if now is not None else 0,
+                     key=lambda p:(experiment.rank(p,experiment.production_assignment(now)) if now is not None else 0,
                                    slot_layout_rank(p,now) if now is not None else 0,
                                    cover_source_rank(p) if now is not None and publication_state is not None else 0,
                                    int(p['index'])))
@@ -3257,8 +3258,7 @@ def experiment_replenishment_candidates(state, inventory, items, active_runs=())
             proof=part.get('publishing_experiment') or {}
             sha=part.get('source_sha256');file_sha=(part.get('fingerprints') or {}).get('sha256')
             if (part.get('status')!='published' or not part.get('bvid')
-                    or proof.get('experiment_id')!=experiment.EXPERIMENT_ID
-                    or proof.get('version')!=experiment.VERSION
+                    or not experiment.delivery_receipt_matches(proof)
                     or proof.get('planned')!=experiment.TREATMENT
                     or proof.get('actual')!=experiment.TREATMENT or proof.get('compliant') is not True
                     or proof.get('selection_kind') not in {'personal_story','company_case'}
@@ -3393,9 +3393,31 @@ def proven_company_recall_candidates(state, inventory, items, active_runs=()):
                'experiment_proven_recall':provenance},planning
 
 
+def experiment_mother_feasible(record,source_sha):
+    """Do not spend another T job on a measured impossible native cover.
+
+    Unknown/conflicting geometry remains eligible. This never rejects ordinary
+    stock, approves media, or substitutes final-card dimensions for the mother.
+    """
+    if not re.fullmatch('[a-f0-9]{64}',str(source_sha or '')):return True
+    parts=[p for p in record.get('parts',[]) if p.get('source_sha256')==source_sha
+           and p.get('status') in {'verified','published'}]
+    if not parts:return True
+    sizes=set()
+    for part in parts:
+        size=part.get('mother_source_resolution') or {}
+        if not isinstance(size,dict):return True
+        w,h=size.get('width'),size.get('height')
+        if type(w) is not int or type(h) is not int or min(w,h)<=0:return True
+        sizes.add((w,h))
+    if len(sizes)!=1:return True
+    from source_profile_feasibility import native_scene_unavailable
+    return native_scene_unavailable(*next(iter(sizes))) is None
+
+
 def experiment_reuse_candidates(state, inventory, items, active_runs=()):
     """One bounded automatic attempt per verified long mother, never relabel stock."""
-    if not experiment.preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
+    if not experiment.production_preparing() or not source_inventory(state,inventory)['inventory_fresh']:return
     from source_admission_guard import restriction
     proven=list(proven_company_recall_candidates(state,inventory,items,active_runs))
     yield from proven
@@ -3446,6 +3468,7 @@ def experiment_reuse_candidates(state, inventory, items, active_runs=()):
                 if p.get('status')=='verified' and p.get('source_sha256')}
         if len(hashes)>1 or any(not re.fullmatch('[a-f0-9]{64}',str(h)) for h in hashes):continue
         mother_sha=next(iter(hashes),entry.get('source_sha256'))
+        if not experiment_mother_feasible(record,mother_sha):continue
         if entry.get('source_sha256') and mother_sha!=entry['source_sha256']:continue
         if not url or url in used_sources or (mother_sha and mother_sha in used_hashes) or restriction(url,[]):continue
         matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
@@ -3483,6 +3506,7 @@ def experiment_reuse_candidates(state, inventory, items, active_runs=()):
                 and re.fullmatch('[a-f0-9]{64}',str(p.get('source_sha256') or ''))}
         if len(hashes)!=1:continue
         mother_sha=next(iter(hashes))
+        if not experiment_mother_feasible(dict(parts=published),mother_sha):continue
         if mother_sha in used_hashes:continue
         matches=[i for i in items if url in (i.get('page_url'),i.get('video_url'),i.get('url'))]
         if not any(experiment.long_candidate(i) and i.get('author','') not in COMPETITOR_AUTHORS
@@ -4982,7 +5006,7 @@ def publish_handler(event=None, context=None):
         log.info(f"本配额已投 {budget['count']} 条，达上限 {MAX_PUBLISH_PER_DAY}")
         save_state(st)
         return {"published": 0}
-    plan=experiment.assignment(now)
+    plan=experiment.production_assignment(now)
     if (not batch_slug and not force_publish and plan
             and not source_inventory(st)['inventory_fresh']):
         # With no fresh index, the latest-30-run scan can omit an older accepted
@@ -5009,7 +5033,7 @@ def publish_handler(event=None, context=None):
                                 e.get("published_parts", 0)))
     if not batch_slug:
         local = time.gmtime(now + 8 * 3600)
-        full_hour=16 if experiment.assignment(now) else WEEKLY_FULL_SLOT[1]
+        full_hour=16 if experiment.production_assignment(now) else WEEKLY_FULL_SLOT[1]
         if (local.tm_wday, local.tm_hour) == (WEEKLY_FULL_SLOT[0],full_hour):
             pending.sort(key=lambda e: not bool(e.get('weekly_full_week')))
         else:
@@ -5065,7 +5089,7 @@ def publish_handler(event=None, context=None):
         except Exception as exc:
             log.warning('Reserve artifact index unavailable: %s',type(exc).__name__)
 
-    publication_plan=experiment.assignment(now,makeup_slot) if not batch_slug or makeup_slot else None
+    publication_plan=experiment.production_assignment(now,makeup_slot) if not batch_slug or makeup_slot else None
     if publication_plan:
         def pending_rank(entry):
             usable=[p for r in reserve_records if r.get('slug')==entry['slug']
@@ -5566,6 +5590,7 @@ def publish_handler(event=None, context=None):
                           "fresh_six_date": FRESH_SIX_DATE if fresh_budget is not None else None,
                           "fresh_six_batch": fresh_six_counter(slug) if fresh_budget is not None else None,
                           "source_segments": part.get("segments") or [],
+                          "mother_source_resolution": part.get('mother_source_resolution'),
                           "source_sha256": part.get("source_sha256"),
                           "ts": int(time.time()),
                           "fingerprints": meta_info.get("fingerprints") or {}})

@@ -1,21 +1,45 @@
 """Rank intact source answers by sampled picture risk, never approve an output."""
 import json
+import re
 import time
 from pathlib import Path
 
-VERSION = 2
+VERSION = 3
 
 
-def candidate_order(picks, observations):
+def story_hint(cues,pick):
+    """Order literal source events before generic advice; never approve a story."""
+    from publishing_experiment import company_holding_request,company_subject_error
+    from documented_company_story import request as documented_request
+    if company_holding_request(cues,pick) is not None or documented_request(cues,pick) is not None:
+        return 2
+    from source_selection import sentence_units
+    for row in sentence_units(cues[pick['start']:pick['end']+1]):
+        text=row['text']
+        if re.search(r'如果|假设|假如|未来|打算|准备|应该',text):continue
+        # A past-choice question is a discovery hint only. The independent
+        # story reader must still find the guest's actual event and detail.
+        if (re.search(r'(?:当年|当时|以前)[^。！？!?]{0,24}(?:投资|选择|买入)',text)
+                and company_subject_error(dict(kind='company_case',subject_quote=text)) is None):
+            return 1
+        if re.search(r'[？?]',text):continue
+        if re.search(r'(?:我|我们)[^。！？!?]{0,20}(?:当年|当时|以前|那年|曾经|最早)'
+                     r'[^。！？!?]{0,30}(?:买|卖|入市|创业|投资|参观|工作)',text):
+            return 1
+    return 0
+
+
+def candidate_order(picks, observations, story_priorities=None):
     """Unknown evidence remains eligible; bad previews cannot discard a source."""
     def key(index):
         rows=observations[index]
+        hint=story_priorities[index] if story_priorities is not None else 0
         known=[r for r in rows if r.get('status') in ('possible','risk')]
-        if not known:return (1,0,0,picks[index].get('editorial_rank',index))
+        if not known:return (1,0,-hint,0,picks[index].get('editorial_rank',index))
         risky=sum(r['status']=='risk' for r in known)
         # A complete clean sample set is preferable to an incomplete preview.
         group=0 if not risky and len(known)==len(rows) else 2 if risky else 1
-        return (group,risky/len(known),sum(r.get('text_rows',0) for r in known)/len(known),
+        return (group,risky/len(known),-hint,sum(r.get('text_rows',0) for r in known)/len(known),
                 picks[index].get('editorial_rank',index))
     return sorted(range(len(picks)),key=key)
 
@@ -101,11 +125,14 @@ def rank(src,cues,picks,work,reference,models,engine,verify_boxes,threshold=.363
         error=f'{type(exc).__name__}: {exc}'
     finally:
         if cap is not None:cap.release()
-    order=candidate_order(picks,observations)
+    from publishing_experiment import profile,TREATMENT
+    priorities=[story_hint(cues,p) for p in picks] if profile()==TREATMENT else None
+    order=candidate_order(picks,observations,priorities)
     proof=dict(version=VERSION,final_quality_approved=False,sampled_frames=sampled,
         elapsed_sec=round(time.monotonic()-started,3),error=error,
         candidates=[dict(candidate=i+1,start=cues[p['start']]['start'],end=cues[p['end']]['end'],
-            editorial_rank=p.get('editorial_rank'),samples=observations[i]) for i,p in enumerate(picks)],
+            editorial_rank=p.get('editorial_rank'),story_ordering_hint=priorities[i] if priorities is not None else None,
+            samples=observations[i]) for i,p in enumerate(picks)],
         production_order=[i+1 for i in order])
     (work/'visual-selection.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2))
     return [picks[i] for i in order]

@@ -126,3 +126,12 @@ def test_unknown_duration_is_not_a_short_video(seconds):
 def test_finished_experiment_has_no_perpetual_treatment_gap():
     r=delivery([receipt()],treatment_target=0)
     assert r['treatment_target']==r['treatment_gap']==0
+
+
+def test_daily_delivery_policy_is_separate_from_old_comparison_identity():
+    proof=dict(delivery_policy_id='daily-two',delivery_policy_version=2,slot_number=4,
+        actual='field-story-v1',planned='field-story-v1',compliant=True)
+    kwargs=dict(delivery_policy_id='daily-two',delivery_policy_version=2)
+    assert delivery([receipt(publishing_experiment=proof)],**kwargs)['actual_treatment_receipts']==1
+    assert delivery([receipt(publishing_experiment=proof)])['actual_treatment_receipts']==0
+    assert delivery([receipt(publishing_experiment={**proof,'experiment_id':'other'})],**kwargs)['actual_treatment_receipts']==0

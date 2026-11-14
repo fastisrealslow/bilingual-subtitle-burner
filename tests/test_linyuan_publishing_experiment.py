@@ -48,13 +48,14 @@ def test_thirty_complete_beijing_days_and_makeup_keeps_original_slot():
     assert E.assignment(stamp('2026-10-18T14:00:00'),'2026-10-18 99') is None
 
 
-def test_sunday_full_interview_moves_to_control_third_slot_only_during_trial():
+def test_sunday_full_interview_keeps_control_third_slot_for_daily_two_treatments():
     full=dict(content_type='full_interview',render_mode='direct')
     short=dict(content_type='short_argument',render_mode='direct',resolution=dict(width=1080,height=1920))
     assert F.content_fits_slot(full,{},stamp('2026-10-18T16:00:00'))
     assert not F.content_fits_slot(full,{},stamp('2026-10-18T21:00:00'))
     assert F.content_fits_slot(short,{},stamp('2026-10-18T21:00:00'))
-    assert F.content_fits_slot(full,{},stamp('2026-11-22T21:00:00'))
+    assert not F.content_fits_slot(full,{},stamp('2026-11-22T21:00:00'))
+    assert F.content_fits_slot(full,{},stamp('2026-11-22T16:00:00'))
 
 
 def test_evening_accepts_proven_native_story_without_admitting_wide_controls():
@@ -64,7 +65,7 @@ def test_evening_accepts_proven_native_story_without_admitting_wide_controls():
     assert F.content_fits_slot(wide,{},evening)
     assert not F.content_fits_slot(wide,{},stamp('2026-10-25T10:00:00'))
     assert not F.content_fits_slot(wide,{},stamp('2026-10-25T16:00:00'))
-    assert not F.content_fits_slot(wide,{},stamp('2026-11-22T21:00:00'))
+    assert F.content_fits_slot(wide,{},stamp('2026-11-22T21:00:00'))
     assert not F.content_fits_slot({**wide,'editorial_profile':E.BASELINE},{},evening)
     assert not F.content_fits_slot({**wide,'cover_person_image_verified':False},{},evening)
     assert not F.content_fits_slot({**wide,'content_type':'full_interview'},{},evening)
@@ -130,7 +131,7 @@ def test_actual_weekly_makeup_can_select_its_verified_fallback(monkeypatch,day,h
     assert request['makeup_slot']==f'{day} {hour:02d}'
     assert F.inventory_part_index(entry,123,[record],state['daily_publish'],
         F.publication_slot_time(request['makeup_slot']),weekly_fallback=bool(request.get('weekly_full_fallback')))==0
-    if hour==16 or day=='2026-11-22':
+    if hour==16:
         assert request['weekly_full_fallback']
         assert F.inventory_part_index(entry,123,[record],{},now) is None
     # Exercise the actual publisher wiring, stopping before any media/upload.
@@ -412,7 +413,7 @@ def test_ready_stock_and_actual_running_jobs_bound_experiment_admission():
     st=dict(dispatched=[dict(slug='a',editorial_profile=E.TREATMENT,output_layout='landscape')])
     runs=[dict(display_title='中文源出片 · a',status='in_progress')]*2
     assert E.production_deficits(stock,st,runs,now)==dict(portrait=1,landscape=0)
-    assert E.production_deficits(stock,st,[],stamp('2026-11-17T18:00:00'))==dict(portrait=0,landscape=0)
+    assert E.production_deficits(stock,st,[],stamp('2026-11-17T18:00:00'))==dict(portrait=1,landscape=1)
     assert E.production_deficits({},st,[],now)==dict(portrait=0,landscape=0)
     assert E.long_candidate(dict(extra=dict(duration=1200)))
     assert not E.long_candidate(dict(extra=dict(duration=30)))

@@ -68,7 +68,7 @@ def completed_day_window(now):
 
 
 def delivery_metrics(state, *, start_ms, end_ms, experiment_id, experiment_version,
-                     treatment_target=2):
+                     treatment_target=2,delivery_policy_id=None,delivery_policy_version=None):
     """Match spend to distinct published receipts in the same actual time window.
 
     A planned slot, pending upload, relabelled baseline or duplicate BVID is not
@@ -97,8 +97,12 @@ def delivery_metrics(state, *, start_ms, end_ms, experiment_id, experiment_versi
         backend=part.get('upload_backend')
         backends[backend if backend in {'github-qn','fc-reviewed'} else 'other_or_legacy']+=1
         proof=part.get('publishing_experiment') or {}
-        treatment+=int(isinstance(proof,dict) and proof.get('experiment_id')==experiment_id
-            and proof.get('version')==experiment_version and proof.get('actual')=='field-story-v1'
+        identity=(isinstance(proof,dict) and ((proof.get('experiment_id')==experiment_id
+            and proof.get('version')==experiment_version) or (delivery_policy_id is not None
+            and proof.get('delivery_policy_id')==delivery_policy_id
+            and proof.get('delivery_policy_version')==delivery_policy_version
+            and not proof.get('experiment_id'))))
+        treatment+=int(identity and proof.get('actual')=='field-story-v1'
             and proof.get('planned')=='field-story-v1' and proof.get('compliant') is True
             and proof.get('slot_number') in (2,4))
     return dict(kind='persisted_publication_receipts_not_fresh_public_view',
@@ -131,7 +135,8 @@ def main():
     report['delivery']=delivery_metrics(state,start_ms=int(start.timestamp()*1000),
         end_ms=int(end.timestamp()*1000),experiment_id=experiment.EXPERIMENT_ID,
         experiment_version=experiment.VERSION,
-        treatment_target=2 if experiment.assignment((start+timedelta(hours=14)).timestamp()) else 0)
+        treatment_target=2 if experiment.production_assignment((start+timedelta(hours=14)).timestamp()) else 0,
+        delivery_policy_id=experiment.DELIVERY_POLICY_ID,delivery_policy_version=experiment.DELIVERY_POLICY_VERSION)
     Path('fc-cost-daily-estimate.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False))
     summary=os.environ.get('GITHUB_STEP_SUMMARY')

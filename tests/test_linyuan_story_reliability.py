@@ -93,11 +93,12 @@ def test_status_never_calls_baseline_stock_a_successful_experiment(monkeypatch):
 
 @pytest.mark.parametrize('ready',[dict(portrait=0,landscape=3),dict(portrait=3,landscape=1)])
 def test_experiment_health_requires_stock_for_both_experimental_layouts(ready):
-    result=E.operational_status({},ready,1792418400)
+    now=E.datetime(2026,10,20,12,tzinfo=E.CST).timestamp()
+    result=E.operational_status({},ready,now)
     assert result['status']=='needs_attention'
     assert result['alert']=='insufficient_treatment_by_layout'
-    assert E.operational_status({},dict(portrait=2,landscape=2),1792418400)['status']=='ready'
-    assert E.operational_status({},dict(portrait=0,landscape=4),1792418400)['status']=='ready'
+    assert E.operational_status({},dict(portrait=2,landscape=2),now)['status']=='ready'
+    assert E.operational_status({},dict(portrait=0,landscape=4),now)['status']=='ready'
 
 
 def test_repaired_selector_can_retry_a_completed_old_fallback_once(monkeypatch):
