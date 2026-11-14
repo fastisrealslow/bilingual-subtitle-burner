@@ -13,6 +13,7 @@ ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
 标题和封面各自保留假设条件；“如果发生某事”不是“已经发生某事”。逐项核对谁做了什么：本人没买不等于国家或企业不买；不需要不等于没有购买。不能从不同分句拼接主体和行动。
+个人试用或亲身感受不是普遍效果的证明。原话把某种作用限定为本人试过、自己感觉时，标题和封面各自保留这一体验范围；不能仅留下产品能产生某种作用，问号或主讲人前缀也不能代替范围。
 保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
@@ -1065,6 +1066,58 @@ def market_order_scope_error(title, cover, transcript):
     return None
 
 
+def personal_experience_scope_error(title, cover, transcript):
+    """Keep an explicitly experienced effect attached to its personal scope.
+
+    Match a literal effect noun in the same source sentence as a first-person
+    trial/feeling. This rejects scope loss, never validates efficacy or rewrites
+    the transcript. Unrelated topics and effects without that source structure
+    remain the responsibility of the independent semantic review.
+    """
+    trial = (r'(?:我(?:们)?|本人)(?:自己|亲自|现在|已经|曾经|也|都|确实){0,4}'
+             r'(?:试过|试了|用过|用了|体验过|体验了|感受到了?|感觉(?:到|得到))')
+    effect = r'(?<!没)(?<!不)(?<!具)(?:有|起到|具有)(?:一点|一些|一定的)?([\u4e00-\u9fff]{2,8}?)(?:的)?(?:作用|效果)'
+    effects = set()
+    for sentence in re.split(r'[。！？!?；;\n]', str(transcript or '')):
+        observation = re.search(trial, sentence)
+        if not observation:
+            continue
+        # A hypothetical or attributed example is not the speaker's trial.
+        if re.search(r'如果|假如|假设|要是|有人说|他说|她说|[“「]', sentence[:observation.start()]):
+            continue
+        for match in re.finditer(effect, sentence[observation.end():]):
+            prefix = sentence[observation.end():][:match.start()]
+            if re.search(r'(?:没有|并未|不能|未能|未|不|没)(?:能|可|可以)?$', prefix):
+                continue
+            if len(prefix) > 64 or re.search(
+                    r'不是说|不代表|不能说|并非|另外|至于|有人说|他说|她说|'
+                    r'(?:医生|研究|数据|说明书)(?:说|表明|显示|证明|记载)|[“「]', prefix):
+                continue
+            effects.add(match[1])
+    for copy in (title, cover):
+        # The speaker prefix attributes speech, but does not preserve the
+        # distinction between a personal observation and a universal claim.
+        body = str(copy or '')
+        for sentence in re.split(r'[。！？!?；;\n]', body):
+            clauses = re.split(r'[，,]', sentence)
+            for i, clause in enumerate(clauses):
+                if not any(re.search(r'(?:能|可(?:以)?|会|有|具有|起到|用于|帮助)'
+                                     +re.escape(word)+r'|'+re.escape(word)+r'(?:的)?(?:作用|效果)', clause)
+                           for word in effects):
+                    continue
+                prefix = ','.join(clauses[:i+1])
+                scoped = re.search(trial, prefix) or re.search(
+                    r'(?:据|按)(?:我(?:们)?|本人)(?:自己|个人)?(?:的)?(?:体验|感受|体会|试用)'
+                    r'|(?:对我(?:们)?|对本人)(?:自己|个人)?(?:来说|而言|有效)', prefix)
+                # A general "I think" in another clause may qualify price,
+                # taste, etc.; it cannot launder an unqualified effect.
+                scoped = scoped or re.search(
+                    r'(?:我(?:们)?|本人)(?:自己|个人)?(?:觉得|感觉|认为|的(?:体验|感受|体会|试用))', clause)
+                if not scoped:
+                    return '原话的作用仅是本人试用或感受；标题和封面须各自保留个人体验范围，不能扩大成普遍效果'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -1072,6 +1125,8 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    experience_issue=personal_experience_scope_error(title,cover,transcript)
+    if experience_issue:return experience_issue
     market_issue=market_order_scope_error(title,cover,transcript)
     if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
