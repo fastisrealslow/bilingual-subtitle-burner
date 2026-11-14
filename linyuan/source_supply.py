@@ -293,6 +293,7 @@ def main():
                         duration_sec=m.get('duration_sec'),render_mode=m.get('render_mode'),
                         content_type=m.get('content_type'),resolution=m.get('resolution') or {},
                         source_sha256=m.get('source_sha256'),segments=m.get('segments'),
+                        mother_source_resolution=m.get('mother_source_resolution'),
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
                         fingerprints=m.get('fingerprints') or {},
                         editorial_profile=m.get('editorial_profile','baseline'),

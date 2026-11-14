@@ -12,7 +12,7 @@ def experiment_receipts(state,now):
     """Validate executed groups, not the requested job profile or view counts."""
     import publishing_experiment as E
     now=now.astimezone(BEIJING);day=now.date().isoformat()
-    expected=[E.assignment(now.timestamp(),f'{day} {hour:02d}')
+    expected=[E.production_assignment(now.timestamp(),f'{day} {hour:02d}')
               for hour in HOURS if hour<=now.hour]
     expected=[p for p in expected if p]
     actual={}
@@ -20,7 +20,7 @@ def experiment_receipts(state,now):
         for part in info.get('parts') or []:
             row=part.get('publishing_experiment') or {}
             if (part.get('status')=='published' and part.get('bvid')
-                    and row.get('experiment_id')==E.EXPERIMENT_ID):
+                    and E.delivery_receipt_matches(row)):
                 actual[row.get('slot')]=dict(row,bvid=part['bvid'],
                     file_sha256=(part.get('fingerprints') or {}).get('sha256'))
     missing=[];bad=[];treatments=0;seen=set()
@@ -36,7 +36,7 @@ def experiment_receipts(state,now):
         else:
             seen.add(identity)
             treatments+=plan['planned']==E.TREATMENT
-    return dict(active=bool(E.START<=day<E.END_EXCLUSIVE),expected_slots=[p['slot'] for p in expected],
+    return dict(active=E.production_preparing(now.timestamp()),expected_slots=[p['slot'] for p in expected],
         missing_slots=missing,noncompliant_slots=bad,treatment_published=treatments,
         passed=not missing and not bad)
 
@@ -95,11 +95,11 @@ def experiment_stock_check(stock, now):
     import publishing_experiment as E
     now=now.astimezone(BEIJING);day=now.date().isoformat()
     remaining=[hour for hour in (14,21) if hour>now.hour
-               and E.assignment(now.timestamp(),f'{day} {hour:02d}')]
+               and E.production_assignment(now.timestamp(),f'{day} {hour:02d}')]
     if not remaining and now.hour>=21:
         day=(now.date()+timedelta(days=1)).isoformat()
         remaining=[hour for hour in (14,21)
-                   if E.assignment(now.timestamp(),f'{day} {hour:02d}')]
+                   if E.production_assignment(now.timestamp(),f'{day} {hour:02d}')]
     if not remaining:return None
     ready=stock.get('experiment_ready') or {}
     wide=int(ready.get('landscape') or 0)
@@ -139,8 +139,10 @@ def main():
     report['not_public_or_unconfirmed']=sorted(set(bvids)-visible)
     report['public_check_passed']=len(visible)>=report['expected_by_now']
     report['experiment']=experiment_receipts(state,now)
+    import publishing_experiment as E
+    report['daily_treatment_requirement']=E.daily_requirement(state,now.timestamp())
     report['passed']=(report['receipt_check_passed'] and report['public_check_passed']
-                      and report['experiment']['passed'])
+                      and report['experiment']['passed'] and report['daily_treatment_requirement']['gap_by_now']==0)
     stock=None
     if now.hour<HOURS[0] or report['experiment']['active']:
         stock=source_inventory(state)

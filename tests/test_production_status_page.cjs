@@ -78,6 +78,17 @@ test('normal reserve cannot hide an experiment that is entirely falling back',()
   data.publishing_experiment.verified_treatment={landscape:4,portrait:0};
   assert.match(continuity(data,now).message,/横屏 4 条、竖屏 0 条/);
 });
+
+test('daily two-treatment requirement stays visible despite ordinary stock',()=>{
+  const data=supply(137);
+  data.publishing_experiment={active:true,status:'needs_attention',actual_treatment_published:9,
+    valid_comparison_days:1,consecutive_fallbacks:5,
+    daily_requirement:{active:true,actual_treatment:0,stable_7_complete_days:false}};
+  const result=continuity(data,now);
+  assert.equal(result.status,'at_risk');
+  assert.match(result.message,/今日实验稿 0\/2/);
+  assert.match(result.message,/尚未连续七个完整日/);
+});
 test('seven-day floor shortfall cannot be hidden by active production',()=>{
   const data=supply(0);
   data.continuity.plan={minimum_week_shortfall:14};

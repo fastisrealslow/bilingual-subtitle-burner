@@ -6703,6 +6703,7 @@ def main():
                  **(dict(requested_editorial_profile=TREATMENT,experiment_selection_revision=SELECTION_REVISION)
                     if requested_editorial_profile==TREATMENT else {}),
                  "source_sha256": source_report.get('source_sha256'),
+                 "mother_source_resolution": source_report.get('resolution'),
                  "source_platform": platform,
                  "watermark_cropped": bool(m.get("watermark_removed")),
                  "watermark_verified": bool(m.get("watermark_verified")),

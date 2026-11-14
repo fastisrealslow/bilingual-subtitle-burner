@@ -65,7 +65,7 @@ def test_existing_refresh_backoff_is_shared_with_admission(monkeypatch):
 
 
 @pytest.mark.parametrize('hour,day,forced,batch',[
-    (14,'2026-11-17',False,None),(14,'2026-10-23',True,None),
+    (14,'2026-10-17',False,None),(14,'2026-10-23',True,None),
     (14,'2026-10-23',True,'older-real-treatment')])
 def test_other_publication_paths_do_not_add_an_inventory_gate(monkeypatch,hour,day,forced,batch):
     state,calls,_=setup(monkeypatch,hour,day)
@@ -86,6 +86,12 @@ def test_daily_cap_does_not_request_refresh(monkeypatch):
     state,calls,_=setup(monkeypatch,count=4)
     assert F.publish_handler()==dict(published=0)
     assert not calls
+
+
+def test_daily_story_supply_keeps_inventory_gate_after_comparison_end(monkeypatch):
+    state,calls,_=setup(monkeypatch,14,'2026-11-17')
+    assert F.publish_handler()==dict(published=0,inventory_unavailable=1,inventory_refresh_requested=1)
+    assert len(calls)==1
 
 
 @pytest.mark.parametrize('hour',[10,14,16,21])
