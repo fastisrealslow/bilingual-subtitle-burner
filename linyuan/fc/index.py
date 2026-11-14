@@ -2052,7 +2052,7 @@ def handler(event, context):
         evt = json.loads(event or "{}")
     except Exception:
         evt = {}
-    name = str(evt.get("triggerName", ""))
+    name = publish_clock.event_route(evt,fc_cost_policy)
     if name == 'diagnose-config':
         # Deployment 148 completed its upload but the full inventory diagnostic
         # hit a synchronous 503. Code/timer validation must not wait for source
@@ -2132,10 +2132,25 @@ def dispatch_handler(event=None, context=None):
     return run_with_lease('dispatch',lambda:_dispatch_admitted(event,context))
 
 
+def ci_public_source_page(candidate):
+    """Only exact public NetEase pages handled by the verified CI adapter."""
+    from urllib.parse import urlsplit
+    page=candidate.get('page_url') or ''
+    try:
+        parsed=urlsplit(page)
+        valid=(parsed.scheme=='https' and parsed.hostname in {'www.163.com','m.163.com'}
+            and not parsed.username and not parsed.password and not parsed.port
+            and not parsed.query and not parsed.fragment
+            and re.fullmatch(r'/v/video/V[A-Z0-9]+\.html',parsed.path))
+    except (ValueError,TypeError):return None
+    return page if valid else None
+
+
 def dispatch_requires_mainland(candidate):
     """Keep the existing domestic transfer routes when admission runs on CI."""
     page = candidate.get('page_url') or ''
     video = candidate.get('video_url') or ''
+    if ci_public_source_page(candidate):return False
     if not video and 'bilibili.com/video/' in page:
         return False
     if 'news.qq.com' in page:
@@ -2713,6 +2728,12 @@ def _dispatch_admitted(event=None, context=None):
                 asset_url = c["page_url"]
                 dur = 0
                 log.info("    B站源 → 透传页面 URL 给 CI 下载")
+            elif ci_public_source_page(c):
+                # Resolve the canonical finite player on the existing CI
+                # adapter; preserve source URL, real duration/quality checks.
+                asset_url=ci_public_source_page(c)
+                dur=0
+                log.info("    网易公开正文页 → 已验证CI取源，不经FC暂存")
             elif "news.qq.com" in (c["page_url"] or ""):
                 # 腾讯新闻：yt-dlp 下不了 blob 页面，FC 直接解析真直链下载
                 vurl, dur_hint = tencent_resolve_url(c["page_url"])
