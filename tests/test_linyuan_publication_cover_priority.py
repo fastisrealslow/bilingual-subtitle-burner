@@ -86,5 +86,13 @@ def test_part_index_prefers_real_cover_without_advancing_progress(monkeypatch):
     entry=dict(slug='same',published_parts=0)
     p0=part();p1=part(1,live=True)
     r=record('same',[p0,p1])
-    assert fc.inventory_part_index(entry,10,[r],{},now=NOW)==1
+    assert fc.inventory_part_index(entry,10,[r],{},now=NOW,publication_state={})==1
     assert entry==dict(slug='same',published_parts=0)
+
+
+@pytest.mark.parametrize('kwargs',[{},dict(now=NOW),dict(publication_state={})])
+def test_manual_or_historical_selection_preserves_original_part_order(monkeypatch,kwargs):
+    monkeypatch.setattr(fc.experiment,'rank',lambda p,plan:0)
+    entry=dict(slug='same',published_parts=0)
+    r=record('same',[part(),part(1,live=True)])
+    assert fc.inventory_part_index(entry,10,[r],{},**kwargs)==0

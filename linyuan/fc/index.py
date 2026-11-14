@@ -3027,7 +3027,8 @@ def inventory_part_index(entry, artifact_id, records, daily, now=None, weekly_fa
                            or not inventory_publication_error(p,entry,publication_state))),
                      key=lambda p:(experiment.rank(p,experiment.assignment(now)) if now is not None else 0,
                                    slot_layout_rank(p,now) if now is not None else 0,
-                                   cover_source_rank(p),int(p['index'])))
+                                   cover_source_rank(p) if now is not None and publication_state is not None else 0,
+                                   int(p['index'])))
         if ready:
             return next((int(p['index']) for p in ready if not daily_mix_error(p,daily)
                          and (now is None or content_fits_slot(p,entry,now,weekly_fallback))),None)
