@@ -1,0 +1,74 @@
+name: 复用刚通过的同代码CPU证据完成当前部署
+on:
+  push:
+    branches: [ops/fc-current-proof-reuse-20261114]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO_NAME: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q jieba pillow numpy
+      - name: 只在尚未进入部署时重启；使用既有严格CPU证据复用
+        run: |
+          python - <<'PY'
+          import json,os,subprocess,time
+          from pathlib import Path
+          repo=os.environ['REPO_NAME'];run_id=43543456252
+          def api(path,method='GET'):
+              args=['gh','api','repos/'+repo+'/'+path]
+              if method!='GET':args+=['--method',method]
+              raw=subprocess.check_output(args,text=True)
+              return json.loads(raw) if raw.strip() else None
+          run=api('actions/runs/'+str(run_id))
+          jobs=api('actions/runs/'+str(run_id)+'/jobs?per_page=100')['jobs']
+          report=dict(original_run=run_id,original_status=run['status'],cancelled=False,dispatched=False)
+          # These jobs validate titles only; never cancel any started deploy,
+          # function invocation, inventory run or publisher/unknown upload.
+          entered=any(j['name']=='deploy' and j['status']!='queued' for j in jobs)
+          if run['status']=='completed' or entered:
+              report['reason']='Existing deployment already progressed; leave it alone'
+          else:
+              # Require the actual complete prior CPU evidence to be eligible
+              # under the existing code/model/fixture/response checks first.
+              # Execute the normal reuse verifier in an isolated work dir;
+              # it writes only local validation reports, no approvals or flags.
+              env=dict(os.environ,GITHUB_REPOSITORY=repo,GITHUB_RUN_ID=os.environ['GITHUB_RUN_ID'],RUN_TEXT_MODEL='qwen3.5:9b')
+              import tempfile
+              with tempfile.TemporaryDirectory() as tmp:
+                  output=Path(tmp)/'outputs';env['GITHUB_OUTPUT']=str(output)
+                  subprocess.run(['python','linyuan/reuse_title_verification.py'],env=env,check=True)
+                  if not output.exists() or 'reused=true' not in output.read_text():
+                      raise RuntimeError('No exactly reusable complete real CPU evidence; leave running checks intact')
+              # Recheck immediately before cancelling this test-only run.
+              jobs=api('actions/runs/'+str(run_id)+'/jobs?per_page=100')['jobs']
+              if any(j['name']=='deploy' and j['status']!='queued' for j in jobs):
+                  report['reason']='Deploy started during evidence check; leave it alone'
+              else:
+                  api('actions/runs/'+str(run_id)+'/cancel','POST');report['cancelled']=True
+                  for _ in range(30):
+                      if api('actions/runs/'+str(run_id))['status']=='completed':break
+                      time.sleep(2)
+                  subprocess.run(['gh','workflow','run','fc-production-deploy.yml','--repo',repo,'--ref','main'],check=True)
+                  report['dispatched']=True
+          Path('fc-current-proof-reuse.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          print(json.dumps(report,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fc-current-proof-reuse
+          path: fc-current-proof-reuse.json
+          retention-days: 7
+          if-no-files-found: warn
