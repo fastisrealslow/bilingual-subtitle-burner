@@ -132040,7 +132040,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-02T14:51:02+00:00"
+   "publish_time": "2026-05-02T14:51:02+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1114-54d06d",
+    "run_id": 43591126985,
+    "artifact_id": 14112752630,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b17618d8e1370449ffcd7d32cdd73069ef7a119aacc4153a4fdbe7feb6aef6b7",
+     "duration_sec": 124.58,
+     "resolution": {
+      "width": 1168,
+      "height": 672,
+      "short_edge": 672
+     },
+     "source_url": "https://www.bilibili.com/video/BV1KA99BbETk"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43591126985,
+    "artifact_id": 14112752630,
+    "name": "production-reject-ly-1114-54d06d",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1DN411Y7kj",
@@ -247134,6 +247167,13 @@
    "video_id": "BV1M6Wr68EZL",
    "ts": 1794653553,
    "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+  },
+  {
+   "slug": "ly-1114-54d06d",
+   "key": "bilibili_search:BV1KA99BbETk",
+   "video_id": "BV1KA99BbETk",
+   "ts": 1794657371,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
