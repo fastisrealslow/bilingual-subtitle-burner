@@ -419,18 +419,10 @@ def _local_face_models():
         ('face_recognition_sface_2021dec.onnx',LOCAL_FACE_RECOGNIZER_URL,10_000_000)):
         path=LOCAL_FACE_MODEL_DIR/name
         if not path.exists() or path.stat().st_size<min_bytes:
-            tmp=path.with_suffix('.part')
-            req=urllib.request.Request(url,headers={'User-Agent':'linyuan-local-face/1.0'})
             try:
-                with urllib.request.urlopen(req,timeout=180) as response, tmp.open('wb') as stream:
-                    while True:
-                        chunk=response.read(1024*1024)
-                        if not chunk:break
-                        stream.write(chunk)
-                if tmp.stat().st_size<min_bytes:raise ValueError('模型文件不完整')
-                tmp.replace(path)
+                from face_model_download import download
+                download(path,url,min_bytes)
             except Exception as exc:
-                tmp.unlink(missing_ok=True)
                 raise VisualResponseFormatError('本地人物模型准备失败：'+str(exc)) from exc
         result.append(path)
     return result
