@@ -35,8 +35,8 @@ def test_unverified_page_shapes_keep_the_existing_domestic_route(page):
     assert fc.dispatch_requires_mainland(c)
 
 
-@pytest.mark.parametrize('native_available',[True,False])
-def test_native_dispatch_preserves_domestic_fallback_without_rejecting_unknown_reads(monkeypatch,native_available):
+@pytest.mark.parametrize('backend,native_available',[('github',True),('github',False),('domestic',False)])
+def test_native_dispatch_preserves_domestic_fallback_without_rejecting_unknown_reads(monkeypatch,backend,native_available):
     import json
     state=dict(dispatched=[],published={},pending_retry=[],rejected=[])
     # Shared tests default to legacy120; exercise the deployed reference_v1 policy.
@@ -55,7 +55,7 @@ def test_native_dispatch_preserves_domestic_fallback_without_rejecting_unknown_r
     monkeypatch.setattr(fc,'_process_retries',lambda *a:None)
     monkeypatch.setattr(fc,'weekly_full_request',lambda *a:None)
     def resolve(url):
-        assert url==page
+        assert backend=='github' and url==page
         if not native_available:raise TimeoutError('public-player read not confirmed')
         return dict(declared_duration=24)
     monkeypatch.setattr(native,'resolve',resolve)
@@ -72,8 +72,15 @@ def test_native_dispatch_preserves_domestic_fallback_without_rejecting_unknown_r
     def forbidden(*a,**kwargs):pytest.fail('Native CI source must not download/stage on FC')
     for name in ['download','upload_asset','tencent_resolve_url','_record_failure']:
         monkeypatch.setattr(fc,name,forbidden)
-    r=fc._dispatch_admitted(dict(execution_backend='github'))
-    if native_available:
+    staged='https://github.com/example/repo/releases/download/staging/source.mp4'
+    if backend=='domestic':
+        monkeypatch.setattr(fc,'download',lambda candidate,dest:24)
+        monkeypatch.setattr(fc,'upload_asset',lambda release,dest:staged)
+    r=fc._dispatch_admitted(dict(execution_backend=backend))
+    if backend=='domestic':
+        assert r['dispatched']==1 and calls[0][1]['inputs']['source']==staged
+        assert state['dispatched'][0]['source_url']==page
+    elif native_available:
         assert r['dispatched']==1 and len(calls)==1
         assert calls[0][1]['inputs']['source']==page
         assert calls[0][1]['inputs']['auto_publish']=='false'

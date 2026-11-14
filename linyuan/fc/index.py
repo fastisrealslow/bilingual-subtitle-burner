@@ -2733,8 +2733,10 @@ def _dispatch_admitted(event=None, context=None):
                 # Temporary or unsupported reads retain the original domestic
                 # route; they are not evidence that the material is rejected.
                 try:
-                    from ci_fetch_netease import resolve
-                    origin=resolve(ci_public_source_page(c))
+                    # This branch is CI-only; the domestic ZIP deliberately
+                    # keeps its existing transfer implementation and dependencies.
+                    from importlib import import_module
+                    origin=import_module('ci_fetch_netease').resolve(ci_public_source_page(c))
                 except Exception as exc:
                     mainland_deferred+=1
                     log_event('source_transfer_fallback','公开原片CI预读取未确认，保留境内取源',type(exc).__name__)
