@@ -132073,7 +132073,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1DN411Y7kj",
@@ -132096,7 +132097,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-07-19T09:54:09+00:00"
+   "publish_time": "2023-07-19T09:54:09+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1114-4c61a8",
+    "run_id": 43591137982,
+    "artifact_id": 14112688041,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "af57ec794115488d05bb7b27244ebf66442bbd0432731b18de2604411f88013f",
+     "duration_sec": 104.33,
+     "resolution": {
+      "width": 1920,
+      "height": 960,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1DN411Y7kj"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 54.33s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43591137982,
+    "artifact_id": 14112688041,
+    "name": "production-reject-ly-1114-4c61a8",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 54.33s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5259984573039331",
@@ -247262,6 +247296,13 @@
    "video_id": "BV1KA99BbETk",
    "ts": 1794657371,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1114-4c61a8",
+   "key": "bilibili_search:BV1DN411Y7kj",
+   "video_id": "BV1DN411Y7kj",
+   "ts": 1794657905,
+   "error": "整段取景预检：源 54.33s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
