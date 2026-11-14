@@ -1376,6 +1376,47 @@ def research_scope_error(title, cover, transcript):
     return None
 
 
+def named_domain_scope_error(title, cover, transcript):
+    """Do not turn a deictic personal circle into a named investment domain.
+
+    A nearby topic (including a host's question) is not an assertion that it
+    belongs to the speaker's circle. Require a positive scope assertion when
+    expanding an explicitly deictic/familiar scope into a concrete domain.
+    """
+    action = r'(?:留意|关注|研究|专注|看|做)'
+    domain = r'(?:圈圈|圈子|圈|领域|行业|板块|赛道)'
+    generic = r'(?:(?:我|我们|自己)(?:的)?(?:这个|那个)?|这个|那个|熟悉的|了解的|能力范围内的)'
+    if not re.search(r'只' + action + generic + r'.{0,8}?' + domain, transcript):
+        return None
+    pattern = re.compile(
+        r'(?:只(?:留意|关注|研究|看|做)|专注(?:于)?)'
+        r'(?:(?:我|我们|自己)?(?:所)?(?:熟悉|了解)的)?'
+        r'(?P<name>[\u4e00-\u9fff]{2,8}?)(?:圈子|圈|领域|行业|板块|赛道)')
+    clauses = re.findall(r'[^，。！？!?；;\n]+[，。！？!?；;\n]?', transcript)
+    for copy in (title, cover):
+        for match in pattern.finditer(copy):
+            name = match['name']
+            if re.fullmatch(r'(?:(?:我|我们|自己)(?:的)?|这个|那个|熟悉的|了解的|能力范围内的)+', name):
+                continue
+            # A positive first-person scope, or an explicit definition of that
+            # circle, supports a named rewrite. Negated/question clauses do not.
+            supported = False
+            for clause in clauses:
+                if re.search(r'不|没|别|未|吗|呢|是否|什么|您|你|如果|假如|假设|[？?“”「」]', clause):
+                    continue
+                target = re.escape(name) + r'(?:股|圈圈|圈子|圈|领域|行业|板块|赛道)'
+                assertion = (r'(?:我|我们)(?:的)?(?:只|主要|一直)?' + action +
+                             r'(?:的是|于)?' + target)
+                definition = (r'(?:我|我们|自己)(?:的|这个)?' + domain +
+                              r'(?:就)?是' + target)
+                if re.search(assertion, clause) or re.search(definition, clause):
+                    supported = True
+                    break
+            if not supported:
+                return '个人熟悉的圈子不能借相邻话题改写为具体行业；标题与封面须有本人明确的领域归属原文'
+    return None
+
+
 def unsupported_trade_directive_error(title,cover,transcript):
     """A descriptive comparison or personal choice is not a trading command."""
     actions=(r'买卖|买入|卖出|投资|加仓|减仓|清仓|抄底|追涨|接盘|做多|做空|持有|'
@@ -1434,6 +1475,8 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
         return source_condition_issue
     directive_issue=unsupported_trade_directive_error(title,cover,transcript)
     if directive_issue:return directive_issue
+    domain_issue=named_domain_scope_error(title,cover,transcript)
+    if domain_issue:return domain_issue
     range_issue = quantity_range_error(title, cover, transcript)
     if range_issue:
         return range_issue
@@ -2186,6 +2229,8 @@ def error(title, proof, transcript=None, speaker='林园'):
         return '标题缺少完整原文证据'
     directive_issue=unsupported_trade_directive_error(title,proof['cover'],transcript or ''.join(evidence))
     if directive_issue:return directive_issue
+    domain_issue=named_domain_scope_error(title,proof['cover'],transcript or ''.join(evidence))
+    if domain_issue:return domain_issue
     range_issue = quantity_range_error(title, proof['cover'], transcript or title + ''.join(evidence))
     if range_issue:
         return range_issue
