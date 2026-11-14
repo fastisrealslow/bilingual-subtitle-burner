@@ -22,12 +22,13 @@ jobs:
       - name: 两条公开页面只下载验原片，不进入生产或投稿
         run: |
           python - <<'PY'
-          import os,sys,json,tempfile,hashlib
+          import os,sys,json,tempfile,hashlib,subprocess,urllib.request
           from pathlib import Path
           sys.path.insert(0,'linyuan')
           from ci_fetch_generic import fetch
           from ci_fetch_bilibili import validate_media
           pages=['https://www.163.com/v/video/VGAM89A1G.html','https://www.163.com/v/video/VGAFEFH3T.html']
+          staged=['ly-1113-e59667','ly-1110-7f87fa']
           rows=[]
           with tempfile.TemporaryDirectory() as temp:
               for i,page in enumerate(pages):
@@ -41,7 +42,16 @@ jobs:
                           os.dup2(sink.fileno(),1);os.dup2(sink.fileno(),2)
                           path=fetch(page,root/'media',root/'failure.json',budget_sec=240)
                           media=validate_media(path)
-                          row.update(passed=True,size_bytes=path.stat().st_size,media=media,sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+                          def dimensions(file):
+                              probe=subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=width,height','-of','json',str(file)],capture_output=True,text=True,check=True)
+                              return json.loads(probe.stdout)['streams'][0]
+                          original=root/'fc-staged.mp4'
+                          urllib.request.urlretrieve('https://github.com/fastisrealslow/bilingual-subtitle-burner/releases/download/staging/'+staged[i]+'.mp4',original)
+                          old_media=validate_media(original);new_size=dimensions(path);old_size=dimensions(original)
+                          assert min(new_size.values())>=min(old_size.values())
+                          assert abs(media['duration']-old_media['duration'])<=1
+                          row.update(passed=True,size_bytes=path.stat().st_size,media=media,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                              ci_resolution=new_size,existing_fc_resolution=old_size,existing_fc_duration=old_media['duration'])
                   except Exception as exc:row['error_type']=type(exc).__name__
                   finally:os.dup2(out,1);os.dup2(err,2);os.close(out);os.close(err)
                   rows.append(row)
