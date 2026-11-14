@@ -131942,7 +131942,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-14T06:30:00+00:00"
+   "publish_time": "2026-11-14T06:30:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1114-083f7d",
+    "run_id": 43586270465,
+    "artifact_id": 14110975077,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b9de5dc08d0334bd8c8114e7d0847b5b2edf51e0e9ba52c3d2fb27dcc7b4a5ee",
+     "duration_sec": 29.48,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1M6Wr68EZL"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 43586270465,
+    "artifact_id": 14110975077,
+    "name": "production-reject-ly-1114-083f7d",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -246899,6 +246932,13 @@
    "video_id": "BV1hk4y1Q7g4",
    "ts": 1794652240,
    "error": "整段取景预检：源 58.67s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1114-083f7d",
+   "key": "bilibili_search:BV1M6Wr68EZL",
+   "video_id": "BV1M6Wr68EZL",
+   "ts": 1794653553,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
