@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   reply-once:
-    if: github.run_number == 1 && github.run_attempt == 1
+    if: github.run_number == 2 && github.run_attempt == 1
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -52,6 +52,7 @@ jobs:
               cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
               def get(path, **params):
                   assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply")
+                  time.sleep(3)
                   req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
                       headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
                                "Referer":"https://www.bilibili.com/"}, method="GET")
@@ -71,7 +72,7 @@ jobs:
               ROOT = "323819524144"
               MESSAGE = "给年轻人一点空间，让他们自己去试，这点挺重要的。"
               EXPECTED = "林总的成功最大原因是他的母亲对他的支持， 不说那8000块的事他母亲肯定能放手让他自己去闯去选择，不像很多父母把子女控制栓的死死的永无出头之日"
-              if os.environ.get("GITHUB_RUN_ATTEMPT") != "1" or os.environ.get("GITHUB_RUN_NUMBER") != "1":
+              if os.environ.get("GITHUB_RUN_ATTEMPT") != "1" or os.environ.get("GITHUB_RUN_NUMBER") != "2":
                   emit("blocked", reason="one_time_execution_guard")
                   sys.exit(1)
               video = get("/x/web-interface/view", bvid=BVID)
@@ -96,6 +97,7 @@ jobs:
                   headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
                            "Referer":"https://www.bilibili.com/video/"+BVID,
                            "Content-Type":"application/x-www-form-urlencoded"}, method="POST")
+              time.sleep(3)
               emit("submission_entered", bvid=BVID, root=ROOT)
               # Exactly one POST. A lost response is unknown, never retry.
               with opener.open(request, timeout=20) as response:
