@@ -1,0 +1,40 @@
+name: Unused long-source and morning-publication read-only audit
+on:
+  push:
+    branches: [ops/known-long-audit-20261115]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 138780c4e5c0b2d27671a5da218b2ac182ecbf49
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test isolated refresh contracts
+        run: |
+          pip install -q -r linyuan/fc/runtime-requirements.txt pytest
+          python -m pytest -q tests/test_linyuan_known_long_source_refresh.py tests/test_linyuan_seed_replenishment.py
+      - name: Read actual exact long-source metadata and native streams only
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/known_long_source_refresh.py --read-only --output known-long-source-refresh.json
+      - name: Recheck saved morning archive without uploading
+        if: always()
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: python linyuan/bili_archive_status.py --bvid BV1CrsE6WEHH --out morning-publication-readback.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: known-long-and-morning-readonly
+          path: |
+            known-long-source-refresh.json
+            morning-publication-readback.json
+          if-no-files-found: error
+          retention-days: 30
