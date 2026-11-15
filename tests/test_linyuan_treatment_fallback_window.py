@@ -1,4 +1,4 @@
-"""Late verified stories can fill their slot before bounded ordinary fallback."""
+"""Historical fallback windows remain frozen before the hard daily requirement."""
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +11,7 @@ from test_linyuan_experiment_inventory_refresh import setup
 
 
 def stamp(clock):
-    return datetime.fromisoformat('2026-11-20T'+clock).replace(tzinfo=F.experiment.CST).timestamp()
+    return datetime.fromisoformat('2026-11-14T'+clock).replace(tzinfo=F.experiment.CST).timestamp()
 
 
 def stock(wide=0,portrait=0):
@@ -25,7 +25,7 @@ def stock(wide=0,portrait=0):
     ('10:00:00',10,None),('16:00:00',16,None)])
 def test_wait_boundaries_and_existing_control_slots(clock,slot,deadline):
     now=stamp(clock)
-    plan=F.experiment.production_assignment(now,f'2026-11-20 {slot:02d}')
+    plan=F.experiment.production_assignment(now,f'2026-11-14 {slot:02d}')
     assert F.treatment_wait_until(stock(),plan,now)==(stamp(deadline) if deadline else None)
 
 
@@ -43,7 +43,7 @@ def test_unknown_inventory_does_not_masquerade_as_verified_story_shortage(invent
 
 
 def test_automatic_publisher_returns_without_scanning_or_upload_and_reuses_backoff(monkeypatch):
-    state,calls,now=setup(monkeypatch,14,'2026-11-20')
+    state,calls,now=setup(monkeypatch,14,'2026-11-14')
     before=deepcopy(state)
     monkeypatch.setattr(F,'source_inventory',lambda _:stock())
     expected=dict(published=0,waiting_for_treatment=1,
@@ -56,7 +56,7 @@ def test_automatic_publisher_returns_without_scanning_or_upload_and_reuses_backo
 
 def test_catchup_keeps_slot_open_then_allows_existing_fallback(monkeypatch):
     now=stamp('14:00:00')
-    state=dict(dispatched=[],published={},daily_publish=dict(date='2026-11-20',count=1,published_hours=[10]))
+    state=dict(dispatched=[],published={},daily_publish=dict(date='2026-11-14',count=1,published_hours=[10]))
     monkeypatch.setattr(F,'source_inventory',lambda *a:stock())
     # No artifacts may even be ranked while the verified-stock window is open.
     class Unreadable(dict):
@@ -68,4 +68,4 @@ def test_catchup_keeps_slot_open_then_allows_existing_fallback(monkeypatch):
     monkeypatch.setattr(F.experiment,'rank',lambda *a:0)
     monkeypatch.setattr(F,'inventory_publication_error',lambda *a:None)
     result=F.inventory_catchup_request(state,dict(artifacts=[record]),stamp('15:40:00'))
-    assert result['makeup_slot']=='2026-11-20 14' and result['batch_slug']=='ordinary'
+    assert result['makeup_slot']=='2026-11-14 14' and result['batch_slug']=='ordinary'

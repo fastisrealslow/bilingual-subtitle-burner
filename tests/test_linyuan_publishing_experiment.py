@@ -118,7 +118,7 @@ def test_one_native_story_is_one_available_file_across_two_treatment_slots(monke
 @pytest.mark.parametrize('day,hour,done',[
     ('2026-10-18',16,[10,14]),('2026-10-18',21,[10,14,16]),
     ('2026-11-22',21,[10,14,16])])
-def test_actual_weekly_makeup_can_select_its_verified_fallback(monkeypatch,day,hour,done):
+def test_actual_weekly_makeup_selects_fallback_only_for_control_or_historical_slots(monkeypatch,day,hour,done):
     # A treatment slot gives production until 21:40 before ordinary fallback.
     minute=45 if hour==21 else 5
     now=stamp(f'{day}T{hour:02d}:{minute:02d}:00');monkeypatch.setattr(F.time,'time',lambda:now)
@@ -130,6 +130,10 @@ def test_actual_weekly_makeup_can_select_its_verified_fallback(monkeypatch,day,h
     payload=dict(quality_gate_version=F.QUALITY_GATE_VERSION,editorial_policy_version=F.editorial.VERSION,
         updated_at=now,artifacts=[record])
     request=F.inventory_catchup_request(state,payload,now)
+    if day>=F.REQUIRED_TREATMENT_SINCE and hour in (14,21):
+        assert request is None
+        assert F.inventory_part_index(entry,123,[record],{},now,weekly_fallback=True) is None
+        return
     assert request['makeup_slot']==f'{day} {hour:02d}'
     assert F.inventory_part_index(entry,123,[record],state['daily_publish'],
         F.publication_slot_time(request['makeup_slot']),weekly_fallback=bool(request.get('weekly_full_fallback')))==0

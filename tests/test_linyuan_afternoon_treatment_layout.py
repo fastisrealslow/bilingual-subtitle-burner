@@ -34,10 +34,11 @@ def test_existing_weekly_probe_and_one_urgent_wide_per_batch_rules(options):
     assert F.treatment_admission_layout(stock(),{},dict(landscape=1,portrait=2),now=stamp('10:00:00'),**options)=='portrait'
 
 
-def test_published_slot_and_elapsed_waiting_window_do_not_get_replanned():
+def test_published_slot_is_not_replanned_but_required_afternoon_remains_open():
     state=dict(daily_publish=dict(date='2026-11-15',count=2,published_hours=[10,14]))
     assert F.treatment_admission_layout(stock(),state,dict(landscape=1,portrait=2),now=stamp('14:30:00'))=='portrait'
-    assert F.treatment_admission_layout(stock(),{},dict(landscape=1,portrait=2),now=stamp('15:40:00'))=='portrait'
+    assert F.treatment_admission_layout(stock(),{},dict(landscape=1,portrait=2),now=stamp('15:40:00'))=='landscape'
+    assert F.treatment_admission_layout(stock(),{},dict(landscape=1,portrait=2),now=stamp('23:30:00'))=='landscape'
 
 
 @pytest.mark.parametrize('inventory',[dict(inventory_fresh=True),dict(inventory_fresh=False,experiment_ready={}),
