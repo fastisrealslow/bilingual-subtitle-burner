@@ -11,7 +11,7 @@ concurrency:
 jobs:
   read-only:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 36
     steps:
       - uses: actions/checkout@v4
         with:
@@ -79,7 +79,7 @@ jobs:
                       for value in node: collect(value)
               collect(state)
               # Most recent ledger entries first; owner check excludes source videos.
-              candidates = list(dict.fromkeys(reversed(bvids)))[78:118]
+              candidates = list(dict.fromkeys(reversed(bvids)))[118:324]
               emit("ledger_scan", videos=len(candidates), total_unique=len(set(bvids)))
               found = 0
               for bvid in candidates:
@@ -94,7 +94,7 @@ jobs:
                   comments = get("/x/v2/reply", type=1,oid=aid,pn=1,ps=20,sort=0)
                   if comments is None: break
                   rows = comments.get("replies") or []
-                  emit("video", bvid=bvid, aid=aid, title=video.get("title"), comments_on_page=len(rows))
+                  emit("video", bvid=bvid, aid=aid, title=video.get("title"), comments_on_page=len(rows), total_comments=(comments.get("page") or {}).get("count"))
                   for row in rows:
                       message = (row.get("content") or {}).get("message","")
                       children = row.get("replies") or []
@@ -103,7 +103,7 @@ jobs:
                            replies=int(row.get("rcount") or 0),
                            visible_owner_reply=any(str(x.get("mid"))==OWNER for x in children))
                       found += 1
-                  if found >= 40: break
+                  if found >= 200: break
                   time.sleep(0.5)
               emit("complete", comments_read=found, writes=0)
           except Exception as exc:
