@@ -54,6 +54,7 @@ jobs:
                   req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
                       headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
                                "Referer":"https://www.bilibili.com/"}, method="GET")
+                  time.sleep(3)
                   emit("get_entered", endpoint=path)
                   with opener.open(req, timeout=15) as response:
                       result = json.load(response)
