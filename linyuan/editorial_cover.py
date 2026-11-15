@@ -92,12 +92,15 @@ def render(image, path, face, headline, speaker, font, font_index=None):
     title_font = ImageFont.truetype(font, 112, index=font_index)
     draw.text((208, 42), speaker, font=label, fill='#efbd58')
     draw.text((208, 94), '访谈摘录', font=small, fill='#adbac9')
+    # Reserve the entire photograph, not just the detected face. Six 112px
+    # glyphs reach x=848 and overwrite the panel beginning at x=832.
+    text_right = panel[0] - 24
     lines = cover_headline(headline, speaker, max_lines=3, line_capacity=6)
     boxes = []
     for i, line in enumerate(lines):
         xy = (176, 190+i*140) if len(lines)==3 else (176, 252+i*148)
         box = draw.textbbox(xy, line, font=title_font)
-        if box[2] > 848:
+        if box[2] > text_right:
             raise ValueError('封面文案超出信息流安全区；不能缩成小字或覆盖人脸')
         draw.text(xy, line, font=title_font, fill='#f5f5f1' if i == 0 else '#efbd58')
         boxes.append(box)
@@ -114,7 +117,8 @@ def render(image, path, face, headline, speaker, font, font_index=None):
         raise ValueError('封面标题不得遮挡完整人物脸部')
     proof = cover_proof(canvas, path, lines, 112, boxes, style='editorial', face_box=mapped_face,
                         feed_crop=FEED_WIDE_CROP)
-    proof.update(design_version=3, portrait_panel=list(panel), source_crop=list(crop),
+    proof.update(design_version=4, portrait_panel=list(panel), source_crop=list(crop),
+                 text_panel_gap=panel[0]-max(box[2] for box in boxes),
                  face_box=mapped_face, face_fully_visible=True, text_face_overlap=False,
                  sha256=hashlib.sha256(path.read_bytes()).hexdigest())
     Path(str(path)+'.proof.json').write_text(json.dumps(proof, ensure_ascii=False, indent=2))
