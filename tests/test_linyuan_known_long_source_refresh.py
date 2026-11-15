@@ -146,6 +146,56 @@ def test_pool_growth_shares_original_metadata_budget_with_refresh(base,monkeypat
     assert limits==[44] and report['added_count']==0 and report['accepted_mp4_count']==0
 
 
+def exchange_seed(base):
+    row=seed();row.update(title='林园重庆交流视频 全网首发',source_role='catalog_only',
+        direct_dispatch=False,target_speaker_title_evidence=False)
+    (base/'bilibili_seeds.json').write_text(json.dumps(dict(seeds=[row])))
+    return row
+
+
+def exchange_verified(lead):
+    return {**verify(lead),'title':'林园重庆交流视频 全网首发','target_speaker_title_evidence':True}
+
+
+def test_legacy_exchange_format_needs_fresh_exact_metadata_and_native_hd_before_promotion(base):
+    before=exchange_seed(base);history=(base/'.automation/fc_state.json').read_bytes()
+    assert items(before)==[] and R.title_format_only_hold(before)
+    result=R.run(base,verify=exchange_verified,streams=streams)
+    after=json.loads((base/'bilibili_seeds.json').read_text())['seeds'][0]
+    assert result['refreshed_count']==1 and len(items(after))==1
+    assert after['direct_dispatch'] is True and after['source_role']=='mother_candidate'
+    assert after['media_verified'] is after['editorial_approved'] is False
+    assert result['accepted_mp4_count']==0 and (base/'.automation/fc_state.json').read_bytes()==history
+
+
+def test_low_resolution_exchange_stays_in_research_catalogue(base):
+    before=exchange_seed(base)
+    result=R.run(base,verify=exchange_verified,streams=lambda *a:dict(width=640,height=360))
+    after=json.loads((base/'bilibili_seeds.json').read_text())['seeds'][0]
+    assert result['refreshed_count']==0 and after==before and items(after)==[]
+
+
+@pytest.mark.parametrize('changes',[dict(no_reprint=1),dict(reuse_hold_reason='permission_pending'),
+    dict(target_speaker_title_evidence=True),dict(title='林园的投资故事'),
+    dict(title='林园好友谈重庆交流视频'),dict(title='林园重庆交流视频解读')])
+def test_other_research_or_explicit_holds_do_not_get_the_format_exception(base,changes):
+    row=exchange_seed(base);row.update(changes)
+    (base/'bilibili_seeds.json').write_text(json.dumps(dict(seeds=[row])))
+    assert R.run(base,verify=lambda *a:pytest.fail('held material rechecked'),streams=streams)['checked_count']==0
+
+
+def test_exchange_format_cannot_override_another_seed_denial(base):
+    row=exchange_seed(base)
+    (base/'bilibili_seeds.json').write_text(json.dumps(dict(seeds=[row,{**row,'no_reprint':1}])))
+    assert R.run(base,verify=lambda *a:pytest.fail('denied material rechecked'),streams=streams)['checked_count']==0
+
+
+def test_exchange_format_cannot_override_the_verified_page_restriction_registry(base):
+    row=exchange_seed(base);row.update(bvid='BV1RJ411Q7Ki',url='https://www.bilibili.com/video/BV1RJ411Q7Ki')
+    (base/'bilibili_seeds.json').write_text(json.dumps(dict(seeds=[row])))
+    assert R.run(base,verify=lambda *a:pytest.fail('known banned page rechecked'),streams=streams)['checked_count']==0
+
+
 @pytest.mark.parametrize('history',[{},dict(dispatched=None,published={}),dict(dispatched=[],published=None)])
 def test_unknown_producer_history_cannot_be_treated_as_no_attempts(base,history):
     prepare(base);(base/'.automation/fc_state.json').write_text(json.dumps(history))
