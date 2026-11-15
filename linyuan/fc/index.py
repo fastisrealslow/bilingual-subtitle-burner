@@ -2747,6 +2747,7 @@ def _dispatch_admitted(event=None, context=None):
     # proof: the worker still measures 20 minutes and verifies every story.
     known_long_available = any(experiment.long_candidate(c) for c in cands)
     mainland_deferred = 0
+    urgent_wide_reserved=False
     for i, c in enumerate(cands):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
@@ -2842,12 +2843,12 @@ def _dispatch_admitted(event=None, context=None):
             if ((long_source or duration_probe) and any(exp_needs.values())
                     and (not full_week or exp_needs['portrait'])):
                 editorial_profile=experiment.TREATMENT
-                # Use outstanding, active-job-adjusted gaps, as raw-mother
-                # reuse already does. A smaller W reserve gap must not take
-                # the only admitted mother while the P treatment shelf is empty.
-                # Ties keep the existing W-first order; no running job changes.
-                output_layout=('portrait' if full_week or duration_probe
-                               or exp_needs['portrait']>exp_needs['landscape'] else 'landscape')
+                # Fill today's uncovered afternoon before balancing remaining
+                # two-day reserves. Running jobs and weekly/probe plans stay
+                # unchanged; actual wide T can serve the flexible evening slot.
+                output_layout=treatment_admission_layout(inventory,st,exp_needs,
+                    full_week=bool(full_week),duration_probe=duration_probe,
+                    urgent_wide_reserved=urgent_wide_reserved)
             if (dur==0 and editorial_profile!=experiment.TREATMENT and not recent_probe and not full_week
                     and normal_deficits.get(output_layout,0)<=0):
                 # Another candidate may have consumed the remaining intent.
@@ -2887,6 +2888,7 @@ def _dispatch_admitted(event=None, context=None):
             if output_layout=='landscape':landscape_admissions=max(0,landscape_admissions-1)
             if editorial_profile==experiment.TREATMENT:
                 experiment.consume_production_need(exp_needs,output_layout)
+                urgent_wide_reserved=urgent_wide_reserved or output_layout=='landscape'
             else:
                 normal_deficits[output_layout]=max(0,normal_deficits.get(output_layout,0)-1)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
@@ -2924,6 +2926,28 @@ def _dispatch_admitted(event=None, context=None):
             remaining_production_opportunities=dict(exp_needs),
             status='ready' if enough else 'replenishing' if active_treatment or started_treatment else 'stalled')
     return result
+
+
+def treatment_admission_layout(stock,state,needs,*,full_week=False,duration_probe=False,
+                               urgent_wide_reserved=False,now=None):
+    """Cover today's actual afternoon gap before balancing two-day reserves.
+
+    An active wide worker has no accepted draft yet. A larger portrait reserve
+    gap must not route the only newly admitted long mother away from 14:00.
+    Evening already accepts a real wide treatment. Never change running jobs,
+    add quotas, infer unknown stock empty, or alter weekly/probe layouts.
+    """
+    if full_week or duration_probe:return 'portrait'
+    now=time.time() if now is None else now
+    today=time.strftime('%Y-%m-%d',time.gmtime(now+8*3600))
+    afternoon=publication_slot_time(today+' 14')
+    ready=stock.get('experiment_ready') or {}
+    if (not urgent_wide_reserved and stock.get('inventory_fresh') is True
+            and type(ready.get('landscape')) is int and ready['landscape']==0
+            and any(needs.values()) and afternoon is not None and now<afternoon+100*60
+            and not slot_published(state,afternoon)):
+        return 'landscape'
+    return 'portrait' if needs.get('portrait',0)>needs.get('landscape',0) else 'landscape'
 
 
 def experiment_duration_probe_allowed(candidate, state, active_runs, needs, *,
