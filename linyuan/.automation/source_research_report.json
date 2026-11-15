@@ -1,5 +1,5 @@
 {
-  "run_id": "43673217231",
+  "run_id": "43674689131",
   "processed": 3,
   "inspected": 1,
   "historical_media_verified": 242,
@@ -7,14 +7,20 @@
   "pending": 300,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "retry_next_run",
-    "error": "RuntimeError",
+    "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 4,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -3983,10 +3989,10 @@
       "family": "hnw_course",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 16,
+      "attempts": 17,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794540725.4787872,
-      "next_retry_at": 1794627125.4787872,
+      "last_attempt_at": 1794715439.69487,
+      "next_retry_at": 1794801839.69487,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6753,13 +6759,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 11,
+      "attempts": 12,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794556269.981115,
-      "next_retry_at": 1794642669.981115,
+      "last_attempt_at": 1794715442.0732186,
+      "next_retry_at": 1794801842.0732186,
       "download_partial_bytes": 0
     },
     "cad2c09c8e1344fddcb5": {
@@ -9524,11 +9530,15 @@
       "role": "mother",
       "family": "tianyu_linyuan_2026_11",
       "priority": 2,
-      "status": "pending",
-      "attempts": 0,
+      "status": "retry_wait",
+      "attempts": 1,
       "publisher_status": "catalog_lead_not_primary_proof",
       "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "cache_recovery_needed": false,
+      "last_error": "CalledProcessError",
+      "last_attempt_at": 1794715437.4654431,
+      "next_retry_at": 1794737037.4654431,
+      "download_partial_bytes": 0
     }
   },
   "searches": {
@@ -9608,11 +9618,14 @@
       "new_ids": []
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1794668403.4325824,
-      "next_retry_at": 1794711603.4325824,
+      "next_retry_at": 1794737036.1483898,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1794715436.1483898
     },
     "zhejiang_2026_01|林园 浙江大学 2026 1月9日 完整版": {
       "status": "searched",
