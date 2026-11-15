@@ -233,8 +233,20 @@ def run(base=BASE, *, target=TARGET, limit=48):
     base = Path(base)
     before = census(base)
     providers = {}
+    # The global 5000-parent target does not refresh old, unused long seeds.
+    # Their six-hour metadata expiry otherwise strands known interviews while
+    # short new discoveries continue growing the count. Share the same writer,
+    # cooldown and overall exact-metadata request budget with ordinary growth.
+    from known_long_source_refresh import run as refresh_long
+    try:
+        providers['known_long_refresh']=refresh_long(base,limit=min(4,limit))
+    except Exception as exc:
+        providers['known_long_refresh']=dict(checked_count=min(4,limit),refreshed_count=0,
+            error=type(exc).__name__,budget_reserved_after_unknown_failure=True)
+    growth_limit=max(0,limit-int(providers['known_long_refresh'].get('checked_count',0)))
     for name, call in (
-        ('bilibili', lambda: bilibili.run(base, target=target, limit=limit, replenish_long=True)),
+        ('bilibili', lambda: bilibili.run(base, target=target, limit=growth_limit, replenish_long=True)
+            if growth_limit else dict(added_count=0,reason='exact_metadata_budget_used_by_known_long_refresh')),
         ('weibo', lambda: grow_weibo(base, target=target)),
     ):
         try:
