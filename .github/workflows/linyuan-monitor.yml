@@ -124,6 +124,7 @@ jobs:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
         run: python -u seed_pool_growth.py --target 5000 --limit 48
       - name: 将新核验长母片立即写入候选目录（不增加网络请求或生产并发）
+        id: seed_catalogue
         run: |
           python -m pytest -q ../tests/test_linyuan_seed_materialization.py ../tests/test_linyuan_known_long_source_refresh.py
           python materialize_verified_seeds.py
@@ -141,8 +142,17 @@ jobs:
         run: python -u source_gap_backfill.py
 
       - name: 即时保存原发与长合集目录（不等待媒体下载）
+        id: persist_seed_catalogue
         run: |
           bash persist_monitor_metadata.sh 'chore(sources): checkpoint verified long catalogue and original clips'
+
+      - name: 新可派发长素材提交后唤醒原有调度
+        if: steps.seed_catalogue.outputs.admission_wakeup_required == 'true' && steps.persist_seed_catalogue.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run linyuan-dispatch-runner.yml --repo "$GITHUB_REPOSITORY" --ref main
 
       - name: 自动补源、重试下载并比对实际音频
         timeout-minutes: 20
