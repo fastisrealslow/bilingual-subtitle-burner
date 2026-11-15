@@ -1,0 +1,127 @@
+name: One-time authorized Bilibili reply canary
+on:
+  push:
+    branches: ['dot/comments-read-probe-20261115']
+    paths: ['.github/workflows/linyuan-comment-reply-once.yml']
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-comment-reply-once
+  cancel-in-progress: false
+jobs:
+  reply-once:
+    if: github.run_number == 1 && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Send one authorized ordinary reply and verify
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, sys, time
+          from pathlib import Path
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from urllib.parse import urlencode
+
+          # One fixed authorized reply; no FC or upload modules, no credential output.
+          OWNER = "275211725"
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+          opener = build_opener(NoRedirect())
+          def emit(kind, **data):
+              # JSON escaping prevents comment text from becoming workflow commands.
+              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True))
+          try:
+              raw = os.environ.pop("BILIBILI_COOKIES", "")
+              if not raw:
+                  emit("blocked", reason="existing_ci_secret_unavailable")
+                  sys.exit(1)
+              payload = json.loads(raw)
+              entries = (payload.get("cookie_info") or {}).get("cookies") or payload.get("cookies") or []
+              cookies = {str(c["name"]): str(c["value"]) for c in entries}
+              if cookies.get("DedeUserID") != OWNER or not cookies.get("bili_jct"):
+                  emit("blocked", reason="cookie_owner_mismatch_or_missing_csrf")
+                  sys.exit(1)
+              if any("\r" in x or "\n" in x for pair in cookies.items() for x in pair):
+                  raise ValueError("invalid_cookie")
+              cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
+              def get(path, **params):
+                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply")
+                  req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
+                      headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
+                               "Referer":"https://www.bilibili.com/"}, method="GET")
+                  with opener.open(req, timeout=15) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("api_error", endpoint=path, code=result.get("code"))
+                      return None
+                  return result.get("data") or {}
+              nav = get("/x/web-interface/nav")
+              if not nav or not nav.get("isLogin") or str(nav.get("mid")) != OWNER:
+                  emit("blocked", reason="authenticated_owner_not_verified")
+                  sys.exit(1)
+              emit("account_verified", owner=OWNER)
+              BVID = "BV1QvWX6aEeP"
+              AID = 117602630239557
+              ROOT = "323819524144"
+              MESSAGE = "给年轻人一点空间，让他们自己去试，这点挺重要的。"
+              EXPECTED = "林总的成功最大原因是他的母亲对他的支持， 不说那8000块的事他母亲肯定能放手让他自己去闯去选择，不像很多父母把子女控制栓的死死的永无出头之日"
+              if os.environ.get("GITHUB_RUN_ATTEMPT") != "1" or os.environ.get("GITHUB_RUN_NUMBER") != "1":
+                  emit("blocked", reason="one_time_execution_guard")
+                  sys.exit(1)
+              video = get("/x/web-interface/view", bvid=BVID)
+              if not video or str((video.get("owner") or {}).get("mid")) != OWNER or video.get("aid") != AID:
+                  emit("blocked", reason="video_owner_or_id_mismatch")
+                  sys.exit(1)
+              def find_root():
+                  data = get("/x/v2/reply", type=1, oid=AID, pn=1, ps=20, sort=0)
+                  if data is None: raise ValueError("comment_read_failed")
+                  return next((r for r in data.get("replies") or [] if str(r.get("rpid")) == ROOT), None)
+              row = find_root()
+              if not row or (row.get("content") or {}).get("message") != EXPECTED:
+                  emit("blocked", reason="reviewed_comment_changed_or_missing")
+                  sys.exit(1)
+              if str(row.get("mid")) == OWNER or int(row.get("rcount") or 0) != 0 or row.get("replies"):
+                  emit("blocked", reason="existing_reply_or_owner_comment")
+                  sys.exit(1)
+              # Upstream biliup's reply_comment uses exactly this endpoint/form.
+              form = urlencode(dict(type=1, oid=AID, root=ROOT, parent=ROOT,
+                                    message=MESSAGE, csrf=cookies["bili_jct"])).encode()
+              request = Request("https://api.bilibili.com/x/v2/reply/add", data=form,
+                  headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
+                           "Referer":"https://www.bilibili.com/video/"+BVID,
+                           "Content-Type":"application/x-www-form-urlencoded"}, method="POST")
+              emit("submission_entered", bvid=BVID, root=ROOT)
+              # Exactly one POST. A lost response is unknown, never retry.
+              with opener.open(request, timeout=20) as response:
+                  result = json.load(response)
+              if result.get("code") != 0:
+                  emit("not_confirmed", code=result.get("code"), retry_allowed=False)
+                  sys.exit(1)
+              info = result.get("data") or {}
+              reply = info.get("reply") or {}
+              new_id = str(info.get("rpid") or reply.get("rpid") or "")
+              if not new_id.isdigit():
+                  emit("pending_verification", reason="no_reply_id", retry_allowed=False)
+                  sys.exit(1)
+              emit("accepted", reply_id=new_id, bvid=BVID, root=ROOT, text=MESSAGE)
+              for _ in range(4):
+                  time.sleep(3)
+                  parent = find_root()
+                  children = (parent or {}).get("replies") or []
+                  if any(str(r.get("rpid")) == new_id and str(r.get("mid")) == OWNER
+                         and (r.get("content") or {}).get("message") == MESSAGE for r in children):
+                      emit("verified_visible", reply_id=new_id, bvid=BVID, root=ROOT, text=MESSAGE, writes=1)
+                      break
+              else:
+                  emit("pending_verification", reply_id=new_id, retry_allowed=False)
+                  sys.exit(1)
+          except Exception as exc:
+              emit("not_confirmed", reason=type(exc).__name__, retry_allowed=False)
+              sys.exit(1)
+          PY
