@@ -79,8 +79,8 @@ jobs:
                       for value in node: collect(value)
               collect(state)
               # Most recent ledger entries first; owner check excludes source videos.
-              candidates = list(dict.fromkeys(reversed(bvids)))[20:40]
-              emit("ledger_scan", videos=len(candidates))
+              candidates = list(dict.fromkeys(reversed(bvids)))[40:80]
+              emit("ledger_scan", videos=len(candidates), total_unique=len(set(bvids)))
               found = 0
               for bvid in candidates:
                   video = get("/x/web-interface/view", bvid=bvid)
@@ -88,6 +88,9 @@ jobs:
                       continue
                   aid = video.get("aid")
                   if not isinstance(aid,int) or aid <= 0: continue
+                  if (video.get("stat") or {}).get("reply") == 0:
+                      emit("zero_comments", bvid=bvid)
+                      continue
                   comments = get("/x/v2/reply", type=1,oid=aid,pn=1,ps=20,sort=0)
                   if comments is None: break
                   rows = comments.get("replies") or []
