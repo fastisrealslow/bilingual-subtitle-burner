@@ -709,12 +709,35 @@ def subject_attribute_error(title, cover, transcript):
 
 
 def source_payback_condition_error(title, cover, transcript):
-    """Source7 can omit the income premise from BOTH title and evidence.
+    """Keep explicit source premises in both title and cover.
 
     Inspect the complete transcript, not just model-selected snippets. This
     narrow observed construction does not claim general entailment checking.
     """
     source=compact(transcript)
+    # Bind the historical basis to the named asset, not any old purchase
+    # elsewhere in the transcript. A model's selected quotes can omit it.
+    historical = re.finditer(
+        r'(?:当初|当年|早年|最初)(?:买入|购买|买的|买下)(.{2,16}?)(?:的)?'
+        r'(?:股价|价格|成本).{0,65}?(?:本钱|本金|成本).{0,8}?(?:分走|收回|回来)',
+        source)
+    for match in historical:
+        if re.search(r'(?:按|以)(?:现在|当前|目前).{0,16}(?:股价|价格|成本)', match[0]):
+            continue
+        asset = match[1].removesuffix('的')
+        for copy in (title, cover):
+            text = compact(copy)
+            if asset not in text or not re.search(r'回本|收回.{0,4}(?:本钱|本金|成本)', text):
+                continue
+            if re.search(r'(?:不能|无法|不可能|未能|尚未).{0,4}(?:回本|收回)', text):
+                continue
+            if re.search(r'(?:什么|哪些|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)', text):
+                continue
+            basis = re.search(
+                r'(?:当初|当年|早年|最初)(?:买入|购买|买的|买下)|'
+                r'(?:历史|原始|当初|当年)(?:买入)?(?:成本|本金|本钱|股价|价格)', text)
+            if not basis:
+                return '回本判断遗漏该资产的历史买入成本前提；标题和封面须各自保留成本基准，不能泛化为当前买入也能回本'
     if not re.search(r'(?:基于|前提).{0,65}人均收入.{0,14}不(?:减少|下降|降低)',source):
         return None
     for copy in (title,cover):
@@ -765,6 +788,15 @@ def _quantity_intervals(text):
 
 
 def quantity_range_error(title, cover, source):
+    # Substring evidence is insufficient for a number: 百分之七 is a
+    # prefix of 百分之七十, not the same percentage. Keep complete tokens.
+    percentage = r'百分之[零〇一二两三四五六七八九十百千万亿点0-9]+(?:\.[0-9]+)?'
+    source_percentages = set(re.findall(percentage, source))
+    for copy in (title, cover):
+        for token in re.findall(percentage, copy):
+            if token not in source_percentages and any(
+                    original.startswith(token) for original in source_percentages):
+                return f'标题或封面的百分比“{token}”截断了原文完整数字，不能把数字前缀当作原文证据'
     source_rows = _quantity_intervals(source)
     # This catches an observed model-approved precision change, not all
     # possible numerical errors or whether a quantity supports the claim.
