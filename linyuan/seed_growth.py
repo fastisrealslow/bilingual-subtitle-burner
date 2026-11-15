@@ -30,6 +30,23 @@ QUERIES = ('林园 完整访谈', '林园 演讲', '林园 第一财经', '林�
            '林园 2024', '林园 2019', '林园 投资经历',
            '林园 投资者交流', '林园 圆桌会议', '林园 投资讲座', '林园 申万宏源 全集')
 
+LONG_QUERIES=('林园 2026 完整访谈','林园 2025 完整访谈')+QUERIES[:18]+('林园 投资者交流 完整','林园 圆桌会议 完整',
+    '林园 投资讲座 全程','林园 申万宏源 全集')
+
+
+def verification_batch(candidates,path,limit,prefer_long=False):
+    """Reserve existing verification slots for long needs, retaining short news."""
+    if not prefer_long:
+        yield from rotating_batch('parents',candidates,path,limit,key=lambda r:r['bvid'])
+        return
+    long=[r for r in candidates if 1200<=float(r.get('catalog_duration') or 0)<=5400]
+    other=[r for r in candidates if not 1200<=float(r.get('catalog_duration') or 0)<=5400]
+    other_count=min(len(other),limit//4)
+    long_count=min(len(long),limit-other_count)
+    other_count=min(len(other),limit-long_count)
+    for name,rows,count in [('long_parents',long,long_count),('other_parents',other,other_count)]:
+        if count:yield from rotating_batch(name,rows,path,count,key=lambda r:r['bvid'])
+
 
 def existing_roots(base):
     roots = set()
@@ -181,6 +198,11 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
                   rights_approved_count=0, production_dispatch=False, added_count=0,
                   errors=[], counting_policy='unique_parent_id_not_parts_or_stock')
     replenishing=remaining==0 and replenish_long
+    # A growing 5000-parent directory is not a reason to postpone today's T
+    # source shortage. Keep total requests fixed, choosing relevant queries
+    # and independent parent cursors before reaching that catalogue target.
+    prefer_long=bool(replenish_long and long_replenishment_budget(base)>0)
+    report['long_discovery_priority']=prefer_long
     if replenishing:
         remaining=long_replenishment_budget(base)
         limit=min(limit,12)
@@ -205,7 +227,8 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
             pending[row['bvid']] = {**row, **pending.get(row['bvid'], {})}
     if search:
         search_scan = json.loads(state.read_text()) if state.exists() else {}
-        for query in rotating_batch('queries', QUERIES, state, 3, state=search_scan):
+        for query in rotating_batch('long_queries' if prefer_long else 'queries',
+                LONG_QUERIES if prefer_long else QUERIES,state,3,state=search_scan):
             if time.monotonic() >= deadline:
                 report['errors'].append(dict(stage='budget', error='time_budget_reached'))
                 break
@@ -255,7 +278,7 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
                          and (not replenishing or 1200<=float(r.get('catalog_duration') or 0)<=5400)),
                         key=lambda r: (-r['catalog_duration'], r['bvid']))
     rows = []
-    for candidate in rotating_batch('parents', candidates, state, min(64, max(1, limit)), key=lambda r: r['bvid']):
+    for candidate in verification_batch(candidates,state,min(64,max(1,limit)),prefer_long):
         if time.monotonic() >= deadline:
             report['errors'].append(dict(stage='budget', error='time_budget_reached'))
             break
