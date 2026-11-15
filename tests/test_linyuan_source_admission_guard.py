@@ -88,3 +88,21 @@ def test_known_preview_only_document_blocks_canonical_aliases_and_staged_retries
     assert check('https://github.com/org/repo/releases/download/staging/old.mp4','old',[],state)
     assert restriction('https://'+host+'/c/8wW9TEtieKg',[]) is None
     assert restriction('https://example.com/?url='+url,[]) is None
+
+
+@pytest.mark.parametrize('suffix',['','?from=share','#t=120'])
+def test_actual_p5w_video_notice_blocks_exact_page_and_staged_retry(suffix):
+    url='https://www.p5w.net/v/ip/typyq/202611/t20261106_6520481.htm'+suffix
+    assert '原发完整视频画面' in restriction(url,[])
+    state=dict(dispatched=[dict(slug='old',ts=2,source_url=url)])
+    assert check('https://github.com/org/repo/releases/download/staging/old.mp4','old',[],state)
+
+
+@pytest.mark.parametrize('url',[
+    'https://www.p5w.net/v/ip/typyq/202511/t20251121_6424547.htm',
+    'https://www.p5w.net/v/ip/typyq/202610/t20261106_6520481.htm',
+    'https://www.p5w.net.evil.test/v/ip/typyq/202611/t20261106_6520481.htm',
+    'https://example.com/?url=https://www.p5w.net/v/ip/typyq/202611/t20261106_6520481.htm',
+])
+def test_exact_p5w_notice_does_not_infer_platform_wide_or_other_programme_restrictions(url):
+    assert restriction(url,[]) is None
