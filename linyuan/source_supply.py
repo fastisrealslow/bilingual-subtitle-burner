@@ -297,6 +297,8 @@ def main():
                         sha256=(m.get('fingerprints') or {}).get('sha256'),
                         fingerprints=m.get('fingerprints') or {},
                         editorial_profile=m.get('editorial_profile','baseline'),
+                        requested_editorial_profile=m.get('requested_editorial_profile'),
+                        experiment_selection_revision=m.get('experiment_selection_revision'),
                         experiment_proof=m.get('experiment_proof'),
                         long_story_family=m.get('long_story_family'),
                         cover_proof=m.get('cover_proof'),
