@@ -11,30 +11,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 138780c4e5c0b2d27671a5da218b2ac182ecbf49
+          ref: e613e56f72c1913d422d48840f6ab443cdf40100
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Test isolated refresh contracts
+      - name: Test exact current refresh contracts
         run: |
           pip install -q -r linyuan/fc/runtime-requirements.txt pytest
           python -m pytest -q tests/test_linyuan_known_long_source_refresh.py tests/test_linyuan_seed_replenishment.py
-      - name: Read actual exact long-source metadata and native streams only
+      - name: Inspect remaining unused long sources after four actual native-geometry failures
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: python linyuan/known_long_source_refresh.py --read-only --output known-long-source-refresh.json
-      - name: Recheck saved morning archive without uploading
-        if: always()
-        env:
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: python linyuan/bili_archive_status.py --bvid BV1CrsE6WEHH --out morning-publication-readback.json
+        run: |
+          PYTHONPATH=linyuan python - <<'PY'
+          import json
+          from pathlib import Path
+          from unittest.mock import patch
+          import known_long_source_refresh as R
+          previous={'BV1otni6HE1W','BV1iHiHB5E1Y','BV1144y1D769','BV17M4y1M7jw'}
+          original=R.candidates
+          def remaining(*args):
+              return [s for s in original(*args) if s['bvid'] not in previous]
+          with patch.object(R,'candidates',remaining):
+              result=R.run(apply=False)
+          result['excluded_after_actual_readonly_probe']=sorted(previous)
+          result['previous_probe_artifact_id']=14143720955
+          Path('known-long-source-refresh.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: known-long-and-morning-readonly
-          path: |
-            known-long-source-refresh.json
-            morning-publication-readback.json
+          path: known-long-source-refresh.json
           if-no-files-found: error
           retention-days: 30
