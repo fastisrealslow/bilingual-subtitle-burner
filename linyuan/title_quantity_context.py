@@ -53,6 +53,9 @@ def population_contexts(source):
 
 
 def error(title, cover, source):
+    issue = market_time_share_error(title, cover, source)
+    if issue:
+        return issue
     contexts = population_contexts(source)
     normalized = clean(source)
     for copy in (title, cover):
@@ -79,4 +82,47 @@ def error(title, cover, source):
                         and re.search(r'增长|增速', text)
                         and not re.search(ANNUAL, text)):
                     return '原话是年度增长率，标题与封面不能丢掉每年或年复合的单位，变成多年累计增长'
+    return None
+
+
+def market_time_share_error(title, cover, source):
+    """Keep a market time share distinct from a price change percentage.
+
+    Bind the number to the same market subject and movement. An unrelated
+    percentage elsewhere in the talk must not impose a time denominator.
+    """
+    percent = rf'(?:百分之({NUMBER})|([0-9]+)[%％])'
+    movement = r'(股市|股票|市场|指数)(上涨|下跌|盘整|横盘)'
+    modifiers = r'(?:的|只|仅|有|占|是|为|大约|约|大概|不到|超过|比例)*'
+    time_unit = r'(?:时间|交易日|天数)'
+    source_text = re.sub(r'\s+', '', str(source))
+    contexts = []
+    for match in re.finditer(movement + rf'的?{time_unit}{modifiers}' + percent, source_text):
+        contexts.append((match[1], match[2], number(match[3] or match[4])))
+    for subject, action, value in contexts:
+        # If the speaker independently states a price move with this same
+        # number, leave that ambiguity to semantic review. Negated/questions
+        # are not independent affirmative evidence.
+        independent = False
+        for clause in re.findall(r'[^。；;！？!?]+[。；;！？!?]?', source_text):
+            if re.search(r'不|没|并非|不是|是否|吗|么|[？?]', clause):
+                continue
+            for match in re.finditer(re.escape(subject + action) + modifiers + percent, clause):
+                if number(match[1] or match[2]) == value:
+                    independent = True
+        if independent:
+            continue
+        for copy in (title, cover):
+            for match in re.finditer(re.escape(subject + action) + rf'[^，,。；;！？!?]{{0,12}}?' + percent, str(copy)):
+                if number(match[1] or match[2]) != value:
+                    continue
+                if re.search(time_unit, match[0]):
+                    continue
+                # “上涨只有5%，其余时间...” supplies the denominator in
+                # the immediately following contrast, unlike an unrelated
+                # mention of time elsewhere in the title.
+                following = str(copy)[match.end():match.end()+14]
+                if re.match(r'[，,](?:其余|其他|剩下的?)时间', following):
+                    continue
+                return '原话比例统计涨跌时间，标题与封面须各自保留时间分母，不能变成涨跌幅或无对象的百分比'
     return None
