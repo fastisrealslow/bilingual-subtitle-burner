@@ -54,6 +54,7 @@ jobs:
                   req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
                       headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
                                "Referer":"https://www.bilibili.com/"}, method="GET")
+                  emit("get_entered", endpoint=path)
                   with opener.open(req, timeout=15) as response:
                       result = json.load(response)
                   if result.get("code") != 0:
@@ -77,7 +78,7 @@ jobs:
                       for value in node: collect(value)
               collect(state)
               # Most recent ledger entries first; owner check excludes source videos.
-              candidates = list(dict.fromkeys(reversed(bvids)))[:20]
+              candidates = ["BV1QvWX6aEeP"]
               emit("ledger_scan", videos=len(candidates))
               found = 0
               for bvid in candidates:
@@ -103,6 +104,6 @@ jobs:
               emit("complete", comments_read=found, writes=0)
           except Exception as exc:
               # Exception strings can include URLs or request details: never print.
-              emit("blocked", reason=type(exc).__name__)
+              emit("blocked", reason=type(exc).__name__, http_status=getattr(exc,"code",None))
               sys.exit(1)
           PY
