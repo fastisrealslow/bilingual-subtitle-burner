@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1794735785,
+  "updated_at": 1794736080,
   "inventory_updated_at": 1794735776,
   "continuity": {
     "daily_target": 4,
@@ -357,7 +357,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794735782,
+    "updated_at": 1794736077,
     "records": 18272,
     "video_records": 15714,
     "initial_candidates": 234,
@@ -730,9 +730,9 @@
     "experiment_fallback": 157,
     "ready": 46,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -55811,21 +55811,21 @@
     },
     {
       "slug": "ly-1115-16e1c1",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794726681,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794737789,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 43688815482,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43688815482",
       "run_started_at": "2026-11-15T07:11:21Z",
-      "run_updated_at": "2026-11-15T07:11:25Z"
+      "run_updated_at": "2026-11-15T09:42:30Z"
     },
     {
       "slug": "ly-1115-5bc4d3",
@@ -85200,10 +85200,10 @@
     },
     "ly-1115-16e1c1": {
       "id": 43688815482,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-15T07:11:21Z",
-      "updated_at": "2026-11-15T07:11:25Z",
+      "updated_at": "2026-11-15T09:42:30Z",
       "run_started_at": "2026-11-15T07:11:21Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/43688815482",
       "run_number": 4593,
