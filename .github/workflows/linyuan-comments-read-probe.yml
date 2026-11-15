@@ -34,7 +34,7 @@ jobs:
           opener = build_opener(NoRedirect())
           def emit(kind, **data):
               # JSON escaping prevents comment text from becoming workflow commands.
-              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True))
+              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True), flush=True)
           try:
               raw = os.environ.pop("BILIBILI_COOKIES", "")
               if not raw:
@@ -79,7 +79,7 @@ jobs:
                       for value in node: collect(value)
               collect(state)
               # Most recent ledger entries first; owner check excludes source videos.
-              candidates = list(dict.fromkeys(reversed(bvids)))[40:80]
+              candidates = list(dict.fromkeys(reversed(bvids)))[78:118]
               emit("ledger_scan", videos=len(candidates), total_unique=len(set(bvids)))
               found = 0
               for bvid in candidates:
@@ -103,7 +103,7 @@ jobs:
                            replies=int(row.get("rcount") or 0),
                            visible_owner_reply=any(str(x.get("mid"))==OWNER for x in children))
                       found += 1
-                  if found >= 20: break
+                  if found >= 40: break
                   time.sleep(0.5)
               emit("complete", comments_read=found, writes=0)
           except Exception as exc:
