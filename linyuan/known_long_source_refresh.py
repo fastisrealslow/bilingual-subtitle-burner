@@ -10,13 +10,32 @@ from pathlib import Path
 import re
 import time
 
-from seed_campaign import BASE, BVID, verify_seed
+from seed_campaign import BASE, BVID, NO_MEDIA, verify_seed
 from source_admission_guard import restriction
 from source_profile_feasibility import native_scene_unavailable
 from verified_seed_snapshot import MAX_AGE_SECONDS
 
 PER_PASS = 4
 PER_DAY = 8
+
+
+def title_format_only_hold(seed):
+    """Screen the exact legacy exchange-video format; other research holds stay."""
+    from fc import index as fc
+    title=seed.get('title') or ''
+    return (seed.get('source_role')=='catalog_only' and seed.get('direct_dispatch') is False
+        and seed.get('target_speaker_title_evidence') is False
+        and type(seed.get('no_reprint')) is int and seed['no_reprint']==0
+        and bool(re.match(r'^林园[^。！？?\n]{0,12}交流视频',title))
+        and fc.title_has_target_speaker(title) and not fc.NOISE.search(title)
+        and not fc.AI_NOISE.search(title) and not NO_MEDIA.search(title))
+
+
+def seed_restriction(seed,seeds,url=None):
+    # This one old role was derived solely from a missing title format. All
+    # registry restrictions and any other seed's denial remain authoritative.
+    checked=[row for row in seeds if row is not seed] if title_format_only_hold(seed) else seeds
+    return restriction(url or 'https://www.bilibili.com/video/'+seed['bvid'],checked)
 
 
 def candidates(seeds, state, scan, now):
@@ -33,12 +52,13 @@ def candidates(seeds, state, scan, now):
         bvid=seed.get('bvid')
         if (not isinstance(bvid,str) or not BVID.fullmatch(bvid) or bvid in attempted
                 or seed.get('metadata_provenance')!='bilibili_view_exact_id_author_pages'
-                or seed.get('source_role')!='mother_candidate' or seed.get('direct_dispatch') is not True
+                or (not (seed.get('source_role')=='mother_candidate' and seed.get('direct_dispatch') is True)
+                    and not title_format_only_hold(seed))
                 or type(seed.get('no_reprint')) is not int or seed['no_reprint']!=0
                 or type(seed.get('owner_mid')) is not int or seed['owner_mid']<=0
                 or seed.get('owner_mid') in {1700344493,275211725}
                 or seed.get('reuse_hold_reason') or seed.get('diagnostic_only')
-                or restriction('https://www.bilibili.com/video/'+bvid,seeds)
+                or seed_restriction(seed,seeds)
                 or float((checks.get(bvid) or {}).get('next_check_at') or 0)>now):continue
         try:
             observed=datetime.fromisoformat(seed['checked_at'].replace('Z','+00:00'))
@@ -138,7 +158,7 @@ def run(base=BASE, *, limit=PER_PASS, verify=None, streams=None, apply=True):
                 checks[bvid]=dict(next_check_at=stamp+86400,outcome=outcome['status'])
             elif (type(fresh.get('no_reprint')) is int and fresh['no_reprint']==0
                   and fresh.get('direct_dispatch') is True
-                  and not restriction(fresh.get('url'),data['seeds'])):
+                  and not seed_restriction(seed,data['seeds'],fresh.get('url'))):
                 matching=[p for p in fresh.get('pages',[]) if 1200<=p.get('duration',0)<=5400]
                 if (len(fresh.get('pages',[]))!=1 or len(matching)!=1
                         or matching[0]['cid']!=seed['pages'][0]['cid']):
