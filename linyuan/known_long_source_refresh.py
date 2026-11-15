@@ -1,7 +1,7 @@
 """Recheck unused long seeds before searching for more ordinary clip seeds.
 
-Only exact public metadata and available native stream dimensions are checked.
-No media download, ASR, model call, production request or approval happens here.
+Check exact public metadata and native dimensions. Legacy streams may need one
+bounded container prefix; no full media download, ASR, model or production call.
 """
 from datetime import datetime, timezone, timedelta
 import json
@@ -130,7 +130,14 @@ def run(base=BASE, *, limit=PER_PASS, verify=None, streams=None, apply=True):
                     left=deadline-time.monotonic()
                     if left<=0:raise TimeoutError('Known long-source metadata budget exhausted')
                     return actual.open(request,timeout=max(.1,min(timeout,left)))
-            return playurl_for_page(Bounded(),bvid,dict(cid=page['cid'],expected_duration=page['duration']))
+            result=playurl_for_page(Bounded(),bvid,dict(cid=page['cid'],expected_duration=page['duration']))
+            if (not all(type(result.get(k)) is int and result[k]>0 for k in ('width','height'))
+                    and result.get('video')):
+                from native_header_probe import probe
+                measured=probe(Bounded(),result['video'][0],'https://www.bilibili.com/',deadline)
+                if measured:result={**result,'width':measured['width'],'height':measured['height'],
+                                     'native_header_probe':measured}
+            return result
     for seed in pool:
         if time.monotonic()>=deadline:break
         bvid=seed['bvid'];stamp=time.time()
@@ -171,11 +178,15 @@ def run(base=BASE, *, limit=PER_PASS, verify=None, streams=None, apply=True):
                     valid=type(w) is int and type(h) is int and min(w,h)>0
                     measured.append(dict(page=page['page'],cid=page['cid'],width=w,height=h,
                         native_geometry_available=bool(valid and native_scene_unavailable(w,h) is None)))
+                    if actual.get('native_header_probe'):
+                        measured[-1]['native_header_probe']=actual['native_header_probe']
                 if any(m['native_geometry_available'] for m in measured):
                     seed.update({k:v for k,v in fresh.items() if k not in {'status','discovery'}})
                     seed.update(media_verified=False,editorial_approved=False,
                         long_source_preflight=dict(checked_at=stamp,pages=measured,
-                            origin='producer_exact_playurl_native_dimensions',media_approved=False))
+                            origin=('producer_exact_playurl_bounded_native_header' if any(
+                                m.get('native_header_probe') for m in measured)
+                                else 'producer_exact_playurl_native_dimensions'),media_approved=False))
                     report['refreshed_count']+=1;outcome.update(status='native_long_metadata_refreshed',pages=measured)
                 else:
                     known=all(type(m['width']) is int and type(m['height']) is int

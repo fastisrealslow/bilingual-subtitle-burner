@@ -196,6 +196,30 @@ def test_exchange_format_cannot_override_the_verified_page_restriction_registry(
     assert R.run(base,verify=lambda *a:pytest.fail('known banned page rechecked'),streams=streams)['checked_count']==0
 
 
+def test_legacy_missing_dimensions_uses_bounded_header_without_approving_any_media(base,monkeypatch):
+    prepare(base)
+    import ci_fetch_bilibili as B,native_header_probe as N
+    monkeypatch.setattr(B,'opener',lambda:object())
+    monkeypatch.setattr(B,'playurl_for_page',lambda *a:dict(video=['https://cdn.bilivideo.com/source.flv'],height=0))
+    proof=dict(width=1280,height=720,bytes_read=1024,media_approved=False,method='exact_stream_prefix_ffprobe_v1')
+    calls=[]
+    monkeypatch.setattr(N,'probe',lambda *a:calls.append(1) or proof)
+    result=R.run(base,verify=verify)
+    row=json.loads((base/'bilibili_seeds.json').read_text())['seeds'][0]
+    assert calls==[1] and result['refreshed_count']==1 and result['accepted_mp4_count']==0
+    assert row['long_source_preflight']['pages'][0]['native_header_probe']==proof
+    assert row['media_verified'] is row['editorial_approved'] is False
+
+
+def test_declared_native_stream_dimensions_do_not_spend_a_header_request(base,monkeypatch):
+    prepare(base)
+    import ci_fetch_bilibili as B,native_header_probe as N
+    monkeypatch.setattr(B,'opener',lambda:object())
+    monkeypatch.setattr(B,'playurl_for_page',lambda *a:dict(video=['https://cdn.bilivideo.com/source.flv'],width=1280,height=720))
+    monkeypatch.setattr(N,'probe',lambda *a:pytest.fail('unneeded media prefix'))
+    assert R.run(base,verify=verify)['refreshed_count']==1
+
+
 @pytest.mark.parametrize('history',[{},dict(dispatched=None,published={}),dict(dispatched=[],published=None)])
 def test_unknown_producer_history_cannot_be_treated_as_no_attempts(base,history):
     prepare(base);(base/'.automation/fc_state.json').write_text(json.dumps(history))
