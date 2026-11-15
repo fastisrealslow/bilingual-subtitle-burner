@@ -339,6 +339,35 @@ def title_has_target_speaker(title):
     return bool(DIRECT_SPEECH_PAT.search(title) or FULL_TITLE_PAT.search(title))
 
 
+def clip_title_rejected(item,extra,now=None):
+    """An honorific is not clip evidence for an exact, freshly verified long page."""
+    title=item.get('title') or ''
+    if not CLIP_TITLE_PAT.search(title) or FULL_TITLE_PAT.search(title):return False
+    if set(CLIP_TITLE_PAT.findall(title))!={'股神'}:return True
+    if (not experiment.long_candidate(dict(extra=extra))
+            or extra.get('metadata_provenance')!='cached_bilibili_view_exact_id_author_pages'
+            or extra.get('metadata_status')!='known_duration'
+            or extra.get('source_role')!='mother_candidate' or extra.get('direct_dispatch') is not True
+            or type(extra.get('no_reprint')) is not int or extra['no_reprint']!=0
+            or not item.get('author') or item.get('author') in COMPETITOR_AUTHORS
+            or type(extra.get('cid')) is not int or extra['cid']<=0):return True
+    bvid,page=extra.get('bvid'),extra.get('page')
+    if (not isinstance(bvid,str) or not re.fullmatch(r'BV[A-Za-z0-9]{10}',bvid)
+            or type(page) is not int or page<1
+            or item.get('id')!='bilibili_search:'+bvid+(f':p{page}' if page>1 else '')):return True
+    from source_admission_guard import official_page_key
+    url=item.get('url') or ''
+    if official_page_key(url)!=('bilibili',bvid) or editorial.source_key(url)!=bvid+':p'+str(page):return True
+    try:
+        from datetime import datetime
+        stamp=datetime.fromisoformat(extra['metadata_checked_at'].replace('Z','+00:00'))
+        if stamp.tzinfo is None:return True
+        age=(time.time() if now is None else now)-stamp.timestamp()
+        if not -60<=age<=6*3600:return True
+    except (KeyError,ValueError,TypeError,AttributeError):return True
+    return not item_has_target_speaker(item,extra)
+
+
 def item_has_target_speaker(item,extra):
     if title_has_target_speaker(item.get('title')):return True
     # Archive episode titles often contain only the TV programme/date. Their
@@ -1537,7 +1566,7 @@ def pick(items, st, n, audit=None):
             continue
         title = it.get("title") or ""
         # 剪辑二创（碎片/标题党）→ 拒；完整原片 → 收
-        if CLIP_TITLE_PAT.search(title) and not FULL_TITLE_PAT.search(title):
+        if clip_title_rejected(it,extra,now):
             excluded['clip_title'] += 1
             continue
         if NOISE.search(title):
@@ -2870,6 +2899,8 @@ def _dispatch_admitted(event=None, context=None):
                                      "production_rules_version": PRODUCTION_RULES_VERSION,
                                      "weekly_full_week": full_week, "output_layout": output_layout,
                                      "editorial_profile": editorial_profile,
+                                     **({'experiment_selection_revision':experiment.SELECTION_REVISION}
+                                        if editorial_profile==experiment.TREATMENT else {}),
                                      **({'experiment_duration_probe':dict(requested_at=probe_requested_at,
                                           reason='missing_ledger_duration')} if duration_probe else {}),
                                      "slug": c["slug"], "ts": int(time.time()),
@@ -3504,15 +3535,24 @@ def experiment_reuse_candidates(state, inventory, items, active_runs=()):
     current_records={r.get('slug'):r for r in inventory.get('artifacts',[])}
     for slug,e in latest.items():
         record=current_records.get(slug,{})
-        if (any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
+        inspected=[p for p in record.get('parts',[]) if p.get('status')=='verified']
+        hashes={p.get('source_sha256') for p in inspected}
+        current_request=(inventory_record_current(record) and len(hashes)==1
+            and all(re.fullmatch('[a-f0-9]{64}',str(h or '')) for h in hashes)
+            and e.get('source_sha256') in (None,next(iter(hashes)))
+            and any(p.get('requested_editorial_profile')==experiment.TREATMENT
+                    and p.get('experiment_selection_revision')==experiment.SELECTION_REVISION for p in inspected))
+        if current_request:
+            active_or_current[slug]=e
+        elif (any(p.get('status')=='verified' and experiment.actual_profile(p)==experiment.TREATMENT
                 for p in record.get('parts',[]))
                 and (e.get('experiment_selection_revision')==experiment.SELECTION_REVISION
                      or old_treatment_blocks_reselection(e,record,state))):
             active_or_current[slug]=e
         elif e.get('experiment_parent_slug') and not e.get('failed') and not record:
             active_or_current[slug]=e  # Unknown/in-flight old outcome: do not duplicate it.
-    used={e.get('experiment_parent_slug') for e in active_or_current.values()}
-    used_sources={e.get('source_url') for e in active_or_current.values() if e.get('experiment_parent_slug')}
+    used={e.get('experiment_parent_slug') or slug for slug,e in active_or_current.items()}
+    used_sources={e.get('source_url') for e in active_or_current.values() if e.get('source_url')}
     used_hashes={e.get('experiment_mother_sha256') for e in active_or_current.values() if e.get('experiment_mother_sha256')}
     used_sources.update(e['source_url'] for e,_ in proven)
     used_hashes.update(e['source_sha256'] for e,_ in proven)
