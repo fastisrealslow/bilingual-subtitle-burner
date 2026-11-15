@@ -1,0 +1,68 @@
+name: Apply verified unused long-source recovery through normal admission
+on:
+  push:
+    branches: [ops/apply-known-long-20261115]
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify deployed refresh code and contracts
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          assert hashlib.sha256(Path('linyuan/known_long_source_refresh.py').read_bytes()).hexdigest() == 'c368f9f60911295ad22cb0e372039335729df22d6e9c6cee1d4edffb7f0c89c2'
+          PY
+          pip install -q -r linyuan/fc/runtime-requirements.txt pytest
+          python -m pytest -q tests/test_linyuan_known_long_source_refresh.py tests/test_linyuan_seed_materialization.py
+      - name: Apply two bounded passes sharing the original eight-check daily budget
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          PYTHONPATH=linyuan python - <<'PY'
+          import json
+          from pathlib import Path
+          from known_long_source_refresh import run
+          results=[run(),run()]
+          Path('known-long-applied.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))
+          print(json.dumps(results,ensure_ascii=False))
+          PY
+          python linyuan/materialize_verified_seeds.py
+      - name: Persist only normal source metadata under the existing writer group
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add linyuan/bilibili_seeds.json linyuan/monitor_v2.db linyuan/dashboard/data.json
+          git add -f linyuan/.automation/seed_growth_scan.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'chore(sources): recover unused native HD long interview through fresh exact checks'
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - name: Request normal verified inventory and admission without invoking FC
+        run: gh workflow run linyuan-source-inventory.yml --repo "$GITHUB_REPOSITORY" --ref main
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: known-long-applied
+          path: known-long-applied.json
+          if-no-files-found: error
+          retention-days: 30
