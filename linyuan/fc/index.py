@@ -61,6 +61,7 @@ MIN_DUR, MAX_DUR = int(editorial.MIN_SECONDS), 5400
 COMPETITOR_AUTHORS = {"园园滚雪球"}
 MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
 MAX_PUBLISH_PER_DAY = 4                  # 三个原时段 + 每天14点一条横屏
+REQUIRED_TREATMENT_SINCE = '2026-11-15'  # Ordinary fallback cannot consume either required daily T slot.
 TARGET_READY_RESERVE = 12
 TARGET_LANDSCAPE_RESERVE = 2
 TARGET_PORTRAIT_RESERVE = TARGET_READY_RESERVE - TARGET_LANDSCAPE_RESERVE
@@ -511,6 +512,9 @@ def is_landscape(meta):
 def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     if meta.get('render_mode') == 'audio_card':
         return False
+    plan=experiment.production_assignment(time.time() if now is None else now)
+    if required_treatment_slot(plan) and experiment.actual_profile(meta)!=experiment.TREATMENT:
+        return False
     local = time.gmtime((time.time() if now is None else now) + 8 * 3600)
     # Keep the weekly full interview in a control slot during this experiment;
     # otherwise Sunday's 21:00 full interview permanently occupies treatment #4.
@@ -527,7 +531,6 @@ def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     # A verified native story can fill the evening treatment slot without
     # recropping it or passing a baseline off as the experiment. Portrait
     # treatment remains preferred by the publisher's layout ranking below.
-    plan = experiment.production_assignment(time.time() if now is None else now)
     if (plan and plan['slot_number'] == 4
             and experiment.actual_profile(meta) == experiment.TREATMENT
             and meta.get('render_mode') != 'audio_card'):
@@ -2062,6 +2065,8 @@ def production_config():
             "publishing_experiment": dict(id=experiment.EXPERIMENT_ID,start=experiment.START,
                 end_exclusive=experiment.END_EXCLUSIVE,control_slots=[1,3],treatment_slots=[2,4],
                 weekly_full_control_hour_beijing=16),
+            "required_treatment_slots": dict(effective_from=REQUIRED_TREATMENT_SINCE,
+                hours_beijing=[14,21],ordinary_fallback=False),
             "daily_limit": MAX_PUBLISH_PER_DAY, "live_min_per_day": 4,
             "copyright_requested": COPYRIGHT, "copyright_mode": "unselected",
             "landscape_hour_beijing": LANDSCAPE_HOUR, "audio_max_per_day": 0,
@@ -2295,12 +2300,25 @@ def cover_source_rank(meta):
         and style in {'scene','editorial','photo'}))
 
 
-def treatment_wait_until(stock,plan,now=None):
-    """Give verified T supply a bounded chance before consuming its slot as C.
+def required_treatment_slot(plan):
+    return bool(plan and plan.get('planned')==experiment.TREATMENT
+                and plan.get('slot','')[:10]>=REQUIRED_TREATMENT_SINCE)
 
-    Return immediately; never sleep with a publisher lease or on paid FC.
-    Ordinary fallback remains after 15:40 / 21:40 CST, before the next control
-    slot or the existing 21:55 domestic recovery. No extra quota or timer.
+
+def treatment_slot_deadline(plan):
+    if not plan or plan.get('slot_number') not in (2,4):return None
+    start=publication_slot_time(plan['slot'])
+    if required_treatment_slot(plan):
+        return start+(24-int(plan['slot'][-2:]))*3600
+    return start+(100 if plan['slot_number']==2 else 40)*60
+
+
+def treatment_wait_until(stock,plan,now=None):
+    """Reserve both required T slots for same-day recovery; return without sleep.
+
+    Earlier comparison fallback windows remain unchanged historically. Since
+    the hard daily requirement, ordinary stock cannot exhaust the four slots
+    before a late qualified story arrives. Controls remain eligible at 10/16.
     """
     if (not plan or plan.get('planned')!=experiment.TREATMENT
             or stock.get('inventory_fresh') is not True or 'experiment_ready' not in stock):return None
@@ -2310,7 +2328,7 @@ def treatment_wait_until(stock,plan,now=None):
     if (number==2 and wide>0) or (number==4 and wide+portrait>0):return None
     if number not in (2,4):return None
     start=publication_slot_time(plan['slot'])
-    deadline=start+(100 if number==2 else 40)*60
+    deadline=treatment_slot_deadline(plan)
     stamp=time.time() if now is None else now
     return deadline if start<=stamp<deadline else None
 
@@ -2972,10 +2990,11 @@ def treatment_admission_layout(stock,state,needs,*,full_week=False,duration_prob
     now=time.time() if now is None else now
     today=time.strftime('%Y-%m-%d',time.gmtime(now+8*3600))
     afternoon=publication_slot_time(today+' 14')
+    deadline=treatment_slot_deadline(experiment.production_assignment(now,today+' 14'))
     ready=stock.get('experiment_ready') or {}
     if (not urgent_wide_reserved and stock.get('inventory_fresh') is True
             and type(ready.get('landscape')) is int and ready['landscape']==0
-            and any(needs.values()) and afternoon is not None and now<afternoon+100*60
+            and any(needs.values()) and afternoon is not None and deadline is not None and now<deadline
             and not slot_published(state,afternoon)):
         return 'landscape'
     return 'portrait' if needs.get('portrait',0)>needs.get('landscape',0) else 'landscape'
@@ -5132,8 +5151,11 @@ def publish_handler(event=None, context=None):
     if waiting_until is not None:
         requested=request_inventory_refresh(st)
         log_event('experiment_wait','实验档位等待合格实验稿，暂不消耗普通稿补位',
-            json.dumps(dict(slot=plan['slot'],fallback_after=waiting_until),ensure_ascii=False))
-        return dict(published=0,waiting_for_treatment=1,fallback_after=waiting_until,
+            json.dumps(dict(slot=plan['slot'],wait_until=waiting_until,
+                            required_treatment_slot=required_treatment_slot(plan)),ensure_ascii=False))
+        waiting=({'treatment_deadline':waiting_until,'required_treatment_slot':1}
+                 if required_treatment_slot(plan) else {'fallback_after':waiting_until})
+        return dict(published=0,waiting_for_treatment=1,**waiting,
                     inventory_refresh_requested=int(requested))
     attempted = set((event or {}).get("_attempted_slugs") or []) \
         if isinstance(event, dict) else set()
