@@ -5,6 +5,7 @@ No media download, ASR, model call, production request or approval happens here.
 """
 from datetime import datetime, timezone, timedelta
 import json
+import math
 from pathlib import Path
 import re
 import time
@@ -64,11 +65,22 @@ def run(base=BASE, *, limit=PER_PASS, verify=None, streams=None, apply=True):
     scan=json.loads(path.read_text()) if path.exists() else {}
     if (scan.get('verification_cooldown') or {}).get('until',0)>now:return report
     book=scan.setdefault('known_long_refresh',dict(attempts=[],checks={}))
-    attempts=book.setdefault('attempts',[]);checks=book.setdefault('checks',{})
+    if (not isinstance(book,dict) or not isinstance(book.get('attempts'),list)
+            or not isinstance(book.get('checks'),dict)):
+        return dict(report,reason='refresh_budget_unknown')
+    attempts=book['attempts'];checks=book['checks']
+    for row in attempts:
+        stamp=row.get('ts') if isinstance(row,dict) else None
+        if (type(stamp) not in (int,float) or not math.isfinite(stamp) or not 0<stamp<=now
+                or not BVID.fullmatch(str(row.get('bvid') or ''))
+                or row.get('date')!=datetime.fromtimestamp(stamp,timezone(timedelta(hours=8))).date().isoformat()):
+            return dict(report,reason='refresh_budget_unknown')
     today=[r for r in attempts if r.get('date')==day]
     budget=min(PER_PASS,max(0,int(limit)),max(0,PER_DAY-len(today)))
     if not budget:return report
     state=json.loads((base/'.automation/fc_state.json').read_text())
+    if not isinstance(state.get('dispatched'),list) or not isinstance(state.get('published'),dict):
+        return dict(report,reason='source_attempt_history_unknown')
     data=json.loads((base/'bilibili_seeds.json').read_text())
     pool=candidates(data['seeds'],state,scan,now)[:budget]
     if not pool:return report

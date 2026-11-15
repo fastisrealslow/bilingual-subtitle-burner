@@ -144,3 +144,18 @@ def test_pool_growth_shares_original_metadata_budget_with_refresh(base,monkeypat
     monkeypatch.setattr(P,'grow_weibo',lambda *a,**kw:dict(added_count=0))
     report=P.run(base,target=5000,limit=48)
     assert limits==[44] and report['added_count']==0 and report['accepted_mp4_count']==0
+
+
+@pytest.mark.parametrize('history',[{},dict(dispatched=None,published={}),dict(dispatched=[],published=None)])
+def test_unknown_producer_history_cannot_be_treated_as_no_attempts(base,history):
+    prepare(base);(base/'.automation/fc_state.json').write_text(json.dumps(history))
+    result=R.run(base,verify=lambda *a:pytest.fail('unknown production history'),streams=streams)
+    assert result['checked_count']==0 and result['reason']=='source_attempt_history_unknown'
+
+
+@pytest.mark.parametrize('book',[{},dict(attempts=None,checks={}),dict(attempts=[{}],checks={}),
+    dict(attempts=[dict(bvid='BV0000000001',ts=9999999999,date='2026-10-28')],checks={})])
+def test_unknown_budget_cannot_reset_daily_refresh_attempts(base,book):
+    prepare(base);(base/'.automation/seed_growth_scan.json').write_text(json.dumps(dict(known_long_refresh=book)))
+    result=R.run(base,verify=lambda *a:pytest.fail('unknown budget'),streams=streams)
+    assert result['checked_count']==0 and result['reason']=='refresh_budget_unknown'
