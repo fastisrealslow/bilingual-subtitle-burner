@@ -11,7 +11,7 @@ concurrency:
 jobs:
   read-only:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,7 +54,7 @@ jobs:
                   req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
                       headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
                                "Referer":"https://www.bilibili.com/"}, method="GET")
-                  time.sleep(3)
+                  time.sleep(5)
                   emit("get_entered", endpoint=path)
                   with opener.open(req, timeout=15) as response:
                       result = json.load(response)
@@ -79,7 +79,7 @@ jobs:
                       for value in node: collect(value)
               collect(state)
               # Most recent ledger entries first; owner check excludes source videos.
-              candidates = ["BV1QvWX6aEeP"]
+              candidates = list(dict.fromkeys(reversed(bvids)))[20:40]
               emit("ledger_scan", videos=len(candidates))
               found = 0
               for bvid in candidates:
