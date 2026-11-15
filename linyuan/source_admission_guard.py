@@ -21,6 +21,9 @@ def official_page_key(url):
     if parsed.hostname in {'v.ifeng.com','finance.ifeng.com','original.ifeng.com','news.ifeng.com'}:
         match=re.fullmatch(r'/c/([A-Za-z0-9]+)/?',parsed.path)
         return ('ifeng',match[1]) if match else None
+    if parsed.hostname=='www.p5w.net':
+        match=re.fullmatch(r'/v/ip/typyq/(20\d{4})/t(20\d{6})_(\d+)\.htm',parsed.path)
+        return ('p5w',match[2]+'_'+match[3]) if match and match[1]==match[2][:6] else None
     if parsed.hostname not in {'www.yicai.com','yicai.com'}:return None
     match=re.fullmatch(r'/video/(\d+)\.html/?',parsed.path)
     return ('yicai',match[1]) if match else None
