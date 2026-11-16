@@ -12,9 +12,14 @@ import zipfile
 
 CASES=[
     dict(slug='ly-story-771f0eb10e',run=43699743489,delivery=14157686418,
-         mother=14156246118,sha='7b5fd7cce9f08f5db46533425dabd079dcf66d0f21338b091d8dcd97323ce066'),
+         mother=14156246118,sha='7b5fd7cce9f08f5db46533425dabd079dcf66d0f21338b091d8dcd97323ce066',
+         expected_rejection='现场原画封面存在黑色填充边'),
     dict(slug='ly-1116-3e733f',run=43858429518,delivery=14227391430,
-         mother=14223386153,sha='b64b493504d1d9bb11d979c1cb99c194e684b30bc0fc097cd528bbab864de9ff'),
+         mother=14223386153,sha='b64b493504d1d9bb11d979c1cb99c194e684b30bc0fc097cd528bbab864de9ff',
+         expected_rejection='现场原画封面人物身份或清晰度不足'),
+    dict(slug='ly-1115-5bc4d3',run=43688837707,delivery=14155304155,
+         mother=14156246118,mother_run=43699743489,
+         sha='7b5fd7cce9f08f5db46533425dabd079dcf66d0f21338b091d8dcd97323ce066'),
 ]
 
 
@@ -112,7 +117,7 @@ def main():
                     original_profile=meta.get('editorial_profile'),old_cover_proof=meta['cover_proof'])
                 dest=out/case['slug'];dest.mkdir()
                 shutil.copyfile(bundle/meta['cover'],dest/'before.jpg')
-                fetch(case['mother'],mother_zip,case['run'])
+                fetch(case['mother'],mother_zip,case.get('mother_run',case['run']))
                 mother=tmp/'mother.mp4'
                 with zipfile.ZipFile(mother_zip) as z:
                     names=[n for n in z.namelist() if Path(n).name=='video.mp4']
@@ -138,8 +143,13 @@ def main():
                 save()
         except Exception as exc:
             result.update(error=type(exc).__name__+': '+str(exc));save()
+        result['expected_rejection']=case.get('expected_rejection')
+        result['regression_passed']=(result['passed'] if not case.get('expected_rejection') else
+            result.get('error')=='VisualQualityError: '+case['expected_rejection'])
+        save()
     report['passed']=all(c['passed'] for c in report['cases']);save()
-    if not report['passed']:raise ValueError('Native cover replay incomplete; no stock or publication approval')
+    report['regression_passed']=all(c['regression_passed'] for c in report['cases']);save()
+    if not report['regression_passed']:raise ValueError('Native cover replay regression; no stock or publication approval')
     print(json.dumps(report,ensure_ascii=False))
 
 
