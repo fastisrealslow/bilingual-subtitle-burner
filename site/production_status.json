@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updated_at": 1794795619,
-  "inventory_updated_at": 1794795574,
+  "updated_at": 1794797424,
+  "inventory_updated_at": 1794797419,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 141,
+    "verified_daily_stock": 139,
     "active_or_recovering_sources": 3,
     "waiting_candidates": 57,
     "status": "covered",
@@ -14,7 +14,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 141,
+      "verified_stock_snapshot": 139,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 36,
-        "landscape": 105
+        "portrait": 35,
+        "landscape": 104
       },
-      "full_schedule_days": 12,
+      "full_schedule_days": 11,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -350,6 +350,14 @@
         "controls": 2,
         "fallback": 0,
         "valid_comparison": false
+      },
+      {
+        "date": "2026-11-16",
+        "published": 1,
+        "treatment": 0,
+        "controls": 1,
+        "fallback": 0,
+        "valid_comparison": false
       }
     ],
     "status": "needs_attention",
@@ -357,22 +365,22 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794795617,
-    "records": 18656,
-    "video_records": 16097,
+    "updated_at": 1794797422,
+    "records": 18660,
+    "video_records": 16101,
     "initial_candidates": 251,
     "duration_eligible_records": 59,
     "candidate_count": 57,
     "known_duration_candidates": 57,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 9500,
+      "speaker_unconfirmed": 9501,
       "already_attempted_or_cooling": 4118,
       "noise": 46,
       "no_video": 2559,
       "unrelated": 84,
       "clip_title": 1565,
-      "reference_only": 497,
+      "reference_only": 500,
       "ai_content": 36,
       "over_limit": 40,
       "too_short": 152,
@@ -838,25 +846,25 @@
     ]
   },
   "inventory": {
-    "verified_live": 141,
+    "verified_live": 139,
     "verified_audio_card": 0,
-    "verified_landscape": 105,
-    "verified_portrait": 36,
+    "verified_landscape": 104,
+    "verified_portrait": 35,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 141,
+    "daily_mix_usable": 139,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
-    "complete": 210,
+    "complete": 211,
     "failed": 2536,
     "paused": 5,
     "interrupted": 7,
-    "excluded": 97,
+    "excluded": 98,
     "experiment_fallback": 160,
-    "ready": 46,
+    "ready": 44,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
@@ -27641,13 +27649,13 @@
     },
     {
       "slug": "ly-1024-72efac",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1792838577,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -39217,8 +39225,8 @@
     },
     {
       "slug": "ly-1101-79e0fd",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793524605,
         "failed": null,
