@@ -135235,57 +135235,36 @@
    "publish_time": "2021-10-16T13:12:32+00:00",
    "production_failure_summary": {
     "slug": "ly-1107-5f3e47",
-    "run_id": 42352726731,
-    "artifact_id": 13567657708,
+    "run_id": 43971781637,
+    "artifact_id": 14280400987,
     "accepted": 0,
     "source_context": {
      "passed": true,
-     "source_sha256": "0b35faa8537bc8bff58e805a0807a4ffec6ea1e1941abd7feeab4ea5661868af",
+     "source_sha256": "09bc578ee6df23e59a500fbdbf8a084dc5c409988b09d3bd9bdc07924d8a01e6",
      "duration_sec": 951.7,
      "resolution": {
       "width": 2160,
       "height": 1080,
       "short_edge": 1080
-     },
-     "source_url": "https://www.bilibili.com/video/BV1V44y1x7Gz"
+     }
     },
     "failures": [
      {
-      "stage": "part-quality",
-      "reason": "成片存在持续黑色填充边"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 11, \"quote\": \"云南白药最多也就是在这盘。\", \"suspect_quote\": \"云南白药最多也就是在这盘\", \"kind\": \"unintelligible_term\", \"reason\": \"“在这盘”语义不明，疑似专有名词或特定术语识别污染，无法确定具体含义。\"}, {\"sentence_id\": 33, \"quote\": \"啊，所以我对一，我就不明白了，为什么你明明可以直接零元免费领的西瓜聚全馆。\", \"suspect_quote\": \"零元免费领的西瓜聚全馆\", \"kind\": \"unintelligible_term\", \"re"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"林元也说，买股票是有一定风险，这个风险体现在时间上。\", \"suspect_quote\": \"林元\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，识别为“林元”属于专名错写。\"}, {\"sentence_id\": 1, \"quote\": \"他的股票也经常面对不涨的情况，所以他经常会猫着等着等涨。\", \"suspect_quote\": \"猫着等着等涨\", \"kind\": \"unintelligible_term\", \"reason\": \"口语表达不清晰，疑似“蹲着”或特"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "动态取景连续2.03秒缺少人脸"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配762/1448，总帧数3428；身份匹配但人脸短边不足96px的帧数9"
+      "stage": "source-version",
+      "reason": "恢复证据与本次通过质检的母片哈希不一致"
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 42352726731,
-    "artifact_id": 13567657708,
+    "run_id": 43971781637,
+    "artifact_id": 14280400987,
     "name": "production-reject-ly-1107-5f3e47",
     "retained": true
    },
-   "last_error": "成片存在持续黑色填充边",
+   "last_error": "恢复证据与本次通过质检的母片哈希不一致",
    "source_quality_rejected": false,
-   "failure_stage": "editorial-or-render",
+   "failure_stage": "source-version",
    "automatic_rule_recoveries": {
     "visual-preflight-v2": {
      "run_id": 42352726731,
@@ -135296,7 +135275,8 @@
    "source_check_exhausted": false,
    "recovery_origin_run_id": 42352726731,
    "source_check_run_id": 42352726731,
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_version_unresolved": true
   },
   {
    "key": "weibo_search:4977683458951026",
