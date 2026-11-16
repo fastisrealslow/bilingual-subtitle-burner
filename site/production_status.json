@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794799033,
-  "inventory_updated_at": 1794798806,
+  "updated_at": 1794811572,
+  "inventory_updated_at": 1794811563,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 139,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 61,
+    "waiting_candidates": 62,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 34,
-        "landscape": 105
+        "portrait": 33,
+        "landscape": 106
       },
       "full_schedule_days": 11,
       "required_week_shortfall": 0,
@@ -67,8 +67,8 @@
       "date": "2026-11-16",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 0,
-      "gap_by_now": 0,
+      "expected_by_now": 1,
+      "gap_by_now": 1,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
@@ -361,21 +361,21 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794799031,
+    "updated_at": 1794811570,
     "records": 18686,
     "video_records": 16127,
-    "initial_candidates": 255,
-    "duration_eligible_records": 63,
-    "candidate_count": 61,
-    "known_duration_candidates": 61,
+    "initial_candidates": 298,
+    "duration_eligible_records": 106,
+    "candidate_count": 62,
+    "known_duration_candidates": 62,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 9511,
-      "already_attempted_or_cooling": 4118,
+      "speaker_unconfirmed": 9513,
+      "already_attempted_or_cooling": 4073,
       "noise": 47,
       "no_video": 2559,
       "unrelated": 84,
@@ -384,7 +384,7 @@
       "ai_content": 36,
       "over_limit": 40,
       "too_short": 152,
-      "duplicate_source": 2
+      "duplicate_source": 44
     },
     "candidates": [
       {
@@ -394,6 +394,14 @@
         "author": "海滨z仲夏夜",
         "url": "https://www.bilibili.com/video/BV1WEYTzFEer",
         "duration_sec": 833.0
+      },
+      {
+        "key": "weibo_search:4860821211716457",
+        "title": "林园红周刊直播：聊聊2023年的变与不变，时长约一个半小时，全程干货！马了慢慢看！via:http://t.cn/A6K",
+        "source": "weibo_search",
+        "author": "ipo观察",
+        "url": "https://m.weibo.cn/detail/4860821211716457",
+        "duration_sec": 5200.0
       },
       {
         "key": "bilibili_search:BV1fHohBZECH",
@@ -508,14 +516,6 @@
         "duration_sec": 142.0
       },
       {
-        "key": "bilibili_search:BV1VhWr6iEjx",
-        "title": "林园2006 怎么看待财富？林园：不消费，就是让它继续赚钱，钱赚钱，我看着钱我就高兴 当然你要冷静下来想，我们是对社会没",
-        "source": "reference_origin_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1VhWr6iEjx",
-        "duration_sec": 53.0
-      },
-      {
         "key": "bilibili_search:BV13VMR6aEm3",
         "title": "林园 P1 林园：5%上涨时间，95%都在等#林园#价值投资#股票投资#股票",
         "source": "bilibili_collection",
@@ -580,14 +580,6 @@
         "duration_sec": 109.0
       },
       {
-        "key": "bilibili_search:BV1q1s56NEpH",
-        "title": "林园 P1 林园 股市赚钱标准 为什么不怕泡沫？林园：泡沫里才能赚钱，死猪不怕开水烫，就拿着！",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1q1s56NEpH",
-        "duration_sec": 106.0
-      },
-      {
         "key": "bilibili_search:BV1CCVU65EpH",
         "title": "林园 P1 lv_0_20260531163836",
         "source": "bilibili_collection",
@@ -610,6 +602,14 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV11jsJ68EcA",
         "duration_sec": 103.0
+      },
+      {
+        "key": "bilibili_search:BV1VhWr6iEjx",
+        "title": "林园2006 怎么看待财富？林园：不消费，就是让它继续赚钱，钱赚钱，我看着钱我就高兴 当然你要冷静下来想，我们是对社会没",
+        "source": "reference_origin_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1VhWr6iEjx",
+        "duration_sec": 53.0
       },
       {
         "key": "weibo_search:5365554713985095",
@@ -658,6 +658,14 @@
         "author": "旺财学堂",
         "url": "https://www.bilibili.com/video/BV1Bh41117ZW",
         "duration_sec": 65.0
+      },
+      {
+        "key": "bilibili_search:BV1q1s56NEpH",
+        "title": "林园 P1 林园 股市赚钱标准 为什么不怕泡沫？林园：泡沫里才能赚钱，死猪不怕开水烫，就拿着！",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1q1s56NEpH",
+        "duration_sec": 106.0
       },
       {
         "key": "bilibili_search:BV1VhWr6iE4A",
@@ -880,8 +888,8 @@
   "inventory": {
     "verified_live": 139,
     "verified_audio_card": 0,
-    "verified_landscape": 105,
-    "verified_portrait": 34,
+    "verified_landscape": 106,
+    "verified_portrait": 33,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
