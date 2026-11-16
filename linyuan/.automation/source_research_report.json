@@ -1,20 +1,32 @@
 {
-  "run_id": "43854532077",
+  "run_id": "43856828600",
   "processed": 3,
   "inspected": 0,
   "historical_media_verified": 242,
   "cache_recovery_pending": 242,
-  "pending": 303,
+  "pending": 305,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "retry_next_run",
-    "error": "RuntimeError",
+    "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -834,10 +846,10 @@
       "family": "maotai_table_exchange",
       "priority": 2,
       "status": "retry_wait",
-      "attempts": 59,
+      "attempts": 60,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794740435.9855852,
-      "next_retry_at": 1794826835.9855852,
+      "last_attempt_at": 1794828740.0452943,
+      "next_retry_at": 1794915140.0452943,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6854,12 +6866,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 25,
+      "attempts": 26,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794740434.7594712,
-      "next_retry_at": 1794826834.7594712,
+      "last_attempt_at": 1794828738.5188422,
+      "next_retry_at": 1794915138.5188422,
       "download_partial_bytes": 0
     },
     "c7df3baf167476508e71": {
@@ -7731,7 +7743,7 @@
     "38c06e0703c7439ac67b": {
       "url": "https://www.bilibili.com/video/BV1pSraBeEUe",
       "role": "mother",
-      "family": "zhejiang_2026_01",
+      "family": "gelong_conversation",
       "priority": 5,
       "status": "retry_wait",
       "attempts": 11,
@@ -9563,6 +9575,32 @@
       "last_attempt_at": 1794784384.2766552,
       "next_retry_at": 1794805984.2766552,
       "download_partial_bytes": 0
+    },
+    "e5e242f07ec457ec6625": {
+      "url": "https://www.bilibili.com/video/BV1F72gByERj",
+      "role": "mother",
+      "family": "phoenix_2026_09",
+      "priority": 0,
+      "status": "retry_wait",
+      "attempts": 1,
+      "family_status": "search_clue_not_verified",
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": false,
+      "last_error": "TimeoutExpired",
+      "last_attempt_at": 1794828728.7208962,
+      "next_retry_at": 1794850328.7208962,
+      "download_partial_bytes": 0
+    },
+    "118073795467fa597e05": {
+      "url": "https://www.bilibili.com/video/BV1M9Wf6yE1q",
+      "role": "mother",
+      "family": "gelong_conversation",
+      "priority": 5,
+      "status": "pending",
+      "attempts": 0,
+      "family_status": "search_clue_not_verified",
+      "fingerprint_cache_available": false,
+      "cache_recovery_needed": false
     }
   },
   "searches": {
@@ -9595,15 +9633,15 @@
     },
     "gelong_conversation|格隆对话林园 完整版": {
       "status": "searched",
-      "checked_at": 1794735888.1358044,
-      "next_retry_at": 1794779088.1358044,
+      "checked_at": 1794828426.636588,
+      "next_retry_at": 1794871626.636588,
       "found": 4,
       "new_ids": []
     },
     "gelong_conversation|格隆博士会客厅 林园": {
       "status": "searched",
-      "checked_at": 1794783264.4069514,
-      "next_retry_at": 1794826464.4069514,
+      "checked_at": 1794828426.636588,
+      "next_retry_at": 1794871626.636588,
       "found": 4,
       "new_ids": []
     },
@@ -9636,9 +9674,9 @@
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
-      "checked_at": 1794764885.3900402,
-      "next_retry_at": 1794808085.3900402,
-      "found": 1,
+      "checked_at": 1794828426.636588,
+      "next_retry_at": 1794871626.636588,
+      "found": 3,
       "new_ids": []
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
