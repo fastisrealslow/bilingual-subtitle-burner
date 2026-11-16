@@ -134941,8 +134941,8 @@
    "publish_time": "2026-04-25T02:35:54+00:00",
    "production_failure_summary": {
     "slug": "ly-1115-0158aa",
-    "run_id": 43676804289,
-    "artifact_id": 14151525855,
+    "run_id": 43925801432,
+    "artifact_id": 14261469203,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -134983,18 +134983,50 @@
      {
       "stage": "part-quality",
       "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配497/2327，总帧数9148；身份匹配但人脸短边不足96px的帧数1830"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1758/2259，总帧数2503；身份匹配但人脸短边不足96px的帧数480"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为 [-1,-1]，因为句子 0 是主持人提问，句子 1-3 是嘉宾表示无法回答（拒绝提供观点），句子 4-9 是主持人引导观众复盘及发布通知的串场内容，均不构成嘉宾对投资判断的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配3056/4304，总帧数6235；身份匹配但人脸短边不足96px的帧数1248"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配771/1382，总帧数3053；身份匹配但人脸短边不足96px的帧数611"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2303/3849，总帧数7725；身份匹配但人脸短边不足96px的帧数1483"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：原话中主持人提问（句 0）后，嘉宾的回答（句 1-3）未形成明确的‘是/否’或具体策略判断，而是以‘慢慢在看’、‘不做判断’等模糊表述结束，属于未回答新问题的结尾情形，不符合独立成片要求。；原文问题：[]"
      }
     ]
    },
-   "failed": false,
+   "failed": true,
    "failure_evidence": {
-    "run_id": 43676804289,
-    "artifact_id": 14151525855,
+    "run_id": 43925801432,
+    "artifact_id": 14261469203,
     "name": "production-reject-ly-1115-0158aa",
     "retained": true
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
-   "source_quality_rejected": false,
+   "source_quality_rejected": true,
    "failure_stage": "editorial-or-render",
    "automatic_rule_recoveries": {
     "visual-preflight-v2": {
