@@ -1,0 +1,36 @@
+name: 真实库存原片全图封面复验（不投稿）
+on:
+  push:
+    branches: [fix/scene-cover-context-replay-20261116]
+    paths: [linyuan/check_native_cover_context.py, .github/workflows/linyuan-native-cover-context-replay.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TEXT_BACKEND: local
+      LINYUAN_AUTOMATIC_ONLY: 'true'
+      LOCAL_FACE_MODEL_DIR: /tmp/linyuan-face-models
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 准备媒体验收与CPU人物、文字检查
+        run: |
+          bash linyuan/ci_install_media_tools.sh
+          pip install -q pillow numpy jieba requests fonttools 'opencv-python-headless<5' rapidocr-onnxruntime
+      - name: 完整原交付复验、母片逐字节校验和真实全图封面生成
+        run: python -u linyuan/check_native_cover_context.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-cover-context-verification
+          path: native-cover-context-verification/
+          retention-days: 30
+          if-no-files-found: error
