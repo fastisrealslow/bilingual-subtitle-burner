@@ -19,7 +19,9 @@ CASES=[
          expected_rejection='现场原画封面人物身份或清晰度不足'),
     dict(slug='ly-1115-5bc4d3',run=43688837707,delivery=14155304155,
          mother=14156246118,mother_run=43699743489,
-         sha='7b5fd7cce9f08f5db46533425dabd079dcf66d0f21338b091d8dcd97323ce066'),
+         sha='7b5fd7cce9f08f5db46533425dabd079dcf66d0f21338b091d8dcd97323ce066',
+         release='deliver-ly-1115-5bc4d3',
+         published_video_sha256='98f9cd0de7dd788348b1fe9096490e219f116a76bfaec7149d355124576c2db4'),
 ]
 
 
@@ -90,15 +92,30 @@ def main():
         try:
             with tempfile.TemporaryDirectory(prefix='native-cover-stock-') as tmp:
                 tmp=Path(tmp);delivery=tmp/'delivery.zip';mother_zip=tmp/'mother.zip'
-                fetch(case['delivery'],delivery,case['run'],'deliver-'+case['slug'])
                 bundle=tmp/'bundle';bundle.mkdir()
-                with zipfile.ZipFile(delivery) as z:
-                    for info in z.infolist():
-                        if info.is_dir():continue
-                        if Path(info.filename).name!=info.filename or '\\' in info.filename:
-                            raise ValueError('Unsafe accepted bundle filename')
-                        with z.open(info) as source,(bundle/info.filename).open('wb') as target:
-                            shutil.copyfileobj(source,target)
+                if case.get('release'):
+                    # Published delivery artifacts are intentionally reclaimed.
+                    # Their canonical per-batch Release preserves exact media;
+                    # bind this positive control to its real publication SHA.
+                    release=tmp/'release';release.mkdir()
+                    subprocess.run(['gh','release','download',case['release'],'--repo',
+                        os.environ['GITHUB_REPOSITORY'],'--pattern',case['slug']+'.*',
+                        '--dir',str(release)],check=True,timeout=180)
+                    for path in release.iterdir():
+                        name=path.name.removeprefix(case['slug']+'.')
+                        if path.is_symlink() or not path.is_file() or name==path.name or Path(name).name!=name:
+                            raise ValueError('Unsafe published Release filename')
+                        shutil.copyfile(path,bundle/name)
+                    result['original_delivery_storage']='canonical_per_batch_release'
+                else:
+                    fetch(case['delivery'],delivery,case['run'],'deliver-'+case['slug'])
+                    with zipfile.ZipFile(delivery) as z:
+                        for info in z.infolist():
+                            if info.is_dir():continue
+                            if Path(info.filename).name!=info.filename or '\\' in info.filename:
+                                raise ValueError('Unsafe accepted bundle filename')
+                            with z.open(info) as source,(bundle/info.filename).open('wb') as target:
+                                shutil.copyfileobj(source,target)
                 original_metadata=(bundle/'meta.json').read_bytes()
                 rows=json.loads(original_metadata)
                 if not isinstance(rows,list):rows=[rows]
@@ -110,6 +127,8 @@ def main():
                 video_sha=sha(bundle/meta['final'])
                 if video_sha!=(meta.get('fingerprints') or {}).get('sha256'):
                     raise ValueError('Accepted video bytes differ')
+                if case.get('published_video_sha256') and video_sha!=case['published_video_sha256']:
+                    raise ValueError('Published positive control differs from actual receipt')
                 spans=meta['segments']
                 if len(spans)!=1:raise ValueError('This replay requires one original continuous interval')
                 start,end=spans[0]['start'],spans[0]['end']
