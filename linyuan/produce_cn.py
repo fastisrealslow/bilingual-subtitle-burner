@@ -4053,6 +4053,39 @@ def cover_sample_context(src, tracked, start, end, clean_filter='', natural_scen
     return src,start,end,clean_filter
 
 
+def make_live_clip_cover(src, tracked, start, end, title, speaker, out_path, *,
+                         clean_filter='', preferred_time=None, reference_path=None,
+                         style='scene', allow_editorial_fallback=False):
+    """Scene eligibility depends on original pixels, independently of story kind.
+
+    A cleaned portrait body can be only 632x470 even when its mother is 1080p.
+    Keep the cover on that exact original source interval. If an automatic
+    scene cannot pass, preserve the existing verified editorial route before
+    the caller considers its reference-portrait fallback.
+    """
+    scene=style=='scene'
+    cover_src,lo,hi,vf=cover_sample_context(src,tracked,start,end,clean_filter,
+                                         natural_scene=scene)
+    try:
+        make_cover(cover_src,lo,hi,title,speaker,out_path,
+            video_filter='' if scene else vf,
+            preferred_time=preferred_time if scene or tracked is None else None,
+            reference_path=reference_path,style=style,
+            allow_editorial_fallback=False,clean_scene_crop=scene)
+    except VisualQualityError as exc:
+        if not scene or not allow_editorial_fallback:raise
+        # This is a different, honestly labelled cover style, never a passed
+        # native-scene proof. Its original identity/text/sharpness gates run.
+        fallback_reason=str(exc)
+        cover_src,lo,hi,vf=cover_sample_context(src,tracked,start,end,clean_filter)
+        make_cover(cover_src,lo,hi,title,speaker,out_path,video_filter=vf,
+            preferred_time=None if tracked is not None else preferred_time,
+            reference_path=reference_path,style='editorial',
+            allow_editorial_fallback=False,clean_scene_crop=False)
+        return 'editorial',fallback_reason
+    return style,None
+
+
 def make_cover(src, seg_start, seg_end, title, speaker, out_path,
                video_filter="", preferred_time=None, reference_path=None, style="photo",
                allow_editorial_fallback=False, clean_scene_crop=False):
@@ -6155,18 +6188,13 @@ def _produce_one(src, work, out, cues, speaker, occasion, api_key,
             cover_person_image_source = "authority_reference"
         else:
             try:
-                # A tracked window already passed source identity/overlay QA.
-                # Sample its relative timeline, not original mother timestamps.
-                cover_src,cover_start,cover_end,cover_filter=cover_sample_context(
+                selected_cover_style,cover_fallback_reason=make_live_clip_cover(
                     src,prepared_live[1][0] if use_live_video else None,
-                    cues[p0['start']]['start'],cues[p0['end']]['end'],clean_vf,
-                    natural_scene=story_treatment)
-                make_cover(cover_src, cover_start, cover_end,
-                           cw["cover_title"], speaker, cover, video_filter='' if story_treatment else cover_filter,
-                           preferred_time=None if use_live_video and not story_treatment else (visual_report or {}).get("best_cover_time"),
-                           reference_path=work / "speaker_reference.jpg", style=selected_cover_style,
-                           allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto',
-                           clean_scene_crop=story_treatment)
+                    cues[p0['start']]['start'],cues[p0['end']]['end'],
+                    cw["cover_title"],speaker,cover,clean_filter=clean_vf,
+                    preferred_time=(visual_report or {}).get("best_cover_time"),
+                    reference_path=work / "speaker_reference.jpg",style=selected_cover_style,
+                    allow_editorial_fallback=not story_treatment and os.environ.get('COVER_STYLE','auto')=='auto')
                 cover_person_image_source = "verified_source_frame"
             except VisualQualityError as exc:
                 if story_treatment or os.environ.get('COVER_STYLE','auto') in {'photo','scene','editorial'}:raise
