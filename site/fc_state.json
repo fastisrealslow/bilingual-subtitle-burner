@@ -134707,8 +134707,8 @@
    "publish_time": "2025-06-13T23:49:48+08:00",
    "production_failure_summary": {
     "slug": "ly-1101-c59851",
-    "run_id": 41351379334,
-    "artifact_id": 13102357627,
+    "run_id": 43919519682,
+    "artifact_id": 14257073896,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -134744,7 +134744,23 @@
      },
      {
       "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
       "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2434/3076，总帧数3209；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1031/1471，总帧数2196；身份匹配但人脸短边不足96px的帧数0"
      },
      {
       "stage": "part-quality",
@@ -134752,7 +134768,7 @@
      },
      {
       "stage": "part-quality",
-      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人提问句 [0] 被排除，后续句子 [1-4] 中嘉宾仅描述历史交易环境差异，未形成针对‘是否赚一百万’或‘是否应买’的明确判断性结论，故 claim_range 为 [-1,-1]。；原文问题：[]"
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_quote 缺失：主持人提问句 [0] 被明确排除在 claim_range 外，而嘉宾后续话语 [1-4] 中未包含针对该问题的直接肯定或否定判断（如‘是的’、‘不是’或具体操作结论），仅描述了背景差异和机制变化，属于回答不完整或回避核心判断。；原文问题：[]"
      },
      {
       "stage": "part-quality",
@@ -134772,11 +134788,7 @@
      },
      {
       "stage": "part-quality",
-      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1031/1471，总帧数2196；身份匹配但人脸短边不足96px的帧数0"
-     },
-     {
-      "stage": "part-quality",
-      "reason": "完整观点验收未通过：standalone_opening；完整性理由：前文存在主持人提问及未回答的疑问句（如'供应量大了会对这个市场有什么？下跌吗？'），导致关于‘放弃原因’和‘市场影响’的论述被切断，无法构成完整表达。；原文问题：[]"
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：前文包含主持人提问及猜测性反问（如‘供应量大了会对这个市场有什么？下跌吗？’），这些属于对话中的疑问或推测，并非嘉宾确定的观点陈述；嘉宾直到最后一句才给出明确的实际行为判断（持有深华新），此前内容不构成完整表达。；原文问题：[]"
      },
      {
       "stage": "part-quality",
@@ -134784,13 +134796,13 @@
      }
     ]
    },
-   "source_check_report_id": 13102357627,
-   "source_check_run_id": 41351379334,
+   "source_check_report_id": 14257073896,
+   "source_check_run_id": 43919519682,
    "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
    "failure_stage": "quality-service",
    "source_check_attempts": 3,
-   "failed": false,
-   "source_check_exhausted": false,
+   "failed": true,
+   "source_check_exhausted": true,
    "automatic_rule_recoveries": {
     "automatic-source-context-v10": {
      "run_id": 41351379334,
