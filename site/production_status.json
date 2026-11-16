@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794836555,
-  "inventory_updated_at": 1794836243,
+  "updated_at": 1794850150,
+  "inventory_updated_at": 1794850142,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 139,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 67,
+    "waiting_candidates": 92,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
@@ -19,13 +19,13 @@
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-16",
         "2026-11-17",
         "2026-11-18",
         "2026-11-19",
         "2026-11-20",
         "2026-11-21",
-        "2026-11-22"
+        "2026-11-22",
+        "2026-11-23"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 35,
-        "landscape": 104
+        "portrait": 34,
+        "landscape": 105
       },
       "full_schedule_days": 11,
       "required_week_shortfall": 0,
@@ -59,26 +59,20 @@
     "experiment_id": "field-story-30d-20261018",
     "selection_revision": 2026102201,
     "active": true,
-    "comparison_active": true,
+    "comparison_active": false,
     "daily_requirement": {
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-16",
+      "date": "2026-11-17",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-09",
-          "actual_treatment": 0,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-10",
           "actual_treatment": 1,
@@ -112,6 +106,12 @@
         {
           "date": "2026-11-15",
           "actual_treatment": 1,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-16",
+          "actual_treatment": 0,
           "target": 2,
           "passed": false
         }
@@ -361,26 +361,26 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794836553,
-    "records": 18842,
-    "video_records": 16283,
-    "initial_candidates": 261,
-    "duration_eligible_records": 69,
-    "candidate_count": 67,
-    "known_duration_candidates": 67,
-    "unknown_duration_candidates": 0,
+    "updated_at": 1794850148,
+    "records": 18855,
+    "video_records": 16296,
+    "initial_candidates": 286,
+    "duration_eligible_records": 94,
+    "candidate_count": 92,
+    "known_duration_candidates": 74,
+    "unknown_duration_candidates": 18,
     "excluded": {
-      "speaker_unconfirmed": 9582,
-      "already_attempted_or_cooling": 4120,
+      "already_attempted_or_cooling": 4057,
+      "speaker_unconfirmed": 9629,
       "noise": 47,
       "no_video": 2559,
       "unrelated": 84,
-      "clip_title": 1585,
-      "reference_only": 568,
+      "clip_title": 1588,
+      "reference_only": 569,
       "ai_content": 36,
       "over_limit": 40,
       "too_short": 152,
@@ -474,6 +474,14 @@
         "author": "投资的小白",
         "url": "https://www.bilibili.com/video/BV1ZC4y1k7b7",
         "duration_sec": 73.0
+      },
+      {
+        "key": "weibo_search:5167746687703666",
+        "title": "再套一批\n【#林园被大量茅台股东围观合影#，#有股东直呼存钱不如买茅台#】5月18日，贵州茅台酒股份有限公司2024年度",
+        "source": "weibo_search",
+        "author": "王不留行半枫荷",
+        "url": "https://m.weibo.cn/detail/5167746687703666",
+        "duration_sec": 31.0
       },
       {
         "key": "weibo_search:4962589924920541",
@@ -604,14 +612,6 @@
         "duration_sec": 109.0
       },
       {
-        "key": "bilibili_search:BV1joWZ6XENH",
-        "title": "林园 P1 牛市走到末期有什么信号？林园：进入中期以后上涨会扩散，像传播机一样；等我发现好的坏的都涨、同时上涨，这个时候",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1joWZ6XENH",
-        "duration_sec": 82.0
-      },
-      {
         "key": "bilibili_search:BV1CCVU65EpH",
         "title": "林园 P1 lv_0_20260531163836",
         "source": "bilibili_collection",
@@ -738,6 +738,14 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1sLsJ6cESp",
         "duration_sec": 78.0
+      },
+      {
+        "key": "bilibili_search:BV1joWZ6XENH",
+        "title": "牛市走到末期有什么信号？林园：进入中期以后上涨会扩散，像传播机一样；等我发现好的坏的都涨、同时上涨，这个时候咱们就要小心",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1joWZ6XENH",
+        "duration_sec": 82.0
       },
       {
         "key": "bilibili_search:BV1xjsJ68E32",
@@ -876,20 +884,204 @@
         "duration_sec": 1318.0
       },
       {
-        "key": "bilibili_search:BV1M9Wf6yE1q",
-        "title": "林园 P1 [完整版] 林园最新采访 2026.10.6 林园：从市场周期到人生哲学",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1M9Wf6yE1q",
-        "duration_sec": 3185.0
-      },
-      {
         "key": "bilibili_search:BV12C4y1P7ze",
         "title": "林园 P1 2023.11.23林园：谈谈什么是价值",
         "source": "bilibili_collection",
         "author": "基金经理说",
         "url": "https://www.bilibili.com/video/BV12C4y1P7ze",
         "duration_sec": 443.0
+      },
+      {
+        "key": "weibo_search:4403724539760740",
+        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
+        "source": "weibo_search",
+        "author": "evian2015",
+        "url": "https://m.weibo.cn/detail/4403724539760740",
+        "duration_sec": 390.0
+      },
+      {
+        "key": "weibo_search:4403676632094278",
+        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
+        "source": "weibo_search",
+        "author": "向彼得林奇看齐",
+        "url": "https://m.weibo.cn/detail/4403676632094278",
+        "duration_sec": 390.0
+      },
+      {
+        "key": "weibo_search:4403319264893956",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "向彼得林奇看齐",
+        "url": "https://m.weibo.cn/detail/4403319264893956",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403675953141546",
+        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
+        "source": "weibo_search",
+        "author": "依然阳光oo",
+        "url": "https://m.weibo.cn/detail/4403675953141546",
+        "duration_sec": 390.0
+      },
+      {
+        "key": "weibo_search:4403642528222916",
+        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
+        "source": "weibo_search",
+        "author": "爱杭州创业和投资",
+        "url": "https://m.weibo.cn/detail/4403642528222916",
+        "duration_sec": 390.0
+      },
+      {
+        "key": "bilibili_search:BV1M9Wf6yE1q",
+        "title": "[完整版] 林园最新采访 2026.10.6 林园：从市场周期到人生哲学",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1M9Wf6yE1q",
+        "duration_sec": 3185.0
+      },
+      {
+        "key": "weibo_search:4403370976601161",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "乔老爷1573",
+        "url": "https://m.weibo.cn/detail/4403370976601161",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403366572344756",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "磐石的足迹",
+        "url": "https://m.weibo.cn/detail/4403366572344756",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403364903059719",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "时间让复利奔跑吧",
+        "url": "https://m.weibo.cn/detail/4403364903059719",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403363397050234",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "价投满满正能量",
+        "url": "https://m.weibo.cn/detail/4403363397050234",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403351782974484",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "兆兆zyw",
+        "url": "https://m.weibo.cn/detail/4403351782974484",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403349581046666",
+        "title": "//@蓝色国土2016: //@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行",
+        "source": "weibo_search",
+        "author": "Jaedong树",
+        "url": "https://m.weibo.cn/detail/4403349581046666",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403331675694085",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "孔显锋",
+        "url": "https://m.weibo.cn/detail/4403331675694085",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403329557564479",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "嗨嗨呀的人生",
+        "url": "https://m.weibo.cn/detail/4403329557564479",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403328064619531",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "熊猫52000000",
+        "url": "https://m.weibo.cn/detail/4403328064619531",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403323329194602",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "蓝色国土2016",
+        "url": "https://m.weibo.cn/detail/4403323329194602",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403315548443535",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "不选择19-6",
+        "url": "https://m.weibo.cn/detail/4403315548443535",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403311559622474",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "尹照堡-潍水田园",
+        "url": "https://m.weibo.cn/detail/4403311559622474",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403310280857899",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "咸宁小超",
+        "url": "https://m.weibo.cn/detail/4403310280857899",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403310150880483",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "会飞的鱼YMY",
+        "url": "https://m.weibo.cn/detail/4403310150880483",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403309366298073",
+        "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
+        "source": "weibo_search",
+        "author": "朱皇攀",
+        "url": "https://m.weibo.cn/detail/4403309366298073",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4403305771809395",
+        "title": "//@上善若水之王洪:2017年12月9日，雪球嘉年华在深圳福田体育场举行，林园应邀做主题演讲。",
+        "source": "weibo_search",
+        "author": "潮州人陈冬",
+        "url": "https://m.weibo.cn/detail/4403305771809395",
+        "duration_sec": 0
+      },
+      {
+        "key": "weibo_search:4405464207276424",
+        "title": "#林园炒股秘籍# 下面这段视频是2018年3月17日晚上，#林园# 在第十二届中国（深圳）私募基金高峰论坛接受媒体记者的",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4405464207276424",
+        "duration_sec": 390.0
+      },
+      {
+        "key": "weibo_search:4403639977869270",
+        "title": "2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获2017年度最值得信赖私募基",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4403639977869270",
+        "duration_sec": 390.0
       },
       {
         "key": "bilibili_search:BV1V9Ni6rEoa",
@@ -922,14 +1114,22 @@
         "author": "乐游-杨生",
         "url": "https://m.weibo.cn/detail/4957581816892868",
         "duration_sec": 636.0
+      },
+      {
+        "key": "weibo_search:4403305490626688",
+        "title": "#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲。",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4403305490626688",
+        "duration_sec": 0
       }
     ]
   },
   "inventory": {
     "verified_live": 139,
     "verified_audio_card": 0,
-    "verified_landscape": 104,
-    "verified_portrait": 35,
+    "verified_landscape": 105,
+    "verified_portrait": 34,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
