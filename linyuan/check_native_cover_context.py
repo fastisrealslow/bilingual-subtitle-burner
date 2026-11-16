@@ -1,5 +1,6 @@
 """Replay real accepted stock on original mother pixels; never publish/register."""
 import copy
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -15,6 +16,40 @@ CASES=[
     dict(slug='ly-1116-3e733f',run=43858429518,delivery=14227391430,
          mother=14223386153,sha='b64b493504d1d9bb11d979c1cb99c194e684b30bc0fc097cd528bbab864de9ff'),
 ]
+
+
+@contextmanager
+def capture_rejected_candidates(directory):
+    """Keep actual input pixels for diagnosis; never alter a quality result."""
+    import cv2
+    import cover_scene_geometry as geometry
+    import presentation
+    original_border=geometry.border_exclusions
+    original_save=presentation.save_scene_cover
+    attempts=[]
+    def borders(frames):
+        marks,proof=original_border(frames)
+        cv2.imwrite(str(directory/'native-first-sample.jpg'),frames[0])
+        (directory/'native-border-proposal.json').write_text(json.dumps(proof,indent=2))
+        return marks,proof
+    def scene(image,path,face,identity):
+        number=len(attempts)+1
+        image.save(directory/f'native-scene-attempt-{number}.jpg')
+        attempt=dict(face=list(face),identity=identity)
+        attempts.append(attempt)
+        try:
+            return original_save(image,path,face,identity)
+        except ValueError as exc:
+            attempt['error']=str(exc)
+            raise
+        finally:
+            (directory/'native-scene-attempts.json').write_text(json.dumps(attempts,ensure_ascii=False,indent=2))
+    geometry.border_exclusions=borders
+    presentation.save_scene_cover=scene
+    try:yield
+    finally:
+        geometry.border_exclusions=original_border
+        presentation.save_scene_cover=original_save
 
 
 def sha(path):
@@ -88,9 +123,10 @@ def main():
                 reference=P._download_speaker_reference(meta['speaker'],dest)
                 # Deliberately nonexistent portrait body: the scene path must
                 # use original pixels, not depend on a 632x470 body window.
-                style,reason=P.make_live_clip_cover(mother,tmp/'unused-portrait.mp4',start,end,
-                    meta['cover_title'],meta['speaker'],dest/'after.jpg',reference_path=reference,
-                    style='scene',allow_editorial_fallback=False)
+                with capture_rejected_candidates(dest):
+                    style,reason=P.make_live_clip_cover(mother,tmp/'unused-portrait.mp4',start,end,
+                        meta['cover_title'],meta['speaker'],dest/'after.jpg',reference_path=reference,
+                        style='scene',allow_editorial_fallback=False)
                 proof=json.loads((dest/'after.jpg.proof.json').read_text())
                 if (style!='scene' or reason is not None or any(proof.get(k) is not True for k in
                         ('no_added_text','no_black_bars','no_qr','face_fully_visible','feed_safe_face'))):
