@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 47
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -313,6 +313,27 @@ def sentence_units(cues):
     return units
 
 
+def listener_reaction_indices(units):
+    """End an answer before an acknowledged listener's collective reaction.
+
+    Require an actual acknowledgement immediately before the reaction; a
+    guest's ordinary statement of confidence is not a speaker boundary.
+    Return whole source units, including the acknowledgement, so we never
+    invent a timestamp inside a cue shared by two turns.
+    """
+    acknowledgement=re.compile(r'^(?:[嗯啊呃，,\s])*(?:(?:明白|了解)(?:了)?[，,\s]*)+[。！!]*$')
+    reaction=re.compile(
+        r'^(?:好(?:的)?[，,\s]*)?那(?:么)?[，,\s]*(?:我们|咱们)'
+        r'(?:对[，,\s]*){1,3}[^。！？!?]{1,40}'
+        r'(?:有(?:了)?(?:更多|更大|更深)(?:的)?(?:一个)?(?:信心|认识|了解)'
+        r'|更有(?:信心|把握))[^。！？!?]{0,6}[。！!]$')
+    boundaries=[]
+    for i,u in enumerate(units):
+        if i and acknowledgement.fullmatch(units[i-1]['text']) and reaction.fullmatch(u['text']):
+            boundaries.append(i-1)
+    return boundaries
+
+
 def floor_handover_ranges(cues):
     """Observable microphone handovers, without assigning semantic approval.
 
@@ -357,6 +378,8 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if listener_reaction_indices(units):
+        return '选段带入听者确认后的集体感想；须在原始回答句界结束，不能当作嘉宾结论'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
@@ -412,7 +435,7 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
                and not any(question_unit(units[j]['text']) for j in range(t,q))]
         if named:starts[k]=min(starts[k],max(named))
     investment_sections=declared_investment_sections(units,cues) if editorial.CONTENT_POLICY=='reference_v1' else []
-    transitions=sorted(set(investment_sections+[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
+    transitions=sorted(set(investment_sections+listener_reaction_indices(units)+[i for i,u in enumerate(units) if TRANSITION.search(u['text']) or SUMMARY_SECTION.search(u['text'])]))
     options=[]
     if diagnostics is not None:
         diagnostics.update(selector_version=VERSION,cue_count=len(cues),sentence_count=len(units),
