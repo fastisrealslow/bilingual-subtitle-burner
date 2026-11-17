@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "updated_at": 1794924555,
-  "inventory_updated_at": 1794924379,
+  "updated_at": 1794927516,
+  "inventory_updated_at": 1794927506,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 140,
     "active_or_recovering_sources": 1,
     "waiting_candidates": 123,
-    "status": "covered",
+    "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
@@ -36,8 +36,8 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 30,
-        "landscape": 110
+        "portrait": 31,
+        "landscape": 109
       },
       "full_schedule_days": 10,
       "required_week_shortfall": 0,
@@ -53,7 +53,9 @@
         "portrait": 0,
         "landscape": 0
       }
-    }
+    },
+    "normal_stock_status": "covered",
+    "alert": "daily_treatment_gap"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -373,7 +375,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794924553,
+    "updated_at": 1794927513,
     "records": 19154,
     "video_records": 16595,
     "initial_candidates": 316,
@@ -796,14 +798,6 @@
         "duration_sec": 53.0
       },
       {
-        "key": "bilibili_search:BV1uzWr6cESs",
-        "title": "林园 P1 林园怎么可能不懂财务 林园：财务肯定是懂的，我只是不喜欢看那个大盘，  最终投资的精髓，是要在量上来说话",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1uzWr6cESs",
-        "duration_sec": 40.0
-      },
-      {
         "key": "weibo_search:5366170043813497",
         "title": "基金跌了五六年的林园，凭啥人气不减？阶段性的很多争议，时间会给出答案。拉长周期复盘，他不少当初的判断事后都得到了验证。#",
         "source": "weibo_search",
@@ -930,6 +924,14 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV11jsJ68EcA",
         "duration_sec": 103.0
+      },
+      {
+        "key": "bilibili_search:BV1uzWr6cESs",
+        "title": "林园 P1 林园怎么可能不懂财务 林园：财务肯定是懂的，我只是不喜欢看那个大盘，  最终投资的精髓，是要在量上来说话",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1uzWr6cESs",
+        "duration_sec": 40.0
       },
       {
         "key": "bilibili_search:BV1R1nk6PED5",
@@ -1384,8 +1386,8 @@
   "inventory": {
     "verified_live": 140,
     "verified_audio_card": 0,
-    "verified_landscape": 110,
-    "verified_portrait": 30,
+    "verified_landscape": 109,
+    "verified_portrait": 31,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
