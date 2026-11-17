@@ -58,8 +58,16 @@
     const dailyWarning = requirement && requirement.active
       && Number.isInteger(requirement.actual_treatment) && requirement.actual_treatment >= 0
       ? ` 今日实验稿 ${requirement.actual_treatment}/2，尚需 ${Math.max(0, 2 - requirement.actual_treatment)} 条；${requirement.stable_7_complete_days ? '最近七个完整日均达到两条回执，公开状态仍以创作中心核验为准。' : '尚未连续七个完整日达到每天两条。'}` : '';
-    const warning = (experiment && experiment.active && experiment.status === 'needs_attention'
-      ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。` : '') + dailyWarning;
+    const experimentWarning = (experiment && experiment.active && experiment.status === 'needs_attention'
+      ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。`
+      : experiment && experiment.active && experiment.status !== 'ready'
+        ? ' 实验状态尚未确认，不能用普通库存保证每天两条实验稿。' : '') + dailyWarning;
+    const dailyRisk = !!dailyWarning && (requirement.stable_7_complete_days !== true
+      || (Number.isInteger(requirement.gap_by_now) ? requirement.gap_by_now > 0 : requirement.actual_treatment < 2));
+    // Daily progress remains visible even when healthy. Informational text
+    // must not turn a genuinely ready, stable snapshot into a permanent alarm.
+    const experimentRisk = experiment && experiment.active && experiment.status !== 'ready';
+    const warning = experimentRisk || dailyRisk;
     const plan = data.plan;
     if (plan?.version === 2) {
       const counts = plan.verified_by_layout, needs = plan.daily_by_layout, reserves = plan.reserve_targets_by_layout;
@@ -73,11 +81,11 @@
       const short = layouts.map(k => Math.max(0, 7 * needs[k] - counts[k]));
       const reserveShort = layouts.reduce((n, k) => n + Math.max(0, reserves[k] - counts[k]), 0);
       return {status: warning || days < 1 || reserveShort ? 'at_risk' : 'covered',
-        message: `日常合格库存 ${stock} 条（竖屏 ${counts.portrait}、横屏 ${counts.landscape}）。按每日竖屏 ${needs.portrait}、横屏 ${needs.landscape} 折算 ${days} 天；未来七天还缺竖屏 ${short[0]}、横屏 ${short[1]} 条。${reserveShort ? `当前储备目标还缺 ${reserveShort} 条。` : ''}发布前仍需复验，不代表已经发布。${warning}`};
+        message: `日常合格库存 ${stock} 条（竖屏 ${counts.portrait}、横屏 ${counts.landscape}）。按每日竖屏 ${needs.portrait}、横屏 ${needs.landscape} 折算 ${days} 天；未来七天还缺竖屏 ${short[0]}、横屏 ${short[1]} 条。${reserveShort ? `当前储备目标还缺 ${reserveShort} 条。` : ''}发布前仍需复验，不代表已经发布。${experimentWarning}`};
     }
     if (stock < target) return {status: 'at_risk',
       message: `日常合格成片仅 ${stock} 条，低于每日 ${target} 条目标，需要补库。`};
-    return {status: warning ? 'at_risk' : 'covered', message: `日常合格库存 ${stock} 条，可覆盖至少一天的 ${target} 条目标；不代表已经发布。${warning}`};
+    return {status: warning ? 'at_risk' : 'covered', message: `日常合格库存 ${stock} 条，可覆盖至少一天的 ${target} 条目标；不代表已经发布。${experimentWarning}`};
   }
   const api = {latestDispatches, remaining, reconcile, continuity};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
