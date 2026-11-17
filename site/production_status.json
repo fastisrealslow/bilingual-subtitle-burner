@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794928261,
-  "inventory_updated_at": 1794927997,
+  "updated_at": 1794931267,
+  "inventory_updated_at": 1794931258,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 141,
-    "active_or_recovering_sources": 6,
+    "verified_daily_stock": 142,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 117,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -14,18 +14,18 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 141,
+      "verified_stock_snapshot": 142,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-17",
         "2026-11-18",
         "2026-11-19",
         "2026-11-20",
         "2026-11-21",
         "2026-11-22",
-        "2026-11-23"
+        "2026-11-23",
+        "2026-11-24"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 32,
+        "portrait": 33,
         "landscape": 109
       },
-      "full_schedule_days": 10,
+      "full_schedule_days": 11,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -55,7 +55,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -66,21 +66,15 @@
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-17",
+      "date": "2026-11-18",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-10",
-          "actual_treatment": 1,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-11",
           "actual_treatment": 0,
@@ -113,6 +107,12 @@
         },
         {
           "date": "2026-11-16",
+          "actual_treatment": 0,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-17",
           "actual_treatment": 0,
           "target": 2,
           "passed": false
@@ -371,11 +371,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794928258,
+    "updated_at": 1794931264,
     "records": 19158,
     "video_records": 16599,
     "initial_candidates": 310,
@@ -638,14 +638,6 @@
         "duration_sec": 159.0
       },
       {
-        "key": "bilibili_search:BV1VhWr6iEra",
-        "title": "林园 P1 林园2006访谈，回头看他说的都是对的！最能赚钱的是哪一类公司？林园：抓住全中国吃喝玩乐，反正是最好的公司，",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1VhWr6iEra",
-        "duration_sec": 32.0
-      },
-      {
         "key": "weibo_search:4889969778755373",
         "title": "202300411林园在糖酒会上的采访 http://t.cn/A6NGg2qz ​​​",
         "source": "weibo_search",
@@ -748,6 +740,14 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1enWZ67EHZ",
         "duration_sec": 81.0
+      },
+      {
+        "key": "bilibili_search:BV1VhWr6iEra",
+        "title": "林园 P1 林园2006访谈，回头看他说的都是对的！最能赚钱的是哪一类公司？林园：抓住全中国吃喝玩乐，反正是最好的公司，",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1VhWr6iEra",
+        "duration_sec": 32.0
       },
       {
         "key": "weibo_search:5365913803292935",
@@ -1336,14 +1336,14 @@
     ]
   },
   "inventory": {
-    "verified_live": 141,
+    "verified_live": 142,
     "verified_audio_card": 0,
     "verified_landscape": 109,
-    "verified_portrait": 32,
+    "verified_portrait": 33,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 141,
+    "daily_mix_usable": 142,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -1353,12 +1353,12 @@
     "paused": 5,
     "interrupted": 9,
     "excluded": 102,
-    "experiment_fallback": 165,
+    "experiment_fallback": 166,
     "ready": 41,
     "validation_failed": 2,
     "retry_queued": 2,
     "unknown": 2,
-    "running": 4
+    "running": 3
   },
   "tasks": [
     {
@@ -56727,8 +56727,8 @@
     },
     {
       "slug": "ly-1117-27d434",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1794925966,
         "failed": null,
@@ -56741,7 +56741,7 @@
       "run_id": 44104279101,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44104279101",
       "run_started_at": "2026-11-17T14:32:45Z",
-      "run_updated_at": "2026-11-17T14:36:28Z"
+      "run_updated_at": "2026-11-17T15:57:52Z"
     },
     {
       "slug": "ly-1117-5f013b",
@@ -86321,10 +86321,10 @@
     },
     "ly-1117-27d434": {
       "id": 44104279101,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-17T14:32:45Z",
-      "updated_at": "2026-11-17T14:36:28Z",
+      "updated_at": "2026-11-17T15:57:52Z",
       "run_started_at": "2026-11-17T14:32:45Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44104279101",
       "run_number": 4625,
