@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794944319,
+  "updated_at": 1794944501,
   "inventory_updated_at": 1794944309,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 146,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 109,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 108,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -375,17 +375,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794944317,
+    "updated_at": 1794944499,
     "records": 19160,
     "video_records": 16601,
-    "initial_candidates": 300,
-    "duration_eligible_records": 109,
-    "candidate_count": 109,
-    "known_duration_candidates": 91,
+    "initial_candidates": 299,
+    "duration_eligible_records": 108,
+    "candidate_count": 108,
+    "known_duration_candidates": 90,
     "unknown_duration_candidates": 18,
     "excluded": {
       "unrelated": 85,
-      "already_attempted_or_cooling": 4117,
+      "already_attempted_or_cooling": 4118,
       "speaker_unconfirmed": 9762,
       "noise": 47,
       "no_video": 2559,
@@ -1078,14 +1078,6 @@
         "duration_sec": 443.0
       },
       {
-        "key": "bilibili_search:BV1M9Wf6yE1q",
-        "title": "[完整版] 林园最新采访 2026.10.6 林园：从市场周期到人生哲学",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1M9Wf6yE1q",
-        "duration_sec": 3185.0
-      },
-      {
         "key": "weibo_search:4403370976601161",
         "title": "//@上善若水之王洪:#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲",
         "source": "weibo_search",
@@ -1285,16 +1277,16 @@
   },
   "counts": {
     "complete": 212,
-    "failed": 2541,
+    "failed": 2542,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 102,
     "experiment_fallback": 170,
     "ready": 41,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -56915,11 +56907,11 @@
     },
     {
       "slug": "ly-1117-5f013b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1794944064,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -56930,6 +56922,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44160010980",
       "run_started_at": "2026-11-17T19:34:24Z",
       "run_updated_at": "2026-11-17T19:36:06Z"
+    },
+    {
+      "slug": "ly-1117-92ba3d",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794944455,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44161188443,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44161188443",
+      "run_started_at": "2026-11-17T19:40:54Z",
+      "run_updated_at": "2026-11-17T19:40:59Z"
     }
   ],
   "runs": {
@@ -86522,6 +86532,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44160010980",
       "run_number": 4644,
       "display_title": "中文源出片 · ly-1117-5f013b"
+    },
+    "ly-1117-92ba3d": {
+      "id": 44161188443,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-17T19:40:54Z",
+      "updated_at": "2026-11-17T19:40:59Z",
+      "run_started_at": "2026-11-17T19:40:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44161188443",
+      "run_number": 4645,
+      "display_title": "中文源出片 · ly-1117-92ba3d"
     },
     "ly-1117-21406e": {
       "id": 44158325408,
