@@ -89,6 +89,28 @@ test('daily two-treatment requirement stays visible despite ordinary stock',()=>
   assert.match(result.message,/今日实验稿 0\/2/);
   assert.match(result.message,/尚未连续七个完整日/);
 });
+test('healthy daily progress is informative, not a permanent experiment alarm',()=>{
+  const data=supply(140);
+  data.publishing_experiment={active:true,status:'ready',
+    daily_requirement:{active:true,actual_treatment:2,gap_by_now:0,stable_7_complete_days:true}};
+  assert.equal(continuity(data,now).status,'covered');
+  assert.match(continuity(data,now).message,/今日实验稿 2\/2/);
+  assert.match(continuity(data,now).message,/最近七个完整日均达到/);
+});
+test('future slots are not late when the reserve and previous seven days are proven',()=>{
+  const data=supply(140);
+  data.publishing_experiment={active:true,status:'ready',
+    daily_requirement:{active:true,actual_treatment:0,gap_by_now:0,stable_7_complete_days:true}};
+  assert.equal(continuity(data,now).status,'covered');
+  assert.match(continuity(data,now).message,/今日实验稿 0\/2/);
+  data.publishing_experiment.daily_requirement.gap_by_now=2;
+  assert.equal(continuity(data,now).status,'at_risk');
+});
+test('unconfirmed active experiment never inherits ordinary stock coverage',()=>{
+  const data=supply(140);data.publishing_experiment={active:true,status:'unknown'};
+  assert.equal(continuity(data,now).status,'at_risk');
+  assert.match(continuity(data,now).message,/实验状态尚未确认/);
+});
 test('seven-day floor shortfall cannot be hidden by active production',()=>{
   const data=supply(0);
   data.continuity.plan={minimum_week_shortfall:14};

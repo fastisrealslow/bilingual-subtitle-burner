@@ -219,9 +219,19 @@ def build(state, inventory, runs, now=None):
                 sha=part.get('sha256') or (part.get('fingerprints') or {}).get('sha256')
                 if sha in seen:continue
                 seen.add(sha);experiment_stock['landscape' if fc.is_landscape(part) else 'portrait']+=1
+    experiment_status=fc.experiment.operational_status(state,experiment_stock,now)
+    continuity['normal_stock_status']=continuity['status']
+    requirement=experiment_status.get('daily_requirement') or {}
+    delivery_unstable=(requirement.get('active') and
+        (requirement.get('gap_by_now',0)>0 or requirement.get('stable_7_complete_days') is False))
+    if (continuity['status']=='covered' and experiment_status.get('active')
+            and (experiment_status.get('status')!='ready' or delivery_unstable)):
+        continuity['status']='at_risk'
+        continuity['alert']=(experiment_status.get('alert') or
+            ('daily_delivery_not_yet_stable' if delivery_unstable else 'experiment_status_unconfirmed'))
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
                 continuity=continuity,
-                publishing_experiment=fc.experiment.operational_status(state,experiment_stock,now),
+                publishing_experiment=experiment_status,
                 source_admission=inventory.get('source_admission'),
                 inventory=inventory.get('inventory'),
                 counts=dict(Counter(t['status'] for t in tasks)), tasks=tasks, runs=runs)

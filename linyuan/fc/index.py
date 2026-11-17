@@ -1719,6 +1719,26 @@ def pick(items, st, n, audit=None):
     return diversify_source_candidates(cands,n)
 
 
+def pick_for_shortfall(items, state, limit, audit, treatment_needed=False):
+    """Apply the required source class BEFORE the bounded attempt window.
+
+    All original admission/dedup/ranking gates still run once. Scanning the
+    whole admitted catalogue is not a download, worker or quality approval.
+    Ordinary-only admission keeps its exact existing ordering and limit.
+    """
+    if not treatment_needed:
+        return pick(items,state,limit,audit=audit)
+    pool=pick(items,state,max(limit,len(items)),audit=audit)
+    ordered=sorted(pool,key=lambda candidate:not experiment.long_candidate(candidate))
+    selected=ordered[:limit]
+    audit['dispatch_window']=dict(version=1,reason='required_treatment_shortfall',
+        admitted_candidates=len(pool),known_long_candidates=sum(experiment.long_candidate(c) for c in pool),
+        attempt_limit=limit,selected_candidates=len(selected),
+        selected_known_long=sum(experiment.long_candidate(c) for c in selected),
+        priority_applied_before_limit=True,quality_gates_relaxed=False)
+    return selected
+
+
 def source_admission_audit(items, state):
     """Read-only ledger of the exact dispatch gate, not a second approximation."""
     audit = {}
@@ -2654,11 +2674,10 @@ def _dispatch_admitted(event=None, context=None):
     j = json.loads(items_raw.decode())
     items = j if isinstance(j, list) else j.get("items", [])
     admission = {}
-    cands = pick(items, st, MAX_ATTEMPTS, audit=admission)
+    cands = pick_for_shortfall(items, st, MAX_ATTEMPTS, admission,
+                              treatment_needed=any(exp_needs.values()))
     if repair_pending and not any(effective_deficits.values()):
         cands=[]  # The extra opportunity is for the proven repair only.
-    if any(exp_needs.values()):
-        cands.sort(key=lambda c:not experiment.long_candidate(c))
     if recent_probe:
         from source_priority import recording_recency_rank
         cands = [c for c in cands if recording_recency_rank(c, time.time()) == 0]
@@ -2963,6 +2982,8 @@ def _dispatch_admitted(event=None, context=None):
                   f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"
                   f"库存新鲜={inventory['inventory_fresh']}")
     result={"dispatched": success, "attempted": len(cands)}
+    if 'dispatch_window' in admission:
+        result['candidate_window']=admission['dispatch_window']
     if experiment.production_preparing() and 'experiment_ready' in inventory:
         ready=inventory['experiment_ready']
         active_treatment=any(r.get('status') in {'queued','in_progress'} and any(

@@ -4,6 +4,8 @@ on:
     paths:
       - 'linyuan/**'
       - 'tests/test_linyuan_*.py'
+      - 'site/production-status.js'
+      - 'tests/test_production_status_page.cjs'
       - 'requirements-dev.txt'
       - 'scripts/check_linyuan_local.sh'
       - 'scripts/title_model_lab.py'
@@ -34,3 +36,5 @@ jobs:
         run: |
           python -m pip install yt-dlp==2026.8.19
           python -m pytest -q tests/test_linyuan_*.py tests/test_fc_deploy_code.py --tb=short
+      - name: 前端日更与实验状态回归（不生产、不投稿）
+        run: node --test tests/test_production_status_page.cjs
