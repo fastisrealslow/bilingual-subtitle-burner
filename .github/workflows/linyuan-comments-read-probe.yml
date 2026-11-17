@@ -51,7 +51,7 @@ jobs:
                   raise ValueError("invalid_cookie")
               cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
               def get(path, **params):
-                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply")
+                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply", "/x/v2/reply/reply")
                   req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
                       headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
                                "Referer":"https://www.bilibili.com/"}, method="GET")
@@ -61,7 +61,7 @@ jobs:
                       result = json.load(response)
                   if result.get("code") != 0:
                       emit("api_error", endpoint=path, code=result.get("code"))
-                      return None
+                      raise ValueError("api_nonzero")
                   return result.get("data") or {}
               nav = get("/x/web-interface/nav")
               if not nav or not nav.get("isLogin") or str(nav.get("mid")) != OWNER:
@@ -69,19 +69,21 @@ jobs:
                   sys.exit(1)
               emit("account_verified", owner=OWNER)
               state = json.loads(Path("site/fc_state.json").read_text())
-              # Only actual publication ledger, newest first; never source/dispatched videos.
-              publications = sorted((state.get("published") or {}).values(),
-                                    key=lambda row: float(row.get("ts") or 0), reverse=True)
-              bvids = []
-              for publication in publications:
-                  for part in publication.get("parts") or []:
-                      bvid = part.get("bvid")
+              def select_candidates(state, limit=24):
+                  # Only own publication ledger; never recursively include sources/dispatched.
+                  publications = sorted((state.get("published") or {}).values(),
+                                        key=lambda row: float(row.get("ts") or 0), reverse=True)
+                  bvids = []
+                  for publication in publications:
+                      for part in publication.get("parts") or []:
+                          bvid = part.get("bvid")
+                          if isinstance(bvid, str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", bvid):
+                              bvids.append(bvid)
+                      bvid = publication.get("bvid")
                       if isinstance(bvid, str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", bvid):
                           bvids.append(bvid)
-                  bvid = publication.get("bvid")
-                  if isinstance(bvid, str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", bvid):
-                      bvids.append(bvid)
-              candidates = list(dict.fromkeys(bvids))[:12]
+                  return list(dict.fromkeys(bvids))[:limit]
+              candidates = select_candidates(state)
               emit("ledger_scan", videos=len(candidates), source="main/site/fc_state.json", candidates=candidates)
               found = 0
               for bvid in candidates:
@@ -100,6 +102,13 @@ jobs:
                   for row in rows:
                       message = (row.get("content") or {}).get("message","")
                       children = row.get("replies") or []
+                      # Preview can omit an existing owner reply; inspect bounded thread detail.
+                      if int(row.get("rcount") or 0) and not any(str(x.get("mid")) == OWNER for x in children):
+                          thread = get("/x/v2/reply/reply", type=1, oid=aid, root=str(row.get("rpid")), pn=1, ps=20)
+                          children = thread.get("replies") or []
+                          emit("thread", bvid=bvid, root=str(row.get("rpid")),
+                               total=(thread.get("page") or {}).get("count"), loaded=len(children),
+                               owner_replies=[{"rpid": str(x.get("rpid")), "text": (x.get("content") or {}).get("message", "")[:1200]} for x in children if str(x.get("mid")) == OWNER])
                       emit("comment", bvid=bvid, aid=aid, rpid=str(row.get("rpid")),
                            text=message[:1200], author_is_owner=str(row.get("mid"))==OWNER,
                            replies=int(row.get("rcount") or 0),
