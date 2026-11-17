@@ -36,6 +36,56 @@ def test_examples_bare_rhetorical_questions_and_host_questions_are_not_keynote_c
     assert not SELF_TOPIC_SECTION.fullmatch(text)
 
 
+def test_published_activity_leadin_stops_at_raw_sentence_boundary(monkeypatch):
+    import source_selection as S
+    case=json.loads((Path(__file__).parent/'fixtures/linyuan_host_activity_leadin.json').read_text())
+    cues=case['cues'];before=json.dumps(cues,ensure_ascii=False)
+    assert S.boundary_error(cues,dict(start=0,end=len(cues)-1))
+    assert S.boundary_error(cues,dict(start=0,end=13)) is None
+    monkeypatch.setattr(S.editorial,'MIN_SECONDS',20)
+    picks=S.select(cues,whole_source=True,limit=None)
+    # The original transcript also has unresolved spoken question tags. Do
+    # not force a candidate through those independent structural gates.
+    assert picks==[]
+    assert json.dumps(cues,ensure_ascii=False)==before
+
+
+@pytest.mark.parametrize('text',[
+    '那我看到就是咱们林总最近的一些分享也比较多，包括明天还有未来的一些活动哈。',
+    '好的，我们注意到您近期分享的内容很多，明天还有交流会。',
+    '那么据我们了解咱们王老师接下来还有一些演讲活动。',
+    '我了解到您明天还要参加直播。',
+])
+def test_unanswered_host_activity_variants_are_not_guest_endings(text):
+    from source_selection import boundary_error,select
+    cues=dialogue()[:4]+[dict(start=145,end=160,text=text)]
+    assert boundary_error(cues,dict(start=0,end=4))
+    assert [(pick['start'],pick['end']) for pick in select(cues,whole_source=True)]==[(0,3)]
+
+
+@pytest.mark.parametrize('text',[
+    '我最近分享的内容都是长期投资的方法。',
+    '我看到企业最近的促销活动比较多，仍然需要研究现金流。',
+    '我看到您关注的公司最近研发投入很多。',
+    '比如主持人说：我看到您明天还有直播，这只是一个例子。',
+    '那我看到就是咱们林总持有的公司最近经营活动现金流改善了。',
+])
+def test_guest_observations_and_quoted_activity_examples_stay_allowed(text):
+    from source_selection import boundary_error,select
+    cues=dialogue();cues[2]['text']=text
+    assert boundary_error(cues,dict(start=0,end=3)) is None
+    assert [(pick['start'],pick['end']) for pick in select(cues)]==[(0,3)]
+
+
+def test_activity_leadin_with_complete_followup_answer_is_allowed():
+    from source_selection import boundary_error
+    cues=dialogue()[:4]+[
+        dict(start=145,end=151,text='我看到您近期还有很多分享活动。'),
+        dict(start=151,end=155,text='您会在活动里谈哪些行业？'),
+        dict(start=155,end=170,text='还是谈医药行业需求，同时也会讲清投资风险。')]
+    assert boundary_error(cues,dict(start=0,end=6)) is None
+
+
 def dialogue():
     return [dict(start=0,end=10,text='您对医药股有什么判断？'),
         dict(start=10,end=55,text='医药行业需求随着老龄化增长，我们长期持有这些企业。'),
