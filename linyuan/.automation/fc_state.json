@@ -136162,7 +136162,108 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-06-11T10:15:54+00:00"
+   "publish_time": "2023-06-11T10:15:54+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1117-e98921",
+    "run_id": 44107557917,
+    "artifact_id": 14352305762,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d43b5fd16dc7ea46c45b76274bc61def433048ec9bd9f8c088ea7c91da624406",
+     "duration_sec": 3727.27,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV18m4y1q7Kv"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2922.90s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3688.33s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：从第 8 句‘其实他还是看好，但是很谨慎’开始，到第 13 句‘就是对他来说是他现在谨慎的一个理由’结束，构成了完整的观点表达：先给出判断（看好但谨慎），再解释原因（思考未来需求是否旺盛、社交场景变化导致销量减少），最后点明这是谨慎的理由。中间穿插了巴菲特的例子作为类比支持，但不影响核心论证的连续性。；原文问题：[[\"我我们在这个过去的一段时间的采访中，呃，听到了一些不一样的，或者说相对谨慎的声音。\", \"‘我我们’存在口吃重复，但语义清晰；‘呃’为语气词，不影响理解，无需修正。\"], [\"这个改变是很难改变，你就是闭着眼睛买，套住了，套个十十五年，他也能到十年八年，都都能都"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "成片存在持续黑色填充边"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 3081.40s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"说这个话的人啊，他就是个二调子，就干啥事他不清楚，他是笨蛋，你知道吧？\", \"suspect_quote\": \"二调子\", \"kind\": \"unintelligible_term\", \"reason\": \"口语中‘二调子’含义不明，无法确认是否为特定称谓或误识别；需音频核实。\"}, {\"sentence_id\": 11, \"quote\": \"我们知道的这些头部企业，它的需求量只是，就是供应量只只有需求量的百分之七。\", \"suspect_quote\": \"只只有\", \"kind\": \"unintelligible_term\","
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1976/3344，总帧数6835；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44107557917,
+    "artifact_id": 14352305762,
+    "name": "production-reject-ly-1117-e98921",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4906647442950643",
@@ -136263,7 +136364,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1932，总帧数9655；身份匹配但人脸短边不足96px的帧数1932",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Lp4y1e7V3",
@@ -254996,6 +255098,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/MDTnNCU7gx089Ut5OZ0A0104120dW0Sy0E050.mp4",
    "ts": 1794935435,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1932，总帧数9655；身份匹配但人脸短边不足96px的帧数1932"
+  },
+  {
+   "slug": "ly-1117-e98921",
+   "key": "bilibili_search:BV18m4y1q7Kv",
+   "video_id": "BV18m4y1q7Kv",
+   "ts": 1794935929,
+   "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
   }
  ],
  "reviewed_third_video_0910": {
