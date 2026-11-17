@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794942111,
+  "updated_at": 1794942555,
   "inventory_updated_at": 1794942105,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 145,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 111,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 110,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -375,17 +375,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794942109,
+    "updated_at": 1794942554,
     "records": 19160,
     "video_records": 16601,
-    "initial_candidates": 302,
-    "duration_eligible_records": 111,
-    "candidate_count": 111,
-    "known_duration_candidates": 93,
+    "initial_candidates": 301,
+    "duration_eligible_records": 110,
+    "candidate_count": 110,
+    "known_duration_candidates": 92,
     "unknown_duration_candidates": 18,
     "excluded": {
       "unrelated": 85,
-      "already_attempted_or_cooling": 4115,
+      "already_attempted_or_cooling": 4116,
       "speaker_unconfirmed": 9762,
       "noise": 47,
       "no_video": 2559,
@@ -1030,14 +1030,6 @@
         "duration_sec": 353.0
       },
       {
-        "key": "bilibili_search:BV1XNN3zjEMP",
-        "title": "林园 P1 Video_1771315820453_137",
-        "source": "bilibili_collection",
-        "author": "复利财务自由",
-        "url": "https://www.bilibili.com/video/BV1XNN3zjEMP",
-        "duration_sec": 2694.0
-      },
-      {
         "key": "bilibili_search:BV1YM4y1E7ZK",
         "title": "林园 P1 2006年8月29日 会见财经界秦朔采访林园：从八千到四亿",
         "source": "bilibili_collection",
@@ -1301,16 +1293,16 @@
   },
   "counts": {
     "complete": 212,
-    "failed": 2539,
+    "failed": 2540,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 9,
     "excluded": 102,
     "experiment_fallback": 169,
     "ready": 41,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -56787,14 +56779,14 @@
     },
     {
       "slug": "ly-1117-21406e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794932189,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794943236,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -56877,11 +56869,11 @@
     },
     {
       "slug": "ly-1117-3524bb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1794941828,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -56910,6 +56902,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44153356116",
       "run_started_at": "2026-11-17T18:57:17Z",
       "run_updated_at": "2026-11-17T18:57:23Z"
+    },
+    {
+      "slug": "ly-1117-3f4e36",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794942506,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44155342439,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44155342439",
+      "run_started_at": "2026-11-17T19:08:25Z",
+      "run_updated_at": "2026-11-17T19:08:30Z"
     }
   ],
   "runs": {
@@ -86470,17 +86480,6 @@
       "run_number": 4633,
       "display_title": "中文源出片 · ly-1117-21406e"
     },
-    "ly-1117-525d99": {
-      "id": 44153356116,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-17T18:57:17Z",
-      "updated_at": "2026-11-17T18:57:23Z",
-      "run_started_at": "2026-11-17T18:57:17Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44153356116",
-      "run_number": 4640,
-      "display_title": "中文源出片 · ly-1117-525d99"
-    },
     "ly-1117-3524bb": {
       "id": 44153327568,
       "status": "completed",
@@ -86491,6 +86490,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44153327568",
       "run_number": 4639,
       "display_title": "中文源出片 · ly-1117-3524bb"
+    },
+    "ly-1117-3f4e36": {
+      "id": 44155342439,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-17T19:08:25Z",
+      "updated_at": "2026-11-17T19:08:30Z",
+      "run_started_at": "2026-11-17T19:08:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44155342439",
+      "run_number": 4641,
+      "display_title": "中文源出片 · ly-1117-3f4e36"
+    },
+    "ly-1117-525d99": {
+      "id": 44153356116,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-17T18:57:17Z",
+      "updated_at": "2026-11-17T18:57:23Z",
+      "run_started_at": "2026-11-17T18:57:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44153356116",
+      "run_number": 4640,
+      "display_title": "中文源出片 · ly-1117-525d99"
     },
     "ly-1117-241d1e": {
       "id": 44135795493,
