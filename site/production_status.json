@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1794931912,
+  "updated_at": 1794932241,
   "inventory_updated_at": 1794931902,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 142,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 115,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 113,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -375,17 +375,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794931909,
+    "updated_at": 1794932238,
     "records": 19158,
     "video_records": 16599,
-    "initial_candidates": 307,
-    "duration_eligible_records": 116,
-    "candidate_count": 115,
-    "known_duration_candidates": 97,
+    "initial_candidates": 304,
+    "duration_eligible_records": 113,
+    "candidate_count": 113,
+    "known_duration_candidates": 95,
     "unknown_duration_candidates": 18,
     "excluded": {
       "unrelated": 85,
-      "already_attempted_or_cooling": 4108,
+      "already_attempted_or_cooling": 4111,
       "speaker_unconfirmed": 9762,
       "noise": 47,
       "no_video": 2559,
@@ -394,7 +394,7 @@
       "ai_content": 36,
       "over_limit": 39,
       "too_short": 152,
-      "duplicate_source": 1
+      "duplicate_source": 0
     },
     "candidates": [
       {
@@ -998,22 +998,6 @@
         "duration_sec": 82.0
       },
       {
-        "key": "weibo_search:4965354674848832",
-        "title": "//@做时间的朋友之林总追随者://@张锐复合增长:林园直播完整版：2023-11-04（收藏转发）",
-        "source": "weibo_search",
-        "author": "S市场先生",
-        "url": "https://m.weibo.cn/detail/4965354674848832",
-        "duration_sec": 1761.0
-      },
-      {
-        "key": "bilibili_search:BV1Lp4y1e7V3",
-        "title": "林园 P1 云端策略会 _  美股震荡加剧，是崩盘前戏还是虚晃一枪？ 超清(720P)-20-731",
-        "source": "bilibili_collection",
-        "author": "Chinese巴菲特",
-        "url": "https://www.bilibili.com/video/BV1Lp4y1e7V3",
-        "duration_sec": 3576.0
-      },
-      {
         "key": "weibo_search:4956315862960446",
         "title": "林园2023.9.25最新采访核心内容",
         "source": "weibo_search",
@@ -1340,9 +1324,9 @@
     "experiment_fallback": 167,
     "ready": 41,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -56819,10 +56803,28 @@
     },
     {
       "slug": "ly-1117-2f2659",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
+      "signature": {
+        "ts": 1794931618,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": 1794933002,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44122036632,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44122036632",
+      "run_started_at": "2026-11-17T16:06:57Z",
+      "run_updated_at": "2026-11-17T16:10:02Z"
+    },
+    {
+      "slug": "ly-1117-100ec8",
       "status": "running",
       "detail": "正在出片",
       "signature": {
-        "ts": 1794931618,
+        "ts": 1794932177,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
@@ -56830,10 +56832,28 @@
         "weekly_full_week": ""
       },
       "history_count": 1,
-      "run_id": 44122036632,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44122036632",
-      "run_started_at": "2026-11-17T16:06:57Z",
-      "run_updated_at": "2026-11-17T16:07:01Z"
+      "run_id": 44123831893,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44123831893",
+      "run_started_at": "2026-11-17T16:16:17Z",
+      "run_updated_at": "2026-11-17T16:16:23Z"
+    },
+    {
+      "slug": "ly-1117-21406e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794932189,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44123868122,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44123868122",
+      "run_started_at": "2026-11-17T16:16:29Z",
+      "run_updated_at": "2026-11-17T16:16:33Z"
     }
   ],
   "runs": {
@@ -86328,12 +86348,34 @@
       "run_number": 4627,
       "display_title": "中文源出片 · ly-1117-4357ff"
     },
-    "ly-1117-2f2659": {
-      "id": 44122036632,
+    "ly-1117-21406e": {
+      "id": 44123868122,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-17T16:16:29Z",
+      "updated_at": "2026-11-17T16:16:33Z",
+      "run_started_at": "2026-11-17T16:16:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44123868122",
+      "run_number": 4633,
+      "display_title": "中文源出片 · ly-1117-21406e"
+    },
+    "ly-1117-100ec8": {
+      "id": 44123831893,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-17T16:16:17Z",
+      "updated_at": "2026-11-17T16:16:23Z",
+      "run_started_at": "2026-11-17T16:16:17Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44123831893",
+      "run_number": 4632,
+      "display_title": "中文源出片 · ly-1117-100ec8"
+    },
+    "ly-1117-2f2659": {
+      "id": 44122036632,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-17T16:06:57Z",
-      "updated_at": "2026-11-17T16:07:01Z",
+      "updated_at": "2026-11-17T16:10:02Z",
       "run_started_at": "2026-11-17T16:06:57Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44122036632",
       "run_number": 4631,
