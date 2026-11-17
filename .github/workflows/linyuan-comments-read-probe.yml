@@ -11,11 +11,12 @@ concurrency:
 jobs:
   read-only:
     runs-on: ubuntu-latest
-    timeout-minutes: 36
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          ref: main
       - name: Read existing authorized account and public comments only
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
@@ -67,20 +68,21 @@ jobs:
                   emit("blocked", reason="authenticated_owner_not_verified")
                   sys.exit(1)
               emit("account_verified", owner=OWNER)
-              state = json.loads(Path("linyuan/.automation/fc_state.json").read_text())
+              state = json.loads(Path("site/fc_state.json").read_text())
+              # Only actual publication ledger, newest first; never source/dispatched videos.
+              publications = sorted((state.get("published") or {}).values(),
+                                    key=lambda row: float(row.get("ts") or 0), reverse=True)
               bvids = []
-              def collect(node):
-                  if isinstance(node, dict):
-                      for key, value in node.items():
-                          if key in ("bvid","published_bvid","upload_bvid") and isinstance(value,str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", value):
-                              bvids.append(value)
-                          collect(value)
-                  elif isinstance(node,list):
-                      for value in node: collect(value)
-              collect(state)
-              # Most recent ledger entries first; owner check excludes source videos.
-              candidates = list(dict.fromkeys(reversed(bvids)))[118:324]
-              emit("ledger_scan", videos=len(candidates), total_unique=len(set(bvids)))
+              for publication in publications:
+                  for part in publication.get("parts") or []:
+                      bvid = part.get("bvid")
+                      if isinstance(bvid, str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", bvid):
+                          bvids.append(bvid)
+                  bvid = publication.get("bvid")
+                  if isinstance(bvid, str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", bvid):
+                      bvids.append(bvid)
+              candidates = list(dict.fromkeys(bvids))[:12]
+              emit("ledger_scan", videos=len(candidates), source="main/site/fc_state.json", candidates=candidates)
               found = 0
               for bvid in candidates:
                   video = get("/x/web-interface/view", bvid=bvid)
@@ -103,7 +105,7 @@ jobs:
                            replies=int(row.get("rcount") or 0),
                            visible_owner_reply=any(str(x.get("mid"))==OWNER for x in children))
                       found += 1
-                  if found >= 200: break
+                  if found >= 40: break
                   time.sleep(0.5)
               emit("complete", comments_read=found, writes=0)
           except Exception as exc:
