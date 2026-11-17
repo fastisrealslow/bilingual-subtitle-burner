@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updated_at": 1794906592,
-  "inventory_updated_at": 1794906559,
+  "updated_at": 1794908751,
+  "inventory_updated_at": 1794908742,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 141,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 121,
+    "verified_daily_stock": 139,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 120,
     "status": "covered",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 141,
+      "verified_stock_snapshot": 139,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -37,7 +37,7 @@
       },
       "verified_by_layout": {
         "portrait": 33,
-        "landscape": 108
+        "landscape": 106
       },
       "full_schedule_days": 11,
       "required_week_shortfall": 0,
@@ -361,9 +361,9 @@
       },
       {
         "date": "2026-11-17",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 0,
         "valid_comparison": false
       }
@@ -373,17 +373,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794906591,
+    "updated_at": 1794908748,
     "records": 19127,
     "video_records": 16568,
-    "initial_candidates": 314,
-    "duration_eligible_records": 123,
-    "candidate_count": 121,
-    "known_duration_candidates": 103,
+    "initial_candidates": 313,
+    "duration_eligible_records": 122,
+    "candidate_count": 120,
+    "known_duration_candidates": 102,
     "unknown_duration_candidates": 18,
     "excluded": {
       "speaker_unconfirmed": 9737,
-      "already_attempted_or_cooling": 4096,
+      "already_attempted_or_cooling": 4097,
       "noise": 47,
       "no_video": 2559,
       "unrelated": 84,
@@ -458,14 +458,6 @@
         "author": "理财有我",
         "url": "https://www.bilibili.com/video/BV1Th411W73P",
         "duration_sec": 900.0
-      },
-      {
-        "key": "bilibili_search:BV1FnR9YhEZu",
-        "title": "林园 P1 studio_video_1743814746515.mp4",
-        "source": "bilibili_collection",
-        "author": "木八的自由之路",
-        "url": "https://www.bilibili.com/video/BV1FnR9YhEZu",
-        "duration_sec": 3012.0
       },
       {
         "key": "bilibili_search:BV1CTmqBFEsy",
@@ -1366,28 +1358,29 @@
     ]
   },
   "inventory": {
-    "verified_live": 141,
+    "verified_live": 139,
     "verified_audio_card": 0,
-    "verified_landscape": 108,
+    "verified_landscape": 106,
     "verified_portrait": 33,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 141,
+    "daily_mix_usable": 139,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
-    "complete": 211,
+    "complete": 212,
     "failed": 2535,
     "paused": 5,
     "interrupted": 9,
     "excluded": 102,
-    "experiment_fallback": 165,
+    "experiment_fallback": 164,
     "ready": 41,
     "validation_failed": 2,
     "retry_queued": 1,
-    "unknown": 2
+    "unknown": 2,
+    "running": 1
   },
   "tasks": [
     {
@@ -48944,13 +48937,13 @@
     },
     {
       "slug": "ly-1108-178a42",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1794114101,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -56717,6 +56710,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44021001562",
       "run_started_at": "2026-11-17T05:00:19Z",
       "run_updated_at": "2026-11-17T07:49:38Z"
+    },
+    {
+      "slug": "ly-1117-f4036e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1794906599,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44053041609,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44053041609",
+      "run_started_at": "2026-11-17T09:09:59Z",
+      "run_updated_at": "2026-11-17T09:10:03Z"
     }
   ],
   "runs": {
@@ -86155,6 +86166,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44021001562",
       "run_number": 4622,
       "display_title": "中文源出片 · ly-1117-959cdd"
+    },
+    "ly-1117-f4036e": {
+      "id": 44053041609,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-17T09:09:59Z",
+      "updated_at": "2026-11-17T09:10:03Z",
+      "run_started_at": "2026-11-17T09:09:59Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44053041609",
+      "run_number": 4623,
+      "display_title": "中文源出片 · ly-1117-f4036e"
     }
   }
 }
