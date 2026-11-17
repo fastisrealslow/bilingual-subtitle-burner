@@ -1,5 +1,5 @@
 {
-  "run_id": "44091319197",
+  "run_id": "44102979110",
   "processed": 3,
   "inspected": 1,
   "historical_media_verified": 244,
@@ -7,20 +7,14 @@
   "pending": 306,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": false,
+      "collection_listing_complete": true,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": [
-        {
-          "stage": "collection_page",
-          "season_id": 6836119,
-          "page": 1,
-          "error": "ValueError"
-        }
-      ]
+      "errors": []
     }
   },
   "jobs": {
@@ -840,10 +834,10 @@
       "family": "maotai_table_exchange",
       "priority": 2,
       "status": "retry_wait",
-      "attempts": 60,
+      "attempts": 61,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794828740.0452943,
-      "next_retry_at": 1794915140.0452943,
+      "last_attempt_at": 1794925891.598919,
+      "next_retry_at": 1795012291.598919,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -4284,10 +4278,10 @@
       "family": "unresolved",
       "priority": 4,
       "status": "retry_wait",
-      "attempts": 40,
+      "attempts": 41,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794835753.4539633,
-      "next_retry_at": 1794922153.4539633,
+      "last_attempt_at": 1794925904.9112988,
+      "next_retry_at": 1795012304.9112988,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6860,12 +6854,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 26,
+      "attempts": 27,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794828738.5188422,
-      "next_retry_at": 1794915138.5188422,
+      "last_attempt_at": 1794925889.7215214,
+      "next_retry_at": 1795012289.7215214,
       "download_partial_bytes": 0
     },
     "c7df3baf167476508e71": {
@@ -9668,11 +9662,14 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1794870516.9168906,
-      "next_retry_at": 1794913716.9168906,
+      "next_retry_at": 1794947466.688284,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1794925866.688284
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "searched",
@@ -9732,12 +9729,12 @@
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "retry_wait",
       "checked_at": 1794828426.636588,
-      "next_retry_at": 1794899723.8719227,
+      "next_retry_at": 1794969066.688284,
       "found": 3,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1794878123.8719227
+      "last_attempt_at": 1794925866.688284
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
       "status": "searched",
