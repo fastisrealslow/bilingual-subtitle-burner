@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1794954086,
+  "updated_at": 1794954343,
   "inventory_updated_at": 1794954076,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 147,
-    "active_or_recovering_sources": 1,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 108,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -375,7 +375,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794954083,
+    "updated_at": 1794954340,
     "records": 19167,
     "video_records": 16608,
     "initial_candidates": 299,
@@ -918,14 +918,6 @@
         "duration_sec": 22.0
       },
       {
-        "key": "bilibili_search:BV1YHWZ62Erm",
-        "title": "林园说了一个极端的假设：林园：如果你买入好公司，把股市关闭十年，谁都没办法交易，那就对了——你会跟着好的公司持续成长，一",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1YHWZ62Erm",
-        "duration_sec": 165.0
-      },
-      {
         "key": "bilibili_search:BV11jsJ68EcA",
         "title": "什么样的公司能涨十倍？林园：首先是行业壁垒非常高，第二主业鲜明、产品尽量单一，最重要的一点是投资小、产出大——我投100",
         "source": "bilibili_search",
@@ -980,6 +972,14 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1uzWr6cERo",
         "duration_sec": 30.0
+      },
+      {
+        "key": "bilibili_search:BV1YHWZ62Erm",
+        "title": "林园说了一个极端的假设：林园：如果你买入好公司，把股市关闭十年，谁都没办法交易，那就对了——你会跟着好的公司持续成长，一",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1YHWZ62Erm",
+        "duration_sec": 165.0
       },
       {
         "key": "bilibili_search:BV1xjsJ68E32",
@@ -1279,12 +1279,12 @@
     "complete": 212,
     "failed": 2543,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 102,
     "experiment_fallback": 172,
     "ready": 41,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2
   },
   "tasks": [
@@ -56924,14 +56924,14 @@
     },
     {
       "slug": "ly-1117-92ba3d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1794944455,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1794955172,
         "weekly_full_week": ""
       },
       "history_count": 1,
