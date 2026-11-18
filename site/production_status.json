@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795012275,
-  "inventory_updated_at": 1795012127,
+  "updated_at": 1795022527,
+  "inventory_updated_at": 1795022520,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
@@ -19,13 +19,13 @@
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-18",
         "2026-11-19",
         "2026-11-20",
         "2026-11-21",
         "2026-11-22",
         "2026-11-23",
-        "2026-11-24"
+        "2026-11-24",
+        "2026-11-25"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 33,
-        "landscape": 112
+        "portrait": 31,
+        "landscape": 114
       },
-      "full_schedule_days": 11,
+      "full_schedule_days": 10,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -55,7 +55,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -66,21 +66,15 @@
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-18",
+      "date": "2026-11-19",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-11",
-          "actual_treatment": 0,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-12",
           "actual_treatment": 1,
@@ -113,6 +107,12 @@
         },
         {
           "date": "2026-11-17",
+          "actual_treatment": 0,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-18",
           "actual_treatment": 0,
           "target": 2,
           "passed": false
@@ -379,11 +379,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795012272,
+    "updated_at": 1795022525,
     "records": 19300,
     "video_records": 16736,
     "initial_candidates": 335,
@@ -1386,8 +1386,8 @@
   "inventory": {
     "verified_live": 145,
     "verified_audio_card": 0,
-    "verified_landscape": 112,
-    "verified_portrait": 33,
+    "verified_landscape": 114,
+    "verified_portrait": 31,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
