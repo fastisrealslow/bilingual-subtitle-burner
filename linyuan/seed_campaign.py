@@ -142,6 +142,14 @@ def verify_seed(candidate, fetch=monitor.http_get):
             direct_dispatch=dispatch)
     except Exception as exc:
         if type(getattr(exc,'code',None)) is int:observation['http_status']=exc.code
+        # Static reason codes only: do not serialize arbitrary exception text,
+        # signed URLs, headers or credentials from the configured session.
+        reasons={'exact video metadata unavailable':'exact_metadata_unavailable',
+            'unrelated or non-live title':'unrelated_or_non_live_title',
+            'unknown, reference-only or self publisher':'ineligible_publisher',
+            'no eligible real video pages':'no_eligible_video_pages'}
+        if isinstance(exc,ValueError) and str(exc) in reasons:
+            observation['rejection_reason']=reasons[str(exc)]
         return dict(**candidate, status='not_verified', error=type(exc).__name__,**observation)
 
 
