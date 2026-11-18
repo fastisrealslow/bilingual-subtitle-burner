@@ -137228,7 +137228,76 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-20T01:27:34+00:00"
+   "publish_time": "2026-01-20T01:27:34+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1118-9e88ce",
+    "run_id": 44233632730,
+    "artifact_id": 14399110935,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f9870be81b6327d3468d22d353d5a09f5655df40d86c41814d42da70c7358605",
+     "duration_sec": 1344.27,
+     "resolution": {
+      "width": 1080,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV19Pk5BNEpg"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少针对核心问题的明确判断或结论。原话中句 2‘因为我看很多投资人他这个无解’属于对行业现象的评论而非具体判断；句 3‘因为如果是你个人的钱，那我可以就拿着我就不动了’是基于特定假设（个人资金）的条件性陈述，未覆盖题干中关于‘出资人选择’和‘噪音干扰’的普遍性问题，且缺乏后续展开或明确结论，导致表达不完整。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1056.83s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 264.30s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 859.63s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1308.97s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 748.90s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/174，总帧数866；身份匹配但人脸短边不足96px的帧数174"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44233632730,
+    "artifact_id": 14399110935,
+    "name": "production-reject-ly-1118-9e88ce",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1ykGy6vE1F",
@@ -256382,6 +256451,13 @@
    "video_id": "BV1M9Wf6yE1q",
    "ts": 1794960802,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配314/735，总帧数2102；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1118-9e88ce",
+   "key": "bilibili_search:BV19Pk5BNEpg",
+   "video_id": "BV19Pk5BNEpg",
+   "ts": 1794977321,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
   }
  ],
  "reviewed_third_video_0910": {
