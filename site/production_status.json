@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1795042486,
+  "updated_at": 1795042703,
   "inventory_updated_at": 1795042480,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 145,
-    "active_or_recovering_sources": 1,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 123,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -383,7 +383,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795042484,
+    "updated_at": 1795042702,
     "records": 19311,
     "video_records": 16747,
     "initial_candidates": 336,
@@ -1110,20 +1110,20 @@
         "duration_sec": 78.0
       },
       {
-        "key": "bilibili_search:BV1joWZ6XENH",
-        "title": "牛市走到末期有什么信号？林园：进入中期以后上涨会扩散，像传播机一样；等我发现好的坏的都涨、同时上涨，这个时候咱们就要小心",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1joWZ6XENH",
-        "duration_sec": 82.0
-      },
-      {
         "key": "bilibili_search:BV1xjsJ68E32",
         "title": "林园选股的八个字：婴儿的股本，巨人的品牌。林园：巨人的品牌可以保障它盈利的确定性，婴儿的股本又很小，我们会跟着它享受利润",
         "source": "bilibili_search",
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1xjsJ68E32",
         "duration_sec": 86.0
+      },
+      {
+        "key": "bilibili_search:BV1joWZ6XENH",
+        "title": "牛市走到末期有什么信号？林园：进入中期以后上涨会扩散，像传播机一样；等我发现好的坏的都涨、同时上涨，这个时候咱们就要小心",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1joWZ6XENH",
+        "duration_sec": 82.0
       },
       {
         "key": "weibo_search:4956315862960446",
@@ -1407,12 +1407,12 @@
     "complete": 214,
     "failed": 2546,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 102,
     "experiment_fallback": 173,
     "ready": 40,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2
   },
   "tasks": [
@@ -57142,14 +57142,14 @@
     },
     {
       "slug": "ly-1118-712ec3",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795042174,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795044447,
         "weekly_full_week": ""
       },
       "history_count": 1,
