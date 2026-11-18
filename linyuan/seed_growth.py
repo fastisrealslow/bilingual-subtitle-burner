@@ -34,6 +34,25 @@ LONG_QUERIES=('林园 2026 完整访谈','林园 2025 完整访谈')+QUERIES[:18
     '林园 投资讲座 全程','林园 申万宏源 全集')
 
 
+def discovery_exclusion(lead):
+    """Save exact-lookup slots, never infer approval from discovery metadata.
+
+    Missing uploader/title can still be resolved by the exact lookup. Known
+    ineligible metadata cannot spend that budget until a fresh discovery
+    supplies a different author/title; durable leads remain in the queue.
+    """
+    author=lead.get('catalog_author')
+    if isinstance(author,str) and author.strip() in {'园园滚雪球','园来滚雪球','账号已注销','已注销'}:
+        return 'ineligible_author'
+    title=lead.get('catalog_title')
+    if isinstance(title,str) and title:
+        from fc import index as fc
+        if ('林园' not in title or fc.NOISE.search(title) or fc.AI_NOISE.search(title)
+                or monitor.YicaiVideoSource.NOISE.search(title) or NO_MEDIA.search(title)):
+            return 'unrelated_or_non_live_title'
+    return None
+
+
 def verification_batch(candidates,path,limit,prefer_long=False):
     """Reserve existing verification slots for long needs, retaining short news."""
     if not prefer_long:
@@ -80,6 +99,8 @@ def catalog_leads(db):
                 continue
             lead = dict(bvid=bvid, discovery='historical_catalog_revalidated',
                 catalog_title=row['title'], catalog_author=row['author'], catalog_duration=duration)
+            if discovery_exclusion(lead):
+                continue
             if duration > rows.get(bvid, {}).get('catalog_duration', 0):
                 rows[bvid] = lead
     return sorted(rows.values(), key=lambda r: (-r['catalog_duration'], r['bvid']))
@@ -224,7 +245,10 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
     pending = {key: row for key, row in pending_leads(pending_path).items() if key not in roots}
     for row in catalog_leads(base / 'monitor_v2.db'):
         if row['bvid'] not in roots:
+            # A cached catalogue row has no newer observation timestamp: it
+            # must not clear a pending denial or reset exact-lookup budgets.
             pending[row['bvid']] = {**row, **pending.get(row['bvid'], {})}
+    discovery_excluded=Counter()
     if search:
         search_scan = json.loads(state.read_text()) if state.exists() else {}
         for query in rotating_batch('long_queries' if prefer_long else 'queries',
@@ -249,10 +273,18 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
                             and '林园' in row.get('title', '') and not NO_MEDIA.search(row['title'])
                             and row.get('up') not in {'', '园园滚雪球', '园来滚雪球'}
                             and eligible_duration(monitor.duration_seconds(row.get('duration')))):
+                        was_pending=bvid in pending
                         pending[bvid] = {**pending.get(bvid, {}), **dict(
                             bvid=bvid, discovery='normal_public_search',
                             catalog_title=row['title'], catalog_author=row['up'],
                             catalog_duration=row['duration'])}
+                        exclusion=discovery_exclusion(pending[bvid])
+                        if exclusion:
+                            # Keep existing clues for audit/re-discovery, but
+                            # do not add known-ineligible new search results.
+                            if not was_pending:
+                                pending.pop(bvid)
+                            discovery_excluded[exclusion]+=1
             except Exception as exc:
                 observation = {}
                 if getattr(exc,'code',None) in {403,412,429}:
@@ -270,11 +302,16 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
     # Save ALL discoveries before the bounded verifier starts. Previously the
     # unselected tail of each search disappeared when the process exited.
     save_pending_leads(pending_path, pending)
+    report['discovery_excluded']=dict(discovery_excluded)
+    report['preverification_excluded']=dict(Counter(
+        reason for lead in pending.values() if (reason:=discovery_exclusion(lead))))
+    report['pending_eligible_lead_count']=sum(discovery_exclusion(lead) is None for lead in pending.values())
     if report.get('verification_paused'):
         report.update(after=census(base),pending_lead_count=len(pending))
         return report
     candidates = sorted((r for r in pending.values()
                          if float(r.get('verification_retry_after') or 0) <= time.time()
+                         and discovery_exclusion(r) is None
                          and (not replenishing or 1200<=float(r.get('catalog_duration') or 0)<=5400)),
                         key=lambda r: (-r['catalog_duration'], r['bvid']))
     rows = []
@@ -331,6 +368,7 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
     save_pending_leads(pending_path, pending)
     report.update(added_count=len(added), added_bvids=[r['bvid'] for r in added],
         pending_lead_count=len(pending),
+        pending_eligible_lead_count=sum(discovery_exclusion(lead) is None for lead in pending.values()),
         roles=dict(Counter(r['source_role'] for r in added)),
         new_long_parent_count=sum(any(p['duration'] >= 900 for p in r['pages']) for r in added),
         verification=dict(Counter(r['status'] for r in rows)), after=census(base))
@@ -338,6 +376,7 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
     # Provider availability is not a media-quality rejection. Keep safe codes,
     # never response bodies, credentials, or a failed lead's rights approval.
     report.update(verification_errors=dict(Counter(r.get('error','unknown') for r in failed)),
+        verification_rejections=dict(Counter(r['rejection_reason'] for r in failed if r.get('rejection_reason'))),
         verification_http_status=dict(Counter(str(r['http_status']) for r in failed if 'http_status' in r)),
         verification_api_codes=dict(Counter(str(r['api_code']) for r in failed if 'api_code' in r)))
     return report

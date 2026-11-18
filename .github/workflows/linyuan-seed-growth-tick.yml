@@ -44,6 +44,7 @@ jobs:
           pip install -q pytest PyYAML==6.0.3 -r fc/runtime-requirements.txt
           if ! ffprobe -version >/dev/null 2>&1; then bash ci_install_media_tools.sh; fi
           python -m pytest -q ../tests/test_linyuan_seed_pool_growth.py ../tests/test_linyuan_known_long_source_refresh.py ../tests/test_linyuan_weibo_archive_discovery.py ../tests/test_linyuan_seed_scan.py ../tests/test_linyuan_native_header_probe.py
+          python -m pytest -q ../tests/test_linyuan_seed_lookup_eligibility.py
       - name: 在原六页预算内轮换三个历史主题并保留最新素材
         timeout-minutes: 3
         continue-on-error: true
