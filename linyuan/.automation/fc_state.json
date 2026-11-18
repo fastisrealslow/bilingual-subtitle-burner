@@ -137322,7 +137322,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-27T08:00:02+00:00"
+   "publish_time": "2026-05-27T08:00:02+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1118-6eb9ea",
+    "run_id": 44237980294,
+    "artifact_id": 14402272050,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a44f79f8f79e028d18769e80b7d600fb091dfccec1f287f58d4d9200d6c63219",
+     "duration_sec": 2489.42,
+     "resolution": {
+      "width": 1920,
+      "height": 930,
+      "short_edge": 930
+     },
+     "source_url": "https://www.bilibili.com/video/BV1ykGy6vE1F"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44237980294,
+    "artifact_id": 14402272050,
+    "name": "production-reject-ly-1118-6eb9ea",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -256459,6 +256492,13 @@
    "video_id": "BV19Pk5BNEpg",
    "ts": 1794977321,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+  },
+  {
+   "slug": "ly-1118-6eb9ea",
+   "key": "bilibili_search:BV1ykGy6vE1F",
+   "video_id": "BV1ykGy6vE1F",
+   "ts": 1794981782,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
