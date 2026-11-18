@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1794981582,
+  "updated_at": 1794981839,
   "inventory_updated_at": 1794981576,
   "continuity": {
     "daily_target": 4,
@@ -55,7 +55,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -69,8 +69,8 @@
       "date": "2026-11-18",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 0,
-      "gap_by_now": 0,
+      "expected_by_now": 1,
+      "gap_by_now": 1,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
@@ -379,11 +379,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1794981580,
+    "updated_at": 1794981837,
     "records": 19203,
     "video_records": 16642,
     "initial_candidates": 305,
@@ -1333,9 +1333,9 @@
   },
   "counts": {
     "complete": 213,
-    "failed": 2545,
+    "failed": 2546,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 102,
     "experiment_fallback": 171,
     "ready": 41,
@@ -57016,11 +57016,11 @@
     },
     {
       "slug": "ly-1118-6eb9ea",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
       "signature": {
         "ts": 1794976323,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
