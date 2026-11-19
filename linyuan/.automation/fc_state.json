@@ -139170,7 +139170,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5096302031671225",
@@ -139197,8 +139198,8 @@
    "publish_time": "2024-11-02T16:35:52+08:00",
    "production_failure_summary": {
     "slug": "ly-1119-aab63b",
-    "run_id": 44533017050,
-    "artifact_id": 14542066024,
+    "run_id": 44570674860,
+    "artifact_id": 14557823831,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -139213,12 +139214,28 @@
     },
     "failures": [
      {
-      "stage": "editorial-service",
-      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.06329113924050633, 0.7425531914893617, 0.13765822784810128, 0.9702127659574468)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1241.88s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 60%（BV1n5sm6vEzQ）"
      },
      {
       "stage": "part-quality",
       "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1rDHV6wEfV）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 85%（BV1rDHV6wEfV）"
      },
      {
       "stage": "part-quality",
@@ -139244,9 +139261,17 @@
    },
    "source_check_report_id": 14542066024,
    "source_check_run_id": 44533017050,
-   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
-   "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44570674860,
+    "artifact_id": 14557823831,
+    "name": "production-reject-ly-1119-aab63b",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:4906383839332298",
@@ -259838,6 +259863,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/nt3JCqjxgx08d2Q0Xnx601041208ux1Y0E030.mp4",
    "ts": 1795105507,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的，后来一直买了两年，跌到十九，跌到十九块多。\", \"suspect_quote\": \"出生二十九块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'出生'与股价语境严重不符，疑似将'成本'或'大约'误识别为'出生'，导致金额描述含义不明。\"}]"
+  },
+  {
+   "slug": "ly-1119-aab63b",
+   "key": "weibo_search:5096302031671225",
+   "video_id": "https://fb.video.weibocdn.com/o8/PSludvRWlx08jh28CHMY0104120bfdPw0E048.mp4",
+   "ts": 1795110659,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
