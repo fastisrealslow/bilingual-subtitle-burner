@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1795063113,
-  "inventory_updated_at": 1795062822,
+  "updated_at": 1795075067,
+  "inventory_updated_at": 1795075061,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 145,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 130,
+    "waiting_candidates": 132,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 33,
-        "landscape": 112
+        "portrait": 31,
+        "landscape": 114
       },
-      "full_schedule_days": 11,
+      "full_schedule_days": 10,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -55,7 +55,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -69,8 +69,8 @@
       "date": "2026-11-19",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 0,
-      "gap_by_now": 0,
+      "expected_by_now": 1,
+      "gap_by_now": 1,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
@@ -387,21 +387,21 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795063110,
-    "records": 19344,
-    "video_records": 16780,
-    "initial_candidates": 345,
-    "duration_eligible_records": 150,
-    "candidate_count": 130,
-    "known_duration_candidates": 112,
+    "updated_at": 1795075065,
+    "records": 19348,
+    "video_records": 16784,
+    "initial_candidates": 348,
+    "duration_eligible_records": 153,
+    "candidate_count": 132,
+    "known_duration_candidates": 114,
     "unknown_duration_candidates": 18,
     "excluded": {
+      "speaker_unconfirmed": 9863,
       "unrelated": 109,
-      "speaker_unconfirmed": 9862,
       "already_attempted_or_cooling": 4130,
       "clip_title": 1613,
       "no_video": 2564,
@@ -410,17 +410,9 @@
       "ai_content": 36,
       "over_limit": 42,
       "too_short": 153,
-      "duplicate_source": 20
+      "duplicate_source": 21
     },
     "candidates": [
-      {
-        "key": "weibo_search:5366860975702777",
-        "title": "学大佬做投资～林园访谈要点：1生意和现金流是核心：生意稳健可持续，账面现金和经营性现金流是否健康持续；2股息分红很关键：",
-        "source": "weibo_search",
-        "author": "秋天的果实JS",
-        "url": "https://m.weibo.cn/detail/5366860975702777",
-        "duration_sec": 65.0
-      },
       {
         "key": "bilibili_search:BV1iE421w7Tk",
         "title": "林园 P1 私募大佬林园最新访谈《投资白酒的逻辑及对茅台当前看法》",
@@ -436,6 +428,14 @@
         "author": "价值投资和科技医药",
         "url": "https://www.bilibili.com/video/BV19Fsk6zEAh",
         "duration_sec": 28.0
+      },
+      {
+        "key": "weibo_search:5366962152801692",
+        "title": "林园直言分红在投资权重中必须排第一！当前行情下核心看账上现金与锚定资产。如果一年分红能达4%，十年就算不增长也能分回大半",
+        "source": "weibo_search",
+        "author": "初五先生的微博",
+        "url": "https://m.weibo.cn/detail/5366962152801692",
+        "duration_sec": 65.0
       },
       {
         "key": "bilibili_search:BV1WEYTzFEer",
@@ -508,6 +508,14 @@
         "author": "投资二十年回头看",
         "url": "https://www.bilibili.com/video/BV1nA4m137Fu",
         "duration_sec": 776.0
+      },
+      {
+        "key": "bilibili_search:BV1RP4y1a7Mi",
+        "title": "林园 P1 林园2020年4月直播，投资的核心是什么",
+        "source": "bilibili_collection",
+        "author": "理财有我",
+        "url": "https://www.bilibili.com/video/BV1RP4y1a7Mi",
+        "duration_sec": 4239.0
       },
       {
         "key": "bilibili_search:BV1fHohBZECH",
@@ -1094,14 +1102,6 @@
         "duration_sec": 52.0
       },
       {
-        "key": "bilibili_search:BV1VwWf6JEhQ",
-        "title": "林园对自己的要求有多苛刻？林园：你做十次投资如果有一次失败，我认为你这种投资方法就是不对的；我对我自己的要求是要做到百分",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1VwWf6JEhQ",
-        "duration_sec": 79.0
-      },
-      {
         "key": "bilibili_search:BV1u1pN64Ehx",
         "title": "林园 P1 林园：喝白酒的人会变少，喝茅台的人会变多，我还要投烟酒，茅台的财务指标全球顶尖！能持续稳定分红的嘴巴类快消品",
         "source": "bilibili_search",
@@ -1166,6 +1166,14 @@
         "duration_sec": 99.0
       },
       {
+        "key": "bilibili_search:BV1VwWf6JEhQ",
+        "title": "林园对自己的要求有多苛刻？林园：你做十次投资如果有一次失败，我认为你这种投资方法就是不对的；我对我自己的要求是要做到百分",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1VwWf6JEhQ",
+        "duration_sec": 79.0
+      },
+      {
         "key": "bilibili_search:BV1xjsJ68E32",
         "title": "林园选股的八个字：婴儿的股本，巨人的品牌。林园：巨人的品牌可以保障它盈利的确定性，婴儿的股本又很小，我们会跟着它享受利润",
         "source": "bilibili_search",
@@ -1188,6 +1196,14 @@
         "author": "投资就是滚雪球",
         "url": "https://www.bilibili.com/video/BV1joWZ6XENH",
         "duration_sec": 82.0
+      },
+      {
+        "key": "bilibili_search:BV18C4y1h775",
+        "title": "林园 P1 210383434-1-64",
+        "source": "bilibili_collection",
+        "author": "财经讲述",
+        "url": "https://www.bilibili.com/video/BV18C4y1h775",
+        "duration_sec": 1235.0
       },
       {
         "key": "weibo_search:4956315862960446",
@@ -1458,8 +1474,8 @@
   "inventory": {
     "verified_live": 145,
     "verified_audio_card": 0,
-    "verified_landscape": 112,
-    "verified_portrait": 33,
+    "verified_landscape": 114,
+    "verified_portrait": 31,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
