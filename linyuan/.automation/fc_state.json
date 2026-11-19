@@ -138519,7 +138519,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-04-18T15:00:35+08:00"
+   "publish_time": "2022-04-18T15:00:35+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1119-95dfbd",
+    "run_id": 44500780540,
+    "artifact_id": 14520578430,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c9fb0f707175a0e020507b815eb4222f9dbd6170f7e33cafc970364d8374aaab",
+     "duration_sec": 2841.06,
+     "resolution": {
+      "width": 896,
+      "height": 504,
+      "short_edge": 504
+     },
+     "source_url": "https://m.weibo.cn/detail/4759619731980924"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"中国要解决这个问题，多印一点钞票。\", \"suspect_quote\": \"多印一点钞票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“多印”与后文“经济危机”、“钱贬值”等表述存在潜在矛盾，需核实是否为否定词漏识或误读。\"}, {\"sentence_id\": 15, \"quote\": \"金融机构不暂时，我们看不到倒闭的迹象，不会。\", \"suspect_quote\": \"金融机构不暂时\", \"kind\": \"ambiguous_number_or_negation"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/405，总帧数2020；身份匹配但人脸短边不足96px的帧数405"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 73%（BV14VHG6BEZ9）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1/606，总帧数3021；身份匹配但人脸短边不足96px的帧数605"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1uvxQ6hEKd）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配2/1113，总帧数5553；身份匹配但人脸短边不足96px的帧数1111"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44500780540,
+    "artifact_id": 14520578430,
+    "name": "production-reject-ly-1119-95dfbd",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"中国要解决这个问题，多印一点钞票。\", \"suspect_quote\": \"多印一点钞票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“多印”与后文“经济危机”、“钱贬值”等表述存在潜在矛盾，需核实是否为否定词漏识或误读。\"}, {\"sentence_id\": 15, \"quote\": \"金融机构不暂时，我们看不到倒闭的迹象，不会。\", \"suspect_quote\": \"金融机构不暂时\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不暂时”语义不明，疑似否定词漏识或误读。\"}, {\"sentence_id\": 16, \"quote\": \"国家多一点，招标都救活了。\", \"suspect_quote\": \"国家多一点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"该短语在上下文中语义不明，疑似否定词漏识或误读。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4687431007210636",
@@ -138553,7 +138610,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -259086,6 +259144,13 @@
    "video_id": "https://f.video.weibocdn.com/000357g5gx07J68M1AjS01041202tIk80E010.mp4",
    "ts": 1795082608,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1119-95dfbd",
+   "key": "weibo_search:4759619731980924",
+   "video_id": "https://f.video.weibocdn.com/001ZokPfgx07L9IteAwE01041207B7YK0E030.mp4",
+   "ts": 1795085808,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"中国要解决这个问题，多印一点钞票。\", \"suspect_quote\": \"多印一点钞票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“多印”与后文“经济危机”、“钱贬值”等表述存在潜在矛盾，需核实是否为否定词漏识或误读。\"}, {\"sentence_id\": 15, \"quote\": \"金融机构不暂时，我们看不到倒闭的迹象，不会。\", \"suspect_quote\": \"金融机构不暂时\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不暂时”语义不明，疑似否定词漏识或误读。\"}, {\"sentence_id\": 16, \"quote\": \"国家多一点，招标都救活了。\", \"suspect_quote\": \"国家多一点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"该短语在上下文中语义不明，疑似否定词漏识或误读。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
