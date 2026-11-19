@@ -138798,21 +138798,71 @@
    "publish_time": "2024-03-05T15:54:40+08:00",
    "production_failure_summary": {
     "slug": "ly-1119-8ed7aa",
-    "run_id": 44533113795,
-    "artifact_id": 14533364382,
+    "run_id": 44549330170,
+    "artifact_id": 14550237311,
     "accepted": 0,
-    "source_context": null,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "355ff6ffa38c5de4cb17cd577eaa970a92f2cb7d82ce3d975e161d2009e69bdb",
+     "duration_sec": 2037.3,
+     "resolution": {
+      "width": 1920,
+      "height": 886,
+      "short_edge": 886
+     },
+     "source_url": "https://m.weibo.cn/detail/5008593802232912"
+    },
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：media_setup"
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配6/528，总帧数2607；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配61/202，总帧数703；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 79%（BV1sw4A6XES7）"
      }
     ]
    },
    "source_check_report_id": 14533364382,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：media_setup",
-   "failure_stage": "media-tools-runtime",
-   "source_check_attempts": 1
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的，后来一直买了两年，跌到十九，跌到十九块多。\", \"suspect_quote\": \"出生二十九块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'出生'与股价语境严重不符，疑似将'成本'或'大约'误识别为'出生'，导致金额描述含义不明。\"}]",
+   "failure_stage": "editorial-or-render",
+   "source_check_attempts": 1,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44549330170,
+    "artifact_id": 14550237311,
+    "name": "production-reject-ly-1119-8ed7aa",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:5096291350874512",
@@ -139093,7 +139143,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5367115485807645",
@@ -259702,6 +259753,13 @@
    "video_id": "BV1myCVYaEJr",
    "ts": 1795105067,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1119-8ed7aa",
+   "key": "weibo_search:5008593802232912",
+   "video_id": "https://f.video.weibocdn.com/u0/nt3JCqjxgx08d2Q0Xnx601041208ux1Y0E030.mp4",
+   "ts": 1795105507,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的，后来一直买了两年，跌到十九，跌到十九块多。\", \"suspect_quote\": \"出生二十九块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'出生'与股价语境严重不符，疑似将'成本'或'大约'误识别为'出生'，导致金额描述含义不明。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
