@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1795100487,
+  "updated_at": 1795100773,
   "inventory_updated_at": 1795100477,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 145,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 6,
     "waiting_candidates": 140,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -391,7 +391,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795100484,
+    "updated_at": 1795100770,
     "records": 19421,
     "video_records": 16842,
     "initial_candidates": 361,
@@ -1551,12 +1551,12 @@
     "complete": 215,
     "failed": 2554,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 104,
     "experiment_fallback": 173,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2,
     "running": 4
   },
@@ -57433,14 +57433,14 @@
     },
     {
       "slug": "ly-1119-aab63b",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795094627,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795101597,
         "weekly_full_week": ""
       },
       "history_count": 1,
