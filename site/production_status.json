@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1795101034,
+  "updated_at": 1795101338,
   "inventory_updated_at": 1795101025,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 146,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 140,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 139,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -391,17 +391,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795101031,
+    "updated_at": 1795101335,
     "records": 19421,
     "video_records": 16842,
-    "initial_candidates": 361,
-    "duration_eligible_records": 165,
-    "candidate_count": 140,
-    "known_duration_candidates": 122,
+    "initial_candidates": 360,
+    "duration_eligible_records": 164,
+    "candidate_count": 139,
+    "known_duration_candidates": 121,
     "unknown_duration_candidates": 18,
     "excluded": {
       "speaker_unconfirmed": 9889,
-      "already_attempted_or_cooling": 4148,
+      "already_attempted_or_cooling": 4149,
       "unrelated": 110,
       "clip_title": 1613,
       "no_video": 2579,
@@ -758,12 +758,12 @@
         "duration_sec": 1160.0
       },
       {
-        "key": "weibo_search:4974425355059230",
-        "title": "#昕礽果复利增长价值亿亿金##得中药龙头者得天下##品牌中药天时地利人和十倍大牛市# 2017年11月10日CCTV投资",
+        "key": "weibo_search:5033190978487126",
+        "title": "#昕礽果复利增长价值亿亿金# 2020年05月13日林园总谈国家名片#得中药龙头者得天下##a股创世纪万点大牛市##品牌",
         "source": "weibo_search",
         "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/4974425355059230",
-        "duration_sec": 1441.0
+        "url": "https://m.weibo.cn/detail/5033190978487126",
+        "duration_sec": 1798.0
       },
       {
         "key": "bilibili_search:BV1asibBxEmy",
@@ -1518,14 +1518,6 @@
         "duration_sec": 636.0
       },
       {
-        "key": "weibo_search:5033190978487126",
-        "title": "#昕礽果复利增长价值亿亿金# 2020年05月13日林园总谈国家名片#得中药龙头者得天下##a股创世纪万点大牛市##品牌",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5033190978487126",
-        "duration_sec": 1798.0
-      },
-      {
         "key": "weibo_search:4403305490626688",
         "title": "#林园炒股秘籍#  2017年12月9日，雪球嘉年华在深圳福田体育场举行，#林园# 应邀做主题演讲。",
         "source": "weibo_search",
@@ -1551,14 +1543,14 @@
     "complete": 215,
     "failed": 2554,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 104,
     "experiment_fallback": 173,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -57505,14 +57497,14 @@
     },
     {
       "slug": "ly-1119-ad1369",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795095449,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795102135,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -57556,6 +57548,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44549363254",
       "run_started_at": "2026-11-19T14:57:25Z",
       "run_updated_at": "2026-11-19T14:57:29Z"
+    },
+    {
+      "slug": "ly-1119-e14e30",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795101290,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44552611751,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44552611751",
+      "run_started_at": "2026-11-19T15:14:50Z",
+      "run_updated_at": "2026-11-19T15:14:54Z"
     }
   ],
   "runs": {
@@ -87358,6 +87368,28 @@
       "run_number": 4661,
       "display_title": "中文源出片 · ly-1119-aab63b"
     },
+    "ly-1119-ad1369": {
+      "id": 44535309540,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-19T13:37:29Z",
+      "updated_at": "2026-11-19T15:07:51Z",
+      "run_started_at": "2026-11-19T13:37:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44535309540",
+      "run_number": 4666,
+      "display_title": "中文源出片 · ly-1119-ad1369"
+    },
+    "ly-1119-e14e30": {
+      "id": 44552611751,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-19T15:14:50Z",
+      "updated_at": "2026-11-19T15:14:54Z",
+      "run_started_at": "2026-11-19T15:14:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44552611751",
+      "run_number": 4669,
+      "display_title": "中文源出片 · ly-1119-e14e30"
+    },
     "ly-1119-342dc7": {
       "id": 44549363254,
       "status": "in_progress",
@@ -87379,17 +87411,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44549330170",
       "run_number": 4667,
       "display_title": "中文源出片 · ly-1119-8ed7aa"
-    },
-    "ly-1119-ad1369": {
-      "id": 44535309540,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-19T13:37:29Z",
-      "updated_at": "2026-11-19T15:07:51Z",
-      "run_started_at": "2026-11-19T13:37:29Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44535309540",
-      "run_number": 4666,
-      "display_title": "中文源出片 · ly-1119-ad1369"
     },
     "ly-1119-3e1a72": {
       "id": 44535283694,
