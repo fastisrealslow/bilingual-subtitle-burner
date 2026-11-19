@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795085625,
+  "updated_at": 1795085857,
   "inventory_updated_at": 1795085618,
   "continuity": {
     "daily_target": 4,
@@ -391,7 +391,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795085623,
+    "updated_at": 1795085856,
     "records": 19379,
     "video_records": 16805,
     "initial_candidates": 353,
@@ -1493,9 +1493,9 @@
   },
   "counts": {
     "complete": 215,
-    "failed": 2552,
+    "failed": 2553,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 104,
     "experiment_fallback": 172,
     "ready": 39,
@@ -57340,11 +57340,11 @@
     },
     {
       "slug": "ly-1119-95dfbd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 13, \"quote\": \"中国要解决这个问题，多印一点钞票。\", \"suspect_quote\": \"多印一点钞票\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“多印”与后文“经济危机”、“钱贬值”等表述存在潜在矛盾，需核实是否为否定词漏识或误读。\"}, {\"sentence_id\": 15, \"quote\": \"金融机构不暂时，我们看不到倒闭的迹象，不会。\", \"suspect_quote\": \"金融机构不暂时\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“不暂时”语义不明，疑似否定词漏识或误读。\"}, {\"sentence_id\": 16, \"quote\": \"国家多一点，招标都救活了。\", \"suspect_quote\": \"国家多一点\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"该短语在上下文中语义不明，疑似否定词漏识或误读。\"}]",
       "signature": {
         "ts": 1795082103,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
