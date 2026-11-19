@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 53
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -339,6 +339,37 @@ def floor_handover_ranges(cues):
     return spans
 
 
+def acknowledgement_tail_start(units):
+    """Locate a pure comprehension acknowledgement after a complete Q&A.
+
+    This is a sentence boundary, not speaker diarization. Interior replies,
+    quoted speech and acknowledgements carrying a substantive claim stay in
+    the source. Never invent a timestamp inside a shared raw cue.
+    """
+    def plain(text):
+        return re.sub(r'[，,。！？!?、\s]', '', text)
+    acknowledgement = re.compile(r'(?:好(?:的)?|嗯|啊|哦|对|是的|没错|'
+                                 r'明白(?:了)?|知道(?:了)?|了解(?:了)?|清楚(?:了)?)+')
+    start = len(units)
+    while start and acknowledgement.fullmatch(plain(units[start-1]['text'])):
+        start -= 1
+    if start == len(units) or start < 2:
+        return None
+    tail = ''.join(u['text'] for u in units[start:])
+    if not re.search(r'明白|知道|了解|清楚', tail):
+        return None
+    # A short confirmation answering a question is not a complete argument.
+    # Require actual preceding answer content, not merely the prompt itself.
+    question = next((i for i in range(start-1, -1, -1)
+                     if question_unit(units[i]['text'])), None)
+    if question is None or question == start-1:
+        return None
+    answer = ''.join(u['text'] for u in units[question+1:start])
+    if len(plain(answer)) < 20:
+        return None
+    return start
+
+
 def boundary_error(cues,pick):
     """Apply observable boundaries to model/cache candidates too.
 
@@ -357,6 +388,8 @@ def boundary_error(cues,pick):
         break
     selected=cues[pick['start']:pick['end']+1]
     units=sentence_units(selected)
+    if acknowledgement_tail_start(units) is not None:
+        return '选段在完整问答后保留独立确认语；须在上一原始完整句界结束，不能把确认当成观点结尾'
     if declared_investment_sections(units,selected):
         return '选段跨入明确新行业及个人投资表态；在原始话题句界分开，避免标题后半段才出现'
     for i,u in enumerate(units):
@@ -427,6 +460,9 @@ def select(cues, limit=2, whole_source=False, diagnostics=None):
         j=(starts[k+1]-1 if k+1<len(starts) else len(units)-1 if natural_end else None)
         if j is None:
             turn_ends.append(None);continue
+        acknowledgement = acknowledgement_tail_start(units[i:j+1])
+        if acknowledgement is not None:
+            j = i + acknowledgement - 1
         j=min([j]+[t-1 for t in transitions if i<t<=j])
         j=min([j]+[t-1 for t in range(i+1,j+1) if HOST_BRIDGE.search(units[t]['text'])])
         while j>i and (HOST_BRIDGE.search(units[j]['text'])
