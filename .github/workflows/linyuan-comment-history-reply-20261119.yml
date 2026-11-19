@@ -1,0 +1,124 @@
+name: One-time Lin Yuan comment historical replies 2026-11-19
+on:
+  push:
+    branches: ['dot/comments-read-probe-20261115']
+    paths: ['.github/workflows/linyuan-comment-history-reply-20261119.yml']
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-comment-history-reply
+  cancel-in-progress: false
+jobs:
+  reply:
+    if: github.run_number == 1 && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - name: Send reviewed neutral replies and verify
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, sys, time
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from urllib.parse import urlencode
+
+          # Only the 42 reviewed roots below; never read or print secret values outside this process.
+          OWNER = "275211725"
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+          opener = build_opener(NoRedirect())
+          def emit(kind, **data):
+              # JSON escaping prevents comment text from becoming workflow commands.
+              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True))
+          try:
+              raw = os.environ.pop("BILIBILI_COOKIES", "")
+              if not raw:
+                  emit("blocked", reason="existing_ci_secret_unavailable")
+                  sys.exit(1)
+              payload = json.loads(raw)
+              entries = (payload.get("cookie_info") or {}).get("cookies") or payload.get("cookies") or []
+              cookies = {str(c["name"]): str(c["value"]) for c in entries}
+              if cookies.get("DedeUserID") != OWNER or not cookies.get("bili_jct"):
+                  emit("blocked", reason="cookie_owner_mismatch_or_missing_csrf")
+                  sys.exit(1)
+              if any("\r" in x or "\n" in x for pair in cookies.items() for x in pair):
+                  raise ValueError("invalid_cookie")
+              cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
+              def get(path, **params):
+                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply", "/x/v2/reply/reply")
+                  time.sleep(3)
+                  req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
+                      headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
+                               "Referer":"https://www.bilibili.com/"}, method="GET")
+                  with opener.open(req, timeout=15) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("api_error", endpoint=path, code=result.get("code"))
+                      return None
+                  return result.get("data") or {}
+              nav = get("/x/web-interface/nav")
+              if not nav or not nav.get("isLogin") or str(nav.get("mid")) != OWNER:
+                  emit("blocked", reason="authenticated_owner_not_verified")
+                  sys.exit(1)
+              emit("account_verified", owner=OWNER)
+              if os.environ.get("GITHUB_RUN_ATTEMPT") != "1" or os.environ.get("GITHUB_RUN_NUMBER") != "1":
+                  raise ValueError("one_time_execution_guard")
+              targets = [["BV14h4M6MEDF",117550989973561,"319377406865","心脑血管病买什么公司？","这段聊的是行业方向，没点名具体公司。"],["BV1eGxC65EXX",117534464479374,"320144966817","他清楚的知道，哪些公司的分润自己是花多少钱也不能得到的那他怎么可能去买呢？","你说的是他怎么排除不合适的公司，这个角度挺有意思。"],["BV1uFxY6kE7K",117528340728471,"323326999744","这家伙最大的收入其实是美股[doge_金箍][doge_金箍][doge_金箍]","这段没提收入构成，我也没看到能核实的出处。"],["BV1uFxY6kE7K",117528340728471,"318797164961","超过15pe不考虑","明白，你是把估值门槛放在前面看。"],["BV1uFxY6kE7K",117528340728471,"318646792353","这是哪年的说的","原始录制时间还没核实，上传日期不等于录制日期。"],["BV1pSJv6sE1f",117456400031570,"321075333696","[呲牙]老林真的老了啊","谢谢来看，这段重点是他怎么看中药行业的变化。"],["BV1h6JD62EgF",117449068446735,"321468356000","不要跳来跳去。坚守老龄化赛道30年。就那三个三大病就够你赚3000万。","这段聊的是他关注的长期方向，实际回报可没法这么算。"],["BV18npm6CEhH",117439790581598,"319258519825","不认同","可以有不同看法，你觉得哪里最站不住？"],["BV19xpy6kER3",117437743761902,"317979149217","[笑哭][喜欢][喜欢][打call]","谢谢来看😄"],["BV19xpy6kER3",117437743761902,"317979147025","[喜欢][打call][呲牙][吃瓜][吃瓜][星星眼]","谢谢打 call！"],["BV1pTpJ6SEbt",117421218338432,"320459917568","什么时候说的","还没找到原始出处，暂时不好确认是哪年说的。"],["BV1WGpv6hEqL",117415547507960,"317515586737","那林园总也不喝酒啊 拿拿茅台五粮液","消费习惯和投资判断确实可以分开看。"],["BV1CrHp6FEru",117386019736282,"322399806864","赞成当成一种存钱方式[吃瓜]","这个比喻挺形象，不过股票和存款的风险不一样。"],["BV1xFap6WEca",117353941567406,"319295447664","时间？","如果问的是录制时间，这段我还没核实到。"],["BV1o3YL6dEoa",117251348957066,"316196859281","我有个疑问啊，就是老林说的都是对的，已经把发财的路指出来了，为什么大家偏偏不走?[微笑]","同一个思路放到不同人身上，能承担的风险不一样。视频里的说法也不代表确定的回报。"],["BV1o3YL6dEoa",117251348957066,"318941658208","套上才是好套","拿得久，和买得合不合适，是两回事。"],["BV1hmYt6SEJd",117241198675623,"322401893312","林总已经看到了未来数据，所以老龄化医药消费宁可做错不能错过[吃瓜]","这段讲的是他的长期判断，还得看之后怎么发展。"],["BV1g4Y46LEWN",117239940384384,"315277134177","林园不比巴菲特低","两人的思路各有侧重，放一起对比挺有意思。"],["BV1NEbW6JEq7",117224622791998,"315299999729","[吃瓜]这是什么时候的视频啊？","这段的具体录制日期我还没查到，不拿上传日期当采访时间。"],["BV1yUb76eEah",117219438626739,"318719993008","万华化学","万华化学是你想到的化工例子，明白了。"],["BV1yUb76eEah",117219438626739,"318720068736","长江电力 潍柴动力","这两个例子一个偏电力，一个偏装备，放一起看还挺不同的。"],["BV1MZbj6zEyW",117219925166142,"316679435440","啥时候的视频","这场访谈的录制日期我还没核实，暂时不报具体时间。"],["BV1PmtC6MEjq",117215345053231,"313221197185","这是什么时间的视频","目前只确认了投稿时间，原视频是哪天录的还没核实。"],["BV16XtX6RETg",117205345830255,"314824280289","最后那段不就是，梭哈是一种智慧[doge]","哈哈，这段是他讲自己的经历，听听思路就好。"],["BV16XtX6RETg",117205345830255,"317957718304","他忽略了一个变量。当时的经济正处于高速增长期。 GDP都年均10%上下的增长，只是股市不好而已。现在的经济增速远不及当年，而且人口老龄化问题已经逐步显现了。还有一点，当时就是全民的信用扩张期。而当下却","你说的增长和信用周期，确实是比较两个时期时容易漏掉的背景。"],["BV16XtX6RETg",117205345830255,"312866783649","这是什么时候的采访呀","这段原始采访日期还没查到，不先猜一个。"],["BV1QRt96GETb",117204406244721,"319248674257","不卖确实是很好的投资方法，不卖就不会亏...","没卖也会有浮亏，和兑现亏损是两回事。"],["BV1QRt96GETb",117204406244721,"316563257552","林园和大道都喜欢满仓不卖，这一点感觉不是很赞同，超过 50 倍 pe 不卖我实在想不通[笑哭]","估值变了要不要卖，本来就是长期持有里挺有分歧的一点。"],["BV1QRt96GETb",117204406244721,"316304608304","赶紧跑，还有大跌","短期怎么走不好判断，视频也没法替市场给答案。"],["BV1z4t462ENt",117187410922342,"317753268800","老林喜欢美女","这段主要是在聊公司和过去的投资故事。"],["BV14zt86KEzb",117189541699531,"314283081329","相信一个有钱人肯定比相信一个穷人好  相信林总[打call]","他这段的判断可以当个参考，也可以看看他为什么这么想。"],["BV1tut46FEZq",117187880814443,"323277889840","我能等到14.15pe茅台就上","看得出来你比较在意估值，视频里的数字是当时讨论的口径。"],["BV1tut46FEZq",117187880814443,"319103285841","嗯 其实怎么说呢 茅台本身其实是一个中产以上的阶级 或者是国内经济增长的一个投影吧。就是你觉得经济要是长期萧条的话，那茅台肯定是不行。但是如果你认为经济还有往上走的一天的话，即使它的人群收缩，但是它的","销量和财报确实是能验证的一部分。年轻人会不会接上来，还得看更长一点的数据。"],["BV1tut46FEZq",117187880814443,"315246291105","[doge]","哈哈，看到你的表情了。"],["BV1tut46FEZq",117187880814443,"317321573168","每次科技股大泡沫时，市场永远高唱：“这次真的不一样”，结果股价和哭声达到异常的共鸣“稀里哗啦”；每次白酒股大周期回调时，市场永远传递一个信号：“年轻人不喝了，老登子才喝白酒”，结果随着周期反转，年轻人","白酒和科技这两个例子挺有意思，市场叙事确实会跟着周期变。"],["BV1tut46FEZq",117187880814443,"312619584609","反思？哈哈哈","这段的观点有争议，欢迎说说你怎么看。"],["BV1ES8b64Eua",117144343807194,"319091957473","要是真的预测得到，都发大财了，白酒谁知道能涨几百倍","回头看涨幅容易，当时能看到多少、拿多久，是另一回事。"],["BV1ES8b64Eua",117144343807194,"315685836113","我也买10w等发财","视频是分享个人经历，里面的回报不能照搬。"],["BV1ES8b64Eua",117144343807194,"316066500176","20年太长了，现在花一大笔钱买医药，20年后才能卖。这20年里要用钱怎么办？普通人真的很难学。","这个问题挺实际，投资期限和资金什么时候会用到，不能分开看。"],["BV1ES8b64Eua",117144343807194,"312506542081","具体是哪个公司","这段是在聊医药行业的方向，没有给出明确的公司名单。"],["BV12pbD6hEax",117104162441336,"316521056544","老林老了，科技才是未来","这段是他从自己熟悉的行业出发，科技是另一个观察角度。"],["BV12pbD6hEax",117104162441336,"315209052480","根据这人的理论，只要买入口的消费品，那农业板块他又不买呢？人不是每天都要吃饭吗？买金龙鱼不买盐吗？盐又不涨呢？其实就是一个歪打正着享受了基建和地产红利的人，把运气当成本事。","消费频率和企业能不能赚到钱，不一定是一回事。你举的农业和盐，正好能拿来区分这两点。"]]
+              def required(data):
+                  if data is None:
+                      raise ValueError("read_failed")
+                  return data
+              def find_root(aid, root):
+                  data = required(get("/x/v2/reply", type=1, oid=aid, pn=1, ps=20, sort=0))
+                  return next((r for r in data.get("replies") or [] if str(r.get("rpid")) == root), None)
+              def children(aid, root):
+                  t = required(get("/x/v2/reply/reply", type=1, oid=aid, root=root, pn=1, ps=20))
+                  return t.get("replies") or [], (t.get("page") or {}).get("count")
+              sent = 0
+              for bvid, aid, root, expected, message in targets:
+                  v = required(get("/x/web-interface/view", bvid=bvid))
+                  if str((v.get("owner") or {}).get("mid")) != OWNER or v.get("aid") != aid:
+                      emit("skipped", root=root, reason="video_mismatch")
+                      continue
+                  row = find_root(aid, root)
+                  if not row or str(row.get("mid")) == OWNER or not (row.get("content") or {}).get("message","").startswith(expected):
+                      emit("skipped", root=root, reason="root_mismatch")
+                      continue
+                  n = int(row.get("rcount") or 0)
+                  if n or row.get("replies"):
+                      kids, total = children(aid, root)
+                      if not isinstance(total,int) or len(kids) < max(total,n) or any(str(k.get("mid")) == OWNER for k in kids):
+                          emit("skipped", root=root, reason="already_replied_or_incomplete")
+                          continue
+                  form = urlencode(dict(type=1, oid=aid, root=root, parent=root, message=message, csrf=cookies["bili_jct"])).encode()
+                  req = Request("https://api.bilibili.com/x/v2/reply/add", data=form, headers={
+                      "Cookie":cookie_header,"User-Agent":"Mozilla/5.0","Referer":"https://www.bilibili.com/video/"+bvid,
+                      "Content-Type":"application/x-www-form-urlencoded"}, method="POST")
+                  time.sleep(7)
+                  emit("submission_started", bvid=bvid, root=root)
+                  with opener.open(req, timeout=20) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("submission_not_confirmed", root=root, code=result.get("code"))
+                      sys.exit(1)
+                  info = result.get("data") or {}
+                  rid = str(info.get("rpid") or (info.get("reply") or {}).get("rpid") or "")
+                  if not rid.isdigit():
+                      raise ValueError("missing_reply_id")
+                  emit("accepted", root=root, reply_id=rid)
+                  for _ in range(3):
+                      kids, _total = children(aid, root)
+                      if any(str(k.get("rpid")) == rid and str(k.get("mid")) == OWNER and (k.get("content") or {}).get("message") == message for k in kids):
+                          sent += 1
+                          emit("verified_visible", root=root, bvid=bvid, reply_id=rid)
+                          break
+                  else:
+                      emit("verification_pending", root=root, reply_id=rid)
+                      sys.exit(1)
+              emit("complete", verified=sent)
+          except Exception as exc:
+              emit("stopped", reason=type(exc).__name__, http_status=getattr(exc,"code",None))
+              sys.exit(1)
+          PY
