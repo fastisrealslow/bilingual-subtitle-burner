@@ -138636,7 +138636,59 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-11-02T16:35:52+08:00"
+   "publish_time": "2024-11-02T16:35:52+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1119-aab63b",
+    "run_id": 44533017050,
+    "artifact_id": 14542066024,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "27848d9e4f9e4aadf858e88064fd93428568cbfd2f9d38449aebe6d33d87fe95",
+     "duration_sec": 2666.84,
+     "resolution": {
+      "width": 1488,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5096302031671225"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1rDHV6wEfV）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 777.72s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 771.12s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 827.24s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 677.48s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 506.72s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "source_check_report_id": 14542066024,
+   "source_check_run_id": 44533017050,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795101597
   },
   {
    "key": "weibo_search:5119785824944759",
