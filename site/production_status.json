@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795105424,
+  "updated_at": 1795105585,
   "inventory_updated_at": 1795105415,
   "continuity": {
     "daily_target": 4,
@@ -391,7 +391,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795105422,
+    "updated_at": 1795105582,
     "records": 19429,
     "video_records": 16850,
     "initial_candidates": 362,
@@ -1557,9 +1557,9 @@
   },
   "counts": {
     "complete": 215,
-    "failed": 2556,
+    "failed": 2557,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 104,
     "experiment_fallback": 174,
     "ready": 39,
@@ -57513,11 +57513,11 @@
     },
     {
       "slug": "ly-1119-8ed7aa",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的，后来一直买了两年，跌到十九，跌到十九块多。\", \"suspect_quote\": \"出生二十九块钱\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"'出生'与股价语境严重不符，疑似将'成本'或'大约'误识别为'出生'，导致金额描述含义不明。\"}]",
       "signature": {
         "ts": 1795100235,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
