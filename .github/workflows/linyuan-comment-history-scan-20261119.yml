@@ -1,0 +1,147 @@
+name: Read historical Lin Yuan video comments 2026-11-19
+on:
+  push:
+    branches: ['dot/comments-read-probe-20261115']
+    paths: ['.github/workflows/linyuan-comment-history-scan-20261119.yml']
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-comment-history-scan
+  cancel-in-progress: false
+jobs:
+  scan:
+    if: github.run_number == 1 && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Read historical top-level comments and deduplicate
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python3 -u - <<'PY'
+          import json, os, re, sys, time
+          from pathlib import Path
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from urllib.parse import urlencode
+
+          # Existing authorized account, read only. No secret values in logs.
+          OWNER = "275211725"
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+          opener = build_opener(NoRedirect())
+          def emit(kind, **data):
+              # JSON escaping prevents comment text from becoming workflow commands.
+              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True))
+          try:
+              raw = os.environ.pop("BILIBILI_COOKIES", "")
+              if not raw:
+                  emit("blocked", reason="existing_ci_secret_unavailable")
+                  sys.exit(1)
+              payload = json.loads(raw)
+              entries = (payload.get("cookie_info") or {}).get("cookies") or payload.get("cookies") or []
+              cookies = {str(c["name"]): str(c["value"]) for c in entries}
+              if cookies.get("DedeUserID") != OWNER or not cookies.get("bili_jct"):
+                  emit("blocked", reason="cookie_owner_mismatch_or_missing_csrf")
+                  sys.exit(1)
+              if any("\r" in x or "\n" in x for pair in cookies.items() for x in pair):
+                  raise ValueError("invalid_cookie")
+              cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
+              def get(path, **params):
+                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply", "/x/v2/reply/reply")
+                  time.sleep(3)
+                  req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
+                      headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
+                               "Referer":"https://www.bilibili.com/"}, method="GET")
+                  with opener.open(req, timeout=15) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("api_error", endpoint=path, code=result.get("code"))
+                      if path == "/x/web-interface/view" and result.get("code") in (-404, 62002):
+                          return None
+                      raise ValueError("api_nonzero")
+                  return result.get("data") or {}
+              nav = get("/x/web-interface/nav")
+              if not nav or not nav.get("isLogin") or str(nav.get("mid")) != OWNER:
+                  emit("blocked", reason="authenticated_owner_not_verified")
+                  sys.exit(1)
+              emit("account_verified", owner=OWNER)
+              from collections import Counter
+              state = json.loads(Path("site/fc_state.json").read_text())
+              ledger = sorted((state.get("published") or {}).values(), key=lambda r: float(r.get("ts") or 0), reverse=True)
+              bvids = []
+              for row in ledger:
+                  for item in (row.get("parts") or []) + [row]:
+                      bv = item.get("bvid")
+                      if isinstance(bv,str) and re.fullmatch(r"BV[A-Za-z0-9]{10}",bv):
+                          bvids.append(bv)
+              bvids = list(dict.fromkeys(bvids))
+              emit("scope", videos=len(bvids))
+              counts = Counter()
+              def pages(path, cap, **args):
+                  seen = {}
+                  for pn in range(1,cap+1):
+                      data = get(path,pn=pn,ps=20,**args)
+                      rs = data.get("replies") or []
+                      new = 0
+                      for row in rs:
+                          rid = str(row.get("rpid"))
+                          if rid.isdigit() and rid not in seen:
+                              seen[rid] = row
+                              new += 1
+                      if len(rs)<20:
+                          return list(seen.values()), True
+                      if new==0:
+                          return list(seen.values()),False
+                  return list(seen.values()),False
+              for i,bv in enumerate(bvids,1):
+                  v = get("/x/web-interface/view",bvid=bv)
+                  if not v:
+                      counts["not_public_or_unavailable"]+=1
+                      continue
+                  if str((v.get("owner") or {}).get("mid")) != OWNER or not isinstance(v.get("aid"), int):
+                      counts["owner_or_id_mismatch"]+=1
+                      continue
+                  counts["verified_videos"]+=1
+                  if i % 50 == 0:
+                      emit("scan_progress", index=i, counts=counts)
+                  if (v.get("stat") or {}).get("reply") == 0:
+                      continue
+                  aid = v["aid"]
+                  roots, complete = pages("/x/v2/reply",10,type=1,oid=aid,sort=0)
+                  if not complete:
+                      counts["incomplete_top_level"]+=1
+                  for row in roots:
+                      counts["roots_checked"]+=1
+                      rid = str(row.get("rpid"))
+                      if str(row.get("mid")) == OWNER:
+                          counts["own"]+=1
+                          continue
+                      preview = row.get("replies") or []
+                      if any(str(k.get("mid")) == OWNER for k in preview):
+                          counts["already_replied"]+=1
+                          continue
+                      n = int(row.get("rcount") or 0)
+                      if n or preview:
+                          kids, done = pages("/x/v2/reply/reply",5,type=1,oid=aid,root=rid)
+                          if any(str(k.get("mid")) == OWNER for k in kids):
+                              counts["already_replied"]+=1
+                              continue
+                          if not done or len(kids)<n:
+                              counts["incomplete_threads"]+=1
+                              continue
+                      msg = (row.get("content") or {}).get("message","")
+                      if not msg.strip(): 
+                          counts["empty"]+=1
+                          continue
+                      counts["unanswered"]+=1
+                      emit("unanswered",bvid=bv,aid=aid,root=rid,title=str(v.get("title",""))[:350],text=msg[:1200],created=row.get("ctime"))
+              emit("complete", videos=len(bvids), counts=counts, writes=0)
+          except Exception as exc:
+              emit("stopped", reason=type(exc).__name__, http_status=getattr(exc,"code",None))
+              sys.exit(1)
+          PY
