@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1795103315,
+  "updated_at": 1795103660,
   "inventory_updated_at": 1795103310,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 146,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 139,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 138,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -391,17 +391,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795103314,
+    "updated_at": 1795103659,
     "records": 19421,
     "video_records": 16842,
-    "initial_candidates": 360,
-    "duration_eligible_records": 164,
-    "candidate_count": 139,
-    "known_duration_candidates": 121,
+    "initial_candidates": 359,
+    "duration_eligible_records": 163,
+    "candidate_count": 138,
+    "known_duration_candidates": 120,
     "unknown_duration_candidates": 18,
     "excluded": {
       "speaker_unconfirmed": 9889,
-      "already_attempted_or_cooling": 4149,
+      "already_attempted_or_cooling": 4150,
       "unrelated": 110,
       "clip_title": 1613,
       "no_video": 2579,
@@ -756,14 +756,6 @@
         "author": "昕礽果复利增长",
         "url": "https://m.weibo.cn/detail/5033233681484730",
         "duration_sec": 1160.0
-      },
-      {
-        "key": "weibo_search:5033190978487126",
-        "title": "#昕礽果复利增长价值亿亿金# 2020年05月13日林园总谈国家名片#得中药龙头者得天下##a股创世纪万点大牛市##品牌",
-        "source": "weibo_search",
-        "author": "昕礽果复利增长",
-        "url": "https://m.weibo.cn/detail/5033190978487126",
-        "duration_sec": 1798.0
       },
       {
         "key": "bilibili_search:BV1asibBxEmy",
@@ -1543,14 +1535,14 @@
     "complete": 215,
     "failed": 2554,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 104,
     "experiment_fallback": 174,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -57551,14 +57543,14 @@
     },
     {
       "slug": "ly-1119-ad1369",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795102616,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795105362,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -57566,6 +57558,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44556789927",
       "run_started_at": "2026-11-19T15:36:56Z",
       "run_updated_at": "2026-11-19T15:45:43Z"
+    },
+    {
+      "slug": "ly-1119-e576cd",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795103609,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44559886548,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44559886548",
+      "run_started_at": "2026-11-19T15:53:29Z",
+      "run_updated_at": "2026-11-19T15:53:34Z"
     }
   ],
   "runs": {
@@ -87389,6 +87399,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44556789927",
       "run_number": 4670,
       "display_title": "中文源出片 · ly-1119-ad1369"
+    },
+    "ly-1119-e576cd": {
+      "id": 44559886548,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-19T15:53:29Z",
+      "updated_at": "2026-11-19T15:53:34Z",
+      "run_started_at": "2026-11-19T15:53:29Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44559886548",
+      "run_number": 4671,
+      "display_title": "中文源出片 · ly-1119-e576cd"
     },
     "ly-1119-e14e30": {
       "id": 44552611751,
