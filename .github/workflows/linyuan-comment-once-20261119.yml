@@ -1,0 +1,124 @@
+name: One-time Lin Yuan comment replies 2026-11-19
+on:
+  push:
+    branches: ['dot/comments-read-probe-20261115']
+    paths: ['.github/workflows/linyuan-comment-once-20261119.yml']
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-comment-one-off-20261119
+  cancel-in-progress: false
+jobs:
+  reply:
+    if: github.run_number == 1 && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Send reviewed neutral replies and verify
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, sys, time
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from urllib.parse import urlencode
+
+          # Only the five reviewed roots below; never read or print secret values outside this process.
+          OWNER = "275211725"
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+          opener = build_opener(NoRedirect())
+          def emit(kind, **data):
+              # JSON escaping prevents comment text from becoming workflow commands.
+              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True))
+          try:
+              raw = os.environ.pop("BILIBILI_COOKIES", "")
+              if not raw:
+                  emit("blocked", reason="existing_ci_secret_unavailable")
+                  sys.exit(1)
+              payload = json.loads(raw)
+              entries = (payload.get("cookie_info") or {}).get("cookies") or payload.get("cookies") or []
+              cookies = {str(c["name"]): str(c["value"]) for c in entries}
+              if cookies.get("DedeUserID") != OWNER or not cookies.get("bili_jct"):
+                  emit("blocked", reason="cookie_owner_mismatch_or_missing_csrf")
+                  sys.exit(1)
+              if any("\r" in x or "\n" in x for pair in cookies.items() for x in pair):
+                  raise ValueError("invalid_cookie")
+              cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
+              def get(path, **params):
+                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply", "/x/v2/reply/reply")
+                  time.sleep(3)
+                  req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
+                      headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
+                               "Referer":"https://www.bilibili.com/"}, method="GET")
+                  with opener.open(req, timeout=15) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("api_error", endpoint=path, code=result.get("code"))
+                      return None
+                  return result.get("data") or {}
+              nav = get("/x/web-interface/nav")
+              if not nav or not nav.get("isLogin") or str(nav.get("mid")) != OWNER:
+                  emit("blocked", reason="authenticated_owner_not_verified")
+                  sys.exit(1)
+              emit("account_verified", owner=OWNER)
+              if os.environ.get("GITHUB_RUN_ATTEMPT") != "1" or os.environ.get("GITHUB_RUN_NUMBER") != "1":
+                  raise ValueError("one_time_execution_guard")
+              targets = [["BV1n5sm6vEzQ",117636520216789,"324403841168","现在不是还拿着五粮液吗","这段是林园当时的分享，他现在的持仓我这边没核实。"],["BV1mosg63EsR",117629557737182,"320511987313","有道理","谢谢支持！"],["BV1mosg63EsR",117629557737182,"324265348880","现在买茅台腾讯拿十年","每个人能等的时间不一样，适合自己的节奏更重要。"],["BV1oWsV6hENS",117615062288149,"320252448081","那还是医药最值钱","医药是个大类，细分领域之间差别挺大。"],["BV1aJWd6gE29",117602647017049,"320020265937","林董认为的对。","谢谢留言。这段是林园个人的看法，具体用药还是听医生的。"]]
+              def required(data):
+                  if data is None:
+                      raise ValueError("read_failed")
+                  return data
+              def find_root(aid, root):
+                  data = required(get("/x/v2/reply", type=1, oid=aid, pn=1, ps=20, sort=0))
+                  return next((r for r in data.get("replies") or [] if str(r.get("rpid")) == root), None)
+              def children(aid, root):
+                  t = required(get("/x/v2/reply/reply", type=1, oid=aid, root=root, pn=1, ps=20))
+                  return t.get("replies") or [], (t.get("page") or {}).get("count")
+              sent = 0
+              for bvid, aid, root, expected, message in targets:
+                  v = required(get("/x/web-interface/view", bvid=bvid))
+                  if str((v.get("owner") or {}).get("mid")) != OWNER or v.get("aid") != aid:
+                      emit("skipped", root=root, reason="video_mismatch")
+                      continue
+                  row = find_root(aid, root)
+                  if not row or str(row.get("mid")) == OWNER or not (row.get("content") or {}).get("message","").startswith(expected):
+                      emit("skipped", root=root, reason="root_mismatch")
+                      continue
+                  n = int(row.get("rcount") or 0)
+                  if n or row.get("replies"):
+                      kids, total = children(aid, root)
+                      if not isinstance(total,int) or len(kids) < max(total,n) or any(str(k.get("mid")) == OWNER for k in kids):
+                          emit("skipped", root=root, reason="already_replied_or_incomplete")
+                          continue
+                  form = urlencode(dict(type=1, oid=aid, root=root, parent=root, message=message, csrf=cookies["bili_jct"])).encode()
+                  req = Request("https://api.bilibili.com/x/v2/reply/add", data=form, headers={
+                      "Cookie":cookie_header,"User-Agent":"Mozilla/5.0","Referer":"https://www.bilibili.com/video/"+bvid,
+                      "Content-Type":"application/x-www-form-urlencoded"}, method="POST")
+                  time.sleep(3)
+                  emit("submission_started", bvid=bvid, root=root)
+                  with opener.open(req, timeout=20) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("submission_not_confirmed", root=root, code=result.get("code"))
+                      sys.exit(1)
+                  info = result.get("data") or {}
+                  rid = str(info.get("rpid") or (info.get("reply") or {}).get("rpid") or "")
+                  if not rid.isdigit():
+                      raise ValueError("missing_reply_id")
+                  emit("accepted", root=root, reply_id=rid)
+                  for _ in range(3):
+                      kids, _total = children(aid, root)
+                      if any(str(k.get("rpid")) == rid and str(k.get("mid")) == OWNER and (k.get("content") or {}).get("message") == message for k in kids):
+                          sent += 1
+                          emit("verified_visible", root=root, bvid=bvid, reply_id=rid)
+                          break
+                  else:
+                      emit("verification_pending", root=root, reply_id=rid)
+                      sys.exit(1)
+              emit("complete", verified=sent)
+          except Exception as exc:
+              emit("stopped", reason=type(exc).__name__, http_status=getattr(exc,"code",None))
+              sys.exit(1)
+          PY
