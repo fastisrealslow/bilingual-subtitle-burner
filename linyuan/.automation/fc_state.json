@@ -138021,7 +138021,8 @@
    },
    "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 352 < 480（640x352），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1mi27ByEZp",
@@ -138045,7 +138046,92 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-05T13:10:39+00:00"
+   "publish_time": "2025-12-05T13:10:39+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1119-14ee0c",
+    "run_id": 44448271687,
+    "artifact_id": 14499230594,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "dfd7fd04df323e40dfaef4694201225484bfc1cba9c6144e0bbe2c2dbf6cd43b",
+     "duration_sec": 1370.93,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1mi27ByEZp"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配915/1148，总帧数1164；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配144/311，总帧数833；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配662/1533，总帧数4351；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配735/1194，总帧数2292；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1eGxC65EXX）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配730/1039，总帧数1543；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44448271687,
+    "artifact_id": 14499230594,
+    "name": "production-reject-ly-1119-14ee0c",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -258155,6 +258241,13 @@
    "video_id": "BV1oh41187Px",
    "ts": 1795057713,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 352 < 480（640x352），画质不达标"
+  },
+  {
+   "slug": "ly-1119-14ee0c",
+   "key": "bilibili_search:BV1mi27ByEZp",
+   "video_id": "BV1mi27ByEZp",
+   "ts": 1795063047,
+   "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
   }
  ],
  "reviewed_third_video_0910": {
