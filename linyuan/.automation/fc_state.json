@@ -140628,7 +140628,104 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2021-07-21T22:24:36+08:00"
+   "publish_time": "2021-07-21T22:24:36+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1120-887b59",
+    "run_id": 44770571499,
+    "artifact_id": 14654619621,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f862b1ea9a98e98b11625ced31e53f6e973a61216ea6160619e8541807380bdf",
+     "duration_sec": 3225.93,
+     "resolution": {
+      "width": 480,
+      "height": 852,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4661524360594279"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2967.43s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少针对具体投资判断或市场观点的实质性论述，仅包含技术确认与礼貌回应，无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.004746835443037975, 0.7021276595744681, 0.058544303797468354, 0.7489361702127659)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.06329113924050633, 0.18723404255319148, 0.1439873417721519, 0.24468085106382978)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对‘牛市涨到多少点’或‘是否超越上次’的实质性判断或分析理由。原话中嘉宾仅表示‘预测不了’，未提供具体点位、区间或逻辑推导，且中间夹杂大量寒暄（如‘坐吧’‘来了个个人’）和语气词，导致无法构成独立成片的完整观点表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.13132911392405064, 0.2148936170212766, 0.2120253164556962, 0.274468085106383), (0.16930379746835442, 0.7276595744680852, 0.22468354430379747, 0.774468085106383)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.1550632911392405, 0.2148936170212766, 0.2310126582278481, 0.2702127659574468), (0.18670886075949367, 0.7127659574468085, 0.24208860759493672, 0.7638297872340426)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.2088607594936709, 0.18085106382978725, 0.28322784810126583, 0.23617021276595745)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.21677215189873417, 0.1829787234042553, 0.28639240506329117, 0.23191489361702128)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.19361702127659575, 0.0490506329113924, 0.2425531914893617)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44770571499,
+    "artifact_id": 14654619621,
+    "name": "production-reject-ly-1120-887b59",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 2967.43s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4778101312062832",
@@ -140890,7 +140987,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4986422434726591",
@@ -140938,7 +141036,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-09-25T17:49:51+08:00"
+   "publish_time": "2023-09-25T17:49:51+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44790326303,
+    "artifact_id": 14655817978,
+    "name": "source-reject-ly-1120-276cc2",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（628x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -262511,6 +262619,20 @@
    "video_id": "https://f.video.weibocdn.com/u0/ir0exfM9gx08c2jUdRi001041201xkmN0E010.mp4",
    "ts": 1795198190,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1120-276cc2",
+   "key": "weibo_search:4949915953269014",
+   "video_id": "https://f.video.weibocdn.com/u0/asGl3DoPgx088SJoVpos01041203VmKC0E020.mp4",
+   "ts": 1795198663,
+   "error": "原始素材短边 360 < 480（628x360），画质不达标"
+  },
+  {
+   "slug": "ly-1120-887b59",
+   "key": "weibo_search:4661524360594279",
+   "video_id": "https://f.video.weibocdn.com/000dCGLGgx07GDBtuwj50104120885Pn0E030.mp4",
+   "ts": 1795198668,
+   "error": "整段取景预检：源 2967.43s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
