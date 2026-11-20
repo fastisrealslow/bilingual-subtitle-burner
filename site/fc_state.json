@@ -141318,7 +141318,76 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-27T09:20:52+08:00"
+   "publish_time": "2025-10-27T09:20:52+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1120-0d2b69",
+    "run_id": 44812053168,
+    "artifact_id": 14672827596,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "be86f905a545e9d35b11a56de5a2492edfa2400c6979230fe1e79122b047ef3b",
+     "duration_sec": 2092.17,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5226289804085420"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1352.40s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1981.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1352.40s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1773.60s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1518.33s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：嘉宾从第 5 句开始明确表达‘不加杠杆’的核心判断，并连续列举了‘国外对比’、‘年龄与时间’、‘看对但加杠杆会亏’、‘个人性格胆小’、‘见过富人变穷’等多个理由支撑该观点，直至最后一句‘命运掌握在自己手上’完成完整解释。中间虽有口吃、重复（如‘负利负利’）、语气词（‘啊’、‘对吧’）及非关键断言（如‘我今年才五十岁’），但均不影响核心表达逻辑的连贯性，未出现真正不明的指代或必要论述被切断的情况。；原文问题：[[\"他只是我们这个是负利负利会会变大，是靠负利。\", \"口吃与重复：'负利负利会会变大'应为‘亏得越大’或类似表达，但此处是口语重复而非错字，不影响理解核心意思（不加杠杆"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1981.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1815.33s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44812053168,
+    "artifact_id": 14672827596,
+    "name": "production-reject-ly-1120-0d2b69",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 1352.40s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5303578872776702",
@@ -262974,6 +263043,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/tyUCuabFlx08l5cA8dfO01041208smwU0E030.mp4",
    "ts": 1795204014,
    "error": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）"
+  },
+  {
+   "slug": "ly-1120-0d2b69",
+   "key": "weibo_search:5226289804085420",
+   "video_id": "https://f.video.weibocdn.com/o0/8qWUNZ9mlx08sva5JNPi01041209n3O20E040.mp4",
+   "ts": 1795211925,
+   "error": "整段取景预检：源 1352.40s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
