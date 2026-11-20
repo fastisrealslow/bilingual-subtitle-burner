@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1795191360,
+  "updated_at": 1795191654,
   "inventory_updated_at": 1795191355,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 148,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 157,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 156,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -399,18 +399,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795191359,
+    "updated_at": 1795191653,
     "records": 19633,
     "video_records": 17023,
-    "initial_candidates": 388,
-    "duration_eligible_records": 190,
-    "candidate_count": 157,
-    "known_duration_candidates": 139,
+    "initial_candidates": 387,
+    "duration_eligible_records": 189,
+    "candidate_count": 156,
+    "known_duration_candidates": 138,
     "unknown_duration_candidates": 18,
     "excluded": {
       "speaker_unconfirmed": 9950,
       "no_video": 2610,
-      "already_attempted_or_cooling": 4236,
+      "already_attempted_or_cooling": 4237,
       "unrelated": 110,
       "clip_title": 1615,
       "noise": 48,
@@ -1630,14 +1630,6 @@
         "duration_sec": 249.0
       },
       {
-        "key": "weibo_search:4656007281906684",
-        "title": "【之前没发过】林园-2020.8.7-顺势而为 灵活投资-华润信托-专场直播。 http://t.cn/A6fXDF5e",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4656007281906684",
-        "duration_sec": 1615.0
-      },
-      {
         "key": "weibo_search:4656005227480422",
         "title": "2020-10-26  林园：金秋行情开启，如何把握行业投资风口？ http://t.cn/A6fXD9pd ​​​",
         "source": "weibo_search",
@@ -1693,16 +1685,16 @@
   },
   "counts": {
     "complete": 217,
-    "failed": 2565,
+    "failed": 2566,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 104,
     "experiment_fallback": 177,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -57919,11 +57911,11 @@
     },
     {
       "slug": "ly-1120-0edd46",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 330 < 480（768x330），画质不达标",
       "signature": {
         "ts": 1795190981,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -57988,6 +57980,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44770634077",
       "run_started_at": "2026-11-20T16:10:15Z",
       "run_updated_at": "2026-11-20T16:10:22Z"
+    },
+    {
+      "slug": "ly-1120-20d417",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795191606,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44772324324,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44772324324",
+      "run_started_at": "2026-11-20T16:20:06Z",
+      "run_updated_at": "2026-11-20T16:20:10Z"
     }
   ],
   "runs": {
@@ -87966,6 +87976,28 @@
       "run_number": 4684,
       "display_title": "中文源出片 · ly-1120-805ed6"
     },
+    "ly-1120-0edd46": {
+      "id": 44770534107,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-20T16:09:41Z",
+      "updated_at": "2026-11-20T16:13:11Z",
+      "run_started_at": "2026-11-20T16:09:41Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44770534107",
+      "run_number": 4686,
+      "display_title": "中文源出片 · ly-1120-0edd46"
+    },
+    "ly-1120-20d417": {
+      "id": 44772324324,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-20T16:20:06Z",
+      "updated_at": "2026-11-20T16:20:10Z",
+      "run_started_at": "2026-11-20T16:20:06Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44772324324",
+      "run_number": 4690,
+      "display_title": "中文源出片 · ly-1120-20d417"
+    },
     "ly-1120-7d724e": {
       "id": 44770634077,
       "status": "in_progress",
@@ -87998,17 +88030,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44770571499",
       "run_number": 4687,
       "display_title": "中文源出片 · ly-1120-887b59"
-    },
-    "ly-1120-0edd46": {
-      "id": 44770534107,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-20T16:09:41Z",
-      "updated_at": "2026-11-20T16:13:11Z",
-      "run_started_at": "2026-11-20T16:09:41Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44770534107",
-      "run_number": 4686,
-      "display_title": "中文源出片 · ly-1120-0edd46"
     }
   }
 }
