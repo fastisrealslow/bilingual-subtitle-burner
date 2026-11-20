@@ -141219,7 +141219,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5121786818332271",
@@ -141243,7 +141244,56 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-01-12T00:23:18+08:00"
+   "publish_time": "2025-01-12T00:23:18+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1120-cadc5e",
+    "run_id": 44795535436,
+    "artifact_id": 14662203112,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "af83c0b911edc773d4aa8b2566435da1851635e9d915ffcc52d089e48484031e",
+     "duration_sec": 2175.13,
+     "resolution": {
+      "width": 620,
+      "height": 1102,
+      "short_edge": 620
+     },
+     "source_url": "https://m.weibo.cn/detail/5121786818332271"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV114aZ6XEkb）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/172，总帧数859；身份匹配但人脸短边不足96px的帧数172"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/1374，总帧数6866；身份匹配但人脸短边不足96px的帧数1374"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44795535436,
+    "artifact_id": 14662203112,
+    "name": "production-reject-ly-1120-cadc5e",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -262843,6 +262893,13 @@
    "key": "weibo_search:5121787640153575",
    "video_id": "https://f.video.weibocdn.com/o0/nUTM15MYlx08l5cO9k8g01041208smwU0E030.mp4",
    "ts": 1795202103,
+   "error": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）"
+  },
+  {
+   "slug": "ly-1120-cadc5e",
+   "key": "weibo_search:5121786818332271",
+   "video_id": "https://f.video.weibocdn.com/o0/tyUCuabFlx08l5cA8dfO01041208smwU0E030.mp4",
+   "ts": 1795204014,
    "error": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）"
   }
  ],
