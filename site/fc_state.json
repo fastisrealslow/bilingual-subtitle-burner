@@ -140725,7 +140725,8 @@
    },
    "last_error": "整段取景预检：源 2967.43s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4778101312062832",
@@ -140953,7 +140954,80 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2021-07-06T16:53:33+08:00"
+   "publish_time": "2021-07-06T16:53:33+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1120-3d4390",
+    "run_id": 44783492931,
+    "artifact_id": 14658970444,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "110db8c72cac186c7441098c8695126ad7f8572cd2b1fd25820cfca812e2b394",
+     "duration_sec": 1433.33,
+     "resolution": {
+      "width": 1058,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4656005227480422"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/219，总帧数1092；身份匹配但人脸短边不足96px的帧数219"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配3/971，总帧数4838；身份匹配但人脸短边不足96px的帧数968"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/407，总帧数2030；身份匹配但人脸短边不足96px的帧数407"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/218，总帧数1087；身份匹配但人脸短边不足96px的帧数218"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在片段中仅表达了个人对银行行业的看法及不参与的态度，但并未形成针对具体投资标的、策略或市场的明确判断性结论。其话语重心在于解释为何不参与（因为银行已足够好且关联度扩大），而非提出新的观点主张。因此，无法提取符合要求的'claim_quote'（嘉宾的实际判断）。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/172，总帧数857；身份匹配但人脸短边不足96px的帧数172"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/222，总帧数1106；身份匹配但人脸短边不足96px的帧数222"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/920，总帧数4596；身份匹配但人脸短边不足96px的帧数920"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/252，总帧数1258；身份匹配但人脸短边不足96px的帧数252"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾回答缺乏针对提问核心（低估值周期股）的实质性判断，仅泛泛而谈‘进场有风险’，未解释为何在牛市初期或反弹背景下该特定标的仍需谨慎，导致观点表达不完整。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/249，总帧数1241；身份匹配但人脸短边不足96px的帧数249"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44783492931,
+    "artifact_id": 14658970444,
+    "name": "production-reject-ly-1120-3d4390",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/219，总帧数1092；身份匹配但人脸短边不足96px的帧数219",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4994353897147116",
@@ -141046,7 +141120,8 @@
    },
    "last_error": "原始素材短边 360 < 480（628x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5022855041648258",
@@ -262681,6 +262756,13 @@
    "video_id": "https://f.video.weibocdn.com/000dCGLGgx07GDBtuwj50104120885Pn0E030.mp4",
    "ts": 1795198668,
    "error": "整段取景预检：源 2967.43s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1120-3d4390",
+   "key": "weibo_search:4656005227480422",
+   "video_id": "https://f.video.weibocdn.com/ZXKto5Xklx07O17fbQmk01041203BYiM0E020.mp4",
+   "ts": 1795200168,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/219，总帧数1092；身份匹配但人脸短边不足96px的帧数219"
   }
  ],
  "reviewed_third_video_0910": {
