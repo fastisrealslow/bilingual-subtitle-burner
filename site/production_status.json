@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "updated_at": 1795203894,
+  "updated_at": 1795204099,
   "inventory_updated_at": 1795203884,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 165,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -399,7 +399,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795203891,
+    "updated_at": 1795204096,
     "records": 19669,
     "video_records": 17059,
     "initial_candidates": 398,
@@ -1757,7 +1757,7 @@
   },
   "counts": {
     "complete": 217,
-    "failed": 2573,
+    "failed": 2574,
     "paused": 5,
     "interrupted": 10,
     "excluded": 104,
@@ -1765,8 +1765,7 @@
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
-    "unknown": 2,
-    "running": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -58181,11 +58180,11 @@
     },
     {
       "slug": "ly-1120-cadc5e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 60%（BV1qBew69Eow）",
       "signature": {
         "ts": 1795200240,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -58195,7 +58194,7 @@
       "run_id": 44795535436,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44795535436",
       "run_started_at": "2026-11-20T18:44:00Z",
-      "run_updated_at": "2026-11-20T18:44:04Z"
+      "run_updated_at": "2026-11-20T19:45:00Z"
     }
   ],
   "runs": {
@@ -88284,17 +88283,6 @@
       "run_number": 4696,
       "display_title": "中文源出片 · ly-1120-1d9ee1"
     },
-    "ly-1120-cadc5e": {
-      "id": 44795535436,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-20T18:44:00Z",
-      "updated_at": "2026-11-20T18:44:04Z",
-      "run_started_at": "2026-11-20T18:44:00Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44795535436",
-      "run_number": 4697,
-      "display_title": "中文源出片 · ly-1120-cadc5e"
-    },
     "ly-1120-a947a1": {
       "id": 44790307276,
       "status": "completed",
@@ -88305,6 +88293,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44790307276",
       "run_number": 4693,
       "display_title": "中文源出片 · ly-1120-a947a1"
+    },
+    "ly-1120-cadc5e": {
+      "id": 44795535436,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-20T18:44:00Z",
+      "updated_at": "2026-11-20T19:45:00Z",
+      "run_started_at": "2026-11-20T18:44:00Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44795535436",
+      "run_number": 4697,
+      "display_title": "中文源出片 · ly-1120-cadc5e"
     }
   }
 }
