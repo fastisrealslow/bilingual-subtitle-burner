@@ -1,31 +1,31 @@
 {
   "version": 1,
-  "updated_at": 1795185731,
-  "inventory_updated_at": 1795185423,
+  "updated_at": 1795190862,
+  "inventory_updated_at": 1795190852,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 147,
+    "verified_daily_stock": 148,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 152,
+    "waiting_candidates": 161,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 147,
+      "verified_stock_snapshot": 148,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-20",
         "2026-11-21",
         "2026-11-22",
         "2026-11-23",
         "2026-11-24",
         "2026-11-25",
-        "2026-11-26"
+        "2026-11-26",
+        "2026-11-27"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 30,
-        "landscape": 117
+        "portrait": 28,
+        "landscape": 120
       },
-      "full_schedule_days": 10,
+      "full_schedule_days": 9,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -55,7 +55,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -66,21 +66,15 @@
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-20",
+      "date": "2026-11-21",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-13",
-          "actual_treatment": 0,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-14",
           "actual_treatment": 0,
@@ -113,6 +107,12 @@
         },
         {
           "date": "2026-11-19",
+          "actual_treatment": 0,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-20",
           "actual_treatment": 0,
           "target": 2,
           "passed": false
@@ -395,30 +395,30 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795185728,
-    "records": 19558,
-    "video_records": 16967,
-    "initial_candidates": 375,
-    "duration_eligible_records": 177,
-    "candidate_count": 152,
-    "known_duration_candidates": 134,
+    "updated_at": 1795190859,
+    "records": 19633,
+    "video_records": 17023,
+    "initial_candidates": 392,
+    "duration_eligible_records": 194,
+    "candidate_count": 161,
+    "known_duration_candidates": 143,
     "unknown_duration_candidates": 18,
     "excluded": {
-      "speaker_unconfirmed": 9940,
-      "no_video": 2591,
-      "already_attempted_or_cooling": 4204,
+      "speaker_unconfirmed": 9955,
+      "no_video": 2610,
+      "already_attempted_or_cooling": 4227,
       "unrelated": 110,
-      "clip_title": 1613,
+      "clip_title": 1615,
       "noise": 48,
-      "reference_only": 641,
+      "reference_only": 640,
       "ai_content": 36,
       "over_limit": 45,
       "too_short": 153,
-      "duplicate_source": 25
+      "duplicate_source": 33
     },
     "candidates": [
       {
@@ -502,6 +502,14 @@
         "duration_sec": 284.0
       },
       {
+        "key": "weibo_search:4757594877724764",
+        "title": "【林园：价值投资如何穿越迷雾】\n\n本片的时间2020年12月，在林园总看来，价值投资穿越迷雾，一定要研究未来有市场的朝阳",
+        "source": "weibo_search",
+        "author": "东江溪洋",
+        "url": "https://m.weibo.cn/detail/4757594877724764",
+        "duration_sec": 1191.0
+      },
+      {
         "key": "bilibili_search:BV12GsK6REcc",
         "title": "林园：市场周期下集（1.4倍速）",
         "source": "bilibili_search",
@@ -524,6 +532,22 @@
         "author": "宇说投资",
         "url": "https://www.bilibili.com/video/BV1t5411u7XL",
         "duration_sec": 834.0
+      },
+      {
+        "key": "weibo_search:4758561425723903",
+        "title": "【经典完整】2020年9月，股神林园分享股市，完整视频版！收藏转发！[给力][给力][威武][威武] http://t.",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/4758561425723903",
+        "duration_sec": 2710.0
+      },
+      {
+        "key": "weibo_search:4962589924920541",
+        "title": "2023年10月【林园】做客水皮直播间:如何看待当下市场@乐游养生 @你不知道的乐游 http://t.cn/A6W6x",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/4962589924920541",
+        "duration_sec": 1040.0
       },
       {
         "key": "weibo_search:5367085129798381",
@@ -782,22 +806,6 @@
         "duration_sec": 31.0
       },
       {
-        "key": "weibo_search:4962589924920541",
-        "title": "2023年10月【林园】做客水皮直播间:如何看待当下市场@乐游养生 @你不知道的乐游 http://t.cn/A6W6x",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4962589924920541",
-        "duration_sec": 1040.0
-      },
-      {
-        "key": "weibo_search:4932805853972701",
-        "title": "林园2023片仔癀股东会发言[鲜花][鲜花]@乐游养生 @你不知道的乐游 http://t.cn/A60EP6q5 ​​",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4932805853972701",
-        "duration_sec": 66.0
-      },
-      {
         "key": "bilibili_search:BV1R29HYbERw",
         "title": "林园 P1 studio_video_1741101174006.mp4",
         "source": "bilibili_collection",
@@ -876,6 +884,14 @@
         "author": "临园指路",
         "url": "https://www.bilibili.com/video/BV1vT4y1B7mj",
         "duration_sec": 150.0
+      },
+      {
+        "key": "weibo_search:4774409536016413",
+        "title": "#寻找江苏最美风景# 【走进黄海海滨国家森林公园[团宝]】黄海海滨国家森林公园，位于江苏省东台市，前身是1965年成立的",
+        "source": "weibo_search",
+        "author": "水韵江苏",
+        "url": "https://m.weibo.cn/detail/4774409536016413",
+        "duration_sec": 59.0
       },
       {
         "key": "bilibili_search:BV1EyoYY3Esq",
@@ -1334,6 +1350,22 @@
         "duration_sec": 82.0
       },
       {
+        "key": "weibo_search:4789658842040311",
+        "title": "林园投资语录（2020年1月22日）视频，林园在接受红周刊采访时谈到了企业调研及医药的问题，并谈到了三大病与中药的联系。",
+        "source": "weibo_search",
+        "author": "开心长寿幸福人",
+        "url": "https://m.weibo.cn/detail/4789658842040311",
+        "duration_sec": 753.0
+      },
+      {
+        "key": "weibo_search:4661524360594279",
+        "title": "林园-论 【欣赏股】，我们需要一个牛市！\n林园：不懂的事，不要去说，说了会害人。\n2020.7.7-论国家名片-网易长盛",
+        "source": "weibo_search",
+        "author": "悟空道隐",
+        "url": "https://m.weibo.cn/detail/4661524360594279",
+        "duration_sec": 3226.0
+      },
+      {
         "key": "bilibili_search:BV17X4y1P7ZX",
         "title": "林园 P1 2021.6.27林园专访：投资就是控制风险",
         "source": "bilibili_collection",
@@ -1350,12 +1382,28 @@
         "duration_sec": 242.0
       },
       {
+        "key": "weibo_search:4778101312062832",
+        "title": "【初次公开：林园2020年10月30日成都路演】 http://t.cn/A6X3US9b ​​​",
+        "source": "weibo_search",
+        "author": "旺财学堂",
+        "url": "https://m.weibo.cn/detail/4778101312062832",
+        "duration_sec": 1971.0
+      },
+      {
         "key": "weibo_search:4883117099974945",
         "title": "2023.3.16林园独家访谈（第一期） \nhttp://t.cn/A6CduoT6 ​​​",
         "source": "weibo_search",
         "author": "复利旅人",
         "url": "https://m.weibo.cn/detail/4883117099974945",
         "duration_sec": 491.0
+      },
+      {
+        "key": "bilibili_search:BV17zKnebEdP",
+        "title": "林园 P1 studio_video_1739417571742.mp4",
+        "source": "bilibili_collection",
+        "author": "木八的自由之路",
+        "url": "https://www.bilibili.com/video/BV17zKnebEdP",
+        "duration_sec": 2333.0
       },
       {
         "key": "bilibili_search:BV1U5411i7S7",
@@ -1598,12 +1646,12 @@
         "duration_sec": 45.0
       },
       {
-        "key": "bilibili_search:BV1tq4y127zp",
-        "title": "林园 P1 慧眼买入深发展5.19果断逃顶",
-        "source": "bilibili_collection",
-        "author": "靠谱投研",
-        "url": "https://www.bilibili.com/video/BV1tq4y127zp",
-        "duration_sec": 249.0
+        "key": "weibo_search:4932805853972701",
+        "title": "林园2023片仔癀股东会发言[鲜花][鲜花]@乐游养生 @你不知道的乐游 http://t.cn/A60EP6q5 ​​",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/4932805853972701",
+        "duration_sec": 66.0
       },
       {
         "key": "weibo_search:4957581816892868",
@@ -1612,6 +1660,30 @@
         "author": "乐游-杨生",
         "url": "https://m.weibo.cn/detail/4957581816892868",
         "duration_sec": 636.0
+      },
+      {
+        "key": "bilibili_search:BV1tq4y127zp",
+        "title": "林园 P1 慧眼买入深发展5.19果断逃顶",
+        "source": "bilibili_collection",
+        "author": "靠谱投研",
+        "url": "https://www.bilibili.com/video/BV1tq4y127zp",
+        "duration_sec": 249.0
+      },
+      {
+        "key": "weibo_search:4656007281906684",
+        "title": "【之前没发过】林园-2020.8.7-顺势而为 灵活投资-华润信托-专场直播。 http://t.cn/A6fXDF5e",
+        "source": "weibo_search",
+        "author": "加仓多吉丿",
+        "url": "https://m.weibo.cn/detail/4656007281906684",
+        "duration_sec": 1615.0
+      },
+      {
+        "key": "weibo_search:4656005227480422",
+        "title": "2020-10-26  林园：金秋行情开启，如何把握行业投资风口？ http://t.cn/A6fXD9pd ​​​",
+        "source": "weibo_search",
+        "author": "加仓多吉丿",
+        "url": "https://m.weibo.cn/detail/4656005227480422",
+        "duration_sec": 1433.0
       },
       {
         "key": "weibo_search:5367136423773564",
@@ -1640,14 +1712,14 @@
     ]
   },
   "inventory": {
-    "verified_live": 147,
+    "verified_live": 148,
     "verified_audio_card": 0,
-    "verified_landscape": 117,
-    "verified_portrait": 30,
+    "verified_landscape": 120,
+    "verified_portrait": 28,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 147,
+    "daily_mix_usable": 148,
     "target_reserve": 12,
     "publishable_now": 0
   },
