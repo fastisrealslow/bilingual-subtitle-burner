@@ -141387,7 +141387,8 @@
    },
    "last_error": "整段取景预检：源 1352.40s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5303578872776702",
@@ -141411,7 +141412,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-28T16:00:02+08:00"
+   "publish_time": "2026-05-28T16:00:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1120-79ed84",
+    "run_id": 44812075823,
+    "artifact_id": 14673882366,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b366d2c3b8299b69c46d69a5f18732208b95b756dcd389e253242224e6decd9b",
+     "duration_sec": 3481.35,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5303578872776702"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 79%（BV1UVWm6GEFd）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 68%（BV1hrxW6XEim）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段开头的问题（句 0）未被嘉宾有效回应，后续内容多为闲聊、自我介绍或零散的投资事实陈述，未形成完整的‘观点 + 理由/例子 + 结论’表达结构。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 78%（BV1PcHp6tE4k）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：缺少嘉宾对核心问题的实质性回答（如‘愿意’或‘不愿意’及其理由），仅提及‘因人而异’不构成有效判断；后续内容转向其他疾病领域，未形成针对原问题的完整论述链条。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44812075823,
+    "artifact_id": 14673882366,
+    "name": "production-reject-ly-1120-79ed84",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5287529112928407",
@@ -263050,6 +263108,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/8qWUNZ9mlx08sva5JNPi01041209n3O20E040.mp4",
    "ts": 1795211925,
    "error": "整段取景预检：源 1352.40s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1120-79ed84",
+   "key": "weibo_search:5303578872776702",
+   "video_id": "https://f.video.weibocdn.com/o0/yOMZJK4hlx08xYf5scrS0104120tBAaz0E0b0.mp4",
+   "ts": 1795213487,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸"
   }
  ],
  "reviewed_third_video_0910": {
