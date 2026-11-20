@@ -1,19 +1,45 @@
 {
-  "run_id": "44620366327",
+  "run_id": "44641335745",
   "processed": 3,
-  "inspected": 1,
-  "historical_media_verified": 245,
+  "inspected": 2,
+  "historical_media_verified": 246,
   "cache_recovery_pending": 244,
-  "pending": 308,
+  "pending": 307,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 2,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -2951,10 +2977,10 @@
       "family": "maotai_table_exchange",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 19,
+      "attempts": 20,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1794771880.2198646,
-      "next_retry_at": 1794858280.2198646,
+      "last_attempt_at": 1795133211.8857684,
+      "next_retry_at": 1795219611.8857684,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -9146,15 +9172,37 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 3,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1794771878.4428604,
-      "next_retry_at": 1794858278.4428604,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1795133209.489762,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "e424eb1bb4b0e27d39f5a5948d240b05381cda987d13212addd0679e5d3e4f46",
+        "duration_sec": 2230.633,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1115.32
+          }
+        ],
+        "audio_fingerprint_count": 17995,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "44641335745"
     },
     "7e533bc2874fc8190cd2": {
       "url": "https://www.bilibili.com/video/BV1Vt4x6PEfg",
@@ -9177,13 +9225,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 3,
+      "attempts": 4,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1794771578.4299119,
-      "next_retry_at": 1794857978.4299119,
+      "last_attempt_at": 1795133011.368979,
+      "next_retry_at": 1795219411.368979,
       "download_partial_bytes": 0
     },
     "53f7c25d45df543247cb": {
@@ -9828,12 +9876,12 @@
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
       "status": "retry_wait",
       "checked_at": 1795048796.8749073,
-      "next_retry_at": 1795125986.7260585,
+      "next_retry_at": 1795175911.005457,
       "found": 4,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795104386.7260585
+      "last_attempt_at": 1795132711.005457
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
