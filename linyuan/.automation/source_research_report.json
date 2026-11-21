@@ -1,26 +1,20 @@
 {
-  "run_id": "44854898796",
+  "run_id": "44855953927",
   "processed": 3,
-  "inspected": 3,
-  "historical_media_verified": 247,
+  "inspected": 4,
+  "historical_media_verified": 248,
   "cache_recovery_pending": 244,
-  "pending": 308,
+  "pending": 307,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": false,
+      "collection_listing_complete": true,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": [
-        {
-          "stage": "collection_page",
-          "season_id": 6836119,
-          "page": 1,
-          "error": "ValueError"
-        }
-      ]
+      "errors": []
     }
   },
   "jobs": {
@@ -5731,13 +5725,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 17,
+      "attempts": 18,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1794890690.224351,
-      "next_retry_at": 1794977090.224351,
+      "last_attempt_at": 1795229807.9902542,
+      "next_retry_at": 1795316207.9902542,
       "download_partial_bytes": 0
     },
     "448a83154c9d7b3900cd": {
@@ -5944,13 +5938,13 @@
       "family": "zhejiang_2026_01",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 16,
+      "attempts": 17,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1794966292.137862,
-      "next_retry_at": 1795052692.137862,
+      "last_error": "CalledProcessError",
+      "last_attempt_at": 1795229891.4266098,
+      "next_retry_at": 1795316291.4266098,
       "download_partial_bytes": 0
     },
     "5112d5ab9c905449087d": {
@@ -9672,15 +9666,37 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1794965992.1231644,
-      "next_retry_at": 1794987592.1231644,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1795229867.444999,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "6f51664c67fc608ce795acc0000edf9d386d5b7541bdf2650df282b71cb13cdb",
+        "duration_sec": 1509.399,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 754.7
+          }
+        ],
+        "audio_fingerprint_count": 12170,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "44855953927"
     },
     "aac4aacb14472ceab61f": {
       "url": "https://www.bilibili.com/video/BV1gsfVY3Ews",
