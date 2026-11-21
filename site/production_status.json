@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updated_at": 1795275028,
-  "inventory_updated_at": 1795274886,
+  "updated_at": 1795280355,
+  "inventory_updated_at": 1795280348,
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 147,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 184,
+    "waiting_candidates": 185,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -19,13 +19,13 @@
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-21",
         "2026-11-22",
         "2026-11-23",
         "2026-11-24",
         "2026-11-25",
         "2026-11-26",
-        "2026-11-27"
+        "2026-11-27",
+        "2026-11-28"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -36,10 +36,10 @@
         "landscape": 1
       },
       "verified_by_layout": {
-        "portrait": 29,
-        "landscape": 118
+        "portrait": 30,
+        "landscape": 117
       },
-      "full_schedule_days": 9,
+      "full_schedule_days": 10,
       "required_week_shortfall": 0,
       "required_week_shortfall_by_layout": {
         "portrait": 0,
@@ -55,7 +55,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -66,21 +66,15 @@
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-21",
+      "date": "2026-11-22",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-14",
-          "actual_treatment": 0,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-15",
           "actual_treatment": 1,
@@ -113,6 +107,12 @@
         },
         {
           "date": "2026-11-20",
+          "actual_treatment": 0,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-21",
           "actual_treatment": 0,
           "target": 2,
           "passed": false
@@ -403,20 +403,20 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795275026,
-    "records": 19873,
-    "video_records": 17255,
-    "initial_candidates": 423,
-    "duration_eligible_records": 223,
-    "candidate_count": 184,
-    "known_duration_candidates": 166,
+    "updated_at": 1795280353,
+    "records": 19875,
+    "video_records": 17257,
+    "initial_candidates": 424,
+    "duration_eligible_records": 224,
+    "candidate_count": 185,
+    "known_duration_candidates": 167,
     "unknown_duration_candidates": 18,
     "excluded": {
-      "speaker_unconfirmed": 10097,
+      "speaker_unconfirmed": 10098,
       "already_attempted_or_cooling": 4276,
       "no_video": 2618,
       "ai_content": 37,
@@ -429,6 +429,22 @@
       "duplicate_source": 39
     },
     "candidates": [
+      {
+        "key": "weibo_search:5143668157319443",
+        "title": "林园最新直播！ http://t.cn/A6BcZ7zR ​​​",
+        "source": "weibo_search",
+        "author": "琅琊榜首张大仙",
+        "url": "https://m.weibo.cn/detail/5143668157319443",
+        "duration_sec": 3413.0
+      },
+      {
+        "key": "weibo_search:5212140311153420",
+        "title": "看看2020年林园的演讲，当时好多人喷他，说他老了、古板，不懂投资，回头来看，现在美团的股价[笑cry] http://",
+        "source": "weibo_search",
+        "author": "琅琊榜首张大仙",
+        "url": "https://m.weibo.cn/detail/5212140311153420",
+        "duration_sec": 123.0
+      },
       {
         "key": "bilibili_search:BV1fNBKY7EeS",
         "title": "林园 P1 私募大佬林园近期访谈《茅台降价影响大吗？》",
@@ -814,14 +830,6 @@
         "duration_sec": 530.0
       },
       {
-        "key": "weibo_search:5212140311153420",
-        "title": "看看2020年林园的演讲，当时好多人喷他，说他老了、古板，不懂投资，回头来看，现在美团的股价[笑cry] http://",
-        "source": "weibo_search",
-        "author": "琅琊榜首张大仙",
-        "url": "https://m.weibo.cn/detail/5212140311153420",
-        "duration_sec": 123.0
-      },
-      {
         "key": "weibo_search:4693473418019229",
         "title": "医药行业的机会要高度重视 林园： 现在（2019年中旬）投医药股，30年以后或者有可能10年15年，你要笑得牙齿都没有了",
         "source": "weibo_search",
@@ -1118,14 +1126,6 @@
         "duration_sec": 92.0
       },
       {
-        "key": "bilibili_search:BV1VhWr6iEra",
-        "title": "林园 P1 林园2006访谈，回头看他说的都是对的！最能赚钱的是哪一类公司？林园：抓住全中国吃喝玩乐，反正是最好的公司，",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1VhWr6iEra",
-        "duration_sec": 32.0
-      },
-      {
         "key": "bilibili_search:BV1CCVU65EpH",
         "title": "林园 P1 lv_0_20260531163836",
         "source": "bilibili_collection",
@@ -1292,6 +1292,14 @@
         "author": "全景网",
         "url": "https://m.weibo.cn/detail/5365913803292935",
         "duration_sec": 50.0
+      },
+      {
+        "key": "bilibili_search:BV1VhWr6iEra",
+        "title": "林园 P1 林园2006访谈，回头看他说的都是对的！最能赚钱的是哪一类公司？林园：抓住全中国吃喝玩乐，反正是最好的公司，",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1VhWr6iEra",
+        "duration_sec": 32.0
       },
       {
         "key": "bilibili_search:BV1VhWr6iEjx",
@@ -1906,8 +1914,8 @@
   "inventory": {
     "verified_live": 147,
     "verified_audio_card": 0,
-    "verified_landscape": 118,
-    "verified_portrait": 29,
+    "verified_landscape": 117,
+    "verified_portrait": 30,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
