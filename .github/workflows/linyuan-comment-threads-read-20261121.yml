@@ -1,0 +1,82 @@
+name: One-time Lin Yuan conversation follow-up read
+on:
+  push:
+    branches: ['dot/comments-read-probe-20261115']
+    paths: ['.github/workflows/linyuan-comment-threads-read-20261121.yml']
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-comments-read-probe
+  cancel-in-progress: false
+jobs:
+  read-only:
+    if: github.run_number == 1 && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Read existing authorized account and public comments only
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, sys, time
+          from pathlib import Path
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          from urllib.parse import urlencode
+
+          # Deliberately no POST, upload modules, FC calls, or credential output.
+          OWNER = "275211725"
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+          opener = build_opener(NoRedirect())
+          def emit(kind, **data):
+              # JSON escaping prevents comment text from becoming workflow commands.
+              print(json.dumps(dict(kind=kind, **data), ensure_ascii=True), flush=True)
+          try:
+              raw = os.environ.pop("BILIBILI_COOKIES", "")
+              if not raw:
+                  emit("blocked", reason="existing_ci_secret_unavailable")
+                  sys.exit(1)
+              payload = json.loads(raw)
+              entries = (payload.get("cookie_info") or {}).get("cookies") or payload.get("cookies") or []
+              cookies = {str(c["name"]): str(c["value"]) for c in entries}
+              if cookies.get("DedeUserID") != OWNER or not cookies.get("bili_jct"):
+                  emit("blocked", reason="cookie_owner_mismatch_or_missing_csrf")
+                  sys.exit(1)
+              if any("\r" in x or "\n" in x for pair in cookies.items() for x in pair):
+                  raise ValueError("invalid_cookie")
+              cookie_header = "; ".join(k+"="+v for k,v in cookies.items())
+              def get(path, **params):
+                  assert path in ("/x/web-interface/nav", "/x/web-interface/view", "/x/v2/reply", "/x/v2/reply/reply")
+                  req = Request("https://api.bilibili.com"+path+("?" + urlencode(params) if params else ""),
+                      headers={"Cookie":cookie_header,"User-Agent":"Mozilla/5.0",
+                               "Referer":"https://www.bilibili.com/"}, method="GET")
+                  time.sleep(5)
+                  emit("get_entered", endpoint=path)
+                  with opener.open(req, timeout=15) as response:
+                      result = json.load(response)
+                  if result.get("code") != 0:
+                      emit("api_error", endpoint=path, code=result.get("code"))
+                      raise ValueError("api_nonzero")
+                  return result.get("data") or {}
+              nav = get("/x/web-interface/nav")
+              if not nav or not nav.get("isLogin") or str(nav.get("mid")) != OWNER:
+                  emit("blocked", reason="authenticated_owner_not_verified")
+                  sys.exit(1)
+              emit("account_verified", owner=OWNER)
+              roots = [[117651972033463,"320864986305"],[117636520216789,"324403841168"],[117629557737182,"320511987313"],[117629557737182,"324265348880"],[117619726288294,"324707654352"],[117615062288149,"320252448081"]]
+              for aid, root in roots:
+                  thread = get("/x/v2/reply/reply", type=1, oid=aid, root=root, pn=1, ps=20)
+                  children = thread.get("replies") or []
+                  total = (thread.get("page") or {}).get("count")
+                  emit("thread_checked", aid=aid, root=root, total=total, loaded=len(children))
+                  for row in children:
+                      emit("child", aid=aid, root=root, rpid=str(row.get("rpid")), parent=str(row.get("parent")),
+                           own=str(row.get("mid")) == OWNER, ctime=row.get("ctime"), message=(row.get("content") or {}).get("message","")[:1200])
+              emit("complete", threads=len(roots), writes=0)
+          except Exception as exc:
+              # Exception strings can include URLs or request details: never print.
+              emit("blocked", reason=type(exc).__name__, http_status=getattr(exc,"code",None))
+              sys.exit(1)
+          PY
