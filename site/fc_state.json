@@ -142136,7 +142136,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5213359391114775",
@@ -142226,7 +142227,92 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-01-04T15:33:17+08:00"
+   "publish_time": "2023-01-04T15:33:17+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1121-82ea2f",
+    "run_id": 44858158702,
+    "artifact_id": 14692406642,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c4a184114799bbedd9a860d35f7e425abe49b2ded7a521f04359b6b09a6d849b",
+     "duration_sec": 4982.05,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4854211189415810"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/307，总帧数1532；身份匹配但人脸短边不足96px的帧数307"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/955，总帧数4770；身份匹配但人脸短边不足96px的帧数900"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/558，总帧数2788；身份匹配但人脸短边不足96px的帧数558"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/658，总帧数3287；身份匹配但人脸短边不足96px的帧数658"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/422，总帧数2107；身份匹配但人脸短边不足96px的帧数422"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/315，总帧数1571；身份匹配但人脸短边不足96px的帧数309"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/215，总帧数1073；身份匹配但人脸短边不足96px的帧数215"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/493，总帧数2462；身份匹配但人脸短边不足96px的帧数458"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/724，总帧数3619；身份匹配但人脸短边不足96px的帧数724"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/138，总帧数688；身份匹配但人脸短边不足96px的帧数138"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/472，总帧数2358；身份匹配但人脸短边不足96px的帧数472"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/779，总帧数3890；身份匹配但人脸短边不足96px的帧数776"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44858158702,
+    "artifact_id": 14692406642,
+    "name": "production-reject-ly-1121-82ea2f",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -264315,6 +264401,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/P5zqosXglx08y9c2i2be0104120l6s790E080.mp4",
    "ts": 1795232049,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面匹配人脸原始像素不足96，禁止用小头像放大替代；现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1121-82ea2f",
+   "key": "weibo_search:4854211189415810",
+   "video_id": "http://f.video.weibocdn.com/o0/xRK7FcLJlx081XZ2AlrG0104120ebY4Z0E060.mp4",
+   "ts": 1795236227,
+   "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
   }
  ],
  "reviewed_third_video_0910": {
