@@ -1,0 +1,43 @@
+name: Linyuan comments read-only audit
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - linyuan/read_comments.py
+      - tests/test_linyuan_read_comments.py
+      - .github/workflows/linyuan-comments-read.yml
+permissions:
+  contents: read
+concurrency:
+  group: linyuan-comments-read-only
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 -m unittest discover -s tests -p test_linyuan_read_comments.py -v
+  read-only:
+    if: github.event_name == 'workflow_dispatch'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: latest
+          sparse-checkout: site/fc_state.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Read recent owned video comments (no sends)
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+          COMMENT_STATE_PATH: latest/site/fc_state.json
+        run: python3 linyuan/read_comments.py
