@@ -7,7 +7,7 @@ import re
 import editorial_policy as editorial
 from headline_policy import quote_candidates, score, complete
 
-VERSION = 44
+VERSION = 48
 
 STOP = re.compile(r'[。！？!?][”’」』\"]?\s*$')
 QUESTION = re.compile(
@@ -122,6 +122,16 @@ OUTRO = re.compile(
     r'|(?:聊|谈|交流|讨论)(?:了)?这么多[^。！？!?]{0,40}(?:网友|观众|大家)[^。！？!?]{0,20}(?:学到|学习|收获)')
 PROMOTIONAL_REINTRO = re.compile(r'^大家好[，,]我是.{1,8}[，,].{0,30}(?:股东大会|直播)')
 HOST_RECAP = r'(?:^|[。！？!?])(?:[啊嗯呃][。！？!?，,\s]*)?好的[，,\s]*(?:刚才|刚刚|前面)(?:您)?(?:说到|提到|谈到)'
+# An interviewer can introduce upcoming appearances without asking the next
+# question yet. Require an observation, an explicit addressee and a recent or
+# future sharing/event reference; ordinary guest investment observations and
+# quoted examples are not host handoffs. The existing boundary check still
+# permits a complete follow-up question with its actual answer.
+HOST_ACTIVITY_LEADIN = (
+    r'^(?:那(?:么)?|好(?:的)?|[嗯啊呃，,\s])*'
+    r'(?:我(?:们)?(?:看到|注意到|了解到)|据我(?:们)?了解)'
+    r'(?:就是|[，,\s])*(?:您|(?:咱们|我们)(?:的)?[^。！？!?，,]{1,6}(?:总|老师|先生|女士))'
+    r'(?:最近|近期|接下来|明天|未来)[^。！？!?]{0,40}(?:分享|活动|演讲|直播|交流会)')
 HOST_BRIDGE = re.compile(
     r'总结来看[^。！？!?]{0,24}(?:两位|几位|各位)(?:两位|几位|的|这个|[，,])*嘉宾'
     r'|'
@@ -131,7 +141,7 @@ HOST_BRIDGE = re.compile(
     r'|^(?:嗯[，,]?|好[，,]?|呃[，,]?|那么)*我们知道(?:现在|呢)'
     r'|(?:好的[，,]?好[，,]?|好[，,]那么)(?:那么)?我们(?:说现在|知道现在)'
     r'|^(?:嗯[，,]?|啊[，,]?)*刚才我们在说'
-    r'|'+HOST_RECAP)
+    r'|'+HOST_RECAP+r'|'+HOST_ACTIVITY_LEADIN)
 
 
 # Follow-up turns may clarify the same subject; a new question alone is not
