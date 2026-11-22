@@ -1742,7 +1742,13 @@ def pick_for_shortfall(items, state, limit, audit, treatment_needed=False,ordina
     long=[c for c in pool if experiment.long_candidate(c)] if treatment_needed else []
     remaining=[c for c in pool if not treatment_needed or not experiment.long_candidate(c)]
     shorts=[c for c in remaining if complete_short_candidate(c)][:4] if ordinary_needed else []
-    ordered=long+shorts+[c for c in remaining if c not in shorts]
+    # Missing duration is not evidence of a short source. Give one eligible
+    # probe a place before truncation, while the actual dispatcher still checks
+    # active probes, the two-per-CST-day budget and the shared six-worker cap.
+    probes=([c for c in remaining if experiment_duration_probe_allowed(c,state,[],
+        dict(portrait=1),known_long_available=False)][:1]
+        if treatment_needed and not long and inventory_targets.active() else [])
+    ordered=long+probes+shorts+[c for c in remaining if c not in shorts and c not in probes]
     selected=ordered[:limit]
     audit['dispatch_window']=dict(version=1,reason='required_treatment_shortfall' if treatment_needed else 'ordinary_backlog_shortfall',
         admitted_candidates=len(pool),known_long_candidates=sum(experiment.long_candidate(c) for c in pool),
@@ -1750,6 +1756,7 @@ def pick_for_shortfall(items, state, limit, audit, treatment_needed=False,ordina
         selected_known_long=sum(experiment.long_candidate(c) for c in selected),
         short_complete_candidates=sum(complete_short_candidate(c) for c in pool),
         selected_short_complete=sum(complete_short_candidate(c) for c in selected),
+        selected_unknown_duration_probes=sum(c in probes for c in selected),
         priority_applied_before_limit=True,quality_gates_relaxed=False)
     return selected
 
