@@ -143677,11 +143677,13 @@
     "basis": "unknown"
    },
    "publish_time": "2023-08-14T07:06:12+00:00",
-   "source_check_report_id": 14737402064,
-   "source_check_run_id": 44980349349,
+   "source_check_report_id": 14739841138,
+   "source_check_run_id": 44985515603,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 403: Forbidden",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "bilibili_search:BV16H4y1279m",
@@ -143705,7 +143707,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-11-23T13:37:10+00:00"
+   "publish_time": "2023-11-23T13:37:10+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44985526292,
+    "artifact_id": 14739731768,
+    "name": "source-reject-ly-1122-49a853",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.3083, 3: 0.2504, 6: 0.2735, 7: 0.2787, 8: 0.3105, 9: 0.2768, 10: 0.161, 11: 0.296, 12: 0.3106, 13: 0.3292, 14: 0.1002, 15: 0.0728, 16: 0.0844}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4757594877724764",
@@ -143774,7 +143786,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-08-09T12:40:25+08:00"
+   "publish_time": "2023-08-09T12:40:25+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44985563511,
+    "artifact_id": 14739770731,
+    "name": "source-reject-ly-1122-bf7687",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0269, 2: 0.0762, 3: 0.0893, 4: 0.0295, 5: 0.1499, 6: 0.0421, 7: 0.0149, 8: 0.0827, 9: -0.0068, 10: 0.0692, 11: 0.0822, 12: 0.1219, 13: 0.024, 14: 0.1195, 15: 0.09, 16: 0.1264, 17: 0.0281, 18: 0.0596}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -266752,6 +266774,20 @@
    "video_id": "BV1QMpZeAEqb",
    "ts": 1795321036,
    "error": "完整观点验收未通过：complete_argument；完整性理由：主持人提出了两个具体问题（高估时是否卖出、如何应对政策风险），但嘉宾仅在最后一句给出了一个非常模糊且未展开的对策（多买一些行业分散），完全没有针对第一个问题（卖不卖）给出判断，也未详细阐述应对政策风险的具体逻辑或案例分析。这种‘只问不答’或‘答非所问/回答残缺’的状态导致无法构成独立成片的完整表达，属于必要论述被切断。；原文问题：[]"
+  },
+  {
+   "slug": "ly-1122-bf7687",
+   "key": "weibo_search:4932805853972701",
+   "video_id": "https://f.video.weibocdn.com/u0/wWgCXRscgx087FqiGQha01041200kZZy0E010.mp4",
+   "ts": 1795323568,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0269, 2: 0.0762, 3: 0.0893, 4: 0.0295, 5: 0.1499, 6: 0.0421, 7: 0.0149, 8: 0.0827, 9: -0.0068, 10: 0.0692, 11: 0.0822, 12: 0.1219, 13: 0.024, 14: 0.1195, 15: 0.09, 16: 0.1264, 17: 0.0281, 18: 0.0596}"
+  },
+  {
+   "slug": "ly-1122-49a853",
+   "key": "bilibili_search:BV16H4y1279m",
+   "video_id": "BV16H4y1279m",
+   "ts": 1795323569,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.3083, 3: 0.2504, 6: 0.2735, 7: 0.2787, 8: 0.3105, 9: 0.2768, 10: 0.161, 11: 0.296, 12: 0.3106, 13: 0.3292, 14: 0.1002, 15: 0.0728, 16: 0.0844}"
   }
  ],
  "reviewed_third_video_0910": {
