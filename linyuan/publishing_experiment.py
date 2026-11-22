@@ -1011,14 +1011,16 @@ def long_candidate(candidate):
     except (ValueError,TypeError,AttributeError):return False
 
 
-def production_deficits(inventory,state,active_runs,now=None):
+def production_deficits(inventory,state,active_runs,now=None,*,reserve_target=4,minimum_landscape=2):
     if not production_preparing(now) or 'experiment_ready' not in inventory:return dict(portrait=0,landscape=0)
+    if (type(reserve_target) is not int or type(minimum_landscape) is not int
+            or not 0<=minimum_landscape<=reserve_target):raise ValueError('Invalid treatment reserve targets')
     ready=inventory.get('experiment_ready') or {}
     wide=int(ready.get('landscape') or 0);portrait=int(ready.get('portrait') or 0)
     # Two days of real T: afternoon needs native wide; evening already accepts
     # native wide as well as portrait. Do not force a crop just to fill a label.
-    needs=dict(landscape=max(0,2-wide))
-    needs['portrait']=max(0,4-wide-portrait-needs['landscape'])
+    needs=dict(landscape=max(0,minimum_landscape-wide))
+    needs['portrait']=max(0,reserve_target-wide-portrait-needs['landscape'])
     latest={e.get('slug'):e for e in state.get('dispatched') or []}
     seen=set()
     for run in active_runs:

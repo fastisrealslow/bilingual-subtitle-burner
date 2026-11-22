@@ -55,13 +55,19 @@
       message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${data.plan?.version === 2 ? `未来七天目标共 ${7 * target} 条。` : data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
     const experiment = snapshot.publishing_experiment;
     const requirement = experiment && experiment.daily_requirement;
+    const backlog = snapshot.backlog;
+    const goalRow = row => row && Number.isInteger(row.target) && row.target > 0
+      && (row.verified === null || Number.isInteger(row.verified) && row.verified >= 0);
+    const backlogWarning = backlog && backlog.in_flight_counted === false && backlog.quality_gates_relaxed === false
+      && [backlog.ordinary, backlog.treatment, backlog.seeds].every(goalRow)
+      ? ` 扩库目标（不含排队任务）：普通 ${backlog.ordinary.verified ?? '待核对'}/${backlog.ordinary.target}、实验 ${backlog.treatment.verified ?? '待核对'}/${backlog.treatment.target}；独立视频种子 ${backlog.seeds.verified ?? '待核对'}/${backlog.seeds.target}。` : '';
     const dailyWarning = requirement && requirement.active
       && Number.isInteger(requirement.actual_treatment) && requirement.actual_treatment >= 0
       ? ` 今日实验稿 ${requirement.actual_treatment}/2，尚需 ${Math.max(0, 2 - requirement.actual_treatment)} 条；${requirement.stable_7_complete_days ? '最近七个完整日均达到两条回执，公开状态仍以创作中心核验为准。' : '尚未连续七个完整日达到每天两条。'}` : '';
     const experimentWarning = (experiment && experiment.active && experiment.status === 'needs_attention'
       ? ` 实验尚未达标：累计实际实验投稿 ${experiment.actual_treatment_published} 条，有效对比 ${experiment.valid_comparison_days} 天，已连续 ${experiment.consecutive_fallbacks} 个实验档位由常规片补位。已验收实验库存：横屏 ${Number((experiment.verified_treatment || {}).landscape) || 0} 条、竖屏 ${Number((experiment.verified_treatment || {}).portrait) || 0} 条，分别需至少 2 条储备。`
       : experiment && experiment.active && experiment.status !== 'ready'
-        ? ' 实验状态尚未确认，不能用普通库存保证每天两条实验稿。' : '') + dailyWarning;
+        ? ' 实验状态尚未确认，不能用普通库存保证每天两条实验稿。' : '') + dailyWarning + backlogWarning;
     const dailyRisk = !!dailyWarning && (requirement.stable_7_complete_days !== true
       || (Number.isInteger(requirement.gap_by_now) ? requirement.gap_by_now > 0 : requirement.actual_treatment < 2));
     // Daily progress remains visible even when healthy. Informational text

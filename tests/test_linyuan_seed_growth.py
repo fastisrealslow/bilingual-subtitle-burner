@@ -105,7 +105,7 @@ def test_campaign_stops_at_target_without_network_or_media_work(monkeypatch):
     monkeypatch.setattr(seed_growth, 'existing_roots', lambda _: set())
     def prohibited(*a, **kw): raise AssertionError('No discovery above target')
     monkeypatch.setattr(seed_growth, 'catalog_leads', prohibited)
-    report = run(Path('/not-used'), verify=prohibited)
+    report = run(Path('/not-used'), target=1000, verify=prohibited)
     assert report['added_count'] == 0 and report['accepted_mp4_count'] == 0
     assert report['production_dispatch'] is False
 

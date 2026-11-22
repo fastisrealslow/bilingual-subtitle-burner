@@ -54,7 +54,7 @@ def test_provider_restriction_does_not_stop_an_independent_provider(base, monkey
     original=G.grow_weibo
     monkeypatch.setattr(G, 'grow_weibo', lambda *a, **kw: original(*a, **kw, session=session({MID:status()})))
     report=G.run(base)
-    assert report['target']==5000 and report['after']['total']==1 and report['added_count']==1
+    assert report['target']==10000 and report['after']['total']==1 and report['added_count']==1
     assert report['providers']['bilibili']['verification_paused']['http_status']==412
     assert report['accepted_mp4_count']==report['rights_approved_count']==0
     assert report['production_dispatch'] is False

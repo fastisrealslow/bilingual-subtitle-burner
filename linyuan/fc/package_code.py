@@ -19,6 +19,7 @@ SOURCES = (
     'transcript_review_evidence.py',
     'experiment_observation_dispatch.py', 'fc_cost_policy.py', 'publish_clock.py',
     'upload_transport.py',
+    'inventory_targets.py',
     'fc/media_repair.py', 'fc/stage_revision.py', 'fc/title_revision.py',
     'fc/tracking_revision.py','tracking_revision_contract.py','replace_reported_tracking.py',
     'fc/reviewed_updates.py', 'fc/reviewed_third_video.py',
