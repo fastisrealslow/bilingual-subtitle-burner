@@ -143363,7 +143363,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-09-30T11:27:29+00:00"
+   "publish_time": "2026-09-30T11:27:29+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-6b90ea",
+    "run_id": 44984490097,
+    "artifact_id": 14741611095,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "19457b2756ade9563a20099f74d01c41eab7ab2568eee2df57180eacd734e0b6",
+     "duration_sec": 5101.27,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1wQao62E6h"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 65%（BV1hrxW6XEim）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1PcHp6tE4k）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾未就核心问题（是否尝试辟谷）给出明确立场或结论性判断，其回答内容偏离提问主题，属于话题转移而非完整回应。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV16tpt6TEVw）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44984490097,
+    "artifact_id": 14741611095,
+    "name": "production-reject-ly-1122-6b90ea",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 65%（BV1hrxW6XEim）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1q8411R7kc",
@@ -143837,7 +143882,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1ZC4y1k7b7",
@@ -143867,7 +143913,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4403319264893956",
@@ -266968,6 +267015,13 @@
    "video_id": "https://f.video.weibocdn.com/cH1Cf0HJlx07IIzgHK7u0104120kHJm90E080.mp4",
    "ts": 1795324612,
    "error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Cz4g66E92）"
+  },
+  {
+   "slug": "ly-1122-6b90ea",
+   "key": "bilibili_search:BV1wQao62E6h",
+   "video_id": "BV1wQao62E6h",
+   "ts": 1795325643,
+   "error": "与已发布内容文字指纹重复：转写片段重合 65%（BV1hrxW6XEim）"
   }
  ],
  "reviewed_third_video_0910": {
