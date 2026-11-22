@@ -143510,7 +143510,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-04-13T00:54:33+08:00"
+   "publish_time": "2022-04-13T00:54:33+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-525fce",
+    "run_id": 44985538462,
+    "artifact_id": 14740208739,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "88ef4ec5a827ef459238e1c53905d17fee8e051ed454b1ab48728e6255d00c54",
+     "duration_sec": 1190.98,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4757594877724764"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Cz4g66E92）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 79%（BV1Cz4g66E92）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1nesd69Ens）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配17/164，总帧数730；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44985538462,
+    "artifact_id": 14740208739,
+    "name": "production-reject-ly-1122-525fce",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Cz4g66E92）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV12GsK6REcc",
@@ -266800,6 +266853,13 @@
    "video_id": "BV16H4y1279m",
    "ts": 1795323569,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: 0.3083, 3: 0.2504, 6: 0.2735, 7: 0.2787, 8: 0.3105, 9: 0.2768, 10: 0.161, 11: 0.296, 12: 0.3106, 13: 0.3292, 14: 0.1002, 15: 0.0728, 16: 0.0844}"
+  },
+  {
+   "slug": "ly-1122-525fce",
+   "key": "weibo_search:4757594877724764",
+   "video_id": "https://f.video.weibocdn.com/cH1Cf0HJlx07IIzgHK7u0104120kHJm90E080.mp4",
+   "ts": 1795324612,
+   "error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Cz4g66E92）"
   }
  ],
  "reviewed_third_video_0910": {
