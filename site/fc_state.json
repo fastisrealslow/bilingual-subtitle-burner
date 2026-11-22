@@ -149967,7 +149967,12 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-22T11:39:00+00:00"
+   "publish_time": "2026-11-22T11:39:00+00:00",
+   "source_check_report_id": 14762081793,
+   "source_check_run_id": 45042245492,
+   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
+   "failure_stage": "source-fetch",
+   "source_check_retry_after": 1795364972
   },
   {
    "key": "weibo_search:5216342908339289",
@@ -149990,7 +149995,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-09-29T22:35:27+08:00"
+   "publish_time": "2025-09-29T22:35:27+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-2e878e",
+    "run_id": 45042258385,
+    "artifact_id": 14762755365,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "20b5f9896d68a04da4cf82646393ba13322ac4a635818fe685a201997ca19ee4",
+     "duration_sec": 126.3,
+     "resolution": {
+      "width": 720,
+      "height": 1406,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5216342908339289"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 81%（BV1pNnt6KE1o）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45042258385,
+    "artifact_id": 14762755365,
+    "name": "production-reject-ly-1122-2e878e",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5147684416260049",
@@ -150013,7 +150055,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-03-24T11:31:07+08:00"
+   "publish_time": "2025-03-24T11:31:07+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45042270395,
+    "artifact_id": 14762058104,
+    "name": "source-reject-ly-1122-294289",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（812x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -273696,6 +273748,20 @@
    "video_id": "http://f.video.weibocdn.com/u0/1Ui04nQJgx08jowSfdig01041206h90d0E030.mp4",
    "ts": 1795363303,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[10, 17]，scan_different=[2, 6, 7, 8, 12, 13, 14, 15, 16]，confidence=0.99，reason=CPU SFace逐帧比对；匹配2/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{2: -0.0136, 6: -0.0587, 7: 0.025, 8: 0.0076, 10: 0.5036, 12: 0.119, 13: 0.0225, 14: 0.0019, 15: 0.263, 16: 0.0878, 17: 0.6691}"
+  },
+  {
+   "slug": "ly-1122-294289",
+   "key": "weibo_search:5147684416260049",
+   "video_id": "https://f.video.weibocdn.com/o0/Dh7inUhalx08mVbGKLte01041201fQbr0E010.mp4",
+   "ts": 1795364070,
+   "error": "原始素材短边 360 < 480（812x360），画质不达标"
+  },
+  {
+   "slug": "ly-1122-2e878e",
+   "key": "weibo_search:5216342908339289",
+   "video_id": "http://f.video.weibocdn.com/o0/xrLpARPGlx08rNnuvfII01041200ihcd0E010.mp4",
+   "ts": 1795364071,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
