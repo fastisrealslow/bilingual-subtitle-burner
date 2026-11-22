@@ -150984,11 +150984,13 @@
     "basis": "unknown"
    },
    "publish_time": "2026-11-14T15:36:00+00:00",
-   "source_check_report_id": 14764111782,
-   "source_check_run_id": 45046607832,
+   "source_check_report_id": 14765371562,
+   "source_check_run_id": 45050736406,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:4789658842040311",
@@ -151011,7 +151013,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2022-07-10T12:25:18+08:00"
+   "publish_time": "2022-07-10T12:25:18+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45050755245,
+    "artifact_id": 14765198772,
+    "name": "source-reject-ly-1122-b09753",
+    "retained": true
+   },
+   "last_error": "原始素材短边 308 < 480（550x308），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV17X4y1P7ZX",
@@ -151057,7 +151069,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-10-13T09:40:48+08:00"
+   "publish_time": "2023-10-13T09:40:48+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45050787365,
+    "artifact_id": 14765212328,
+    "name": "source-reject-ly-1122-aee5ac",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4883117099974945",
@@ -274819,6 +274841,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/icmqqV94lx08CqPbdU5W01041200g5w50E010.mp4",
    "ts": 1795367864,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 9, \"quote\": \"我屁了。\", \"suspect_quote\": \"我屁了\", \"kind\": \"unintelligible_term\", \"reason\": \"该短语语义不明，疑似识别污染或口误，无法确定具体含义。\"}]"
+  },
+  {
+   "slug": "ly-1122-aee5ac",
+   "key": "weibo_search:4956315862960446",
+   "video_id": "https://f.video.weibocdn.com/o0/wQxt28H9lx0898tXih1e01041200lKhG0E010.mp4",
+   "ts": 1795369601,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1122-b09753",
+   "key": "weibo_search:4789658842040311",
+   "video_id": "https://f.video.weibocdn.com/o0/4EtgttQylx07XqJOJams010412014dQA0E010.mp4",
+   "ts": 1795369601,
+   "error": "原始素材短边 308 < 480（550x308），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
