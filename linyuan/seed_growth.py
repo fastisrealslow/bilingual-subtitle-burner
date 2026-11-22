@@ -35,6 +35,22 @@ LONG_QUERIES=('林园 2026 完整访谈','林园 2025 完整访谈')+QUERIES[:18
     '林园 投资讲座 全程','林园 申万宏源 全集')
 
 
+def discovery_queries(path, prefer_long=False, state=None):
+    """Keep six search pages, but don't starve the broader discovery catalogue.
+
+    A T shortage used to pin every query to the small long-only list forever.
+    Reserve two queries for long mothers and one for the remaining themes,
+    years and programme names. This changes discovery only, not admission.
+    """
+    if not prefer_long:
+        yield from rotating_batch('queries',QUERIES,path,3,state=state)
+        return
+    breadth=[query for query in QUERIES if query not in LONG_QUERIES]
+    yield from rotating_batch('long_queries',LONG_QUERIES,path,2 if breadth else 3,state=state)
+    if breadth:
+        yield from rotating_batch('breadth_queries',breadth,path,1,state=state)
+
+
 def discovery_exclusion(lead):
     """Save exact-lookup slots, never infer approval from discovery metadata.
 
@@ -227,6 +243,7 @@ def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=Tru
     # and independent parent cursors before reaching that catalogue target.
     prefer_long=bool(replenish_long and long_replenishment_budget(base)>0)
     report['long_discovery_priority']=prefer_long
+    report['search_query_policy']='two_long_one_breadth' if prefer_long else 'three_general'
     if replenishing:
         remaining=long_replenishment_budget(base)
         limit=min(limit,12)
@@ -254,8 +271,7 @@ def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=Tru
     discovery_excluded=Counter()
     if search:
         search_scan = json.loads(state.read_text()) if state.exists() else {}
-        for query in rotating_batch('long_queries' if prefer_long else 'queries',
-                LONG_QUERIES if prefer_long else QUERIES,state,3,state=search_scan):
+        for query in discovery_queries(state,prefer_long,state=search_scan):
             if time.monotonic() >= deadline:
                 report['errors'].append(dict(stage='budget', error='time_budget_reached'))
                 break
@@ -317,6 +333,8 @@ def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=Tru
                          and discovery_exclusion(r) is None
                          and (not replenishing or 1200<=float(r.get('catalog_duration') or 0)<=5400)),
                         key=lambda r: (-r['catalog_duration'], r['bvid']))
+    report['verification_ready_lead_count']=len(candidates)
+    report['verification_deferred_lead_count']=sum(discovery_exclusion(lead) is None for lead in pending.values())-len(candidates)
     rows = []
     for candidate in verification_batch(candidates,state,min(64,max(1,limit)),prefer_long):
         if time.monotonic() >= deadline:
@@ -369,7 +387,7 @@ def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=Tru
     # repeated queue entry safely on the next run.
     pending = {key: row for key, row in pending.items() if key not in roots}
     save_pending_leads(pending_path, pending)
-    report.update(added_count=len(added), added_bvids=[r['bvid'] for r in added],
+    report.update(exact_checks=len(rows),added_count=len(added), added_bvids=[r['bvid'] for r in added],
         pending_lead_count=len(pending),
         pending_eligible_lead_count=sum(discovery_exclusion(lead) is None for lead in pending.values()),
         roles=dict(Counter(r['source_role'] for r in added)),
