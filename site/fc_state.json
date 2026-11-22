@@ -149500,7 +149500,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1yq4y1Z7Lo",
@@ -149639,7 +149640,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-10-20T05:44:09+08:00"
+   "publish_time": "2024-10-20T05:44:09+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-ccfc92",
+    "run_id": 45037971690,
+    "artifact_id": 14761040857,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b01c755aefdd3749fd35ccb071012d8f9a401a9828a022402b208eedbc7129e8",
+     "duration_sec": 409.0,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5091426981642379"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45037971690,
+    "artifact_id": 14761040857,
+    "name": "production-reject-ly-1122-ccfc92",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV14ryTBCEjh",
@@ -149662,7 +149696,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-05T08:54:00+00:00"
+   "publish_time": "2025-12-05T08:54:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45038659172,
+    "artifact_id": 14760383810,
+    "name": "source-reject-ly-1122-8dcdb4",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 472 < 480（854x472），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1CCVU65EpH",
@@ -273373,6 +273417,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/6mU62Mewlx07UuGtzyJ201041201JA7m0E010.mp4",
    "ts": 1795359203,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{16: 0.0087}"
+  },
+  {
+   "slug": "ly-1122-8dcdb4",
+   "key": "bilibili_search:BV14ryTBCEjh",
+   "video_id": "BV14ryTBCEjh",
+   "ts": 1795361867,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 472 < 480（854x472），画质不达标"
+  },
+  {
+   "slug": "ly-1122-ccfc92",
+   "key": "weibo_search:5091426981642379",
+   "video_id": "https://fb.video.weibocdn.com/u8/zimFEXzwgx08iVzOlHSM01041201QiOv0E018.mp4",
+   "ts": 1795361868,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
