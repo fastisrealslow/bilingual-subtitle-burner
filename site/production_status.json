@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795373432,
-  "inventory_updated_at": 1795373293,
+  "updated_at": 1795373652,
+  "inventory_updated_at": 1795373646,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5024,
-      "shortfall": 4976
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -448,13 +448,13 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795373429,
-    "records": 20046,
-    "video_records": 17420,
-    "initial_candidates": 201,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1795373650,
+    "records": 20047,
+    "video_records": 17421,
+    "initial_candidates": 202,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1636,
@@ -469,7 +469,16 @@
       "too_short": 154,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1DP4y1a7jP",
+        "title": "林园 P1 林园：白酒在股市中的表现会怎么样？",
+        "source": "bilibili_collection",
+        "author": "走走走拍拍拍",
+        "url": "https://www.bilibili.com/video/BV1DP4y1a7jP",
+        "duration_sec": 171.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 150,
@@ -487,14 +496,13 @@
     "complete": 220,
     "failed": 2780,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 11,
     "excluded": 105,
     "experiment_fallback": 184,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 4,
-    "unknown": 2,
-    "queued": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -60815,8 +60823,8 @@
     },
     {
       "slug": "ly-1122-cb770d",
-      "status": "queued",
-      "detail": "Actions 排队中",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795373401,
         "failed": null,
@@ -60829,7 +60837,7 @@
       "run_id": 45057296949,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45057296949",
       "run_started_at": "2026-11-22T18:50:01Z",
-      "run_updated_at": "2026-11-22T18:50:01Z"
+      "run_updated_at": "2026-11-22T18:52:10Z"
     }
   ],
   "runs": {
@@ -93261,17 +93269,6 @@
       "run_number": 5141,
       "display_title": "中文源出片 · ly-1122-4a0a1d"
     },
-    "ly-1122-cb770d": {
-      "id": 45057296949,
-      "status": "queued",
-      "conclusion": null,
-      "created_at": "2026-11-22T18:50:01Z",
-      "updated_at": "2026-11-22T18:50:01Z",
-      "run_started_at": "2026-11-22T18:50:01Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45057296949",
-      "run_number": 5146,
-      "display_title": "中文源出片 · ly-1122-cb770d"
-    },
     "ly-1122-e9c450": {
       "id": 45055730408,
       "status": "completed",
@@ -93326,6 +93323,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45056310172",
       "run_number": 5145,
       "display_title": "中文源出片 · ly-1122-e7f687"
+    },
+    "ly-1122-cb770d": {
+      "id": 45057296949,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-22T18:50:01Z",
+      "updated_at": "2026-11-22T18:52:10Z",
+      "run_started_at": "2026-11-22T18:50:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45057296949",
+      "run_number": 5146,
+      "display_title": "中文源出片 · ly-1122-cb770d"
     }
   }
 }
