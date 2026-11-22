@@ -52,7 +52,7 @@
       return {status: 'unknown', message: '每日供应尚未取得有效库存核对，不能保证更新频率。'};
     }
     if (stock === 0) return {status: 'stockout',
-      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${data.plan?.version === 2 ? `未来七天目标共 ${7 * target} 条。` : data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
+      message: `日常合格成片库存为 0，每日 ${target} 条更新目标目前无法保障；${[2,3].includes(data.plan?.version) ? `未来七天目标共 ${7 * target} 条。` : data.plan ? '每天至少 2 条、争取 3 条的底线也尚未达到，未来七天至少缺 '+data.plan.minimum_week_shortfall+' 条。' : ''}生产、候选和周日预留片不计入日常储备。`};
     const experiment = snapshot.publishing_experiment;
     const requirement = experiment && experiment.daily_requirement;
     const backlog = snapshot.backlog;
@@ -75,6 +75,32 @@
     const experimentRisk = experiment && experiment.active && experiment.status !== 'ready';
     const warning = experimentRisk || dailyRisk;
     const plan = data.plan;
+    if (plan?.version === 3) {
+      const profiles = plan.verified_by_profile;
+      const layouts = ['portrait', 'landscape'];
+      if (!profiles || !['ordinary', 'experiment'].every(k => profiles[k]
+        && layouts.every(l => Number.isInteger(profiles[k][l]) && profiles[k][l] >= 0))
+        || plan.daily_by_profile?.ordinary !== 2 || plan.daily_by_profile?.experiment !== 2
+        || plan.daily_landscape_stories !== 1 || target !== 4
+        || ['ordinary', 'experiment'].reduce((n,k) => n + profiles[k].portrait + profiles[k].landscape, 0) !== stock) {
+        return {status: 'unknown', message: '每日供应缺少普通稿与故事稿的有效库存核对，不能保证每天两条故事稿。'};
+      }
+      const ordinary = profiles.ordinary.portrait + profiles.ordinary.landscape;
+      const stories = profiles.experiment.portrait + profiles.experiment.landscape;
+      const days = Math.min(Math.floor(ordinary / 2), Math.floor(stories / 2), profiles.experiment.landscape);
+      const ordinaryGap = Math.max(0, 14 - ordinary);
+      const storyGap = Math.max(0, 14 - stories, 7 - profiles.experiment.landscape);
+      const reserveDays = Math.ceil(data.reserve_target / target);
+      if (!Number.isInteger(data.reserve_target) || data.reserve_target < 1)
+        return {status: 'unknown', message: '每日供应缺少有效储备目标。'};
+      const reserveGap = Math.max(0, 2 * reserveDays - ordinary)
+        + Math.max(0, 2 * reserveDays - stories, reserveDays - profiles.experiment.landscape);
+      const admission = snapshot.source_admission;
+      const sourceWarning = stories < 14 && admission?.known_long_candidates === 0
+        ? ' 故事类长母片候选为 0，需补充长母片；短片候选不能填补此缺口。' : '';
+      return {status: warning || days < 1 || reserveGap ? 'at_risk' : 'covered',
+        message: `日常合格库存 ${stock} 条（普通稿 ${ordinary}、故事稿 ${stories}，其中横屏故事 ${profiles.experiment.landscape}）。按每天普通稿 2 条、故事稿 2 条且至少 1 条横屏故事，可覆盖 ${days} 个完整日；未来七天还缺普通稿 ${ordinaryGap}、故事稿 ${storyGap} 条。${reserveGap ? `当前储备目标还缺 ${reserveGap} 条。` : ''}发布前仍需复验，不代表已经发布。${sourceWarning}${experimentWarning}`};
+    }
     if (plan?.version === 2) {
       const counts = plan.verified_by_layout, needs = plan.daily_by_layout, reserves = plan.reserve_targets_by_layout;
       const layouts = ['portrait', 'landscape'];
