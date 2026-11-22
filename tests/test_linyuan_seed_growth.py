@@ -262,3 +262,54 @@ def test_provider_restriction_pauses_requests_and_preserves_the_unchecked_tail(t
     assert requests==ids and resumed['verification']=={'not_verified':len(ids)-consumed}
     assert 'verification_paused' not in resumed
     assert len(json.loads((tmp_path/'bilibili_seeds.json').read_text())['seeds'])==int(initial_success)
+
+def test_t_shortage_keeps_long_priority_without_starving_other_discovery_themes(tmp_path,monkeypatch):
+    import seed_growth as G
+    monkeypatch.setattr(G,'census',lambda _:dict(total=0))
+    monkeypatch.setattr(G,'existing_roots',lambda _:set())
+    monkeypatch.setattr(G,'catalog_leads',lambda _:[])
+    monkeypatch.setattr(G,'long_replenishment_budget',lambda _:4)
+    monkeypatch.setattr(G,'LONG_QUERIES',('林园完整访谈','林园演讲全程','林园经历访谈'))
+    monkeypatch.setattr(G,'QUERIES',G.LONG_QUERIES+('林园2024','林园2025'))
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    path=tmp_path/'.automation/seed_growth_scan.json';path.parent.mkdir()
+    saved=dict(parents=dict(cursor=7,seed_count=13),queries=dict(cursor=1,seed_count=5),
+               verification_cooldown=dict(until=0),known_long_refresh=dict(attempts=[],checks={}))
+    path.write_text(json.dumps(saved))
+    calls=[]
+    def search(self,query):
+        calls.append((query,self.config['pages'],self.config['start_page']));return []
+    monkeypatch.setattr(monitor.BilibiliSearchSource,'_fetch_via_api',search)
+    first=G.run(tmp_path,target=10000,replenish_long=True)
+    second=G.run(tmp_path,target=10000,replenish_long=True)
+    assert [q for q,_,_ in calls]==['林园完整访谈','林园演讲全程','林园2024',
+        '林园经历访谈','林园完整访谈','林园2025']
+    assert len(calls)==6 and all(pages==2 for _,pages,_ in calls)
+    assert [start for _,_,start in calls]==[1,1,1,1,3,1]
+    after=json.loads(path.read_text())
+    for key in saved:assert after[key]==saved[key]
+    assert first['search_query_policy']==second['search_query_policy']=='two_long_one_breadth'
+    assert first['exact_checks']==second['exact_checks']==0
+    assert first['added_count']==second['added_count']==0
+    assert first['accepted_mp4_count']==second['accepted_mp4_count']==0
+
+
+def test_breadth_rotation_donates_slot_when_every_query_is_already_long(tmp_path,monkeypatch):
+    import seed_growth as G
+    monkeypatch.setattr(G,'LONG_QUERIES',('a','b','c'))
+    monkeypatch.setattr(G,'QUERIES',('a','b','c'))
+    assert list(G.discovery_queries(tmp_path/'scan.json',True,state={}))==['a','b','c']
+
+
+def test_verification_reports_deferred_leads_without_resetting_retry_budget(tmp_path,monkeypatch):
+    import seed_growth as G
+    monkeypatch.setattr(G,'census',lambda _:dict(total=0))
+    monkeypatch.setattr(G,'existing_roots',lambda _:set())
+    monkeypatch.setattr(G,'catalog_leads',lambda _:[dict(bvid='BV1NpBFYkEKx',catalog_duration=1800,
+        catalog_title='林园完整访谈',catalog_author='实际上传者',verification_retry_after=2000)])
+    monkeypatch.setattr(G.time,'time',lambda:1000)
+    (tmp_path/'bilibili_seeds.json').write_text('{"seeds":[]}')
+    result=G.run(tmp_path,target=10000,search=False,verify=lambda _:pytest.fail('cooldown reset'))
+    assert result['verification_ready_lead_count']==0
+    assert result['verification_deferred_lead_count']==1 and result['exact_checks']==0
+    assert result['added_count']==0 and result['accepted_mp4_count']==0
