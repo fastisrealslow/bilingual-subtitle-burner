@@ -147900,11 +147900,13 @@
     "basis": "unknown"
    },
    "publish_time": "2022-01-05T02:05:04+00:00",
-   "source_check_report_id": 14753084915,
-   "source_check_run_id": 45020648866,
+   "source_check_report_id": 14755700178,
+   "source_check_run_id": 45024393596,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "bilibili_search:BV1YL4y1F77P",
@@ -147927,7 +147929,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-21T12:08:59+00:00"
+   "publish_time": "2022-05-21T12:08:59+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45024406413,
+    "artifact_id": 14754559840,
+    "name": "source-reject-ly-1122-5a4285",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 406 < 480（720x406），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5244524748343989",
@@ -271544,6 +271556,13 @@
    "video_id": "https://f.video.weibocdn.com/002hLJuBlx07wPiVhcso01041200cdMZ0E010.mp4",
    "ts": 1795351813,
    "error": "字幕逐字时间倒退或重叠"
+  },
+  {
+   "slug": "ly-1122-5a4285",
+   "key": "bilibili_search:BV1YL4y1F77P",
+   "video_id": "BV1YL4y1F77P",
+   "ts": 1795352325,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 406 < 480（720x406），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
