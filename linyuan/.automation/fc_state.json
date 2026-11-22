@@ -144138,7 +144138,84 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-06-05T18:53:32+08:00"
+   "publish_time": "2020-06-05T18:53:32+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-58e2c4",
+    "run_id": 44989413451,
+    "artifact_id": 14743336881,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "842a07c4c1b69026575f5acb74ac2276bc5e72dd26ce876e8c9c6eca6c141f7b",
+     "duration_sec": 1199.85,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4512529827621704"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配352/653，总帧数1500；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/163，总帧数811；身份匹配但人脸短边不足96px的帧数2"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配777/1131，总帧数1769；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配350/935，总帧数2923；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配84/457，总帧数1862；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配165/738，总帧数2861；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配406/1374，总帧数4838；身份匹配但人脸短边不足96px的帧数1"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44989413451,
+    "artifact_id": 14743336881,
+    "name": "production-reject-ly-1122-58e2c4",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1ixvSBHEEg",
@@ -144284,7 +144361,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配168/461，总帧数1464；身份匹配但人脸短边不足96px的帧数136",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5147667635638270",
@@ -144467,7 +144545,8 @@
    },
    "last_error": "原始素材短边 296 < 480（296x640），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4993499521091308",
@@ -144513,7 +144592,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-05T01:50:00+00:00"
+   "publish_time": "2026-11-05T01:50:00+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44994491441,
+    "artifact_id": 14743257593,
+    "name": "source-reject-ly-1122-b0cd29",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 270 < 480（480x270），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1gmJn68E5Y",
@@ -267596,6 +267685,20 @@
    "video_id": "BV1Th411W73P",
    "ts": 1795329342,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配168/461，总帧数1464；身份匹配但人脸短边不足96px的帧数136"
+  },
+  {
+   "slug": "ly-1122-b0cd29",
+   "key": "bilibili_search:BV1R1nk6PED5",
+   "video_id": "BV1R1nk6PED5",
+   "ts": 1795329842,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 270 < 480（480x270），画质不达标"
+  },
+  {
+   "slug": "ly-1122-58e2c4",
+   "key": "weibo_search:4512529827621704",
+   "video_id": "https://f.video.weibocdn.com/003oXpr7gx07DPCMm9eo01041203vTZZ0E020.mp4",
+   "ts": 1795329847,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
