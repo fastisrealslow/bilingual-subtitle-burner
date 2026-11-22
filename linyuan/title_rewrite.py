@@ -1260,14 +1260,32 @@ def incremental_cost_error(title, cover, evidence):
     return None
 
 
+def _personal_purchase_actions(text):
+    actions = re.findall(
+        r'我(?:们)?(?:自己|本人)?(?:已经|早就|一直|照样|照旧|仍然|还是|也|又|就|才|再|还|会|在|正|的确|确实){0,3}'
+        r'(买入|买进|买(?!卖|不起|不到|不了|不动|不)|加仓|增持|补仓)', text)
+    return {'买' if action in ('买入', '买进') else action for action in actions}
+
+
 def personal_action_error(title, cover, evidence):
-    """A contrast in what the guest favors is not a stated refusal to invest."""
+    """Require stated transactions for first-person investment claims."""
     claim=title+'。'+cover
     refusal=re.search(r'(?:我(?:们)?(?:就|也|从来|绝对)?|^|[，。：])不(?:投(?:资)?|买(?:入)?)',claim)
     source=compact(''.join(evidence))
     stated=re.search(r'不(?:会|想|去|再|愿|能)?(?:投(?:资)?|买(?:入)?|碰)|没(?:有)?(?:投|买|参与)',source)
     if refusal and not stated:
         return '原文未明确说不投或不买，不能把偏好或讨论对象的对比改成投资行动'
+    # Preserve punctuation so an interviewer asking about a trade cannot
+    # supply affirmative purchase evidence.
+    claimed = _personal_purchase_actions(claim)
+    if claimed:
+        statements = (sentence for quote in evidence
+                      for sentence in re.findall(r'[^。！？!?；;\n]+[。！？!?；;]?', quote)
+                      if not sentence.endswith(('？', '?')))
+        supported = {action for sentence in statements
+                     for action in _personal_purchase_actions(sentence)}
+        if claimed - supported:
+            return '标题或封面新增第一人称买入或加仓；持有、看好及估值判断不足以证明同一交易动作'
     return None
 
 
@@ -2199,6 +2217,7 @@ def error(title, proof, transcript=None, speaker='林园'):
                   loss_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   participation_phase_error(title, proof['cover'], transcript or ''.join(evidence)),
                   incremental_cost_error(title, proof['cover'], [transcript or ''.join(evidence)]),
+                  personal_action_error(title, proof['cover'], evidence),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
             return issue
