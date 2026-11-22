@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795343773,
+  "updated_at": 1795343909,
   "inventory_updated_at": 1795343768,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5017,
+      "shortfall": 4983
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 16,
-    "waiting_candidates": 119,
+    "active_or_recovering_sources": 18,
+    "waiting_candidates": 117,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -448,17 +448,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795343771,
+    "updated_at": 1795343907,
     "records": 20015,
     "video_records": 17389,
-    "initial_candidates": 356,
-    "duration_eligible_records": 155,
-    "candidate_count": 119,
-    "known_duration_candidates": 119,
+    "initial_candidates": 350,
+    "duration_eligible_records": 149,
+    "candidate_count": 117,
+    "known_duration_candidates": 117,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 10076,
-      "already_attempted_or_cooling": 4487,
+      "already_attempted_or_cooling": 4493,
       "no_video": 2626,
       "ai_content": 37,
       "unrelated": 110,
@@ -467,17 +467,9 @@
       "reference_only": 640,
       "over_limit": 47,
       "too_short": 154,
-      "duplicate_source": 36
+      "duplicate_source": 32
     },
     "candidates": [
-      {
-        "key": "weibo_search:4685391024883575",
-        "title": "#财经#,#财经资讯#【2007年林园：寻找中国的巴菲特】\n\n当时做这期节目的初衷：寻找和采访在中国股市实践价值理念投资",
-        "source": "weibo_search",
-        "author": "江雪财经日志",
-        "url": "https://m.weibo.cn/detail/4685391024883575",
-        "duration_sec": 3684.0
-      },
       {
         "key": "bilibili_search:BV16c411t7yZ",
         "title": "林园 P1 【林园谈医药】称比医生还了解",
@@ -1167,14 +1159,6 @@
         "duration_sec": 165.0
       },
       {
-        "key": "bilibili_search:BV11jsJ68EcA",
-        "title": "什么样的公司能涨十倍？林园：首先是行业壁垒非常高，第二主业鲜明、产品尽量单一，最重要的一点是投资小、产出大——我投100",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV11jsJ68EcA",
-        "duration_sec": 103.0
-      },
-      {
         "key": "bilibili_search:BV1Dusg6VEPG",
         "title": "林园说自己在做不平等竞争：林园：每个月的财务指标、经营情况我都搞清楚了，你再做一件自己非常清楚的事——实际上是把一种不确",
         "source": "bilibili_search",
@@ -1445,9 +1429,9 @@
     "experiment_fallback": 183,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 12,
+    "retry_queued": 13,
     "unknown": 2,
-    "running": 4
+    "running": 5
   },
   "tasks": [
     {
@@ -59500,21 +59484,21 @@
     },
     {
       "slug": "ly-1122-5d971e",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795343557,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795344712,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 45012948131,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45012948131",
       "run_started_at": "2026-11-22T10:32:37Z",
-      "run_updated_at": "2026-11-22T10:32:41Z"
+      "run_updated_at": "2026-11-22T10:34:59Z"
     },
     {
       "slug": "ly-1122-5d63db",
@@ -59551,6 +59535,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45012976449",
       "run_started_at": "2026-11-22T10:32:57Z",
       "run_updated_at": "2026-11-22T10:33:01Z"
+    },
+    {
+      "slug": "ly-1122-e7dce8",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795343845,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45013344941,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45013344941",
+      "run_started_at": "2026-11-22T10:37:25Z",
+      "run_updated_at": "2026-11-22T10:37:28Z"
+    },
+    {
+      "slug": "ly-1122-4b036b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795343857,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45013360539,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45013360539",
+      "run_started_at": "2026-11-22T10:37:37Z",
+      "run_updated_at": "2026-11-22T10:37:41Z"
     }
   ],
   "runs": {
@@ -90640,6 +90660,28 @@
       "run_number": 4862,
       "display_title": "中文源出片 · ly-1122-abb5df"
     },
+    "ly-1122-4b036b": {
+      "id": 45013360539,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T10:37:37Z",
+      "updated_at": "2026-11-22T10:37:41Z",
+      "run_started_at": "2026-11-22T10:37:37Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45013360539",
+      "run_number": 4869,
+      "display_title": "中文源出片 · ly-1122-4b036b"
+    },
+    "ly-1122-e7dce8": {
+      "id": 45013344941,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T10:37:25Z",
+      "updated_at": "2026-11-22T10:37:28Z",
+      "run_started_at": "2026-11-22T10:37:25Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45013344941",
+      "run_number": 4868,
+      "display_title": "中文源出片 · ly-1122-e7dce8"
+    },
     "ly-1122-2d273b": {
       "id": 45012976449,
       "status": "in_progress",
@@ -90664,10 +90706,10 @@
     },
     "ly-1122-5d971e": {
       "id": 45012948131,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-22T10:32:37Z",
-      "updated_at": "2026-11-22T10:32:41Z",
+      "updated_at": "2026-11-22T10:34:59Z",
       "run_started_at": "2026-11-22T10:32:37Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45012948131",
       "run_number": 4865,
