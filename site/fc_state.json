@@ -146026,7 +146026,12 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-21T00:15:00+00:00"
+   "publish_time": "2026-11-21T00:15:00+00:00",
+   "source_check_report_id": 14748161382,
+   "source_check_run_id": 45005849196,
+   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
+   "failure_stage": "source-fetch",
+   "source_check_retry_after": 1795339600
   },
   {
    "key": "bilibili_search:BV19wsk6MEP5",
@@ -146049,7 +146054,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-17T20:55:06+00:00"
+   "publish_time": "2026-11-17T20:55:06+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45005863023,
+    "artifact_id": 14747827733,
+    "name": "source-reject-ly-1122-8fdfb5",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV19Fsk6zEAh",
@@ -269480,6 +269495,13 @@
    "video_id": "BV1EU4y1Z7kx",
    "ts": 1795338284,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1122-8fdfb5",
+   "key": "bilibili_search:BV19wsk6MEP5",
+   "video_id": "BV19wsk6MEP5",
+   "ts": 1795338700,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
