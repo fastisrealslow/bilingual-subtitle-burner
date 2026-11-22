@@ -148101,7 +148101,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1tPMG6qEno",
@@ -148301,7 +148302,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4693473418019229",
@@ -148324,7 +148326,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-10-18T02:18:46+08:00"
+   "publish_time": "2021-10-18T02:18:46+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-bf490c",
+    "run_id": 45026875648,
+    "artifact_id": 14756616508,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "419bd956aa00294da9ce9737c208a46dd68ed728c066d79c3bb46ce0ed75cf12",
+     "duration_sec": 156.15,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4693473418019229"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45026875648,
+    "artifact_id": 14756616508,
+    "name": "production-reject-ly-1122-bf490c",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV11xTq6vENj",
@@ -148354,7 +148389,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1DyPZzGEkt",
@@ -148384,7 +148420,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1cRCyBiEGp",
@@ -272141,6 +272178,13 @@
    "video_id": "BV1JFXNBVEeG",
    "ts": 1795354285,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1122-bf490c",
+   "key": "weibo_search:4693473418019229",
+   "video_id": "https://f.video.weibocdn.com/o0/6MuHU9dklx07QFwc7l0k01041200G1tC0E010.mp4",
+   "ts": 1795354877,
+   "error": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
   }
  ],
  "reviewed_third_video_0910": {
