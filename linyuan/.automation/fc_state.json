@@ -147392,7 +147392,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5308892616592851",
@@ -147415,7 +147416,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-12T07:54:57+08:00"
+   "publish_time": "2026-06-12T07:54:57+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-8f9cdd",
+    "run_id": 45019996716,
+    "artifact_id": 14753860839,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "866a5fe9d708c30e1bc7543614b9c4e60c39c9c8170aacf720c508e2ee6d3348",
+     "duration_sec": 43.58,
+     "resolution": {
+      "width": 576,
+      "height": 1024,
+      "short_edge": 576
+     },
+     "source_url": "https://m.weibo.cn/detail/5308892616592851"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45019996716,
+    "artifact_id": 14753860839,
+    "name": "production-reject-ly-1122-8f9cdd",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5308660798457059",
@@ -147438,7 +147472,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-06-11T16:33:47+08:00"
+   "publish_time": "2026-06-11T16:33:47+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-4d90a1",
+    "run_id": 45020010818,
+    "artifact_id": 14753437513,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a9ff7d50cd715b4843c32cf92bfd36957d5a727373f068190d2f5f572fb63856",
+     "duration_sec": 50.74,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5308660798457059"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"林源认为，从财务指标观察，茅台酒的生意模式是最好的。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}, {\"sentence_id\": 5, \"quote\": \"面对别人跑了，为何你不跑的追问，林源回答称：有人觉得趋势不好就卖，基金下跌，有人赎回也卖，这是特定时期买卖行为的表现，不代表生意好坏，很正常。\", \"suspect_quote\": \"林源\", \"kind\": \"unintell"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45020010818,
+    "artifact_id": 14753437513,
+    "name": "production-reject-ly-1122-4d90a1",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"林源认为，从财务指标观察，茅台酒的生意模式是最好的。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}, {\"sentence_id\": 5, \"quote\": \"面对别人跑了，为何你不跑的追问，林源回答称：有人觉得趋势不好就卖，基金下跌，有人赎回也卖，这是特定时期买卖行为的表现，不代表生意好坏，很正常。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}, {\"sentence_id\": 7, \"quote\": \"林源也希望贵州茅台能够加大回购注销力度，以增加股东每股收益。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Dusg6VEPG",
@@ -271048,6 +271115,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/kCaHCrdblx08CqvRuh8c01041200etYz0E010.mp4",
    "ts": 1795349159,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1122-4d90a1",
+   "key": "weibo_search:5308660798457059",
+   "video_id": "https://f.video.weibocdn.com/o0/dx8VyQrslx08ylHYDDrq01041200iF0L0E010.mp4",
+   "ts": 1795349627,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 4, \"quote\": \"林源认为，从财务指标观察，茅台酒的生意模式是最好的。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}, {\"sentence_id\": 5, \"quote\": \"面对别人跑了，为何你不跑的追问，林源回答称：有人觉得趋势不好就卖，基金下跌，有人赎回也卖，这是特定时期买卖行为的表现，不代表生意好坏，很正常。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}, {\"sentence_id\": 7, \"quote\": \"林源也希望贵州茅台能够加大回购注销力度，以增加股东每股收益。\", \"suspect_quote\": \"林源\", \"kind\": \"unintelligible_term\", \"reason\": \"目标嘉宾为“林园”，句中误识别为同音异义名“林源”。\"}]"
+  },
+  {
+   "slug": "ly-1122-8f9cdd",
+   "key": "weibo_search:5308892616592851",
+   "video_id": "https://f.video.weibocdn.com/o0/TUoZtcOBlx08ymJcszqE01041200jxwu0E010.mp4",
+   "ts": 1795349628,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
