@@ -151334,11 +151334,12 @@
     "basis": "source_metadata_unverified"
    },
    "publish_time": "2024-01-12T17:03:56+00:00",
-   "source_check_report_id": 14766126328,
-   "source_check_run_id": 45051402605,
+   "source_check_report_id": 14767306103,
+   "source_check_run_id": 45054512881,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1795373752
   },
   {
    "key": "bilibili_search:BV12C4y1P7ze",
@@ -151361,7 +151362,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-11-25T11:23:43+00:00"
+   "publish_time": "2023-11-25T11:23:43+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45054528937,
+    "artifact_id": 14766464680,
+    "name": "source-reject-ly-1122-057a96",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（638x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4957581816892868",
@@ -151407,7 +151418,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-25T14:38:55+00:00"
+   "publish_time": "2025-10-25T14:38:55+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45054562893,
+    "artifact_id": 14766687795,
+    "name": "source-reject-ly-1122-150ef9",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1yMsfzEEwT",
@@ -151430,7 +151451,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-25T14:33:45+00:00"
+   "publish_time": "2025-10-25T14:33:45+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45054576184,
+    "artifact_id": 14767385477,
+    "name": "source-reject-ly-1122-c5bf9a",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -275204,6 +275235,27 @@
    "video_id": "https://f.video.weibocdn.com/o0/H7vQ24velx0848IXodHG01041204iai60E020.mp4",
    "ts": 1795371589,
    "error": "真人动态区仍有稳定来源角标：[(0.0, 0.8106382978723404, 0.10126582278481013, 0.8978723404255319)]"
+  },
+  {
+   "slug": "ly-1122-c5bf9a",
+   "key": "bilibili_search:BV1yMsfzEEwT",
+   "video_id": "BV1yMsfzEEwT",
+   "ts": 1795371950,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标"
+  },
+  {
+   "slug": "ly-1122-150ef9",
+   "key": "bilibili_search:BV1JisZz3Ekv",
+   "video_id": "BV1JisZz3Ekv",
+   "ts": 1795371950,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 476 < 480（854x476），画质不达标"
+  },
+  {
+   "slug": "ly-1122-057a96",
+   "key": "bilibili_search:BV12C4y1P7ze",
+   "video_id": "BV12C4y1P7ze",
+   "ts": 1795371951,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（638x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
