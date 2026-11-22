@@ -149150,7 +149150,12 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-08-03T14:21:09+00:00"
+   "publish_time": "2026-08-03T14:21:09+00:00",
+   "source_check_report_id": 14758123509,
+   "source_check_run_id": 45033562462,
+   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
+   "failure_stage": "source-fetch",
+   "source_check_retry_after": 1795359301
   },
   {
    "key": "weibo_search:5367342148092234",
@@ -149173,7 +149178,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-20T14:52:30+08:00"
+   "publish_time": "2026-11-20T14:52:30+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-5dd75e",
+    "run_id": 45033573551,
+    "artifact_id": 14758753578,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d2c6ba44358d4f9b15ece64549ce7579c89dfcfb433fcefaf05c0eb1665c6776",
+     "duration_sec": 43.98,
+     "resolution": {
+      "width": 590,
+      "height": 1280,
+      "short_edge": 590
+     },
+     "source_url": "https://m.weibo.cn/detail/5367342148092234"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已经发布的母片时间段重叠，保留其他完整观点"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45033573551,
+    "artifact_id": 14758753578,
+    "name": "production-reject-ly-1122-5dd75e",
+    "retained": true
+   },
+   "last_error": "与已经发布的母片时间段重叠，保留其他完整观点",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1UfET6DEAv",
@@ -272842,6 +272880,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/XEB2q48lgx084CSVj98A01041200nN8b0E010.mp4",
    "ts": 1795358012,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/286，总帧数1429；身份匹配但人脸短边不足96px的帧数286"
+  },
+  {
+   "slug": "ly-1122-5dd75e",
+   "key": "weibo_search:5367342148092234",
+   "video_id": "https://f.video.weibocdn.com/o0/IsMqpbRhlx08ChEcZqfu010412006h8V0E010.mp4",
+   "ts": 1795358400,
+   "error": "与已经发布的母片时间段重叠，保留其他完整观点"
   }
  ],
  "reviewed_third_video_0910": {
