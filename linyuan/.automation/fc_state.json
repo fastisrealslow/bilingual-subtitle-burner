@@ -147422,7 +147422,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-19T10:20:01+00:00"
+   "publish_time": "2022-05-19T10:20:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-9282c5",
+    "run_id": 45021279765,
+    "artifact_id": 14754667220,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6dc7835580f40b0756b5dbfbb26d4b103c4ede3f27109d874fed641d6bf97bf4",
+     "duration_sec": 775.47,
+     "resolution": {
+      "width": 1556,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1qL4y1F7PD"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕逐字时间倒退或重叠"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 1, \"quote\": \"，第一个问题不该做什么？\", \"suspect_quote\": \"不该做什么\", \"kind\": \"unintelligible_term\", \"reason\": \"上下文逻辑矛盾：前句（0）列举了三个问题，后文（2）提到“第三个”，此处（1）若为“不该做什么”则缺失“第二个问题”，且该短语在口语中极可能为听写错误（如将“第二个”误识为“不该做”），属于具体身份/逻辑结构污染。\"}, {\"sentence_id\": 2, \"quote\": \"，第三个，我们该警惕什么？\", \"suspect_quote\": \"第三个\", \"kin"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45021279765,
+    "artifact_id": 14754667220,
+    "name": "production-reject-ly-1122-9282c5",
+    "retained": true
+   },
+   "last_error": "字幕逐字时间倒退或重叠",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV16c411t7yZ",
@@ -147574,7 +147611,8 @@
    },
    "last_error": "字幕逐字时间倒退或重叠",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4732899372565758",
@@ -147667,7 +147705,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1sLsJ6cESp",
@@ -147697,7 +147736,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4723695232226739",
@@ -147730,7 +147770,8 @@
    },
    "last_error": "原始素材短边 240 < 480（320x240），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1joWZ6XENH",
@@ -147760,7 +147801,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Gky3zJEio",
@@ -147790,7 +147832,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1DyPZzGEkt",
@@ -271565,6 +271608,13 @@
    "video_id": "BV1YL4y1F77P",
    "ts": 1795352325,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 406 < 480（720x406），画质不达标"
+  },
+  {
+   "slug": "ly-1122-9282c5",
+   "key": "bilibili_search:BV1qL4y1F7PD",
+   "video_id": "BV1qL4y1F7PD",
+   "ts": 1795352343,
+   "error": "字幕逐字时间倒退或重叠"
   }
  ],
  "reviewed_third_video_0910": {
