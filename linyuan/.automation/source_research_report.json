@@ -1,19 +1,44 @@
 {
-  "run_id": "45071914193",
+  "run_id": "45073921937",
   "processed": 3,
-  "inspected": 0,
-  "historical_media_verified": 249,
+  "inspected": 1,
+  "historical_media_verified": 250,
   "cache_recovery_pending": 249,
-  "pending": 311,
+  "pending": 310,
   "audio_matches": [],
   "reference_refresh": {
     "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 5,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -1575,7 +1600,7 @@
     "41c58237664c25ec4112": {
       "url": "https://www.bilibili.com/video/BV1MZz8BYEGg",
       "role": "mother",
-      "family": "historical_long_leads_20261010",
+      "family": "gelong_conversation",
       "priority": 5,
       "status": "pending",
       "attempts": 13,
@@ -2099,7 +2124,7 @@
     "b782ac0c362a9fb7da95": {
       "url": "https://www.bilibili.com/video/BV1UB5s6WE2B",
       "role": "mother",
-      "family": "fudan_2026_05",
+      "family": "hnw_course",
       "priority": 0,
       "status": "retry_wait",
       "attempts": 2,
@@ -9198,15 +9223,37 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 4,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795133011.368979,
-      "next_retry_at": 1795219411.368979,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1795384405.8377466,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "7871409308fbd0559b43410a8aa10814769c1d20dbdf08a81ed95a5c2efe135f",
+        "duration_sec": 3684.266,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1842.13
+          }
+        ],
+        "audio_fingerprint_count": 29736,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "45073921937"
     },
     "53f7c25d45df543247cb": {
       "url": "https://www.bilibili.com/video/BV1iPQuYXEaT",
@@ -9461,13 +9508,13 @@
       "family": "investor_call",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 3,
+      "attempts": 4,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795088713.827637,
-      "next_retry_at": 1795175113.827637,
+      "last_attempt_at": 1795384253.2861938,
+      "next_retry_at": 1795470653.2861938,
       "download_partial_bytes": 0
     },
     "dbce71c5a55129031cc3": {
@@ -9548,13 +9595,13 @@
       "family": "tianyu_linyuan_2026_11",
       "priority": 2,
       "status": "retry_wait",
-      "attempts": 8,
+      "attempts": 9,
       "publisher_status": "catalog_lead_not_primary_proof",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795265036.6363246,
-      "next_retry_at": 1795351436.6363246,
+      "last_attempt_at": 1795384251.209135,
+      "next_retry_at": 1795470651.209135,
       "download_partial_bytes": 0
     },
     "58f92e7b62df29bb135b": {
@@ -9862,30 +9909,24 @@
     },
     "gelong_conversation|格隆对话林园 完整版": {
       "status": "searched",
-      "checked_at": 1795282736.4274845,
-      "next_retry_at": 1795325936.4274845,
+      "checked_at": 1795384248.1363037,
+      "next_retry_at": 1795427448.1363037,
       "found": 4,
       "new_ids": []
     },
     "gelong_conversation|格隆博士会客厅 林园": {
-      "status": "retry_wait",
-      "checked_at": 1795206469.7952023,
-      "next_retry_at": 1795358394.9495094,
+      "status": "searched",
+      "checked_at": 1795384248.1363037,
+      "next_retry_at": 1795427448.1363037,
       "found": 4,
-      "new_ids": [],
-      "attempts": 2,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1795315194.9495094
+      "new_ids": []
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "retry_wait",
-      "checked_at": 1795236612.3693252,
-      "next_retry_at": 1795358394.9495094,
+      "status": "searched",
+      "checked_at": 1795384248.1363037,
+      "next_retry_at": 1795427448.1363037,
       "found": 4,
-      "new_ids": [],
-      "attempts": 2,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1795315194.9495094
+      "new_ids": []
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "retry_wait",
