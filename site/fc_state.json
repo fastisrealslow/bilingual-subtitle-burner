@@ -144355,11 +144355,13 @@
     "basis": "source_metadata_unverified"
    },
    "publish_time": "2019-08-09T10:09:45+08:00",
-   "source_check_report_id": 14741179436,
-   "source_check_run_id": 44990555425,
+   "source_check_report_id": 14742578548,
+   "source_check_run_id": 44993280932,
    "last_error": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403319264893956']' returned non-zero exit status 1.",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:5033233681484730",
@@ -144382,7 +144384,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-05-12T15:44:45+08:00"
+   "publish_time": "2024-05-12T15:44:45+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44993291599,
+    "artifact_id": 14743010463,
+    "name": "source-reject-ly-1122-e56666",
+    "retained": true
+   },
+   "last_error": "原始素材短边 460 < 480（720x460），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -267416,6 +267428,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/4kDAmzIRgx08fARJfToQ01041200aLMx0E010.mp4",
    "ts": 1795328394,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1122-e56666",
+   "key": "weibo_search:5033233681484730",
+   "video_id": "https://f.video.weibocdn.com/u0/RsWyGM6ogx08eNrF7P2U01041201Hov20E010.mp4",
+   "ts": 1795328800,
+   "error": "原始素材短边 460 < 480（720x460），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
