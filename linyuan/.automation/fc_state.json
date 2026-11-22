@@ -147697,11 +147697,13 @@
     "basis": "unknown"
    },
    "publish_time": "2022-01-05T02:05:04+00:00",
-   "source_check_report_id": 14753345376,
-   "source_check_run_id": 45019040588,
+   "source_check_report_id": 14754048304,
+   "source_check_run_id": 45021997855,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:4646791004553516",
@@ -147724,7 +147726,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-11T06:39:31+08:00"
+   "publish_time": "2021-06-11T06:39:31+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45022015337,
+    "artifact_id": 14753807868,
+    "name": "source-reject-ly-1122-0ef1c4",
+    "retained": true
+   },
+   "last_error": "原始素材短边 368 < 480（640x368），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4419719530733981",
@@ -147770,7 +147782,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-02-03T21:23:26+08:00"
+   "publish_time": "2022-02-03T21:23:26+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45022039491,
+    "artifact_id": 14754595092,
+    "name": "source-reject-ly-1122-aaab96",
+    "retained": true
+   },
+   "last_error": "原始素材短边 368 < 480（654x368），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -271278,6 +271300,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/TUoZtcOBlx08ymJcszqE01041200jxwu0E010.mp4",
    "ts": 1795349628,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1122-aaab96",
+   "key": "weibo_search:4732899372565758",
+   "video_id": "https://f.video.weibocdn.com/o0/BgOPKqoTlx07R9iITQys01041200u0ua0E010.mp4",
+   "ts": 1795350756,
+   "error": "原始素材短边 368 < 480（654x368），画质不达标"
+  },
+  {
+   "slug": "ly-1122-0ef1c4",
+   "key": "weibo_search:4646791004553516",
+   "video_id": "https://f.video.weibocdn.com/000kWgYMgx07NkuNKUk801041202oxG40E010.mp4",
+   "ts": 1795350757,
+   "error": "原始素材短边 368 < 480（640x368），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
