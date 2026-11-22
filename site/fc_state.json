@@ -148592,7 +148592,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-18T05:06:35+08:00"
+   "publish_time": "2026-11-18T05:06:35+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-58bc2a",
+    "run_id": 45028935852,
+    "artifact_id": 14757243501,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7d32c2509a0ec6a04e194e1722cafe73c1b84044602588afa41b294fa13b063e",
+     "duration_sec": 45.83,
+     "resolution": {
+      "width": 576,
+      "height": 768,
+      "short_edge": 576
+     },
+     "source_url": "https://m.weibo.cn/detail/5366469916623159"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/113，总帧数562；身份匹配但人脸短边不足96px的帧数76"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45028935852,
+    "artifact_id": 14757243501,
+    "name": "production-reject-ly-1122-58bc2a",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/113，总帧数562；身份匹配但人脸短边不足96px的帧数76",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV11KWr6XE41",
@@ -148653,7 +148686,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1UzM969EMs",
@@ -272388,6 +272422,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/wCTczKXKgx07UmKvMSi401041200c5ug0E010.mp4",
    "ts": 1795355879,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{}"
+  },
+  {
+   "slug": "ly-1122-58bc2a",
+   "key": "weibo_search:5366469916623159",
+   "video_id": "https://f.video.weibocdn.com/o0/uwBcDU4Ulx08Cs9eqYsM010412007Zhw0E010.mp4",
+   "ts": 1795356458,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/113，总帧数562；身份匹配但人脸短边不足96px的帧数76"
   }
  ],
  "reviewed_third_video_0910": {
