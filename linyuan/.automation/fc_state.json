@@ -144570,7 +144570,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-01-24T00:15:23+08:00"
+   "publish_time": "2024-01-24T00:15:23+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-19d18a",
+    "run_id": 44994481608,
+    "artifact_id": 14744640354,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "709f34915aa82356bf5528bf6e15b5cd0228eb81c29038bd2fb93935d3414748",
+     "duration_sec": 1101.6,
+     "resolution": {
+      "width": 912,
+      "height": 620,
+      "short_edge": 620
+     },
+     "source_url": "https://m.weibo.cn/detail/4993499521091308"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 343.30s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 590.97s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 88%（BV114aZ6XEkb）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44994481608,
+    "artifact_id": 14744640354,
+    "name": "production-reject-ly-1122-19d18a",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 343.30s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1R1nk6PED5",
@@ -267979,6 +268020,13 @@
    "video_id": "https://f.video.weibocdn.com/003oXpr7gx07DPCMm9eo01041203vTZZ0E020.mp4",
    "ts": 1795329847,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1122-19d18a",
+   "key": "weibo_search:4993499521091308",
+   "video_id": "https://f.video.weibocdn.com/u0/PpvaLu2Tgx08bYyKRm0o01041204mhlh0E020.mp4",
+   "ts": 1795331820,
+   "error": "整段取景预检：源 343.30s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
