@@ -150237,7 +150237,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-01-10T19:43:00+08:00"
+   "publish_time": "2025-01-10T19:43:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-d26cfe",
+    "run_id": 45043428293,
+    "artifact_id": 14763136771,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "0d5a30942aaaa9921729cfe8aa8c39f3850c28078365416563d4f772bd78dc57",
+     "duration_sec": 42.05,
+     "resolution": {
+      "width": 720,
+      "height": 1556,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5121353889354855"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45043428293,
+    "artifact_id": 14763136771,
+    "name": "production-reject-ly-1122-d26cfe",
+    "retained": true
+   },
+   "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5366657010631917",
@@ -150260,7 +150293,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-18T17:30:02+08:00"
+   "publish_time": "2026-11-18T17:30:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-1eee24",
+    "run_id": 45043443944,
+    "artifact_id": 14762572092,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "7ed9d4cf8f706183ac7cf5fe5ce2f4ffa3831efa7b57682ca66f00ea80ef071e",
+     "duration_sec": 25.36,
+     "resolution": {
+      "width": 1080,
+      "height": 1440,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5366657010631917"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 65%（BV1ViW36DEim）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45043443944,
+    "artifact_id": 14762572092,
+    "name": "production-reject-ly-1122-1eee24",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 65%（BV1ViW36DEim）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Qky3zEE1N",
@@ -274083,6 +274149,20 @@
    "video_id": "http://f.video.weibocdn.com/o0/xrLpARPGlx08rNnuvfII01041200ihcd0E010.mp4",
    "ts": 1795364071,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1122-1eee24",
+   "key": "weibo_search:5366657010631917",
+   "video_id": "https://f.video.weibocdn.com/u0/sHTcfTuwgx08CsWFQdFe010412005bjy0E010.mp4",
+   "ts": 1795365456,
+   "error": "与已发布内容文字指纹重复：转写片段重合 65%（BV1ViW36DEim）"
+  },
+  {
+   "slug": "ly-1122-d26cfe",
+   "key": "weibo_search:5121353889354855",
+   "video_id": "https://f.video.weibocdn.com/u0/7UwJfVw5gx08l3hxgU5a01041200cnw90E010.mp4",
+   "ts": 1795365456,
+   "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
   }
  ],
  "reviewed_third_video_0910": {
