@@ -9065,13 +9065,13 @@
       "family": "investor_call",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795059861.224164,
-      "next_retry_at": 1795146261.224164,
+      "last_attempt_at": 1795319882.5816205,
+      "next_retry_at": 1795406282.5816205,
       "download_partial_bytes": 0
     },
     "f5024389a8958d90f8b7": {
@@ -9168,13 +9168,13 @@
       "family": "dadao_2026_06",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 4,
+      "attempts": 5,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795059561.2149608,
-      "next_retry_at": 1795145961.2149608,
+      "last_attempt_at": 1795319582.5690286,
+      "next_retry_at": 1795405982.5690286,
       "download_partial_bytes": 0
     },
     "ed8d377e243572955f8e": {
@@ -9738,15 +9738,37 @@
       "role": "mother",
       "family": "simuwang_2026_10_15",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 1,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795088711.2486887,
-      "next_retry_at": 1795110311.2486887,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1795320081.3298438,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "7edda78e3513245c41b44ebf89d6b07c1deb07faeaf1d96b5d852be2cf50d018",
+        "duration_sec": 2419.2,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1209.6
+          }
+        ],
+        "audio_fingerprint_count": 19518,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "44982258881"
     },
     "36c79b856870693a95f2": {
       "url": "https://www.bilibili.com/video/BV1Th411W73P",
@@ -9852,19 +9874,22 @@
     "investor_call|林园 投资者连线 完整版": {
       "status": "retry_wait",
       "checked_at": 1795206469.7952023,
-      "next_retry_at": 1795305449.9027703,
+      "next_retry_at": 1795362779.987474,
       "found": 4,
+      "new_ids": [],
+      "attempts": 2,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795319579.987474
+    },
+    "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
+      "status": "retry_wait",
+      "checked_at": 1795274815.9163425,
+      "next_retry_at": 1795341179.987474,
+      "found": 3,
       "new_ids": [],
       "attempts": 1,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795283849.9027703
-    },
-    "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
-      "status": "searched",
-      "checked_at": 1795274815.9163425,
-      "next_retry_at": 1795318015.9163425,
-      "found": 3,
-      "new_ids": []
+      "last_attempt_at": 1795319579.987474
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
@@ -9945,8 +9970,8 @@
       "errors": []
     }
   },
-  "search_cursor": 8,
-  "updated_at": 1795315524,
-  "last_run_id": "44976743073",
+  "search_cursor": 10,
+  "updated_at": 1795320081,
+  "last_run_id": "44982258881",
   "audio_match_candidates": []
 }
