@@ -148506,7 +148506,72 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-28T00:29:21+00:00"
+   "publish_time": "2026-05-28T00:29:21+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-7211a1",
+    "run_id": 45028906281,
+    "artifact_id": 14757636905,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "060a71838bdb9087308e62486b4b70876e7e96be6a8e2984ca1a5b5a1a1cbece",
+     "duration_sec": 612.17,
+     "resolution": {
+      "width": 1920,
+      "height": 872,
+      "short_edge": 872
+     },
+     "source_url": "https://www.bilibili.com/video/BV1MuGX6cE8B"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Aeat6iExx）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：无；原文问题：[[\"我们打理我们的资产，就是有钱就买股票，是吧？\", \"字幕将嘉宾姓名'林园'误识别为'林元'，且后文出现'凌云老师'，存在明显的实体识别错误，虽不影响核心观点理解，但属于需音频复核的指代不清。\"], [\"年化我倒没没没仔细去统计过啊，年化应该是百分之五十以上吗？\", \"句子中包含口吃（'没没没'）及自问自答结构（'年化应该是百分之五十以上吗？'），虽为口语常态，但严格来说后半句是猜测性反问而非确定论断，不过结合上下文语境可视为其表达收益预期的方式，不构成切断论述。\"]]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 464.53s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 428.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：回答在逻辑上未完成：嘉宾试图表达观点，但最后一句存在严重语病或识别错误（‘没有困难的时候没有’），导致无法构成完整表达；同时全段缺乏对主持人提问的直接回应和明确的方法论总结，属于必要论述被切断。；原文问题：[[\"啊，我们没有发现在投资的上面给我们有有困难的时候没有。\", \"句子内容存在严重语义断裂和同音疑点（‘没有困难的时候没有’），无法确定嘉宾真实意图，影响对观点完整性的判断，需人工听音核实。\"]]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 89%（BV1WGpv6hEqL）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 360.80s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 252.33s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 72.43s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45028906281,
+    "artifact_id": 14757636905,
+    "name": "production-reject-ly-1122-7211a1",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Aeat6iExx）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5366468104945791",
@@ -148596,7 +148661,8 @@
    },
    "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/113，总帧数562；身份匹配但人脸短边不足96px的帧数76",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV11KWr6XE41",
@@ -148688,7 +148754,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5367554753429961",
@@ -272521,6 +272588,13 @@
    "video_id": "https://f.video.weibocdn.com/3CDlHpwBlx07Nljsny0g01041200c4sj0E010.mp4",
    "ts": 1795356918,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0484, 2: -0.0831, 3: -0.0704, 4: -0.1168, 5: -0.1345, 6: -0.0771, 7: 0.0361, 8: -0.1115, 9: -0.1758, 10: 0.0202, 11: -0.0593, 12: 0.1398, 14: 0.2316, 15: 0.2325, 18: 0.7618}"
+  },
+  {
+   "slug": "ly-1122-7211a1",
+   "key": "bilibili_search:BV1MuGX6cE8B",
+   "video_id": "BV1MuGX6cE8B",
+   "ts": 1795356932,
+   "error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1Aeat6iExx）"
   }
  ],
  "reviewed_third_video_0910": {
