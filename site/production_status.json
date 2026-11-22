@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795326650,
-  "inventory_updated_at": 1795326368,
+  "updated_at": 1795327317,
+  "inventory_updated_at": 1795327307,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 4987,
-      "shortfall": 5013
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 7,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 161,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -88,7 +88,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -102,8 +102,8 @@
       "date": "2026-11-22",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 0,
-      "gap_by_now": 0,
+      "expected_by_now": 1,
+      "gap_by_now": 1,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
@@ -444,11 +444,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795326647,
+    "updated_at": 1795327314,
     "records": 19966,
     "video_records": 17345,
     "initial_candidates": 394,
@@ -1271,14 +1271,6 @@
         "duration_sec": 754.0
       },
       {
-        "key": "bilibili_search:BV1Prsu6YET6",
-        "title": "林园 为什么不轻易说股市高低？林园：赚钱是书本上学不到的，哪个经济学家能告诉你他能赚多少钱；本身没有任何一个人能说清楚股",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1Prsu6YET6",
-        "duration_sec": 92.0
-      },
-      {
         "key": "bilibili_search:BV1enWZ67EwR",
         "title": "林园 P1 林园 为什么只买产品单一的公司？林园：就是我说的红烧肉粉蒸肉，为什么大家都爱吃；尽量规避那些产品不断变化、靠",
         "source": "bilibili_search",
@@ -1381,6 +1373,14 @@
         "author": "大川成长价值投资",
         "url": "https://m.weibo.cn/detail/5365554713985095",
         "duration_sec": 91.0
+      },
+      {
+        "key": "bilibili_search:BV1Prsu6YET6",
+        "title": "林园 为什么不轻易说股市高低？林园：赚钱是书本上学不到的，哪个经济学家能告诉你他能赚多少钱；本身没有任何一个人能说清楚股",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1Prsu6YET6",
+        "duration_sec": 92.0
       },
       {
         "key": "bilibili_search:BV1FJs46rEep",
@@ -1776,14 +1776,14 @@
     "complete": 219,
     "failed": 2602,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 12,
     "excluded": 105,
     "experiment_fallback": 180,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 2,
     "unknown": 2,
-    "running": 5
+    "running": 3
   },
   "tasks": [
     {
@@ -58612,8 +58612,8 @@
     },
     {
       "slug": "ly-1122-356058",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795321986,
         "failed": null,
@@ -58626,7 +58626,7 @@
       "run_id": 44985551730,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44985551730",
       "run_started_at": "2026-11-22T04:33:06Z",
-      "run_updated_at": "2026-11-22T04:33:09Z"
+      "run_updated_at": "2026-11-22T05:59:20Z"
     },
     {
       "slug": "ly-1122-bf7687",
@@ -58774,8 +58774,8 @@
     },
     {
       "slug": "ly-1122-c31c8b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795324684,
         "failed": null,
@@ -58788,7 +58788,7 @@
       "run_id": 44988801991,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44988801991",
       "run_started_at": "2026-11-22T05:18:03Z",
-      "run_updated_at": "2026-11-22T05:18:07Z"
+      "run_updated_at": "2026-11-22T05:59:48Z"
     },
     {
       "slug": "ly-1122-954785",
@@ -89268,17 +89268,6 @@
       "run_number": 4748,
       "display_title": "中文源出片 · ly-1122-4306e9"
     },
-    "ly-1122-531a64": {
-      "id": 44991116610,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-22T05:50:28Z",
-      "updated_at": "2026-11-22T05:50:32Z",
-      "run_started_at": "2026-11-22T05:50:28Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44991116610",
-      "run_number": 4756,
-      "display_title": "中文源出片 · ly-1122-531a64"
-    },
     "ly-1122-395e67": {
       "id": 44988776319,
       "status": "completed",
@@ -89323,6 +89312,17 @@
       "run_number": 4755,
       "display_title": "中文源出片 · ly-1122-4836bc"
     },
+    "ly-1122-531a64": {
+      "id": 44991116610,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T05:50:28Z",
+      "updated_at": "2026-11-22T05:50:32Z",
+      "run_started_at": "2026-11-22T05:50:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44991116610",
+      "run_number": 4756,
+      "display_title": "中文源出片 · ly-1122-531a64"
+    },
     "ly-1122-58e2c4": {
       "id": 44989413451,
       "status": "in_progress",
@@ -89347,10 +89347,10 @@
     },
     "ly-1122-c31c8b": {
       "id": 44988801991,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-22T05:18:03Z",
-      "updated_at": "2026-11-22T05:18:07Z",
+      "updated_at": "2026-11-22T05:59:48Z",
       "run_started_at": "2026-11-22T05:18:03Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44988801991",
       "run_number": 4752,
@@ -89358,10 +89358,10 @@
     },
     "ly-1122-356058": {
       "id": 44985551730,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-22T04:33:06Z",
-      "updated_at": "2026-11-22T04:33:09Z",
+      "updated_at": "2026-11-22T05:59:20Z",
       "run_started_at": "2026-11-22T04:33:06Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44985551730",
       "run_number": 4741,
