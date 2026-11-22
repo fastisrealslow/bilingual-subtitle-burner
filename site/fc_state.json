@@ -145864,7 +145864,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-11-11T10:32:14+08:00"
+   "publish_time": "2025-11-11T10:32:14+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-ca65a9",
+    "run_id": 45005835255,
+    "artifact_id": 14747859666,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "305e1bde14b85af9e333370ffd32592187d8aa9dde1bdd7d994716bde0906869",
+     "duration_sec": 65.78,
+     "resolution": {
+      "width": 1920,
+      "height": 888,
+      "short_edge": 888
+     },
+     "source_url": "https://m.weibo.cn/detail/5231743586271346"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段中缺乏明确的观点陈述（claim_quote），仅包含主持人的提问和嘉宾关于‘面子’、‘别人看法’、‘无所谓’的叙述，未形成可独立成片的完整判断或结论。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45005835255,
+    "artifact_id": 14747859666,
+    "name": "production-reject-ly-1122-ca65a9",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：片段中缺乏明确的观点陈述（claim_quote），仅包含主持人的提问和嘉宾关于‘面子’、‘别人看法’、‘无所谓’的叙述，未形成可独立成片的完整判断或结论。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1c2su6FEZw",
@@ -269532,6 +269565,13 @@
    "video_id": "BV19wsk6MEP5",
    "ts": 1795338700,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1122-ca65a9",
+   "key": "weibo_search:5231743586271346",
+   "video_id": "https://f.video.weibocdn.com/yFDRZeB6lx07KQnnGsZW01041200vg1S0E010.mp4",
+   "ts": 1795339733,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：片段中缺乏明确的观点陈述（claim_quote），仅包含主持人的提问和嘉宾关于‘面子’、‘别人看法’、‘无所谓’的叙述，未形成可独立成片的完整判断或结论。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
