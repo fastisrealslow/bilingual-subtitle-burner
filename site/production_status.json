@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795328712,
+  "updated_at": 1795328884,
   "inventory_updated_at": 1795328702,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 4987,
+      "shortfall": 5013
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 157,
+    "active_or_recovering_sources": 5,
+    "waiting_candidates": 156,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -448,17 +448,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795328709,
+    "updated_at": 1795328881,
     "records": 19966,
     "video_records": 17345,
-    "initial_candidates": 390,
-    "duration_eligible_records": 189,
-    "candidate_count": 157,
-    "known_duration_candidates": 157,
+    "initial_candidates": 389,
+    "duration_eligible_records": 188,
+    "candidate_count": 156,
+    "known_duration_candidates": 156,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 10104,
-      "already_attempted_or_cooling": 4385,
+      "already_attempted_or_cooling": 4386,
       "no_video": 2621,
       "ai_content": 37,
       "unrelated": 110,
@@ -829,22 +829,6 @@
         "author": "金融大壮",
         "url": "https://m.weibo.cn/detail/5167967244911989",
         "duration_sec": 31.0
-      },
-      {
-        "key": "weibo_search:4962589924920541",
-        "title": "2023年10月【林园】做客水皮直播间:如何看待当下市场@乐游养生 @你不知道的乐游 http://t.cn/A6W6x",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4962589924920541",
-        "duration_sec": 1040.0
-      },
-      {
-        "key": "weibo_search:4911917623149611",
-        "title": "李录&林园:别人投什么跟你没关系，也不需要多交流[威武][威武][威武]@乐游养生 @你不知道的乐游 http://t.",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4911917623149611",
-        "duration_sec": 108.0
       },
       {
         "key": "bilibili_search:BV1EyoYY3Esq",
@@ -1431,6 +1415,22 @@
         "duration_sec": 30.0
       },
       {
+        "key": "weibo_search:4911917623149611",
+        "title": "李录&林园:别人投什么跟你没关系，也不需要多交流[威武][威武][威武]@乐游养生 @你不知道的乐游 http://t.",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/4911917623149611",
+        "duration_sec": 108.0
+      },
+      {
+        "key": "weibo_search:4957581816892868",
+        "title": "2023-10-16【对话林园】第一个100万很难赚靠投资改变命运需要15年@乐游养生 @你不知道的乐游 http://",
+        "source": "weibo_search",
+        "author": "乐游-杨生",
+        "url": "https://m.weibo.cn/detail/4957581816892868",
+        "duration_sec": 636.0
+      },
+      {
         "key": "bilibili_search:BV1YHWZ62Erm",
         "title": "林园说了一个极端的假设：林园：如果你买入好公司，把股市关闭十年，谁都没办法交易，那就对了——你会跟着好的公司持续成长，一",
         "source": "bilibili_search",
@@ -1687,14 +1687,6 @@
         "duration_sec": 689.0
       },
       {
-        "key": "weibo_search:4957581816892868",
-        "title": "2023-10-16【对话林园】第一个100万很难赚靠投资改变命运需要15年@乐游养生 @你不知道的乐游 http://",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/4957581816892868",
-        "duration_sec": 636.0
-      },
-      {
         "key": "weibo_search:5367136543311764",
         "title": "#昕礽果复利增长价值亿亿金# 投资如何熬过春夏秋冬？林园总在天玉专访中坦言：大钱都是慢慢等出来的！不追求快钱，坚守垄断与",
         "source": "weibo_search",
@@ -1742,16 +1734,16 @@
   },
   "counts": {
     "complete": 219,
-    "failed": 2607,
+    "failed": 2609,
     "paused": 5,
-    "interrupted": 12,
+    "interrupted": 10,
     "excluded": 105,
     "experiment_fallback": 180,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 3
+    "running": 4
   },
   "tasks": [
     {
@@ -58868,11 +58860,11 @@
     },
     {
       "slug": "ly-1122-4836bc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403319264893956']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795328431,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -58886,11 +58878,11 @@
     },
     {
       "slug": "ly-1122-e56666",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原始素材短边 460 < 480（720x460），画质不达标",
       "signature": {
         "ts": 1795328439,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -58901,6 +58893,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993291599",
       "run_started_at": "2026-11-22T06:20:39Z",
       "run_updated_at": "2026-11-22T06:23:15Z"
+    },
+    {
+      "slug": "ly-1122-35500e",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795328858,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44993813056,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993813056",
+      "run_started_at": "2026-11-22T06:27:38Z",
+      "run_updated_at": "2026-11-22T06:27:41Z"
     }
   ],
   "runs": {
@@ -89417,6 +89427,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993280932",
       "run_number": 4760,
       "display_title": "中文源出片 · ly-1122-4836bc"
+    },
+    "ly-1122-35500e": {
+      "id": 44993813056,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T06:27:38Z",
+      "updated_at": "2026-11-22T06:27:41Z",
+      "run_started_at": "2026-11-22T06:27:38Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993813056",
+      "run_number": 4762,
+      "display_title": "中文源出片 · ly-1122-35500e"
     },
     "ly-1122-6ec604": {
       "id": 44992174633,
