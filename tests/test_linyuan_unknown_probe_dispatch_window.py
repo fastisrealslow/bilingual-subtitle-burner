@@ -18,7 +18,7 @@ def test_real_unknowns_after_position_119_get_one_probe_not_an_approval(monkeypa
     chosen=F.pick_for_shortfall([{}]*149,{},24,audit,True,True)
     assert len(chosen)==24 and F.candidate_duration(chosen[0])==0
     assert sum(not F.candidate_duration(c) for c in chosen)==1
-    assert sum(F.complete_short_candidate(c) for c in chosen)>=4
+    assert sum(F.complete_short_candidate(c) for c in chosen)>=2
     assert audit['dispatch_window']['selected_unknown_duration_probes']==1
     assert audit['dispatch_window']['quality_gates_relaxed'] is False
 

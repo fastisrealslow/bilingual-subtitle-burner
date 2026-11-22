@@ -97,7 +97,7 @@ def test_actual_149_candidates_offer_36_short_opportunities_within_same_24_attem
     monkeypatch.setattr(F,'pick',pick)
     audit={};selected=F.pick_for_shortfall([{}]*149,{},24,audit,True,True)
     assert len(selected)==24 and calls==[149]
-    assert sum(F.complete_short_candidate(c) for c in selected)>=4
+    assert sum(F.complete_short_candidate(c) for c in selected)>=2
     assert audit['dispatch_window']['quality_gates_relaxed'] is False
     assert not any(c.get('media_verified') for c in selected)
 

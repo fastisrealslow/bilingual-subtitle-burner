@@ -1741,14 +1741,18 @@ def pick_for_shortfall(items, state, limit, audit, treatment_needed=False,ordina
     pool=pick(items,state,max(limit,len(items)),audit=audit)
     long=[c for c in pool if experiment.long_candidate(c)] if treatment_needed else []
     remaining=[c for c in pool if not treatment_needed or not experiment.long_candidate(c)]
-    shorts=[c for c in remaining if complete_short_candidate(c)][:4] if ordinary_needed else []
+    shorts=[c for c in remaining if complete_short_candidate(c)][:2] if ordinary_needed else []
+    mothers=[c for c in remaining if 900<=candidate_duration(c)<=MAX_DUR][:2] if ordinary_needed else []
     # Missing duration is not evidence of a short source. Give one eligible
     # probe a place before truncation, while the actual dispatcher still checks
     # active probes, the two-per-CST-day budget and the shared six-worker cap.
     probes=([c for c in remaining if experiment_duration_probe_allowed(c,state,[],
         dict(portrait=1),known_long_available=False)][:1]
         if treatment_needed and not long and inventory_targets.active() else [])
-    ordered=long+probes+shorts+[c for c in remaining if c not in shorts and c not in probes]
+    # An ~80-second delivery need not come from an ~80-second mother.
+    # Keep complete longer mothers producing alongside short opportunities.
+    ordered=long+probes+mothers+shorts+[c for c in remaining
+        if c not in shorts and c not in probes and c not in mothers]
     selected=ordered[:limit]
     audit['dispatch_window']=dict(version=1,reason='required_treatment_shortfall' if treatment_needed else 'ordinary_backlog_shortfall',
         admitted_candidates=len(pool),known_long_candidates=sum(experiment.long_candidate(c) for c in pool),
@@ -1757,6 +1761,8 @@ def pick_for_shortfall(items, state, limit, audit, treatment_needed=False,ordina
         short_complete_candidates=sum(complete_short_candidate(c) for c in pool),
         selected_short_complete=sum(complete_short_candidate(c) for c in selected),
         selected_unknown_duration_probes=sum(c in probes for c in selected),
+        selected_ordinary_mothers=sum(c in mothers for c in selected),
+        priority_short_opportunities=len(shorts),priority_ordinary_mothers=len(mothers),
         priority_applied_before_limit=True,quality_gates_relaxed=False)
     return selected
 
