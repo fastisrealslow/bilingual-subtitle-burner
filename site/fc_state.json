@@ -151044,7 +151044,12 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-01-12T17:03:56+00:00"
+   "publish_time": "2024-01-12T17:03:56+00:00",
+   "source_check_report_id": 14766126328,
+   "source_check_run_id": 45051402605,
+   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
+   "failure_stage": "source-fetch",
+   "source_check_retry_after": 1795371519
   },
   {
    "key": "weibo_search:4711482023216980",
@@ -151067,7 +151072,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2021-12-06T18:58:32+08:00"
+   "publish_time": "2021-12-06T18:58:32+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-9fa3e7",
+    "run_id": 45051415223,
+    "artifact_id": 14765972875,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a72305e6d07909fd7b5a603e07b1fcb0aba27109cde6733797206dbb70f42991",
+     "duration_sec": 328.24,
+     "resolution": {
+      "width": 876,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4711482023216980"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45051415223,
+    "artifact_id": 14765972875,
+    "name": "production-reject-ly-1122-9fa3e7",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1pRpW6AEVf",
@@ -274908,6 +274946,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/4EtgttQylx07XqJOJams010412014dQA0E010.mp4",
    "ts": 1795369601,
    "error": "原始素材短边 308 < 480（550x308），画质不达标"
+  },
+  {
+   "slug": "ly-1122-9fa3e7",
+   "key": "weibo_search:4711482023216980",
+   "video_id": "https://f.video.weibocdn.com/u0/XRvmtdkSgx07RxL80Unm01041201CPVs0E010.mp4",
+   "ts": 1795370618,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
