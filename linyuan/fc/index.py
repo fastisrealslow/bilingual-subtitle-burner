@@ -60,7 +60,7 @@ DELIVERY_RELEASE_TAG = "deliver"
 MIN_DUR, MAX_DUR = int(editorial.MIN_SECONDS), 5400
 # 竞品号：监控但不抄（视频在 data.json 供分析，选片/出片时跳过，2026-08-29）
 COMPETITOR_AUTHORS = {"园园滚雪球"}
-MAX_PER_DAY = 10                         # 2026-09-05：目标维持 8-10 条合格库存，失败候选不再挤掉当天供片
+MAX_PER_DAY = 10                         # Historical name: per-pass target, NOT an aggregate daily spend cap.
 MAX_PUBLISH_PER_DAY = 4                  # 三个原时段 + 每天14点一条横屏
 REQUIRED_TREATMENT_SINCE = '2026-11-15'  # Ordinary fallback cannot consume either required daily T slot.
 TARGET_READY_RESERVE = 12
@@ -2666,6 +2666,21 @@ def refresh_after_experiment_publication(st, receipt):
     return request_inventory_refresh(st)
 
 
+def backlog_candidate_has_room(candidate, inventory, state, active_runs,
+        normal_needs, treatment_needs, *, known_long_available,
+        ordinary_inflight, full_week=False):
+    """No paid download/transfer for a backlog intent that cannot use a worker."""
+    if not inventory_targets.active() or 'ordinary_ready' not in inventory:return True
+    if full_week:return True  # Keep the existing weekly feature and shared global cap.
+    treatment_missing=any(treatment_needs.values())
+    can_treat=treatment_missing and (experiment.long_candidate(candidate)
+        or experiment_duration_probe_allowed(candidate,state,active_runs,treatment_needs,
+            known_long_available=known_long_available))
+    can_ordinary=any(normal_needs.values()) and (not treatment_missing
+        or ordinary_inflight<MAX_ACTIVE_SOURCES-2)
+    return can_treat or can_ordinary
+
+
 def _dispatch_admitted(event=None, context=None):
     st = load_state()
     # Production/source gate failures happen in Actions after dispatch returns.
@@ -2864,13 +2879,17 @@ def _dispatch_admitted(event=None, context=None):
     active_ordinary=sum((latest_active.get(str(r.get('display_title') or '').split(' · ')[-1]) or {})
         .get('editorial_profile')!=experiment.TREATMENT for r in active_runs)
     new_ordinary=0
-    mainland_deferred = 0
+    mainland_deferred = []
     urgent_wide_reserved=False
     for i, c in enumerate(cands):
         if success >= target:
             log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
         full_week=weekly_full_request(c,st)
+        if not backlog_candidate_has_room(c,inventory,st,active_runs,normal_deficits,exp_needs,
+                known_long_available=known_long_available,
+                ordinary_inflight=active_ordinary+new_ordinary,full_week=bool(full_week)):
+            continue
         if (not recent_probe and not any(normal_deficits.values()) and not full_week
                 and not experiment.long_candidate(c) and dispatch_requires_mainland(c)):
             # Unknown-duration exploration uses the existing native-page CI
@@ -2889,7 +2908,7 @@ def _dispatch_admitted(event=None, context=None):
             # A domestic-only source must not block later Bilibili/Weibo
             # candidates. Keep it untouched, finish runnable admissions, then
             # release the lease before requesting FC for any remaining gap.
-            mainland_deferred += 1
+            mainland_deferred.append((c,bool(full_week)))
             continue
         import hashlib
         c["slug"] = "ly-" + time.strftime("%m%d") + "-" + \
@@ -2912,7 +2931,7 @@ def _dispatch_admitted(event=None, context=None):
                     from importlib import import_module
                     origin=import_module('ci_fetch_netease').resolve(ci_public_source_page(c))
                 except Exception as exc:
-                    mainland_deferred+=1
+                    mainland_deferred.append((c,bool(full_week)))
                     log_event('source_transfer_fallback','公开原片CI预读取未确认，保留境内取源',type(exc).__name__)
                     continue
                 dur=float(origin['declared_duration'])
@@ -3030,7 +3049,11 @@ def _dispatch_admitted(event=None, context=None):
             log_event("fail", f"调度失败 {c.get('slug', c['key'])}", str(e)[:150])
             _record_failure(st, c, e)
 
-    if mainland_deferred and success < target:
+    domestic_room=any(backlog_candidate_has_room(c,inventory,st,active_runs,
+        normal_deficits,exp_needs,known_long_available=known_long_available,
+        ordinary_inflight=active_ordinary+new_ordinary,full_week=weekly)
+        for c,weekly in mainland_deferred)
+    if domestic_room and success < target:
         return {'dispatched': success, 'requires_mainland_transfer': True}
     _process_retries(st)
     source_gap=(not cands or (any(initial_experiment_needs.values()) and not any(normal_deficits.values())))
