@@ -93,3 +93,40 @@ def test_uncertain_dispatch_keeps_intent_and_cannot_submit_again(state,monkeypat
     assert C.request(p)['dispatched']==0
     assert C.request(p)['reason']=='already_attempted_or_unresolved'
     assert sent==[(R.DOCUMENTARY_CHILD,C.DELIVERY_ARTIFACT)]
+
+
+def test_main_uses_current_actual_cpu_attestation_and_still_checks_exact_selector_bytes(tmp_path,monkeypatch):
+    monkeypatch.chdir(tmp_path);calls=[]
+    def gh(method,path,**kwargs):
+        calls.append(path)
+        if path==f'/actions/runs/{C.CPU_RUN}':return dict(head_sha=C.CPU_HEAD)
+        if path.startswith('/contents/'):
+            relative=path[len('/contents/'):].split('?ref=')[0]
+            assert path.endswith('?ref='+C.CPU_HEAD)
+            return (C.ROOT/relative).read_bytes()
+        if path.startswith('/actions/workflows/'):
+            return dict(workflow_runs=[dict(id=123,conclusion='success')])
+        pytest.fail('unexpected request '+path)
+    monkeypatch.setattr(C.F,'gh',gh)
+    reports=[]
+    def report(run,name,filename,directory):
+        reports.append((run,name))
+        return proof() if run==C.CPU_RUN else dict(verification_complete=True)
+    monkeypatch.setattr(C,'download_report',report)
+    monkeypatch.setattr(C,'deployment_error',lambda _:None)
+    monkeypatch.setattr(C.F,'run_with_lease',lambda name,callback:dict(dispatched=0,reason='existing_budget_retained'))
+    C.main()
+    assert C.CPU_RUN==44975262087 and C.CPU_HEAD=='7cccd73fc5b7a1ffe4f7da21cdb8e50c0e886735'
+    assert reports==[(C.CPU_RUN,'documented-company-cpu'),(123,'production-verification')]
+    assert len([p for p in calls if p.startswith('/contents/')])==2
+    assert json.loads((tmp_path/'documented-company-recovery-request.json').read_text())['dispatched']==0
+
+
+def test_updated_cpu_attestation_does_not_allow_changed_selector_or_unsafe_replay(tmp_path,monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(C.F,'gh',lambda method,path,**kwargs:
+        dict(head_sha=C.CPU_HEAD) if path.startswith('/actions/runs/') else b'different selector')
+    monkeypatch.setattr(C,'download_report',lambda *args:proof())
+    monkeypatch.setattr(C.F,'run_with_lease',lambda *args:pytest.fail('unverified producer request'))
+    with pytest.raises(ValueError,match='CPU-tested selector code differs'):
+        C.main()

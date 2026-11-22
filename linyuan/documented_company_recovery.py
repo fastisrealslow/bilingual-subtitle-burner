@@ -12,8 +12,8 @@ import verified_story_title_recovery as R
 
 ROOT=Path(__file__).resolve().parents[1]
 # Real qwen3.5:9b replay of the current selector, positive case and controls.
-CPU_RUN=43605098370
-CPU_HEAD='fc701af8bda408e5db0719df2ec18796617b2646'
+CPU_RUN=44975262087
+CPU_HEAD='7cccd73fc5b7a1ffe4f7da21cdb8e50c0e886735'
 DELIVERY_ARTIFACT=12953295426
 TIMELINE_ARTIFACT=13528993846
 
