@@ -147122,11 +147122,13 @@
     "basis": "unknown"
    },
    "publish_time": "2026-11-21T06:23:49+00:00",
-   "source_check_report_id": 14750882956,
-   "source_check_run_id": 45014613494,
-   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 403: Forbidden",
+   "source_check_report_id": 14752941492,
+   "source_check_run_id": 45018478134,
+   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:5367931845739028",
@@ -147149,7 +147151,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-22T05:55:46+08:00"
+   "publish_time": "2026-11-22T05:55:46+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45018490836,
+    "artifact_id": 14752424701,
+    "name": "source-reject-ly-1122-dc911a",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0435, 2: 0.0623, 3: 0.1003, 4: 0.0528, 6: 0.073, 7: 0.0342, 8: -0.0226, 9: 0.0077, 10: 0.0152, 11: -0.016, 12: 0.0926, 13: 0.0286, 14: 0.0248, 15: -0.0035, 16: -0.0224, 17: 0.076, 18: 0.0794}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5367136423773564",
@@ -270677,6 +270689,13 @@
    "video_id": "BV1t5411u7XL",
    "ts": 1795345895,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1122-dc911a",
+   "key": "weibo_search:5367931845739028",
+   "video_id": "https://f.video.weibocdn.com/o0/90tYqt5Llx08CyAc01Fe01041200orMZ0E010.mp4",
+   "ts": 1795347980,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.0435, 2: 0.0623, 3: 0.1003, 4: 0.0528, 6: 0.073, 7: 0.0342, 8: -0.0226, 9: 0.0077, 10: 0.0152, 11: -0.016, 12: 0.0926, 13: 0.0286, 14: 0.0248, 15: -0.0035, 16: -0.0224, 17: 0.076, 18: 0.0794}"
   }
  ],
  "reviewed_third_video_0910": {
