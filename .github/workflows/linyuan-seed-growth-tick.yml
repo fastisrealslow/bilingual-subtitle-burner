@@ -11,6 +11,7 @@ on:
       - linyuan/seed_growth.py
       - linyuan/seed_campaign.py
       - linyuan/seed_pool_growth.py
+      - linyuan/inventory_targets.py
       - linyuan/known_long_source_refresh.py
       - linyuan/native_header_probe.py
   workflow_dispatch:
@@ -49,12 +50,12 @@ jobs:
         timeout-minutes: 3
         continue-on-error: true
         run: python -u monitor_v2.py --source-types weibo_search
-      - name: 精确核验独立视频，目标5000；不取代媒体验收
+      - name: 精确核验独立视频，目标10000；不取代媒体验收
         timeout-minutes: 8
         continue-on-error: true
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: python -u seed_pool_growth.py --target 5000 --limit 48
+        run: python -u seed_pool_growth.py --target 10000 --limit 48
       - name: 将新核验长母片立即写入候选目录（不增加网络请求或生产并发）
         id: seed_catalogue
         run: |

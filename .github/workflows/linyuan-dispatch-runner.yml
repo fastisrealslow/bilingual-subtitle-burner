@@ -55,6 +55,7 @@ jobs:
           tests/test_linyuan_preflight_recovery.py tests/test_linyuan_makeup_slot.py
           tests/test_linyuan_missed_slots.py tests/test_linyuan_config_health.py
           tests/test_linyuan_receipt_recovery.py
+          tests/test_linyuan_inventory_backlog_targets.py
       - name: 在 GitHub 接管调度，成功后关闭 FC 小时空跑
         run: python -u linyuan/fc/dispatch_on_runner.py
       - uses: actions/upload-artifact@v4

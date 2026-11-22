@@ -14,8 +14,9 @@ import seed_growth as bilibili
 from seed_campaign import BASE, NO_MEDIA, census
 from seed_scan import rotating_batch
 from source_catalogue_duration import eligible_duration
+from inventory_targets import SEED_TARGET
 
-TARGET = 5000
+TARGET = SEED_TARGET
 WEIBO_LIMIT = 16
 WEIBO_RECHECK_SECONDS = 86400
 

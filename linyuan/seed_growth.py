@@ -11,6 +11,7 @@ import monitor_v2 as monitor
 from seed_campaign import BASE, BVID, NO_MEDIA, census, verify_seed
 from seed_scan import rotating_batch
 from source_catalogue_duration import eligible_duration
+import inventory_targets
 
 QUERIES = ('林园 完整访谈', '林园 演讲', '林园 第一财经', '林园 腾讯财经',
            '林园 私募排排网', '林园 北大', '林园 春瑜会客厅', '林园 红周刊',
@@ -200,7 +201,9 @@ def long_replenishment_budget(base):
     except (OSError,ValueError,KeyError,TypeError):return 0
     if not stock['inventory_fresh'] or not fc.experiment.production_preparing():return 0
     ready=stock.get('experiment_ready') or {}
-    if int(ready.get('landscape') or 0)>=2 and sum(ready.values())>=4:return 0
+    target=(inventory_targets.TREATMENT_TARGET if 'ordinary_ready' in stock else 4)
+    minimum_wide=(inventory_targets.TREATMENT_MIN_LANDSCAPE if 'ordinary_ready' in stock else 2)
+    if int(ready.get('landscape') or 0)>=minimum_wide and sum(ready.values())>=target:return 0
     if not isinstance(admission.get('candidates'),list):return 0
     available=sum(fc.experiment.long_candidate(dict(extra=dict(duration=row.get('duration_sec'))))
                   for row in admission['candidates'])
@@ -210,7 +213,7 @@ def long_replenishment_budget(base):
     return min(4,max(0,8-added))
 
 
-def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_long=False):
+def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=True, verify=None,replenish_long=False):
     deadline = time.monotonic() + 210
     before = census(base)
     roots = existing_roots(base)
@@ -384,13 +387,13 @@ def run(base=BASE, *, target=1000, limit=48, search=True, verify=None,replenish_
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--target', type=int, default=1000)
+    parser.add_argument('--target', type=int, default=inventory_targets.SEED_TARGET)
     parser.add_argument('--limit', type=int, default=48)
     parser.add_argument('--replenish-long',action='store_true',
         help='After the catalogue target, replenish proven long-source shortages within a daily cap')
     parser.add_argument('--output', type=Path, default=BASE / '.automation/seed_growth_report.json')
     args = parser.parse_args()
-    if not 1 <= args.limit <= 64 or not 1 <= args.target <= 5000:
+    if not 1 <= args.limit <= 64 or not 1 <= args.target <= inventory_targets.SEED_TARGET:
         parser.error('bounded target/limit required')
     report = run(target=args.target, limit=args.limit,replenish_long=args.replenish_long)
     from batch_delivery import write_json

@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import sys
 import time
+import inventory_targets
 
 sys.path.insert(0, str(Path(__file__).parent / 'fc'))
 import index as fc
@@ -176,7 +177,7 @@ def classify(entry, state, inventory, run, now):
     return 'unknown', '未找到本次调度的运行或合格成片证据，需核对；不计为生产中'
 
 
-def build(state, inventory, runs, now=None):
+def build(state, inventory, runs, now=None,seed_count=None):
     now = int(time.time() if now is None else now)
     counts = Counter(e.get('slug') for e in state.get('dispatched', []))
     tasks = []
@@ -230,6 +231,7 @@ def build(state, inventory, runs, now=None):
         continuity['alert']=(experiment_status.get('alert') or
             ('daily_delivery_not_yet_stable' if delivery_unstable else 'experiment_status_unconfirmed'))
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
+                backlog=inventory_targets.progress(fc.source_inventory(state,inventory),seed_count),
                 continuity=continuity,
                 publishing_experiment=experiment_status,
                 source_admission=inventory.get('source_admission'),
@@ -254,7 +256,8 @@ def main():
     payload = json.loads((Path(__file__).parent / 'dashboard/data.json').read_text())
     items = payload if isinstance(payload, list) else payload.get('items', [])
     inventory['source_admission'] = fc.source_admission_audit(items, state)
-    result = build(state, inventory, runs)
+    from seed_campaign import census
+    result = build(state, inventory, runs,seed_count=census()['total'])
     args.out.parent.mkdir(parents=True, exist_ok=True)
     tmp = args.out.with_suffix('.tmp')
     tmp.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')

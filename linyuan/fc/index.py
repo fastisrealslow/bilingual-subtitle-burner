@@ -45,6 +45,7 @@ import upload_recovery
 import fc_cost_policy
 import upload_transport
 import publish_clock
+import inventory_targets
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -534,6 +535,11 @@ def content_fits_slot(meta, entry=None, now=None, weekly_fallback=False):
     if (plan and plan['slot_number'] == 4
             and experiment.actual_profile(meta) == experiment.TREATMENT
             and meta.get('render_mode') != 'audio_card'):
+        return True
+    if (plan and plan['slot_number'] in (1,3) and inventory_targets.active(time.time() if now is None else now)
+            and experiment.actual_profile(meta)==experiment.BASELINE):
+        # Ordinary native-wide deliveries can serve ordinary slots, never a
+        # required T slot. Retain weekly-full, media and actual-profile gates.
         return True
     # Other landscape clips remain reserved for the added daily slot.
     return is_landscape(meta) == (local.tm_hour == LANDSCAPE_HOUR)
@@ -1719,22 +1725,31 @@ def pick(items, st, n, audit=None):
     return diversify_source_candidates(cands,n)
 
 
-def pick_for_shortfall(items, state, limit, audit, treatment_needed=False):
+def complete_short_candidate(candidate):
+    return 60<=candidate_duration(candidate)<=110
+
+
+def pick_for_shortfall(items, state, limit, audit, treatment_needed=False,ordinary_needed=False):
     """Apply the required source class BEFORE the bounded attempt window.
 
     All original admission/dedup/ranking gates still run once. Scanning the
     whole admitted catalogue is not a download, worker or quality approval.
     Ordinary-only admission keeps its exact existing ordering and limit.
     """
-    if not treatment_needed:
+    if not treatment_needed and not ordinary_needed:
         return pick(items,state,limit,audit=audit)
     pool=pick(items,state,max(limit,len(items)),audit=audit)
-    ordered=sorted(pool,key=lambda candidate:not experiment.long_candidate(candidate))
+    long=[c for c in pool if experiment.long_candidate(c)] if treatment_needed else []
+    remaining=[c for c in pool if not treatment_needed or not experiment.long_candidate(c)]
+    shorts=[c for c in remaining if complete_short_candidate(c)][:4] if ordinary_needed else []
+    ordered=long+shorts+[c for c in remaining if c not in shorts]
     selected=ordered[:limit]
-    audit['dispatch_window']=dict(version=1,reason='required_treatment_shortfall',
+    audit['dispatch_window']=dict(version=1,reason='required_treatment_shortfall' if treatment_needed else 'ordinary_backlog_shortfall',
         admitted_candidates=len(pool),known_long_candidates=sum(experiment.long_candidate(c) for c in pool),
         attempt_limit=limit,selected_candidates=len(selected),
         selected_known_long=sum(experiment.long_candidate(c) for c in selected),
+        short_complete_candidates=sum(complete_short_candidate(c) for c in pool),
+        selected_short_complete=sum(complete_short_candidate(c) for c in selected),
         priority_applied_before_limit=True,quality_gates_relaxed=False)
     return selected
 
@@ -2072,6 +2087,9 @@ def production_config():
     import caption_readability
     from experiment_runtime import health as experiment_runtime_health
     return {"ok": True, "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "inventory_backlog_targets": dict(version=inventory_targets.VERSION,
+                effective_from=inventory_targets.EFFECTIVE_FROM,ordinary=inventory_targets.ORDINARY_TARGET,
+                treatment=inventory_targets.TREATMENT_TARGET,seeds=inventory_targets.SEED_TARGET),
             "caption_readability_version": caption_readability.VERSION,
             "caption_readability_sha256": hashlib.sha256(Path(caption_readability.__file__).read_bytes()).hexdigest(),
             "title_policy_sha256": hashlib.sha256(Path(title_rewrite.__file__).read_bytes()).hexdigest(),
@@ -2471,6 +2489,22 @@ def reserve_deficits(inventory):
                 landscape=max(0, TARGET_LANDSCAPE_RESERVE - wide))
 
 
+def replenishment_deficits(inventory):
+    # The 12-file operating floor is not the user's 900-file backlog goal.
+    # Old external snapshots lacking classified counts keep their old floor;
+    # real current snapshots always expose disjoint ordinary_ready counts.
+    if not inventory_targets.active() or 'ordinary_ready' not in inventory:return reserve_deficits(inventory)
+    return inventory_targets.ordinary_deficits(inventory) or dict(portrait=0,landscape=0)
+
+
+def treatment_replenishment_deficits(inventory,state,active_runs,now=None):
+    if not inventory_targets.active(now) or 'ordinary_ready' not in inventory:
+        return experiment.production_deficits(inventory,state,active_runs,now)
+    return experiment.production_deficits(inventory,state,active_runs,now,
+        reserve_target=inventory_targets.TREATMENT_TARGET,
+        minimum_landscape=inventory_targets.TREATMENT_MIN_LANDSCAPE)
+
+
 def source_inventory(st, payload=None):
     """Count actual inspected MP4s separately from running workflow jobs."""
     if payload is None:
@@ -2485,6 +2519,7 @@ def source_inventory(st, payload=None):
     due_times=[publication_slot_time(slot) for slot in due_publication_slots(st)]
     live=audio=landscape=portrait=weekly=0
     experiment_ready=dict(portrait=0,landscape=0)
+    ordinary_ready=dict(portrait=0,landscape=0)
     slot_choices=[]
     seen_files=set();seen_sources={};seen_fingerprints=[]
     if valid:
@@ -2522,8 +2557,10 @@ def source_inventory(st, payload=None):
                     if part.get('content_type')=='full_interview':weekly+=1
                     elif is_landscape(part):landscape+=1
                     else:portrait+=1
-                    if part.get('content_type')!='full_interview' and experiment.actual_profile(part)==experiment.TREATMENT:
-                        experiment_ready['landscape' if is_landscape(part) else 'portrait']+=1
+                    if part.get('content_type')!='full_interview':
+                        classified=(experiment_ready if experiment.actual_profile(part)==experiment.TREATMENT
+                                    else ordinary_ready)
+                        classified['landscape' if is_landscape(part) else 'portrait']+=1
                 if part.get('render_mode')!='audio_card':
                     slot_choices.append([i for i,stamp in enumerate(due_times)
                                          if content_fits_slot(part,e,stamp,weekly_fallback=True)])
@@ -2549,7 +2586,7 @@ def source_inventory(st, payload=None):
                 portrait_target=TARGET_PORTRAIT_RESERVE,
                 landscape_target=TARGET_LANDSCAPE_RESERVE,publishable_now=publishable,
                 daily_mix_usable=portrait+landscape,target_reserve=TARGET_READY_RESERVE,
-                inventory_fresh=valid,experiment_ready=experiment_ready)
+                inventory_fresh=valid,experiment_ready=experiment_ready,ordinary_ready=ordinary_ready)
 
 
 def landscape_admission_deficit(inventory, state, active_runs):
@@ -2559,13 +2596,16 @@ def landscape_admission_deficit(inventory, state, active_runs):
     zero finished landscapes and ignored the ones already being produced.
     One real active mother reserves one production opportunity, not a final.
     """
+    if inventory_targets.active() and inventory_targets.layout_counts(inventory.get('ordinary_ready')) is not None:
+        return 0  # Flexible ordinary stock must not force a source into wide.
     latest={e['slug']:e for e in _latest_dispatches(state)}
     planned=set()
     for run in active_runs:
         if run.get('status') not in ('queued','in_progress'):continue
         slug=str(run.get('display_title') or run.get('name') or '').split(' · ')[-1]
         entry=latest.get(slug) or {}
-        if entry.get('output_layout')=='landscape' and not entry.get('weekly_full_week'):
+        if (entry.get('output_layout')=='landscape' and not entry.get('weekly_full_week')
+                and ('ordinary_ready' not in inventory or entry.get('editorial_profile')!=experiment.TREATMENT)):
             planned.add(slug)
     return max(0,TARGET_LANDSCAPE_RESERVE-int(inventory.get('verified_landscape',0))-len(planned))
 
@@ -2647,8 +2687,8 @@ def _dispatch_admitted(event=None, context=None):
         # hourly dispatches must not create batches during an inventory outage.
         request_inventory_refresh(st)
         return {'dispatched':0,'inventory_unavailable':1,**inventory}
-    deficits=reserve_deficits(inventory)
-    exp_needs=experiment.production_deficits(inventory,st,[],time.time())
+    deficits=replenishment_deficits(inventory)
+    exp_needs=treatment_replenishment_deficits(inventory,st,[],time.time())
     deficits={layout:max(deficits[layout],exp_needs[layout]) for layout in deficits}
     landscape_needed=deficits['landscape']
     repair_pending=any(pending_rule_recovery(e) for e in _latest_dispatches(st))
@@ -2658,9 +2698,9 @@ def _dispatch_admitted(event=None, context=None):
     active_runs=[run for status in ('in_progress','queued') for run in
         gh('GET',f'/actions/workflows/{WF_PRODUCE}/runs?status={status}&per_page=100',timeout=30).get('workflow_runs',[])]
     active=len(active_runs)
-    exp_needs=experiment.production_deficits(inventory,st,active_runs,time.time())
+    exp_needs=treatment_replenishment_deficits(inventory,st,active_runs,time.time())
     initial_experiment_needs=dict(exp_needs)
-    normal_deficits=reserve_deficits(inventory)
+    normal_deficits=replenishment_deficits(inventory)
     effective_deficits={layout:max(normal_deficits[layout],exp_needs[layout]) for layout in deficits}
     if not recent_probe and not any(effective_deficits.values()) and not repair_pending:
         return {'dispatched':0,'experiment_waiting_for_active_sources':1,**inventory}
@@ -2675,7 +2715,8 @@ def _dispatch_admitted(event=None, context=None):
     items = j if isinstance(j, list) else j.get("items", [])
     admission = {}
     cands = pick_for_shortfall(items, st, MAX_ATTEMPTS, admission,
-                              treatment_needed=any(exp_needs.values()))
+                              treatment_needed=any(exp_needs.values()),
+                              ordinary_needed=inventory_targets.active() and any(normal_deficits.values()))
     if repair_pending and not any(effective_deficits.values()):
         cands=[]  # The extra opportunity is for the proven repair only.
     if recent_probe:
@@ -2812,6 +2853,10 @@ def _dispatch_admitted(event=None, context=None):
     # route when the ledger has no known long mothers. This is a request, not
     # proof: the worker still measures 20 minutes and verifies every story.
     known_long_available = any(experiment.long_candidate(c) for c in cands)
+    latest_active={e['slug']:e for e in _latest_dispatches(st)}
+    active_ordinary=sum((latest_active.get(str(r.get('display_title') or '').split(' · ')[-1]) or {})
+        .get('editorial_profile')!=experiment.TREATMENT for r in active_runs)
+    new_ordinary=0
     mainland_deferred = 0
     urgent_wide_reserved=False
     for i, c in enumerate(cands):
@@ -2921,6 +2966,18 @@ def _dispatch_admitted(event=None, context=None):
                 # An actually measured admitted mother retains its existing
                 # ordinary salvage path and source-duration evidence.
                 continue
+            planned_layout=output_layout
+            if (inventory_targets.active() and 'ordinary_ready' in inventory
+                    and editorial_profile==experiment.BASELINE and not full_week
+                    and not any(normal_deficits.values())):
+                continue  # A measured ordinary source cannot overfill the new backlog goal.
+            if (inventory_targets.active() and editorial_profile==experiment.BASELINE
+                    and any(exp_needs.values()) and not full_week
+                    and active_ordinary+new_ordinary>=MAX_ACTIVE_SOURCES-2):
+                continue  # Keep two existing worker places available for missing real T.
+            if (inventory_targets.active() and 'ordinary_ready' in inventory
+                    and editorial_profile==experiment.BASELINE and not full_week):
+                output_layout='auto'  # Preserve verified native geometry, not a forced portrait crop.
             probe_requested_at=int(time.time())
             gh("POST", f"/actions/workflows/{WF_PRODUCE}/dispatches", {
                 "ref": "main",
@@ -2958,7 +3015,8 @@ def _dispatch_admitted(event=None, context=None):
                 experiment.consume_production_need(exp_needs,output_layout)
                 urgent_wide_reserved=urgent_wide_reserved or output_layout=='landscape'
             else:
-                normal_deficits[output_layout]=max(0,normal_deficits.get(output_layout,0)-1)
+                new_ordinary+=1
+                normal_deficits[planned_layout]=max(0,normal_deficits.get(planned_layout,0)-1)
             log_event("dispatch_ok", f"已调度 {c['slug']}（{dur:.0f}s）", c["title"][:60])
             log.info(f"    ✓ 已调度 {c['slug']}（{dur:.0f}s）")
         except Exception as e:
@@ -2982,6 +3040,7 @@ def _dispatch_admitted(event=None, context=None):
                   f"候选={len(cands)}，运行中={active}，可用真人库存={inventory['daily_mix_usable']}，"
                   f"库存新鲜={inventory['inventory_fresh']}")
     result={"dispatched": success, "attempted": len(cands)}
+    if inventory_targets.active():result['backlog_progress']=inventory_targets.progress(inventory)
     if 'dispatch_window' in admission:
         result['candidate_window']=admission['dispatch_window']
     if experiment.production_preparing() and 'experiment_ready' in inventory:

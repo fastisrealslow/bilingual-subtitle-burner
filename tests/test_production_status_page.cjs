@@ -2,6 +2,19 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {reconcile, remaining, continuity} = require('../site/production-status.js');
 const now = 1789531200;
+test('backlog goals show inspected disjoint counts, not queue size or publication success',()=>{
+  const data=supply(147);
+  data.backlog={ordinary:{target:900,verified:147},treatment:{target:300,verified:0},
+    seeds:{target:10000,verified:4841},in_flight_counted:false,quality_gates_relaxed:false};
+  const result=continuity(data,now);
+  assert.match(result.message,/普通 147\/900、实验 0\/300/);
+  assert.match(result.message,/独立视频种子 4841\/10000/);
+  assert.match(result.message,/不含排队任务/);
+  data.backlog.ordinary.verified=null;
+  assert.match(continuity(data,now).message,/普通 待核对\/900/);
+  data.backlog.in_flight_counted=true;
+  assert.doesNotMatch(continuity(data,now).message,/扩库目标/);
+});
 const keys = ['ts','failed','published_parts','processed_part_indices','source_check_retry_after','weekly_full_week'];
 function snapshot(entry, status) {
   return {updated_at:now,tasks:[{slug:entry.slug,status,detail:'checked',

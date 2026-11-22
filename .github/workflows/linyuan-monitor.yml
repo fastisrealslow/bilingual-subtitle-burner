@@ -35,6 +35,7 @@ on:
       - linyuan/seed_campaign.py
       - linyuan/seed_growth.py
       - linyuan/seed_pool_growth.py
+      - linyuan/inventory_targets.py
       - linyuan/known_long_source_refresh.py
       - linyuan/native_header_probe.py
       - linyuan/source_catalogue_duration.py
@@ -121,12 +122,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/linyuan-source-inventory.yml/dispatches" -f ref=main
 
-      - name: 向5000个独立视频种子扩源（来源冷却互不阻挡，不计成片）
+      - name: 向10000个独立视频种子扩源（来源冷却互不阻挡，不计成片）
         timeout-minutes: 8
         continue-on-error: true
         env:
           BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
-        run: python -u seed_pool_growth.py --target 5000 --limit 48
+        run: python -u seed_pool_growth.py --target 10000 --limit 48
       - name: 将新核验长母片立即写入候选目录（不增加网络请求或生产并发）
         id: seed_catalogue
         run: |
