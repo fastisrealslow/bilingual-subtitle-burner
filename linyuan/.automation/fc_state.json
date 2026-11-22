@@ -142948,8 +142948,8 @@
    "publish_time": "2025-08-16T06:33:59+08:00",
    "production_failure_summary": {
     "slug": "ly-1121-f610bb",
-    "run_id": 44962007442,
-    "artifact_id": 14733700971,
+    "run_id": 44976736334,
+    "artifact_id": 14736492599,
     "accepted": 0,
     "source_context": {
      "passed": true,
@@ -142997,11 +142997,12 @@
      }
     ]
    },
-   "source_check_report_id": 14733700971,
-   "source_check_run_id": 44962007442,
+   "source_check_report_id": 14736492599,
+   "source_check_run_id": 44976736334,
    "last_error": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 0, \"addressee\": \"林远\", \"target\": false}]",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1795318379
   },
   {
    "key": "weibo_search:5366962152801692",
@@ -143024,7 +143025,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-19T13:42:33+08:00"
+   "publish_time": "2026-11-19T13:42:33+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-4ed937",
+    "run_id": 44977060192,
+    "artifact_id": 14736337070,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "55999558052806f8c46143564b28b191b088ee1601d9a3a89dcd3e9fa6acec94",
+     "duration_sec": 65.06,
+     "resolution": {
+      "width": 1080,
+      "height": 1920,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5366962152801692"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44977060192,
+    "artifact_id": 14736337070,
+    "name": "production-reject-ly-1122-4ed937",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4986418910724794",
@@ -143047,7 +143081,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-01-04T11:19:34+08:00"
+   "publish_time": "2024-01-04T11:19:34+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-a583f3",
+    "run_id": 44977074187,
+    "artifact_id": 14735818906,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "298872fbe400b81796d34e0c19ed3b0c080644b9f52c90b54ec6cc78bd39b90f",
+     "duration_sec": 65.97,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4986418910724794"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出来源二维码（含裁切残留定位图案）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44977074187,
+    "artifact_id": 14735818906,
+    "name": "production-reject-ly-1122-a583f3",
+    "retained": true
+   },
+   "last_error": "真人动态区检出来源二维码（含裁切残留定位图案）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1CTmqBFEsy",
@@ -143070,7 +143137,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-14T12:08:17+00:00"
+   "publish_time": "2025-12-14T12:08:17+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44977086479,
+    "artifact_id": 14735289072,
+    "name": "source-reject-ly-1122-e93e1b",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 228 < 480（452x228），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1q8411R7kc",
@@ -266034,6 +266111,27 @@
    "video_id": "https://f.video.weibocdn.com/o0/xRK7FcLJlx081XZ2AlrG0104120ebY4Z0E060.mp4",
    "ts": 1795305430,
    "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+  },
+  {
+   "slug": "ly-1122-e93e1b",
+   "key": "bilibili_search:BV1CTmqBFEsy",
+   "video_id": "BV1CTmqBFEsy",
+   "ts": 1795316577,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 228 < 480（452x228），画质不达标"
+  },
+  {
+   "slug": "ly-1122-a583f3",
+   "key": "weibo_search:4986418910724794",
+   "video_id": "https://f.video.weibocdn.com/o0/fhV3hRDBlx08btoyO5u8010412005uXf0E010.mp4",
+   "ts": 1795316578,
+   "error": "真人动态区检出来源二维码（含裁切残留定位图案）"
+  },
+  {
+   "slug": "ly-1122-4ed937",
+   "key": "weibo_search:5366962152801692",
+   "video_id": "https://f.video.weibocdn.com/o0/w5If3PUClx08Ct7lzSB201041200e0xI0E010.mp4",
+   "ts": 1795316578,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
