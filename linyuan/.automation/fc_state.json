@@ -147215,7 +147215,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-09-29T10:49:59+08:00"
+   "publish_time": "2025-09-29T10:49:59+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-526004",
+    "run_id": 45019550082,
+    "artifact_id": 14754251742,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "70e7f2948a657d33e6e391610f0be02ae2fd33b5c92332ecfbd011c67f18a200",
+     "duration_sec": 83.23,
+     "resolution": {
+      "width": 720,
+      "height": 1564,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/5216165372627243"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45019550082,
+    "artifact_id": 14754251742,
+    "name": "production-reject-ly-1122-526004",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Gky3zJEio",
@@ -271317,6 +271350,13 @@
    "video_id": "https://f.video.weibocdn.com/000kWgYMgx07NkuNKUk801041202oxG40E010.mp4",
    "ts": 1795350757,
    "error": "原始素材短边 368 < 480（640x368），画质不达标"
+  },
+  {
+   "slug": "ly-1122-526004",
+   "key": "weibo_search:5216165372627243",
+   "video_id": "https://f.video.weibocdn.com/o0/QFV4nrbnlx08rMA7WXLW01041200b7Xs0E010.mp4",
+   "ts": 1795350797,
+   "error": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
   }
  ],
  "reviewed_third_video_0910": {
