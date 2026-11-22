@@ -271,12 +271,18 @@ def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=Tru
     discovery_excluded=Counter()
     if search:
         search_scan = json.loads(state.read_text()) if state.exists() else {}
-        for query in discovery_queries(state,prefer_long,state=search_scan):
+        for index,query in enumerate(discovery_queries(state,prefer_long,state=search_scan)):
             if time.monotonic() >= deadline:
                 report['errors'].append(dict(stage='budget', error='time_budget_reached'))
                 break
             try:
-                depths = search_scan.setdefault('query_page_cursors', {})
+                # Bilibili buckets 3 and 2 are 30–60 and 10–30 minutes.
+                # Search both within the existing page budget. Exact page
+                # metadata still determines whether a lead is 20–90 minutes.
+                duration_filter = (3,2)[index] if prefer_long and index<2 else None
+                cursor_key = ('query_page_cursors' if duration_filter is None
+                    else f'duration_{duration_filter}_query_page_cursors')
+                depths = search_scan.setdefault(cursor_key, {})
                 first_page = depths.get(query, 1)
                 if type(first_page) is not int or not 1 <= first_page <= 19:
                     raise ValueError('Invalid bounded search-page cursor')
@@ -284,7 +290,10 @@ def run(base=BASE, *, target=inventory_targets.SEED_TARGET, limit=48, search=Tru
                 from batch_delivery import write_json
                 write_json(state, search_scan)
                 report.setdefault('search_pages', {})[query] = [first_page, first_page+1]
-                source = monitor.BilibiliSearchSource({'pages': 2, 'start_page': first_page}, {})
+                if duration_filter is not None:
+                    report.setdefault('search_duration_filters', {})[query] = duration_filter
+                source = monitor.BilibiliSearchSource(dict(pages=2, start_page=first_page,
+                    duration_filter=duration_filter), {})
                 source.http_get = request
                 for row in source._fetch_via_api(query):
                     bvid = row.get('bvid', '')

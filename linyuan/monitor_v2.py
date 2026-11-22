@@ -256,11 +256,15 @@ class BilibiliSearchSource(Source):
         if not 1 <= start_page <= 49:
             raise ValueError('Bilibili search start_page must be between 1 and 49')
         stop_page = min(51, start_page + pages)
+        duration_filter = self.config.get('duration_filter')
+        if duration_filter not in (None, 2, 3):
+            raise ValueError('Unsupported Bilibili search duration filter')
+        duration_param = f'&duration={duration_filter}' if duration_filter is not None else ''
         out = []
         seen = set()
         for page_no in range(start_page, stop_page):
             url = ("https://api.bilibili.com/x/web-interface/wbi/search/type"
-                   f"?search_type=video&keyword={kw}&page={page_no}")
+                   f"?search_type=video&keyword={kw}&page={page_no}{duration_param}")
             data = json.loads(getattr(self, 'http_get', http_get)(url, referer="https://www.bilibili.com/"))
             if data.get("code") != 0:
                 raise RuntimeError(

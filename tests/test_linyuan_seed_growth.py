@@ -278,20 +278,34 @@ def test_t_shortage_keeps_long_priority_without_starving_other_discovery_themes(
     path.write_text(json.dumps(saved))
     calls=[]
     def search(self,query):
-        calls.append((query,self.config['pages'],self.config['start_page']));return []
+        calls.append((query,self.config['pages'],self.config['start_page'],self.config['duration_filter']));return []
     monkeypatch.setattr(monitor.BilibiliSearchSource,'_fetch_via_api',search)
     first=G.run(tmp_path,target=10000,replenish_long=True)
     second=G.run(tmp_path,target=10000,replenish_long=True)
-    assert [q for q,_,_ in calls]==['林园完整访谈','林园演讲全程','林园2024',
+    assert [q for q,_,_,_ in calls]==['林园完整访谈','林园演讲全程','林园2024',
         '林园经历访谈','林园完整访谈','林园2025']
-    assert len(calls)==6 and all(pages==2 for _,pages,_ in calls)
-    assert [start for _,_,start in calls]==[1,1,1,1,3,1]
+    assert len(calls)==6 and all(pages==2 for _,pages,_,_ in calls)
+    assert [start for _,_,start,_ in calls]==[1,1,1,1,1,1]
+    assert [duration for _,_,_,duration in calls]==[3,2,None,3,2,None]
     after=json.loads(path.read_text())
     for key in saved:assert after[key]==saved[key]
     assert first['search_query_policy']==second['search_query_policy']=='two_long_one_breadth'
     assert first['exact_checks']==second['exact_checks']==0
     assert first['added_count']==second['added_count']==0
     assert first['accepted_mp4_count']==second['accepted_mp4_count']==0
+
+
+def test_long_search_sends_duration_filter_to_bilibili(monkeypatch):
+    from urllib.parse import parse_qs, urlsplit
+    calls=[]
+    def fetch(url, **kwargs):
+        calls.append(parse_qs(urlsplit(url).query))
+        return '{"code":0,"data":{"result":[]}}'
+    for duration in (3,2,None):
+        source=monitor.BilibiliSearchSource(dict(duration_filter=duration),{})
+        monkeypatch.setattr(source,'http_get',fetch,raising=False)
+        assert source._fetch_via_api('林园')==[]
+    assert [query.get('duration') for query in calls]==[['3'],['2'],None]
 
 
 def test_breadth_rotation_donates_slot_when_every_query_is_already_long(tmp_path,monkeypatch):
