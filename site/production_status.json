@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795373303,
+  "updated_at": 1795373432,
   "inventory_updated_at": 1795373293,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5024,
+      "shortfall": 4976
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 4,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -448,7 +448,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795373300,
+    "updated_at": 1795373429,
     "records": 20046,
     "video_records": 17420,
     "initial_candidates": 201,
@@ -487,13 +487,14 @@
     "complete": 220,
     "failed": 2780,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 105,
     "experiment_fallback": 184,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 4,
-    "unknown": 2
+    "unknown": 2,
+    "queued": 1
   },
   "tasks": [
     {
@@ -60705,24 +60706,6 @@
       "run_updated_at": "2026-11-22T18:23:11Z"
     },
     {
-      "slug": "ly-1122-cb770d",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1795371995,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1795373235,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 45055100915,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45055100915",
-      "run_started_at": "2026-11-22T18:26:34Z",
-      "run_updated_at": "2026-11-22T18:29:09Z"
-    },
-    {
       "slug": "ly-1122-40d1c8",
       "status": "failed",
       "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 472 < 480（854x472），画质不达标",
@@ -60814,14 +60797,14 @@
     },
     {
       "slug": "ly-1122-e7f687",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795372757,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795375158,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -60829,6 +60812,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45056310172",
       "run_started_at": "2026-11-22T18:39:17Z",
       "run_updated_at": "2026-11-22T18:44:59Z"
+    },
+    {
+      "slug": "ly-1122-cb770d",
+      "status": "queued",
+      "detail": "Actions 排队中",
+      "signature": {
+        "ts": 1795373401,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45057296949,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45057296949",
+      "run_started_at": "2026-11-22T18:50:01Z",
+      "run_updated_at": "2026-11-22T18:50:01Z"
     }
   ],
   "runs": {
@@ -93261,14 +93262,14 @@
       "display_title": "中文源出片 · ly-1122-4a0a1d"
     },
     "ly-1122-cb770d": {
-      "id": 45055100915,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-22T18:26:34Z",
-      "updated_at": "2026-11-22T18:29:09Z",
-      "run_started_at": "2026-11-22T18:26:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45055100915",
-      "run_number": 5139,
+      "id": 45057296949,
+      "status": "queued",
+      "conclusion": null,
+      "created_at": "2026-11-22T18:50:01Z",
+      "updated_at": "2026-11-22T18:50:01Z",
+      "run_started_at": "2026-11-22T18:50:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45057296949",
+      "run_number": 5146,
       "display_title": "中文源出片 · ly-1122-cb770d"
     },
     "ly-1122-e9c450": {
