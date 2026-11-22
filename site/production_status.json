@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795376185,
+  "updated_at": 1795376311,
   "inventory_updated_at": 1795376177,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5033,
+      "shortfall": 4967
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -448,7 +448,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795376183,
+    "updated_at": 1795376310,
     "records": 20051,
     "video_records": 17425,
     "initial_candidates": 201,
@@ -485,16 +485,15 @@
   },
   "counts": {
     "complete": 220,
-    "failed": 2782,
+    "failed": 2783,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 105,
     "experiment_fallback": 184,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 3,
-    "unknown": 2,
-    "running": 2
+    "retry_queued": 5,
+    "unknown": 2
   },
   "tasks": [
     {
@@ -60833,11 +60832,11 @@
     },
     {
       "slug": "ly-1122-cb770d",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795375950,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -60851,39 +60850,39 @@
     },
     {
       "slug": "ly-1122-79a4ca",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795375959,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795378044,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 45061344073,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061344073",
       "run_started_at": "2026-11-22T19:32:39Z",
-      "run_updated_at": "2026-11-22T19:32:43Z"
+      "run_updated_at": "2026-11-22T19:36:22Z"
     },
     {
       "slug": "ly-1122-97eb39",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795375969,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795378036,
         "weekly_full_week": ""
       },
       "history_count": 1,
       "run_id": 45061358224,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061358224",
       "run_started_at": "2026-11-22T19:32:48Z",
-      "run_updated_at": "2026-11-22T19:32:53Z"
+      "run_updated_at": "2026-11-22T19:35:06Z"
     }
   ],
   "runs": {
@@ -93381,28 +93380,6 @@
       "run_number": 5152,
       "display_title": "中文源出片 · ly-1122-e7f687"
     },
-    "ly-1122-97eb39": {
-      "id": 45061358224,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-22T19:32:48Z",
-      "updated_at": "2026-11-22T19:32:53Z",
-      "run_started_at": "2026-11-22T19:32:48Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061358224",
-      "run_number": 5156,
-      "display_title": "中文源出片 · ly-1122-97eb39"
-    },
-    "ly-1122-79a4ca": {
-      "id": 45061344073,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-22T19:32:39Z",
-      "updated_at": "2026-11-22T19:32:43Z",
-      "run_started_at": "2026-11-22T19:32:39Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061344073",
-      "run_number": 5155,
-      "display_title": "中文源出片 · ly-1122-79a4ca"
-    },
     "ly-1122-cb770d": {
       "id": 45061329393,
       "status": "completed",
@@ -93413,6 +93390,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061329393",
       "run_number": 5154,
       "display_title": "中文源出片 · ly-1122-cb770d"
+    },
+    "ly-1122-97eb39": {
+      "id": 45061358224,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-22T19:32:48Z",
+      "updated_at": "2026-11-22T19:35:06Z",
+      "run_started_at": "2026-11-22T19:32:48Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061358224",
+      "run_number": 5156,
+      "display_title": "中文源出片 · ly-1122-97eb39"
+    },
+    "ly-1122-79a4ca": {
+      "id": 45061344073,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-22T19:32:39Z",
+      "updated_at": "2026-11-22T19:36:22Z",
+      "run_started_at": "2026-11-22T19:32:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45061344073",
+      "run_number": 5155,
+      "display_title": "中文源出片 · ly-1122-79a4ca"
     }
   }
 }
