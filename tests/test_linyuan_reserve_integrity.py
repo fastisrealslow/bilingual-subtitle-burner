@@ -182,3 +182,51 @@ def test_unknown_inventory_requests_bounded_refresh_instead_of_producing_more(mo
         result=fc._dispatch_admitted()
         assert result['dispatched']==0 and result['inventory_unavailable']==1
     assert len(calls)==1 and state['inventory_refresh_requested_at']==NOW
+
+
+@pytest.mark.parametrize('ids,expected', [([1,2,3],2),([1,3,2],1)])
+def test_unchanged_pool_dedup_is_independent_of_artifact_api_order(monkeypatch,ids,expected):
+    from itertools import permutations
+    from copy import deepcopy
+    state,payload=reserve('lll',monkeypatch)
+    for record,identity,(start,end) in zip(payload['artifacts'],ids,[(0,60),(40,100),(80,140)]):
+        record['artifact_id']=identity
+        record['parts'][0].update(source_sha256='a'*64,segments=[dict(start=start,end=end)])
+    before=deepcopy(payload)
+    results=[]
+    for order in permutations(payload['artifacts']):
+        result=fc.source_inventory(state,{**payload,'artifacts':list(order)})
+        results.append((result['daily_mix_usable'],result['verified_landscape'],result['verified_portrait']))
+    # The middle overlapping candidate can suppress both neighbours. We do
+    # not pick whichever ordering inflates stock: newest ID wins consistently.
+    assert set(results)=={(expected,expected,0)}
+    assert payload==before
+
+
+def test_same_artifact_part_order_is_stable_without_counting_overlapping_cuts(monkeypatch):
+    from itertools import permutations
+    from copy import deepcopy
+    state,payload=reserve('l',monkeypatch)
+    record=payload['artifacts'][0];template=record['parts'][0]
+    parts=[]
+    for i,(start,end) in enumerate([(0,60),(40,100),(80,140)]):
+        parts.append({**deepcopy(template),'index':i,'sha256':str(i+1)*64,
+            'source_sha256':'a'*64,'segments':[dict(start=start,end=end)]})
+    for order in permutations(parts):
+        trial={**payload,'artifacts':[{**record,'parts':list(order)}]}
+        assert fc.source_inventory(state,trial)['daily_mix_usable']==2
+
+
+def test_treatment_preference_is_retained_before_stable_artifact_tie_break(monkeypatch):
+    from itertools import permutations
+    state,payload=reserve('ll',monkeypatch)
+    monkeypatch.setattr(fc.experiment,'production_preparing',lambda:True)
+    monkeypatch.setattr(fc.experiment,'actual_profile',lambda p:p.get('editorial_profile','baseline'))
+    for record in payload['artifacts']:
+        record['parts'][0].update(source_sha256='a'*64,segments=[dict(start=0,end=60)])
+    payload['artifacts'][0]['parts'][0]['editorial_profile']=fc.experiment.TREATMENT
+    for order in permutations(payload['artifacts']):
+        result=fc.source_inventory(state,{**payload,'artifacts':list(order)})
+        assert result['experiment_ready']==dict(portrait=0,landscape=1)
+        assert result['ordinary_ready']==dict(portrait=0,landscape=0)
+        assert result['daily_mix_usable']==1
