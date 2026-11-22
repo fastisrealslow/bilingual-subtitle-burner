@@ -150703,7 +150703,51 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2021-06-30T13:00:45+00:00"
+   "publish_time": "2021-06-30T13:00:45+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-e7f687",
+    "run_id": 45050771567,
+    "artifact_id": 14766383422,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "128edd1a74ebc37facb16f7c4049e01276be5d20be9ad477b96a6ee522fbcd67",
+     "duration_sec": 683.3,
+     "resolution": {
+      "width": 2160,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV17X4y1P7ZX"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 0, \"addressee\": \"林远\", \"target\": false}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 92%（BV1tvsF61EPz）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 63.37s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 97.47s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 210.03s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "source_check_report_id": 14766383422,
+   "source_check_run_id": 45050771567,
+   "last_error": "ASR中的完整嘉宾称呼与目标姓名不一致，不能猜改或确认说话人：[{\"cue\": 0, \"addressee\": \"林远\", \"target\": false}]",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795372490
   },
   {
    "key": "weibo_search:4956315862960446",
@@ -150760,7 +150804,60 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-03-25T09:55:02+08:00"
+   "publish_time": "2023-03-25T09:55:02+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-640127",
+    "run_id": 45050800661,
+    "artifact_id": 14766263917,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f965a5da8c04c5a589f834551aa1d18f7819ebe68d6e552186901e45e86f32d4",
+     "duration_sec": 491.06,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4883117099974945"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.8106382978723404, 0.10126582278481013, 0.8978723404255319)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段仅由主持人自我介绍、回顾过往采访、提及嘉宾在分享会的发言（非直接引用）、描述当前热点（ChatGPT）以及提出一个假设性问题组成。全程未出现嘉宾林园的回应、判断或解释，属于典型的‘只有问题没有回答’的未完成状态，无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾对主持人关于'工作是否会被替代'的核心提问未给出明确的是/否判断，仅以'是个大'（语义不完整）和转向网友观点结束，导致核心问题被切断。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：嘉宾未就装修话题发表实质性观点，仅作为主持人引入话题的背景信息出现，缺乏独立成片的必要内容。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45050800661,
+    "artifact_id": 14766263917,
+    "name": "production-reject-ly-1122-640127",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.0, 0.8106382978723404, 0.10126582278481013, 0.8978723404255319)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1U5411i7S7",
@@ -150964,7 +151061,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1uzWr6cESs",
@@ -150994,7 +151092,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1VwWf6JEns",
@@ -151024,7 +151123,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1enWZ67EwR",
@@ -151054,7 +151154,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1u1pN64Ehx",
@@ -275004,6 +275105,13 @@
    "video_id": "BV1cw411f7sE",
    "ts": 1795371546,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0848, 2: 0.1254, 5: -0.0316, 8: 0.1962, 9: 0.0923, 10: 0.1452, 11: 0.0777, 12: 0.1535, 13: 0.1763, 14: 0.1727, 15: 0.258, 16: 0.1128, 17: 0.0681, 18: -0.0232}"
+  },
+  {
+   "slug": "ly-1122-640127",
+   "key": "weibo_search:4883117099974945",
+   "video_id": "https://f.video.weibocdn.com/o0/H7vQ24velx0848IXodHG01041204iai60E020.mp4",
+   "ts": 1795371589,
+   "error": "真人动态区仍有稳定来源角标：[(0.0, 0.8106382978723404, 0.10126582278481013, 0.8978723404255319)]"
   }
  ],
  "reviewed_third_video_0910": {
