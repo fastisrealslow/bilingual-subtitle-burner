@@ -136573,8 +136573,8 @@
    "publish_time": "2022-06-23T07:06:00+00:00",
    "production_failure_summary": {
     "slug": "ly-1111-2ea2db",
-    "run_id": 42976905569,
-    "artifact_id": 13836788640,
+    "run_id": 43930690935,
+    "artifact_id": 14260691385,
     "accepted": 0,
     "failures": [
      {
@@ -139705,13 +139705,45 @@
    "publish_time": "2024-03-05T15:54:40+08:00",
    "production_failure_summary": {
     "slug": "ly-1119-8ed7aa",
-    "run_id": 44533113795,
-    "artifact_id": 14533364382,
+    "run_id": 44549330170,
+    "artifact_id": 14551336695,
     "accepted": 0,
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：media_setup"
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"茅台我是应该是零三年到零六呃零五年底买入的，我买买入花了两年多时间。\", \"suspect_quote\": \"零三年到零六呃零五年底\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间表述存在逻辑矛盾与识别污染：'零三年到零六'后接'呃零五年底'，'零五'（2005）夹在'零六'（2006）之后且被口语填充词打断，导致年份区间混乱，无法确定实际买入结束时间。\"}, {\"sentence_id\": 6, \"quote\": \"那么当时我们买入价是大概我出生二十九块钱开始买的"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配6/528，总帧数2607；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配61/202，总帧数703；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 79%（BV1sw4A6XES7）"
      }
     ]
    },
@@ -272357,7 +272389,7 @@
  },
  "source_refresh_requested_at": 1795307825,
  "inventory_refresh_requested_at": 1795075071,
- "rule_recovery_page": 3,
+ "rule_recovery_page": 4,
  "tracking_revision_20261015": {
   "BV1UEpC6bEQB": {
    "status": "verified",
