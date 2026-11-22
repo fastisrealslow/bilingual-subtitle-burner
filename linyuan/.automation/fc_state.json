@@ -148811,11 +148811,13 @@
     "basis": "unknown"
    },
    "publish_time": "2025-11-15T12:19:03+00:00",
-   "source_check_report_id": 14755519884,
-   "source_check_run_id": 45027462432,
+   "source_check_report_id": 14758195468,
+   "source_check_run_id": 45031179277,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:4646519887892055",
@@ -148838,7 +148840,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-10T12:42:12+08:00"
+   "publish_time": "2021-06-10T12:42:12+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45031190956,
+    "artifact_id": 14758145747,
+    "name": "source-reject-ly-1122-b5232d",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0484, 2: -0.0831, 3: -0.0704, 4: -0.1168, 5: -0.1345, 6: -0.0771, 7: 0.0361, 8: -0.1115, 9: -0.1758, 10: 0.0202, 11: -0.0593, 12: 0.1398, 14: 0.2316, 15: 0.2325, 18: 0.7618}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1EyoYY3Esq",
@@ -272502,6 +272514,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/uwBcDU4Ulx08Cs9eqYsM010412007Zhw0E010.mp4",
    "ts": 1795356458,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/113，总帧数562；身份匹配但人脸短边不足96px的帧数76"
+  },
+  {
+   "slug": "ly-1122-b5232d",
+   "key": "weibo_search:4646519887892055",
+   "video_id": "https://f.video.weibocdn.com/3CDlHpwBlx07Nljsny0g01041200c4sj0E010.mp4",
+   "ts": 1795356918,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[18]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15]，confidence=0.99，reason=CPU SFace逐帧比对；匹配1/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: -0.0484, 2: -0.0831, 3: -0.0704, 4: -0.1168, 5: -0.1345, 6: -0.0771, 7: 0.0361, 8: -0.1115, 9: -0.1758, 10: 0.0202, 11: -0.0593, 12: 0.1398, 14: 0.2316, 15: 0.2325, 18: 0.7618}"
   }
  ],
  "reviewed_third_video_0910": {
