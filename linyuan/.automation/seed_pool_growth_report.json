@@ -7,9 +7,9 @@
       "netease": 0,
       "yicai": 9,
       "weibo": 1090,
-      "bilibili": 3849
+      "bilibili": 3856
     },
-    "total": 5010,
+    "total": 5017,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -20,13 +20,13 @@
       "netease": 0,
       "yicai": 9,
       "weibo": 1090,
-      "bilibili": 3856
+      "bilibili": 3859
     },
-    "total": 5017,
+    "total": 5020,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 7,
+  "added_count": 3,
   "providers": {
     "known_long_refresh": {
       "checked_count": 0,
@@ -47,9 +47,9 @@
           "netease": 0,
           "yicai": 9,
           "weibo": 1090,
-          "bilibili": 3849
+          "bilibili": 3856
         },
-        "total": 5010,
+        "total": 5017,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -57,57 +57,54 @@
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "added_count": 7,
+      "added_count": 3,
       "errors": [],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
       "long_discovery_priority": true,
       "search_query_policy": "two_long_one_breadth",
       "search_pages": {
-        "林园 看走眼 亏损 访谈": [
+        "林园 圆桌会议 完整": [
           1,
           2
         ],
-        "林园 投资者交流 完整": [
+        "林园 投资讲座 全程": [
           1,
           2
         ],
-        "林园 片仔癀": [
+        "林园 达仁堂": [
           5,
           6
         ]
       },
       "search_duration_filters": {
-        "林园 看走眼 亏损 访谈": 3,
-        "林园 投资者交流 完整": 2
+        "林园 圆桌会议 完整": 3,
+        "林园 投资讲座 全程": 2
       },
       "discovery_excluded": {
-        "ineligible_author": 2
+        "ineligible_author": 1
       },
       "preverification_excluded": {
         "unrelated_or_non_live_title": 11,
         "ineligible_author": 145
       },
       "pending_eligible_lead_count": 24,
-      "verification_ready_lead_count": 7,
-      "verification_deferred_lead_count": 24,
-      "exact_checks": 7,
+      "verification_ready_lead_count": 5,
+      "verification_deferred_lead_count": 22,
+      "exact_checks": 5,
       "added_bvids": [
-        "BV1Sm4y1L7hX",
-        "BV1JUHozYEDi",
-        "BV1Je411J7nV",
-        "BV1EU4y1Z7kx",
-        "BV1yAMb6GEPG",
-        "BV1ET411M7CU",
-        "BV1YK7H68Eti"
+        "BV1a34y1c76Q",
+        "BV1xgULBrE7P",
+        "BV14ryTBCEjh"
       ],
       "pending_lead_count": 180,
       "roles": {
-        "mother_candidate": 4,
-        "catalog_only": 3
+        "catalog_only": 2,
+        "mother_candidate": 1
       },
-      "new_long_parent_count": 3,
+      "new_long_parent_count": 2,
       "verification": {
-        "verified_metadata": 7
+        "verified_metadata": 3,
+        "not_verified": 2
       },
       "after": {
         "counts": {
@@ -116,36 +113,142 @@
           "netease": 0,
           "yicai": 9,
           "weibo": 1090,
-          "bilibili": 3856
+          "bilibili": 3859
         },
-        "total": 5017,
+        "total": 5020,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_errors": {},
-      "verification_rejections": {},
+      "verification_errors": {
+        "ValueError": 2
+      },
+      "verification_rejections": {
+        "no_eligible_video_pages": 1,
+        "exact_metadata_unavailable": 1
+      },
       "verification_http_status": {},
-      "verification_api_codes": {}
+      "verification_api_codes": {
+        "0": 1,
+        "62002": 1
+      }
     },
     "weibo": {
       "provider": "weibo",
       "target": 10000,
-      "before": 5017,
+      "before": 5020,
       "added_count": 0,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "4461042795389609",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466203919969931",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4504411995067230",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4504454415678523",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4801202435393127",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467270737102698",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467445907947131",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5249542410209480",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5345763869590021",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5244125997700662",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5107817927935267",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5348153500631110",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5366962152801692",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4486026066485378",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5338839234642991",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4243635853404833",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        }
+      ],
       "discovery_leads": 847,
-      "eligible_checks": 0,
-      "deferred_checks": 103,
-      "exact_checks": 0,
-      "known_duplicate_leads": 744
+      "eligible_checks": 19,
+      "deferred_checks": 84,
+      "exact_checks": 16,
+      "known_duplicate_leads": 744,
+      "long_checks": 0,
+      "after": 5020
     }
   },
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "remaining_to_target": 4983,
+  "remaining_to_target": 4980,
   "counting_policy": "unique_parent_video_ids_not_parts_queries_or_accepted_stock"
 }
