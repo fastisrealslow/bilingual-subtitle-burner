@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795328487,
-  "inventory_updated_at": 1795328338,
+  "updated_at": 1795328712,
+  "inventory_updated_at": 1795328702,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 4987,
-      "shortfall": 5013
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 157,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -448,7 +448,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795328486,
+    "updated_at": 1795328709,
     "records": 19966,
     "video_records": 17345,
     "initial_candidates": 390,
@@ -511,14 +511,6 @@
         "duration_sec": 28.0
       },
       {
-        "key": "bilibili_search:BV1y3y8zpE4J",
-        "title": "林园：那决定性的5%的上涨时间，无法预测。我们唯一能做的（也可能是最有效的办法）就是确保自己“一直在场”。",
-        "source": "bilibili_search",
-        "author": "腊山巴菲菲",
-        "url": "https://www.bilibili.com/video/BV1y3y8zpE4J",
-        "duration_sec": 58.0
-      },
-      {
         "key": "bilibili_search:BV1QRsA6bE8N",
         "title": "林园最新采访片段：对医药的看法。",
         "source": "reference_origin_search",
@@ -541,6 +533,14 @@
         "author": "宇说投资",
         "url": "https://www.bilibili.com/video/BV1t5411u7XL",
         "duration_sec": 834.0
+      },
+      {
+        "key": "bilibili_search:BV1y3y8zpE4J",
+        "title": "林园：那决定性的5%的上涨时间，无法预测。我们唯一能做的（也可能是最有效的办法）就是确保自己“一直在场”。",
+        "source": "bilibili_search",
+        "author": "腊山巴菲菲",
+        "url": "https://www.bilibili.com/video/BV1y3y8zpE4J",
+        "duration_sec": 58.0
       },
       {
         "key": "weibo_search:5367085129798381",
@@ -1744,14 +1744,14 @@
     "complete": 219,
     "failed": 2607,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 12,
     "excluded": 105,
     "experiment_fallback": 180,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 5
+    "running": 3
   },
   "tasks": [
     {
@@ -58868,8 +58868,8 @@
     },
     {
       "slug": "ly-1122-4836bc",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795328431,
         "failed": null,
@@ -58882,12 +58882,12 @@
       "run_id": 44993280932,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993280932",
       "run_started_at": "2026-11-22T06:20:31Z",
-      "run_updated_at": "2026-11-22T06:20:35Z"
+      "run_updated_at": "2026-11-22T06:22:07Z"
     },
     {
       "slug": "ly-1122-e56666",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795328439,
         "failed": null,
@@ -58900,7 +58900,7 @@
       "run_id": 44993291599,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993291599",
       "run_started_at": "2026-11-22T06:20:39Z",
-      "run_updated_at": "2026-11-22T06:20:42Z"
+      "run_updated_at": "2026-11-22T06:23:15Z"
     }
   ],
   "runs": {
@@ -89341,17 +89341,6 @@
       "run_number": 4737,
       "display_title": "中文源出片 · ly-1122-6b90ea"
     },
-    "ly-1122-4836bc": {
-      "id": 44993280932,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-22T06:20:31Z",
-      "updated_at": "2026-11-22T06:20:35Z",
-      "run_started_at": "2026-11-22T06:20:31Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993280932",
-      "run_number": 4760,
-      "display_title": "中文源出片 · ly-1122-4836bc"
-    },
     "ly-1122-c31c8b": {
       "id": 44988801991,
       "status": "completed",
@@ -89409,14 +89398,25 @@
     },
     "ly-1122-e56666": {
       "id": 44993291599,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-22T06:20:39Z",
-      "updated_at": "2026-11-22T06:20:42Z",
+      "updated_at": "2026-11-22T06:23:15Z",
       "run_started_at": "2026-11-22T06:20:39Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993291599",
       "run_number": 4761,
       "display_title": "中文源出片 · ly-1122-e56666"
+    },
+    "ly-1122-4836bc": {
+      "id": 44993280932,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-22T06:20:31Z",
+      "updated_at": "2026-11-22T06:22:07Z",
+      "run_started_at": "2026-11-22T06:20:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44993280932",
+      "run_number": 4760,
+      "display_title": "中文源出片 · ly-1122-4836bc"
     },
     "ly-1122-6ec604": {
       "id": 44992174633,
