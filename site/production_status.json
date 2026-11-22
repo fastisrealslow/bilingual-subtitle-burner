@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795324918,
+  "updated_at": 1795325230,
   "inventory_updated_at": 1795324913,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 4987,
+      "shortfall": 5013
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 5,
-    "waiting_candidates": 163,
+    "active_or_recovering_sources": 8,
+    "waiting_candidates": 161,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -448,17 +448,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795324916,
+    "updated_at": 1795325229,
     "records": 19966,
     "video_records": 17345,
-    "initial_candidates": 396,
-    "duration_eligible_records": 195,
-    "candidate_count": 163,
-    "known_duration_candidates": 163,
+    "initial_candidates": 394,
+    "duration_eligible_records": 193,
+    "candidate_count": 161,
+    "known_duration_candidates": 161,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10131,
-      "already_attempted_or_cooling": 4352,
+      "speaker_unconfirmed": 10104,
+      "already_attempted_or_cooling": 4381,
       "no_video": 2621,
       "ai_content": 37,
       "unrelated": 110,
@@ -685,22 +685,6 @@
         "author": "走走走拍拍拍",
         "url": "https://www.bilibili.com/video/BV1YL4y1F77P",
         "duration_sec": 373.0
-      },
-      {
-        "key": "weibo_search:4512766708450285",
-        "title": "林园2018年私募峰会采访  http://t.cn/A62EQA1g ​​​",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4512766708450285",
-        "duration_sec": 925.0
-      },
-      {
-        "key": "weibo_search:4512529827621704",
-        "title": "【经典回顾】林园：熊市里的价值投资机会 ！  \n备注：2018年7月\n\nhttp://t.cn/A628u5UA ​​​",
-        "source": "weibo_search",
-        "author": "加仓多吉丿",
-        "url": "https://m.weibo.cn/detail/4512529827621704",
-        "duration_sec": 1199.0
       },
       {
         "key": "weibo_search:5244524748343989",
@@ -1790,16 +1774,16 @@
   },
   "counts": {
     "complete": 219,
-    "failed": 2599,
+    "failed": 2601,
     "paused": 5,
-    "interrupted": 13,
+    "interrupted": 10,
     "excluded": 105,
     "experiment_fallback": 180,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
-    "running": 3
+    "running": 5
   },
   "tasks": [
     {
@@ -58772,11 +58756,11 @@
     },
     {
       "slug": "ly-1122-328d6e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 403: Forbidden",
       "signature": {
         "ts": 1795324652,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -58790,11 +58774,11 @@
     },
     {
       "slug": "ly-1122-395e67",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 403: Forbidden",
       "signature": {
         "ts": 1795324663,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -58808,14 +58792,14 @@
     },
     {
       "slug": "ly-1122-4836bc",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795324672,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795326012,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -58841,6 +58825,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44988801991",
       "run_started_at": "2026-11-22T05:18:03Z",
       "run_updated_at": "2026-11-22T05:18:07Z"
+    },
+    {
+      "slug": "ly-1122-954785",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795325171,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44989401284,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44989401284",
+      "run_started_at": "2026-11-22T05:26:11Z",
+      "run_updated_at": "2026-11-22T05:26:14Z"
+    },
+    {
+      "slug": "ly-1122-58e2c4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795325181,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 44989413451,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44989413451",
+      "run_started_at": "2026-11-22T05:26:21Z",
+      "run_updated_at": "2026-11-22T05:26:25Z"
     }
   ],
   "runs": {
@@ -89259,17 +89279,6 @@
       "run_number": 4743,
       "display_title": "中文源出片 · ly-1122-531a64"
     },
-    "ly-1122-c31c8b": {
-      "id": 44988801991,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-22T05:18:03Z",
-      "updated_at": "2026-11-22T05:18:07Z",
-      "run_started_at": "2026-11-22T05:18:03Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44988801991",
-      "run_number": 4752,
-      "display_title": "中文源出片 · ly-1122-c31c8b"
-    },
     "ly-1122-4836bc": {
       "id": 44988787472,
       "status": "completed",
@@ -89302,6 +89311,39 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44988763582",
       "run_number": 4749,
       "display_title": "中文源出片 · ly-1122-328d6e"
+    },
+    "ly-1122-58e2c4": {
+      "id": 44989413451,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T05:26:21Z",
+      "updated_at": "2026-11-22T05:26:25Z",
+      "run_started_at": "2026-11-22T05:26:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44989413451",
+      "run_number": 4754,
+      "display_title": "中文源出片 · ly-1122-58e2c4"
+    },
+    "ly-1122-954785": {
+      "id": 44989401284,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T05:26:11Z",
+      "updated_at": "2026-11-22T05:26:14Z",
+      "run_started_at": "2026-11-22T05:26:11Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44989401284",
+      "run_number": 4753,
+      "display_title": "中文源出片 · ly-1122-954785"
+    },
+    "ly-1122-c31c8b": {
+      "id": 44988801991,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-22T05:18:03Z",
+      "updated_at": "2026-11-22T05:18:07Z",
+      "run_started_at": "2026-11-22T05:18:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/44988801991",
+      "run_number": 4752,
+      "display_title": "中文源出片 · ly-1122-c31c8b"
     },
     "ly-1122-356058": {
       "id": 44985551730,
