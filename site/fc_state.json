@@ -149410,7 +149410,12 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-03-15T10:38:46+00:00"
+   "publish_time": "2026-03-15T10:38:46+00:00",
+   "source_check_report_id": 14759246856,
+   "source_check_run_id": 45034734099,
+   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
+   "failure_stage": "source-fetch",
+   "source_check_retry_after": 1795360104
   },
   {
    "key": "weibo_search:4774409536016413",
@@ -149433,7 +149438,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-05-29T10:30:00+08:00"
+   "publish_time": "2022-05-29T10:30:00+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45034749072,
+    "artifact_id": 14759491318,
+    "name": "source-reject-ly-1122-eae994",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{16: 0.0087}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5216107235639480",
@@ -273109,6 +273124,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/IsMqpbRhlx08ChEcZqfu010412006h8V0E010.mp4",
    "ts": 1795358400,
    "error": "与已经发布的母片时间段重叠，保留其他完整观点"
+  },
+  {
+   "slug": "ly-1122-eae994",
+   "key": "weibo_search:4774409536016413",
+   "video_id": "https://f.video.weibocdn.com/o0/6mU62Mewlx07UuGtzyJ201041201JA7m0E010.mp4",
+   "ts": 1795359203,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[16]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{16: 0.0087}"
   }
  ],
  "reviewed_third_video_0910": {
