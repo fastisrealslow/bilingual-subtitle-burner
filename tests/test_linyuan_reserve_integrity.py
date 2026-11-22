@@ -230,3 +230,9 @@ def test_treatment_preference_is_retained_before_stable_artifact_tie_break(monke
         assert result['experiment_ready']==dict(portrait=0,landscape=1)
         assert result['ordinary_ready']==dict(portrait=0,landscape=0)
         assert result['daily_mix_usable']==1
+
+
+def test_rejected_legacy_part_with_malformed_index_cannot_break_stable_count(monkeypatch):
+    state,payload=reserve('l',monkeypatch)
+    payload['artifacts'][0]['parts'].insert(0,dict(status='rejected',index=None))
+    assert fc.source_inventory(state,payload)['daily_mix_usable']==1

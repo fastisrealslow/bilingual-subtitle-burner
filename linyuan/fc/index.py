@@ -2518,6 +2518,15 @@ def treatment_replenishment_deficits(inventory,state,active_runs,now=None):
         minimum_landscape=inventory_targets.TREATMENT_MIN_LANDSCAPE)
 
 
+def inventory_part_order(part):
+    # Rejected legacy rows may have no usable index. Sorting must not make
+    # those rows crash a pool that the existing status gate safely skips.
+    try:
+        return int(part.get('index',-1))
+    except (TypeError,ValueError):
+        return -1
+
+
 def source_inventory(st, payload=None):
     """Count actual inspected MP4s separately from running workflow jobs."""
     if payload is None:
@@ -2551,7 +2560,7 @@ def source_inventory(st, payload=None):
             if not e or e.get('failed') or e.get('uploading') or slug in REVIEW_PAUSED_SLUGS:continue
             if not inventory_record_current(record) or not _has_unpublished_part(e,st):continue
             done=processed_part_indices(e)
-            for part in sorted(record.get('parts',[]),key=lambda p:int(p.get('index',-1))):
+            for part in sorted(record.get('parts',[]),key=inventory_part_order):
                 if part.get('status')!='verified' or int(part.get('index',-1)) in done:continue
                 if (e.get('weekly_full_week') and part.get('content_type') != 'full_interview'
                         and experiment.actual_profile(part)!=experiment.TREATMENT):continue
