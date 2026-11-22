@@ -55,3 +55,13 @@ def test_ordinary_download_still_allowed_without_treatment_gap(monkeypatch):
     assert F.backlog_candidate_has_room(domestic(100),stock(),{},[],
         dict(portrait=752,landscape=0),dict(portrait=0,landscape=0),
         known_long_available=False,ordinary_inflight=4)
+
+def test_full_backlog_retains_existing_once_daily_recent_context_probe(dispatch_env,monkeypatch):
+    state,candidates,posts,runs=dispatch_env
+    setup_stock(monkeypatch)
+    monkeypatch.setattr(F,'source_inventory',lambda *a:stock(900,300,150))
+    monkeypatch.setattr('source_priority.recording_recency_rank',lambda *a:0)
+    candidates.append(candidate(100,80))
+    result=F._dispatch_admitted(dict(execution_backend='github'))
+    assert result['dispatched']==len(posts)==1
+    assert state['recent_context_probe_date']=='2026-11-20'

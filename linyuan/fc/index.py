@@ -2886,7 +2886,7 @@ def _dispatch_admitted(event=None, context=None):
             log.info(f"已达到本轮目标 {target} 条，停止调度")
             break
         full_week=weekly_full_request(c,st)
-        if not backlog_candidate_has_room(c,inventory,st,active_runs,normal_deficits,exp_needs,
+        if not recent_probe and not backlog_candidate_has_room(c,inventory,st,active_runs,normal_deficits,exp_needs,
                 known_long_available=known_long_available,
                 ordinary_inflight=active_ordinary+new_ordinary,full_week=bool(full_week)):
             continue
@@ -2995,7 +2995,7 @@ def _dispatch_admitted(event=None, context=None):
             planned_layout=output_layout
             if (inventory_targets.active() and 'ordinary_ready' in inventory
                     and editorial_profile==experiment.BASELINE and not full_week
-                    and not any(normal_deficits.values())):
+                    and not recent_probe and not any(normal_deficits.values())):
                 continue  # A measured ordinary source cannot overfill the new backlog goal.
             if (inventory_targets.active() and editorial_profile==experiment.BASELINE
                     and any(exp_needs.values()) and not full_week
@@ -3049,7 +3049,7 @@ def _dispatch_admitted(event=None, context=None):
             log_event("fail", f"调度失败 {c.get('slug', c['key'])}", str(e)[:150])
             _record_failure(st, c, e)
 
-    domestic_room=any(backlog_candidate_has_room(c,inventory,st,active_runs,
+    domestic_room=bool(mainland_deferred) if recent_probe else any(backlog_candidate_has_room(c,inventory,st,active_runs,
         normal_deficits,exp_needs,known_long_available=known_long_available,
         ordinary_inflight=active_ordinary+new_ordinary,full_week=weekly)
         for c,weekly in mainland_deferred)
