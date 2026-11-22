@@ -144974,7 +144974,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-03-07T15:32:03+08:00"
+   "publish_time": "2021-03-07T15:32:03+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1122-140af0",
+    "run_id": 44997639528,
+    "artifact_id": 14744304155,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8268969204881779fa8090a7acde9f9932f3e36e7292e140003fb9d45f5a1f14",
+     "duration_sec": 66.13,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/4612135789268423"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.04秒缺少人脸"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 44997639528,
+    "artifact_id": 14744304155,
+    "name": "production-reject-ly-1122-140af0",
+    "retained": true
+   },
+   "last_error": "动态取景连续2.04秒缺少人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1P8UGBwEva",
@@ -268216,6 +268249,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/PpvaLu2Tgx08bYyKRm0o01041204mhlh0E020.mp4",
    "ts": 1795331820,
    "error": "整段取景预检：源 343.30s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1122-140af0",
+   "key": "weibo_search:4612135789268423",
+   "video_id": "https://f.video.weibocdn.com/003YEooGgx07KLVM7vXh01041202pOfm0E010.mp4",
+   "ts": 1795333069,
+   "error": "动态取景连续2.04秒缺少人脸"
   }
  ],
  "reviewed_third_video_0910": {
