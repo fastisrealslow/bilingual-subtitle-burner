@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795403175,
-  "inventory_updated_at": 1795403109,
+  "updated_at": 1795403423,
+  "inventory_updated_at": 1795403415,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5049,
-      "shortfall": 4951
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -456,37 +456,28 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795403172,
-    "records": 20090,
-    "video_records": 17463,
-    "initial_candidates": 202,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "updated_at": 1795403421,
+    "records": 20106,
+    "video_records": 17479,
+    "initial_candidates": 201,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10114,
-      "already_attempted_or_cooling": 4668,
-      "clip_title": 1636,
+      "speaker_unconfirmed": 10123,
+      "already_attempted_or_cooling": 4669,
+      "clip_title": 1638,
       "no_video": 2627,
       "ai_content": 37,
       "unrelated": 110,
       "noise": 48,
-      "reference_only": 648,
+      "reference_only": 653,
       "over_limit": 47,
       "too_short": 154,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1D1y3zjErH",
-        "title": "林园的估值方法从哪学的？林园：这就是市场说的一个PE，教科书上都告诉你了 我只是知道该做什么，大部分人也知道，就因为市场",
-        "source": "bilibili_search",
-        "author": "投资就是滚雪球",
-        "url": "https://www.bilibili.com/video/BV1D1y3zjErH",
-        "duration_sec": 80.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 149,
@@ -510,7 +501,8 @@
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 3,
-    "unknown": 2
+    "unknown": 2,
+    "running": 1
   },
   "tasks": [
     {
@@ -60974,6 +60966,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45103044518",
       "run_started_at": "2026-11-23T02:56:39Z",
       "run_updated_at": "2026-11-23T02:59:15Z"
+    },
+    {
+      "slug": "ly-1123-b5ed87",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795403196,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45103993401,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45103993401",
+      "run_started_at": "2026-11-23T03:06:36Z",
+      "run_updated_at": "2026-11-23T03:06:40Z"
     }
   ],
   "runs": {
@@ -93547,6 +93557,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45103032089",
       "run_number": 5166,
       "display_title": "中文源出片 · ly-1123-c14932"
+    },
+    "ly-1123-b5ed87": {
+      "id": 45103993401,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-23T03:06:36Z",
+      "updated_at": "2026-11-23T03:06:40Z",
+      "run_started_at": "2026-11-23T03:06:36Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45103993401",
+      "run_number": 5168,
+      "display_title": "中文源出片 · ly-1123-b5ed87"
     }
   }
 }
