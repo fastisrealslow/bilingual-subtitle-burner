@@ -153241,7 +153241,116 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-20T08:48:03+00:00"
+   "publish_time": "2026-01-20T08:48:03+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-608b59",
+    "run_id": 45178826163,
+    "artifact_id": 14827333853,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d06fd7d6207b07b4bb42dd0d771499eadfbcffa9afa6fb6c1679c3f462db183e",
+     "duration_sec": 2859.6,
+     "resolution": {
+      "width": 1440,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Qak7BkEz4"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2471.40s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：完整词句无法放入三行；必须重新审核封面文案"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 17, \"quote\": \"对，没准哪天出一个马斯马斯克，又又搞一个，来了，是吧？\", \"suspect_quote\": \"马斯马斯克\", \"kind\": \"unintelligible_term\", \"reason\": \"重复人名导致识别污染，无法确定真实指代对象。\"}, {\"sentence_id\": 20, \"quote\": \"所以泥腿子上岸不得了。\", \"suspect_quote\": \"泥腿子上岸不得了\", \"kind\": \"unintelligible_term\", \"reason\": \"口语表达被错误转写为无意义的短语，含义不明。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 87%（BV1tcHK6pEZq）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2035.63s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1709.23s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 27.90s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1244.90s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：claim_range 为空：主持人提问后，嘉宾未形成针对该问题的实质性回答；后续对话均为闲聊或事实陈述（如‘我做过房地产老板’），无判断性内容。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 90%（BV131HY6TEK5）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1293.17s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 195.13s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV1CKHV6wEWV）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：片段中嘉宾未对任何具体投资标的或市场行为做出明确判断，所有语句均为情绪化回应或无指代对象的感叹，不符合‘独立成片’需具备核心观点的要求。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45178826163,
+    "artifact_id": 14827333853,
+    "name": "production-reject-ly-1123-608b59",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1E7UCB6EY9",
@@ -153361,7 +153470,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV19EbezuEcS",
@@ -153443,7 +153553,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5093985028145288",
@@ -278237,6 +278348,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/CgN4qZtMlx08irTbWsOI01041202KfIW0E010.mp4",
    "ts": 1795443485,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1123-608b59",
+   "key": "bilibili_search:BV1Qak7BkEz4",
+   "video_id": "BV1Qak7BkEz4",
+   "ts": 1795445015,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
