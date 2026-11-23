@@ -152674,7 +152674,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-24T10:17:08+00:00"
+   "publish_time": "2026-05-24T10:17:08+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-948b69",
+    "run_id": 45139153148,
+    "artifact_id": 14805312024,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "83bf6360bf62233786bc0c32c17e5c2aa477f9be26645dbcce84f27e83e22e57",
+     "duration_sec": 2021.5,
+     "resolution": {
+      "width": 1352,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV13NGn6CEPc"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：reasoning_present；完整性理由：嘉宾在最后一句明确表达了个人看法，即‘我认为我个人的看法啊，我说一间好公司’，构成了完整的观点表达。前面的句子（如关于风险、确定性、硬指标等）多为解释性内容或过渡语，未形成独立的判断结论，因此不纳入核心观点范围。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45139153148,
+    "artifact_id": 14805312024,
+    "name": "production-reject-ly-1123-948b69",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1vjL76JEQF",
@@ -152698,7 +152759,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-17T01:14:50+00:00"
+   "publish_time": "2026-05-17T01:14:50+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-6bdee6",
+    "run_id": 45139176737,
+    "artifact_id": 14804647961,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a865ca0a2670bd1a03fcc560e808336ec21d6187462be212364aeef5a64a757b",
+     "duration_sec": 2046.25,
+     "resolution": {
+      "width": 1920,
+      "height": 930,
+      "short_edge": 930
+     },
+     "source_url": "https://www.bilibili.com/video/BV1vjL76JEQF"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 96%（BV1rLnC6CEyx）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1897.20s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1703.27s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45139176737,
+    "artifact_id": 14804647961,
+    "name": "production-reject-ly-1123-6bdee6",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 96%（BV1rLnC6CEyx）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -277388,6 +277494,20 @@
    "video_id": "BV1rckyYuEae",
    "ts": 1795407556,
    "error": "真人动态区检出持续黑边/错误取景"
+  },
+  {
+   "slug": "ly-1123-6bdee6",
+   "key": "bilibili_search:BV1vjL76JEQF",
+   "video_id": "BV1vjL76JEQF",
+   "ts": 1795427072,
+   "error": "与已发布内容文字指纹重复：转写片段重合 96%（BV1rLnC6CEyx）"
+  },
+  {
+   "slug": "ly-1123-948b69",
+   "key": "bilibili_search:BV13NGn6CEPc",
+   "video_id": "BV13NGn6CEPc",
+   "ts": 1795427073,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面未找到与林园参考照匹配的人脸"
   }
  ],
  "reviewed_third_video_0910": {
