@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795448799,
+  "updated_at": 1795449010,
   "inventory_updated_at": 1795448791,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5115,
+      "shortfall": 4885
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 6,
+    "active_or_recovering_sources": 7,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -456,7 +456,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795448797,
+    "updated_at": 1795449008,
     "records": 20285,
     "video_records": 17655,
     "initial_candidates": 202,
@@ -493,14 +493,14 @@
   },
   "counts": {
     "complete": 220,
-    "failed": 2815,
+    "failed": 2816,
     "paused": 5,
-    "interrupted": 12,
+    "interrupted": 10,
     "excluded": 106,
     "experiment_fallback": 186,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
     "running": 4
   },
@@ -61527,11 +61527,11 @@
     },
     {
       "slug": "ly-1123-0d3886",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "与已发布内容文字指纹重复：转写片段重合 79%（BV12kso6TEgx）",
       "signature": {
         "ts": 1795448004,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61563,14 +61563,14 @@
     },
     {
       "slug": "ly-1123-046443",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795448494,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795449763,
         "weekly_full_week": ""
       },
       "history_count": 1,
