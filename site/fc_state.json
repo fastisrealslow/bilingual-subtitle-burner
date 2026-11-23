@@ -152153,7 +152153,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1rckyYuEae",
@@ -152176,7 +152177,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-12-20T03:09:59+00:00"
+   "publish_time": "2024-12-20T03:09:59+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-7ba82d",
+    "run_id": 45104240998,
+    "artifact_id": 14789461058,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "391690c0ebcfbc83ce81971499179cf30d152081eece1dc36b6d2b7c857992d7",
+     "duration_sec": 885.32,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1rckyYuEae"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 138.60s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45104240998,
+    "artifact_id": 14789461058,
+    "name": "production-reject-ly-1123-7ba82d",
+    "retained": true
+   },
+   "last_error": "真人动态区检出持续黑边/错误取景",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1SF411j7uF",
@@ -276553,6 +276603,13 @@
    "video_id": "BV16U4y1S7Q6",
    "ts": 1795404867,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1123-7ba82d",
+   "key": "bilibili_search:BV1rckyYuEae",
+   "video_id": "BV1rckyYuEae",
+   "ts": 1795407556,
+   "error": "真人动态区检出持续黑边/错误取景"
   }
  ],
  "reviewed_third_video_0910": {
