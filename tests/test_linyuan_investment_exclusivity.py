@@ -11,10 +11,13 @@ import title_rewrite
 def test_published_copy_turns_selected_purchases_into_an_exclusive_rule():
     sample = json.loads((Path(__file__).parent / 'fixtures' /
                          'linyuan_published_investment_exclusivity.json').read_text())
+    proof = sample['title_rewrite']
+    candidate = dict(title=sample['title'], cover_title=sample['cover_title'],
+                     subject=proof['subject'], evidence=proof['evidence'])
     assert '排他判断' in title_rewrite._candidate_error(
-        sample, sample['raw_text'], '林园', ())
+        candidate, sample['raw_text'], '林园', ())
     assert '排他判断' in title_rewrite.error(
-        sample['title'], sample['title_rewrite'], sample['raw_text'])
+        sample['title'], proof, sample['raw_text'])
 
 
 @pytest.mark.parametrize('title,cover,source', [
