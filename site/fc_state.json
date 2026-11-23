@@ -152626,7 +152626,51 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-14T09:46:28+00:00"
+   "publish_time": "2025-12-14T09:46:28+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-942d9e",
+    "run_id": 45139111347,
+    "artifact_id": 14806184608,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "3177630e990c606334011cd13efc1bab3f90150c23d65ddde50233a2709246a1",
+     "duration_sec": 3442.21,
+     "resolution": {
+      "width": 1920,
+      "height": 926,
+      "short_edge": 926
+     },
+     "source_url": "https://www.bilibili.com/video/BV1gqmqBzEVW"
+    },
+    "failures": [
+     {
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1012.20s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 933.07s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1327.00s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "source_check_report_id": 14806184608,
+   "source_check_run_id": 45139111347,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795429594
   },
   {
    "key": "bilibili_search:BV1rpTHzaETY",
