@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795447126,
+  "updated_at": 1795447533,
   "inventory_updated_at": 1795447118,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5115,
+      "shortfall": 4885
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -40,7 +40,7 @@
     "reserve_target": 12,
     "verified_daily_stock": 150,
     "active_or_recovering_sources": 7,
-    "waiting_candidates": 5,
+    "waiting_candidates": 3,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -456,16 +456,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795447124,
+    "updated_at": 1795447532,
     "records": 20285,
     "video_records": 17655,
-    "initial_candidates": 221,
-    "duration_eligible_records": 19,
-    "candidate_count": 5,
-    "known_duration_candidates": 5,
+    "initial_candidates": 205,
+    "duration_eligible_records": 3,
+    "candidate_count": 3,
+    "known_duration_candidates": 3,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 4745,
+      "already_attempted_or_cooling": 4761,
       "speaker_unconfirmed": 10188,
       "clip_title": 1643,
       "ai_content": 38,
@@ -475,25 +475,9 @@
       "reference_only": 662,
       "over_limit": 47,
       "too_short": 155,
-      "duplicate_source": 14
+      "duplicate_source": 0
     },
     "candidates": [
-      {
-        "key": "bilibili_search:BV1qsxczLEwL",
-        "title": "林园 P1 林园讲投资秘籍，全程眼神放光，非常精彩。草根逆袭的民间股神，很多方法值得学习",
-        "source": "bilibili_collection",
-        "author": "复利的奇迹价值投资",
-        "url": "https://www.bilibili.com/video/BV1qsxczLEwL",
-        "duration_sec": 891.0
-      },
-      {
-        "key": "weibo_search:4686568876410280",
-        "title": "#财经#,#财经资讯#【2021年5月林园投资笔记】\n\n在这次访谈中，林园总谈到了巴菲特，谈到了跟巴菲特的收益对比，谈到",
-        "source": "weibo_search",
-        "author": "笑旋懂财经",
-        "url": "https://m.weibo.cn/detail/4686568876410280",
-        "duration_sec": 356.0
-      },
       {
         "key": "weibo_search:5368521707227498",
         "title": "林园：坚定看好股市，等牛市 http://t.cn/AXTCyqHn ​​​",
@@ -534,9 +518,9 @@
   },
   "counts": {
     "complete": 220,
-    "failed": 2811,
+    "failed": 2812,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 11,
     "excluded": 106,
     "experiment_fallback": 186,
     "ready": 38,
@@ -61352,11 +61336,11 @@
     },
     {
       "slug": "ly-1123-be0856",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
       "signature": {
         "ts": 1795443138,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61366,7 +61350,7 @@
       "run_id": 45191672865,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191672865",
       "run_started_at": "2026-11-23T14:12:17Z",
-      "run_updated_at": "2026-11-23T14:12:22Z"
+      "run_updated_at": "2026-11-23T15:16:02Z"
     },
     {
       "slug": "ly-1123-be9ac0",
@@ -61514,8 +61498,8 @@
     },
     {
       "slug": "ly-1123-b528b9",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795446829,
         "failed": null,
@@ -61528,7 +61512,43 @@
       "run_id": 45202864033,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45202864033",
       "run_started_at": "2026-11-23T15:13:49Z",
-      "run_updated_at": "2026-11-23T15:13:54Z"
+      "run_updated_at": "2026-11-23T15:20:43Z"
+    },
+    {
+      "slug": "ly-1123-6b240b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795447461,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45204847970,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45204847970",
+      "run_started_at": "2026-11-23T15:24:21Z",
+      "run_updated_at": "2026-11-23T15:24:25Z"
+    },
+    {
+      "slug": "ly-1123-f5d4f7",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795447471,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45204880467,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45204880467",
+      "run_started_at": "2026-11-23T15:24:31Z",
+      "run_updated_at": "2026-11-23T15:24:36Z"
     }
   ],
   "runs": {
@@ -94356,12 +94376,34 @@
       "run_number": 5211,
       "display_title": "中文源出片 · ly-1123-9e60b2"
     },
-    "ly-1123-b528b9": {
-      "id": 45202864033,
+    "ly-1123-f5d4f7": {
+      "id": 45204880467,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-23T15:24:31Z",
+      "updated_at": "2026-11-23T15:24:36Z",
+      "run_started_at": "2026-11-23T15:24:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45204880467",
+      "run_number": 5215,
+      "display_title": "中文源出片 · ly-1123-f5d4f7"
+    },
+    "ly-1123-6b240b": {
+      "id": 45204847970,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-23T15:24:21Z",
+      "updated_at": "2026-11-23T15:24:25Z",
+      "run_started_at": "2026-11-23T15:24:21Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45204847970",
+      "run_number": 5214,
+      "display_title": "中文源出片 · ly-1123-6b240b"
+    },
+    "ly-1123-b528b9": {
+      "id": 45202864033,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-23T15:13:49Z",
-      "updated_at": "2026-11-23T15:13:54Z",
+      "updated_at": "2026-11-23T15:20:43Z",
       "run_started_at": "2026-11-23T15:13:49Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45202864033",
       "run_number": 5213,
@@ -94413,10 +94455,10 @@
     },
     "ly-1123-be0856": {
       "id": 45191672865,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-23T14:12:17Z",
-      "updated_at": "2026-11-23T14:12:22Z",
+      "updated_at": "2026-11-23T15:16:02Z",
       "run_started_at": "2026-11-23T14:12:17Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191672865",
       "run_number": 5204,
