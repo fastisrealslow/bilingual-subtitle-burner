@@ -1,5 +1,5 @@
 {
-  "run_id": "45209448686",
+  "run_id": "45259020456",
   "processed": 3,
   "inspected": 4,
   "historical_media_verified": 253,
@@ -7,13 +7,27 @@
   "pending": 309,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6334328,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -2754,10 +2768,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 53,
+      "attempts": 54,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795373483.2847688,
-      "next_retry_at": 1795459883.2847688,
+      "last_attempt_at": 1795465827.6944623,
+      "next_retry_at": 1795552227.6944623,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -9346,13 +9360,13 @@
       "family": "simuwang_2026_10_15",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 11,
+      "attempts": 12,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795373421.1743133,
-      "next_retry_at": 1795459821.1743133,
+      "last_attempt_at": 1795465788.1401277,
+      "next_retry_at": 1795552188.1401277,
       "download_partial_bytes": 0
     },
     "6c13140a102fb9791d16": {
@@ -9909,13 +9923,13 @@
       "family": "phoenix_2026_09",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 1,
+      "attempts": 2,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795437445.3244832,
-      "next_retry_at": 1795459045.3244832,
+      "last_attempt_at": 1795465805.4101152,
+      "next_retry_at": 1795509005.4101152,
       "download_partial_bytes": 0
     },
     "82752413d240baf22535": {
@@ -9957,11 +9971,14 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795422367.9699054,
-      "next_retry_at": 1795465567.9699054,
+      "next_retry_at": 1795487385.1131651,
       "found": 1,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795465785.1131651
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
       "status": "searched",
@@ -10060,11 +10077,14 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 私募排排网 2026 10月15日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795422367.9699054,
-      "next_retry_at": 1795465567.9699054,
+      "next_retry_at": 1795487385.1131651,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795465785.1131651
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
