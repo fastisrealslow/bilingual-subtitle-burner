@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795439779,
+  "updated_at": 1795440146,
   "inventory_updated_at": 1795439769,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5096,
+      "shortfall": 4904
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -456,7 +456,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795439776,
+    "updated_at": 1795440144,
     "records": 20181,
     "video_records": 17553,
     "initial_candidates": 201,
@@ -493,14 +493,14 @@
   },
   "counts": {
     "complete": 220,
-    "failed": 2804,
+    "failed": 2805,
     "paused": 5,
-    "interrupted": 12,
+    "interrupted": 10,
     "excluded": 106,
     "experiment_fallback": 185,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2,
     "running": 2
   },
@@ -61275,11 +61275,11 @@
     },
     {
       "slug": "ly-1123-a7ff86",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
       "signature": {
         "ts": 1795438530,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61293,14 +61293,14 @@
     },
     {
       "slug": "ly-1123-d4e5e1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795439499,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795441817,
         "weekly_full_week": "2026-W48"
       },
       "history_count": 1,
