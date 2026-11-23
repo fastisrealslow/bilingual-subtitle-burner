@@ -17,6 +17,9 @@ from source_catalogue_duration import eligible_duration
 from inventory_targets import SEED_TARGET
 
 TARGET = SEED_TARGET
+# Net growth from the verified 2026-11-23 catalogue checkpoint.
+PRIORITY_BASELINE = 5096
+PRIORITY_ADDITIONS = 2000
 WEIBO_LIMIT = 16
 WEIBO_RECHECK_SECONDS = 86400
 
@@ -258,10 +261,16 @@ def run(base=BASE, *, target=TARGET, limit=48):
             from batch_delivery import write_json
             write_json(base / '.automation/seed_growth_report.json', providers[name])
     after = census(base)
-    return dict(target=target, baseline=before, after=after, added_count=after['total']-before['total'],
+    report = dict(target=target, baseline=before, after=after, added_count=after['total']-before['total'],
         providers=providers, accepted_mp4_count=0, rights_approved_count=0, production_dispatch=False,
         remaining_to_target=max(0, target-after['total']),
         counting_policy='unique_parent_video_ids_not_parts_queries_or_accepted_stock')
+    if target == TARGET:
+        milestone = PRIORITY_BASELINE + PRIORITY_ADDITIONS
+        report['priority_milestone'] = dict(baseline=PRIORITY_BASELINE,
+            target=milestone, net_added=after['total']-PRIORITY_BASELINE,
+            remaining=max(0, milestone-after['total']))
+    return report
 
 
 def main():
