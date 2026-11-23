@@ -153593,7 +153593,8 @@
    },
    "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4707075038380551",
@@ -153891,7 +153892,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-10-10T07:44:40+08:00"
+   "publish_time": "2024-10-10T07:44:40+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-b528b9",
+    "run_id": 45202864033,
+    "artifact_id": 14832018767,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8af10685e8cb3cbff8ccb72ba87e1948eddf5666682f8f05d46109bf20c7af14",
+     "duration_sec": 106.28,
+     "resolution": {
+      "width": 888,
+      "height": 726,
+      "short_edge": 726
+     },
+     "source_url": "https://m.weibo.cn/detail/5087833436192875"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45202864033,
+    "artifact_id": 14832018767,
+    "name": "production-reject-ly-1123-b528b9",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1qsxczLEwL",
@@ -153914,7 +153948,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-10-26T12:06:58+00:00"
+   "publish_time": "2025-10-26T12:06:58+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45204847970,
+    "artifact_id": 14833336116,
+    "name": "source-reject-ly-1123-6b240b",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（352x272），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:4686568876410280",
@@ -153937,7 +153981,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-09-29T01:02:35+08:00"
+   "publish_time": "2021-09-29T01:02:35+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45204880467,
+    "artifact_id": 14833660917,
+    "name": "source-reject-ly-1123-f5d4f7",
+    "retained": true
+   },
+   "last_error": "原始素材短边 312 < 480（640x312），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -278718,6 +278772,27 @@
    "video_id": "BV19EbezuEcS",
    "ts": 1795447394,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面；现场封面匹配人脸原始像素不足96，禁止用小头像放大替代"
+  },
+  {
+   "slug": "ly-1123-f5d4f7",
+   "key": "weibo_search:4686568876410280",
+   "video_id": "https://f.video.weibocdn.com/0003Jf71gx07MqrmgCvZ01041200mCIK0E010.mp4",
+   "ts": 1795447935,
+   "error": "原始素材短边 312 < 480（640x312），画质不达标"
+  },
+  {
+   "slug": "ly-1123-6b240b",
+   "key": "bilibili_search:BV1qsxczLEwL",
+   "video_id": "BV1qsxczLEwL",
+   "ts": 1795447935,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 272 < 480（352x272），画质不达标"
+  },
+  {
+   "slug": "ly-1123-b528b9",
+   "key": "weibo_search:5087833436192875",
+   "video_id": "https://f.video.weibocdn.com/o0/cTynwpENlx08iEvBuYhi01041200tCtY0E010.mp4",
+   "ts": 1795447936,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
