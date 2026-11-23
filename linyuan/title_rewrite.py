@@ -1098,8 +1098,6 @@ def forecast_copy_error(title, cover, transcript):
     if cause_issue:return cause_issue
     sale_issue=rare_sale_scope_error(title,cover,transcript)
     if sale_issue:return sale_issue
-    exclusivity_issue=investment_exclusivity_error(title,cover,transcript)
-    if exclusivity_issue:return exclusivity_issue
     holding_issue=lifetime_holding_hedge_error(title,cover,transcript)
     if holding_issue:return holding_issue
     actor_issue = negative_actor_error(title, cover, transcript)
@@ -1174,7 +1172,7 @@ def forecast_copy_error(title, cover, transcript):
         qualified=re.search(r'可能|不确定|不好预测|判断不了|(?:我|个人)(?:的)?(?:判断|预测|估计)|多久|何时|什么时候|能否|[？?]',copy)
         if forecast and uncertain and not qualified:
             return '点位或牛市的时间判断丢失原文不确定性；标题和封面都不能写成确定的时间承诺'
-    return None
+    return investment_exclusivity_error(title, cover, transcript)
 
 
 def unresolved_subject_error(title, cover):
