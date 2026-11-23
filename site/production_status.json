@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795429092,
+  "updated_at": 1795429250,
   "inventory_updated_at": 1795429085,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5066,
+      "shortfall": 4934
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -456,7 +456,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795429090,
+    "updated_at": 1795429248,
     "records": 20141,
     "video_records": 17514,
     "initial_candidates": 201,
@@ -495,12 +495,12 @@
     "complete": 220,
     "failed": 2798,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 106,
     "experiment_fallback": 184,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2,
     "running": 1
   },
@@ -61149,14 +61149,14 @@
     },
     {
       "slug": "ly-1123-a8d7aa",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795428743,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795430939,
         "weekly_full_week": ""
       },
       "history_count": 1,
