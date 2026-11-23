@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795443420,
+  "updated_at": 1795443631,
   "inventory_updated_at": 1795443409,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5115,
+      "shortfall": 4885
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 6,
-    "waiting_candidates": 10,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 9,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -456,16 +456,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795443417,
-    "records": 20260,
-    "video_records": 17631,
-    "initial_candidates": 244,
-    "duration_eligible_records": 43,
-    "candidate_count": 10,
-    "known_duration_candidates": 10,
+    "updated_at": 1795443629,
+    "records": 20262,
+    "video_records": 17633,
+    "initial_candidates": 243,
+    "duration_eligible_records": 42,
+    "candidate_count": 9,
+    "known_duration_candidates": 9,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 4716,
+      "already_attempted_or_cooling": 4719,
       "speaker_unconfirmed": 10173,
       "clip_title": 1643,
       "no_video": 2629,
@@ -478,6 +478,14 @@
       "duplicate_source": 33
     },
     "candidates": [
+      {
+        "key": "bilibili_search:BV1qsxczLEwL",
+        "title": "林园 P1 林园讲投资秘籍，全程眼神放光，非常精彩。草根逆袭的民间股神，很多方法值得学习",
+        "source": "bilibili_collection",
+        "author": "复利的奇迹价值投资",
+        "url": "https://www.bilibili.com/video/BV1qsxczLEwL",
+        "duration_sec": 891.0
+      },
       {
         "key": "weibo_search:4686568876410280",
         "title": "#财经#,#财经资讯#【2021年5月林园投资笔记】\n\n在这次访谈中，林园总谈到了巴菲特，谈到了跟巴菲特的收益对比，谈到",
@@ -501,22 +509,6 @@
         "author": "唐晶晶的价值观",
         "url": "https://www.bilibili.com/video/BV1q4746nEaP",
         "duration_sec": 168.0
-      },
-      {
-        "key": "weibo_search:5093985028145288",
-        "title": "//@高宇飚:林园谈投资2024.10.25",
-        "source": "weibo_search",
-        "author": "蔡钰本人",
-        "url": "https://m.weibo.cn/detail/5093985028145288",
-        "duration_sec": 3198.0
-      },
-      {
-        "key": "weibo_search:5089456355278914",
-        "title": "【完整版·收藏转发】2024-10-14股神林园带你看懂A股大反转[威武][威武][威武] http://t.cn/A6",
-        "source": "weibo_search",
-        "author": "乐游-杨生",
-        "url": "https://m.weibo.cn/detail/5089456355278914",
-        "duration_sec": 3625.0
       },
       {
         "key": "weibo_search:5088340082168378",
@@ -574,16 +566,16 @@
   },
   "counts": {
     "complete": 220,
-    "failed": 2805,
+    "failed": 2807,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 106,
     "experiment_fallback": 185,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 5
+    "running": 6
   },
   "tasks": [
     {
@@ -61374,11 +61366,11 @@
     },
     {
       "slug": "ly-1123-d4e5e1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795443129,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61428,11 +61420,11 @@
     },
     {
       "slug": "ly-1123-01ae22",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "原始素材短边 360 < 480（640x360），画质不达标",
       "signature": {
         "ts": 1795443155,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61442,7 +61434,43 @@
       "run_id": 45191725512,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191725512",
       "run_started_at": "2026-11-23T14:12:35Z",
-      "run_updated_at": "2026-11-23T14:12:39Z"
+      "run_updated_at": "2026-11-23T14:15:47Z"
+    },
+    {
+      "slug": "ly-1123-019211",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795443559,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45192936721,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45192936721",
+      "run_started_at": "2026-11-23T14:19:19Z",
+      "run_updated_at": "2026-11-23T14:19:23Z"
+    },
+    {
+      "slug": "ly-1123-51e40f",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795443568,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": "2026-W48"
+      },
+      "history_count": 1,
+      "run_id": 45192959783,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45192959783",
+      "run_started_at": "2026-11-23T14:19:28Z",
+      "run_updated_at": "2026-11-23T14:19:34Z"
     }
   ],
   "runs": {
@@ -94193,12 +94221,45 @@
       "run_number": 5201,
       "display_title": "中文源出片 · ly-1123-a7ff86"
     },
-    "ly-1123-01ae22": {
-      "id": 45191725512,
+    "ly-1123-d4e5e1": {
+      "id": 45191643904,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-23T14:12:08Z",
+      "updated_at": "2026-11-23T14:14:41Z",
+      "run_started_at": "2026-11-23T14:12:08Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191643904",
+      "run_number": 5203,
+      "display_title": "中文源出片 · ly-1123-d4e5e1"
+    },
+    "ly-1123-51e40f": {
+      "id": 45192959783,
       "status": "in_progress",
       "conclusion": null,
+      "created_at": "2026-11-23T14:19:28Z",
+      "updated_at": "2026-11-23T14:19:34Z",
+      "run_started_at": "2026-11-23T14:19:28Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45192959783",
+      "run_number": 5208,
+      "display_title": "中文源出片 · ly-1123-51e40f"
+    },
+    "ly-1123-019211": {
+      "id": 45192936721,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-23T14:19:19Z",
+      "updated_at": "2026-11-23T14:19:23Z",
+      "run_started_at": "2026-11-23T14:19:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45192936721",
+      "run_number": 5207,
+      "display_title": "中文源出片 · ly-1123-019211"
+    },
+    "ly-1123-01ae22": {
+      "id": 45191725512,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-23T14:12:35Z",
-      "updated_at": "2026-11-23T14:12:39Z",
+      "updated_at": "2026-11-23T14:15:47Z",
       "run_started_at": "2026-11-23T14:12:35Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191725512",
       "run_number": 5206,
@@ -94225,17 +94286,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191672865",
       "run_number": 5204,
       "display_title": "中文源出片 · ly-1123-be0856"
-    },
-    "ly-1123-d4e5e1": {
-      "id": 45191643904,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-23T14:12:08Z",
-      "updated_at": "2026-11-23T14:14:41Z",
-      "run_started_at": "2026-11-23T14:12:08Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45191643904",
-      "run_number": 5203,
-      "display_title": "中文源出片 · ly-1123-d4e5e1"
     },
     "ly-1123-1ca921": {
       "id": 45178855296,
