@@ -1076,7 +1076,7 @@ def investment_exclusivity_error(title, cover, transcript):
     # Compare the objects, so an explicit restriction on one holding does not
     # turn an unrelated example into an exclusive investment rule.
     exclusive = re.compile(
-        r'(?<![不非岂何])(?:只|仅仅|仅)\s*(?:买入?|投资?|配置)'
+        r'(?<![不非岂何])(?:只|仅仅|仅)\s*(?:买入|买(?!入)|投资|投(?!资)|配置)'
         r'(?![了过的])\s*([^：:。！？!?；;，,、\n]+)')
     source_objects = {compact(match[1]) for match in exclusive.finditer(source)}
     for copy in (str(title or ''), str(cover or '')):

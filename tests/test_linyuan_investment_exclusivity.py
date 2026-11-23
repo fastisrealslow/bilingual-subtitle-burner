@@ -35,6 +35,7 @@ def test_scope_is_checked_per_action_object_and_per_surface(title, cover, source
     ('林园：只买白酒', '仅买入白酒', '我们主要讲选股原则，实际只投资白酒。'),
     ('林园：不只买白酒', '不只配置白酒', '我们优先买白酒，但也买食品。'),
     ('林园：只买了白酒', '', '我们原本优先配置消费，这笔只买了白酒。'),
+    ('林园：仅买入了白酒', '只投资过白酒', '我们原本优先配置消费，这笔只买入了白酒。'),
     ('林园：只在熟悉的行业里运作', '', '我们主要投资消费，在熟悉的行业里运作。'),
 ])
 def test_nonexclusive_copy_explicit_restriction_and_completed_trade(title, cover, source):
