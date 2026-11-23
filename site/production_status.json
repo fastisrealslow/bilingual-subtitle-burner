@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updated_at": 1795408464,
-  "inventory_updated_at": 1795408345,
+  "updated_at": 1795409297,
+  "inventory_updated_at": 1795409291,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
     "ordinary": {
       "target": 900,
-      "verified": 149,
-      "shortfall": 751,
+      "verified": 150,
+      "shortfall": 750,
       "by_layout": {
         "portrait": 25,
-        "landscape": 124
+        "landscape": 125
       },
       "layout_policy": "native_geometry_flexible_control_slots"
     },
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5057,
-      "shortfall": 4943
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -38,8 +38,8 @@
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 149,
-    "active_or_recovering_sources": 3,
+    "verified_daily_stock": 150,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -47,7 +47,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 149,
+      "verified_stock_snapshot": 150,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -70,7 +70,7 @@
       },
       "verified_by_layout": {
         "portrait": 25,
-        "landscape": 124
+        "landscape": 125
       },
       "full_schedule_days": 8,
       "required_week_shortfall": 0,
@@ -456,7 +456,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795408463,
+    "updated_at": 1795409295,
     "records": 20110,
     "video_records": 17483,
     "initial_candidates": 201,
@@ -480,14 +480,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 149,
+    "verified_live": 150,
     "verified_audio_card": 0,
-    "verified_landscape": 124,
+    "verified_landscape": 125,
     "verified_portrait": 25,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 149,
+    "daily_mix_usable": 150,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -497,12 +497,11 @@
     "paused": 5,
     "interrupted": 10,
     "excluded": 105,
-    "experiment_fallback": 184,
+    "experiment_fallback": 185,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 2,
-    "unknown": 2,
-    "running": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -60933,8 +60932,8 @@
     },
     {
       "slug": "ly-1123-dc1e22",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1795403324,
         "failed": null,
@@ -60947,7 +60946,7 @@
       "run_id": 45104208141,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45104208141",
       "run_started_at": "2026-11-23T03:08:44Z",
-      "run_updated_at": "2026-11-23T03:08:48Z"
+      "run_updated_at": "2026-11-23T04:45:19Z"
     },
     {
       "slug": "ly-1123-e923d1",
@@ -93676,10 +93675,10 @@
     },
     "ly-1123-dc1e22": {
       "id": 45104208141,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-23T03:08:44Z",
-      "updated_at": "2026-11-23T03:08:48Z",
+      "updated_at": "2026-11-23T04:45:19Z",
       "run_started_at": "2026-11-23T03:08:44Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45104208141",
       "run_number": 5169,
