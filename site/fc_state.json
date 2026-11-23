@@ -154137,7 +154137,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2020-04-15T14:57:01+00:00"
+   "publish_time": "2020-04-15T14:57:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-558ce5",
+    "run_id": 45260280042,
+    "artifact_id": 14862239409,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6ca2982b237576149ab9be46bb5e1549fdb5966f1d7604caaa31493c945ab920",
+     "duration_sec": 1331.47,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV17z41187c2"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾对核心问题的回应，仅保留主持人的开场提问与串场介绍，构成‘未回答的新问题结尾’及‘无关话题或片头预告寒暄拼凑’的剪辑门禁违规情形。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配743/965，总帧数1106；身份匹配但人脸短边不足96px的帧数10"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 108.07s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45260280042,
+    "artifact_id": 14862239409,
+    "name": "production-reject-ly-1123-558ce5",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5368581969676626",
@@ -154193,7 +154246,8 @@
    },
    "last_error": "整段取景预检：源 6.73s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -279009,6 +279063,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/futPqRYTlx08CBjukEs001041201lnK00E010.mp4",
    "ts": 1795467432,
    "error": "整段取景预检：源 6.73s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1123-558ce5",
+   "key": "bilibili_search:BV17z41187c2",
+   "video_id": "BV17z41187c2",
+   "ts": 1795469129,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
