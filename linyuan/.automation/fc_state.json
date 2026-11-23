@@ -153520,7 +153520,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-11-24T15:06:45+08:00"
+   "publish_time": "2021-11-24T15:06:45+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-be9ac0",
+    "run_id": 45191696880,
+    "artifact_id": 14831101621,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c779e1d624b0fb10b607ae5491b4046ce26c2d5b46d91846343ba5038bcd127e",
+     "duration_sec": 2356.06,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/4707075038380551"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2158.04s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1995.92s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2044.36s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1096.04s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45191696880,
+    "artifact_id": 14831101621,
+    "name": "production-reject-ly-1123-be9ac0",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 2158.04s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5086424995203961",
@@ -153637,7 +153686,8 @@
    },
    "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5091432429781124",
@@ -153685,7 +153735,17 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-10-06T22:45:33+08:00"
+   "publish_time": "2024-10-06T22:45:33+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45200953286,
+    "artifact_id": 14832152471,
+    "name": "source-reject-ly-1123-9e60b2",
+    "retained": true
+   },
+   "last_error": "原始素材短边 294 < 480（294x636），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "weibo_search:5091273545881778",
@@ -278469,6 +278529,20 @@
    "video_id": "https://f.video.weibocdn.com/o0/0SSGP6ovlx08iD2QPrqU01041201uhwM0E010.mp4",
    "ts": 1795446162,
    "error": "原始素材短边 360 < 480（640x360），画质不达标"
+  },
+  {
+   "slug": "ly-1123-9e60b2",
+   "key": "weibo_search:5086610594728988",
+   "video_id": "https://f.video.weibocdn.com/o0/irDxsZu1lx08izvzlAe401041205UfJY0E030.mp4",
+   "ts": 1795446764,
+   "error": "原始素材短边 294 < 480（294x636），画质不达标"
+  },
+  {
+   "slug": "ly-1123-be9ac0",
+   "key": "weibo_search:4707075038380551",
+   "video_id": "https://f.video.weibocdn.com/RXwtkZUqlx07NlEDZDNC0104120f4eQA0E060.mp4",
+   "ts": 1795446765,
+   "error": "整段取景预检：源 2158.04s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
