@@ -1,0 +1,37 @@
+name: Verify public creator dashboard deployment
+on:
+  push:
+    branches: ['dot/comments-read-probe-20261115']
+    paths: ['.github/workflows/linyuan-creator-metrics-live-check-20261124.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.run_number == 1 && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Read the public dashboard, script and populated data
+        run: |
+          python3 - <<'PY'
+          import json, time
+          from urllib.request import urlopen
+          from urllib.error import HTTPError, URLError
+          base="https://fastisrealslow.github.io/bilingual-subtitle-burner/"
+          def read(path):
+              with urlopen(base+path+"?verification=20261124-"+str(int(time.time())),timeout=8) as r:
+                  if r.status!=200: raise ValueError("unexpected status")
+                  return r.read().decode()
+          for attempt in range(10):
+              try:
+                  assert 'id="creator-metrics"' in read("log.html")
+                  assert 'creator_metrics.json' in read("site/creator-metrics.js")
+                  p=json.loads(read("site/creator_metrics.json"))
+                  assert p["schema"]==1 and p["window"] is None and p["observed_at"] >= "2026-11-24T03:47"
+                  assert p["videos"] and all(type(v["new_follows"]) is int for v in p["videos"])
+                  print("verified live dashboard:", len(p["videos"]), "creator rows", p["observed_at"])
+                  break
+              except (HTTPError, URLError, AssertionError, KeyError, ValueError, TimeoutError):
+                  if attempt == 9: raise SystemExit("Public deployment did not verify")
+                  time.sleep(9)
+          PY
