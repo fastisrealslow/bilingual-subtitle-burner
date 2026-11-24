@@ -156008,7 +156008,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1Kf421B77u",
@@ -156031,7 +156032,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-07-24T01:26:41+00:00"
+   "publish_time": "2024-07-24T01:26:41+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-176e18",
+    "run_id": 45431436766,
+    "artifact_id": 14943529383,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "ca1851589bfe437e0860d00a8123914e7e5d94f7032339499122c1e4ce45f3d6",
+     "duration_sec": 863.08,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1Kf421B77u"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 386.08s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 17, \"quote\": \"为什么这个就是我们房子这些看不清楚的事，在上面吃亏？\", \"suspect_quote\": \"房子这些看不清楚的事\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“房子这些”指代不明，可能为口误或专有名词识别错误，需音频核实。\"}]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45431436766,
+    "artifact_id": 14943529383,
+    "name": "production-reject-ly-1124-176e18",
+    "retained": true
+   },
+   "last_error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5167967244913026",
@@ -281877,6 +281935,13 @@
    "video_id": "BV18RSDBHE1r",
    "ts": 1795538876,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1124-176e18",
+   "key": "bilibili_search:BV1Kf421B77u",
+   "video_id": "BV1Kf421B77u",
+   "ts": 1795540105,
+   "error": "标题前动态窗口缺少持续局部动作：疑似照片/背景板，不消耗标题与字幕生成预算"
   }
  ],
  "reviewed_third_video_0910": {
