@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795535734,
-  "inventory_updated_at": 1795535665,
+  "updated_at": 1795537677,
+  "inventory_updated_at": 1795537667,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5196,
-      "shortfall": 4804
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 2,
+    "active_or_recovering_sources": 4,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -52,13 +52,13 @@
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-24",
         "2026-11-25",
         "2026-11-26",
         "2026-11-27",
         "2026-11-28",
         "2026-11-29",
-        "2026-11-30"
+        "2026-11-30",
+        "2026-12-01"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -88,7 +88,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -99,21 +99,15 @@
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-24",
+      "date": "2026-11-25",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-17",
-          "actual_treatment": 0,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-18",
           "actual_treatment": 0,
@@ -146,6 +140,12 @@
         },
         {
           "date": "2026-11-23",
+          "actual_treatment": 0,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-24",
           "actual_treatment": 0,
           "target": 2,
           "passed": false
@@ -460,47 +460,39 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795535733,
-    "records": 20442,
-    "video_records": 17811,
-    "initial_candidates": 210,
-    "duration_eligible_records": 2,
-    "candidate_count": 2,
-    "known_duration_candidates": 2,
+    "updated_at": 1795537674,
+    "records": 20451,
+    "video_records": 17820,
+    "initial_candidates": 209,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10261,
-      "already_attempted_or_cooling": 4791,
-      "clip_title": 1663,
+      "speaker_unconfirmed": 10264,
+      "already_attempted_or_cooling": 4794,
+      "clip_title": 1664,
       "ai_content": 38,
       "no_video": 2631,
       "unrelated": 110,
       "noise": 48,
-      "reference_only": 690,
+      "reference_only": 693,
       "too_short": 161,
       "over_limit": 47,
       "duplicate_source": 0
     },
     "candidates": [
       {
-        "key": "bilibili_search:BV1Kf421B77u",
-        "title": "林园 P1 私募大佬林园7月最新访谈：投资持续盈利的好企业",
-        "source": "bilibili_collection",
-        "author": "涵哥论市",
-        "url": "https://www.bilibili.com/video/BV1Kf421B77u",
-        "duration_sec": 864.0
-      },
-      {
-        "key": "bilibili_search:BV18RSDBHE1r",
-        "title": "林园 P1 1.林园8月31日游轮内部演讲流出：我们就在里面等泡沫，泡沫可能25年以后才会破(Av11513505422",
-        "source": "bilibili_collection",
-        "author": "人人S财神",
-        "url": "https://www.bilibili.com/video/BV18RSDBHE1r",
-        "duration_sec": 2410.0
+        "key": "weibo_search:4548246141142089",
+        "title": "林园采访   -2018.1.17-新的起点-投资名人堂！\n\n http://t.cn/A64bgND3 ​​​",
+        "source": "weibo_search",
+        "author": "笔中书禅",
+        "url": "https://m.weibo.cn/detail/4548246141142089",
+        "duration_sec": 618.0
       }
     ]
   },
@@ -526,7 +518,8 @@
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 2,
-    "unknown": 2
+    "unknown": 2,
+    "running": 2
   },
   "tasks": [
     {
@@ -62196,6 +62189,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45427023539",
       "run_started_at": "2026-11-24T15:34:09Z",
       "run_updated_at": "2026-11-24T15:37:57Z"
+    },
+    {
+      "slug": "ly-1124-4fb275",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795535821,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45431400500,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45431400500",
+      "run_started_at": "2026-11-24T15:57:01Z",
+      "run_updated_at": "2026-11-24T15:57:07Z"
+    },
+    {
+      "slug": "ly-1124-176e18",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795535832,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45431436766,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45431436766",
+      "run_started_at": "2026-11-24T15:57:11Z",
+      "run_updated_at": "2026-11-24T15:57:16Z"
     }
   ],
   "runs": {
@@ -95506,6 +95535,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45427023539",
       "run_number": 5281,
       "display_title": "中文源出片 · ly-1124-06b195"
+    },
+    "ly-1124-176e18": {
+      "id": 45431436766,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T15:57:11Z",
+      "updated_at": "2026-11-24T15:57:16Z",
+      "run_started_at": "2026-11-24T15:57:11Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45431436766",
+      "run_number": 5283,
+      "display_title": "中文源出片 · ly-1124-176e18"
+    },
+    "ly-1124-4fb275": {
+      "id": 45431400500,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T15:57:01Z",
+      "updated_at": "2026-11-24T15:57:07Z",
+      "run_started_at": "2026-11-24T15:57:01Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45431400500",
+      "run_number": 5282,
+      "display_title": "中文源出片 · ly-1124-4fb275"
     }
   }
 }
