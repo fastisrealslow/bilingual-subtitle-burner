@@ -4,6 +4,11 @@
   const valid = (value) => Number.isInteger(value) && value >= 0;
   const count = (value) => valid(value) ? value.toLocaleString('zh-CN') : '—';
   const rate = (value) => valid(value) && value <= 10000 ? (value / 100).toFixed(2) + '%' : '—';
+  const duration = (seconds) => {
+    if (!valid(seconds) || seconds === 0) return '—';
+    if (seconds < 60) return seconds + ' 秒';
+    return Math.floor(seconds / 60) + ' 分 ' + (seconds % 60) + ' 秒';
+  };
   const el = (tag, value) => {
     const node = document.createElement(tag);
     if (value !== undefined) node.textContent = value;
@@ -25,7 +30,7 @@
       const stale = Date.now() - when > 14 * 3600000;
       const note = el('p', (stale ? '数据暂未刷新；' : '') +
         '采集于 ' + label + '（北京时间）。仅含本号近期能确认公开且有后台数据的稿件，不是全量；' +
-        '统计窗口由 B 站接口决定，未核实为发布后 7 天。— 表示未取得，非 0。平台转粉率使用 B 站自身口径，不等于本表两列直接相除。平均观看时长的单位仍待核实。');
+        '统计窗口由 B 站接口决定，未核实为发布后 7 天。— 表示未取得，非 0。平台转粉率使用 B 站自身口径，不等于本表两列直接相除。平均观看时长来自 B 站单稿分析；未取得结算值时显示「—」。');
       const wrap = el('div');
       wrap.style.overflowX = 'auto';
       const table = el('table');
@@ -47,7 +52,7 @@
         tr.appendChild(td);
         for (const value of [count(row.plays), count(row.new_follows), rate(row.follow_rate_bps),
           rate(row.thumbnail_ctr_bps), rate(row.early_exit_bps), rate(row.completion_bps),
-          valid(row.average_watch_time_raw) ? '待核口径' : '—', rate(row.engagement_bps)]) {
+          duration(row.average_watch_seconds), rate(row.engagement_bps)]) {
           tr.appendChild(el('td', value));
         }
         body.appendChild(tr);

@@ -2,8 +2,10 @@
 import json
 import os
 import re
+from time import monotonic, sleep
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +13,7 @@ OWNER = "275211725"
 LIMIT = 30
 NAV = "https://api.bilibili.com/x/web-interface/nav"
 COMPARE = f"https://member.bilibili.com/x/web/data/archive_diagnose/compare?size={LIMIT}"
+ARCHIVE = "https://member.bilibili.com/x/web/data/archive"
 BV = re.compile(r"BV[A-Za-z0-9]{10}")
 COUNTS = {"plays": "play", "new_follows": "total_new_attention_cnt"}
 RATES = {
@@ -47,13 +50,47 @@ def credentials(raw):
 def read_api(url, header, opener):
     if url not in (NAV, COMPARE):
         raise ValueError("Unexpected API URL")
+    return fetch_data(url, header, opener, timeout=15)
+
+
+def fetch_data(url, header, opener, timeout):
     req = Request(url, headers={"Cookie": header, "User-Agent": "Mozilla/5.0",
                                 "Referer": "https://member.bilibili.com/"}, method="GET")
-    with opener.open(req, timeout=15) as response:
+    with opener.open(req, timeout=timeout) as response:
         payload = json.load(response)
     if payload.get("code") != 0 or not isinstance(payload.get("data"), dict):
         raise ValueError("Creator API did not return data")
     return payload["data"]
+
+
+def watch_seconds(data):
+    # Single-archive analytics supplies settled seconds, unlike compare.
+    play = data.get("play")
+    if not isinstance(play, dict):
+        return None
+    return nonnegative(play.get("avg_duration")) or None
+
+
+def enrich_watch_time(videos, header, opener):
+    # Only call for rows that passed ownership and public-video checks.
+    # Stop on the first transport/API failure, without retrying a block.
+    deadline = monotonic() + 45
+    for i, video in enumerate(videos):
+        if i:
+            sleep(0.35)
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            break
+        bvid = video["bvid"]
+        if not BV.fullmatch(bvid):
+            continue
+        url = ARCHIVE + "?" + urlencode({"bvid": bvid})
+        try:
+            archive = fetch_data(url, header, opener, timeout=min(5, remaining))
+        except (OSError, ValueError):
+            print("[creator-metrics] single-video lookup incomplete; missing durations left blank")
+            break
+        video["average_watch_seconds"] = watch_seconds(archive)
 
 
 def public_projection(rows, public_items, observed_at):
@@ -77,9 +114,7 @@ def public_projection(rows, public_items, observed_at):
         item = {"bvid": bvid, "title": str(allowed[bvid].get("title") or bvid)[:150]}
         item.update({key: nonnegative(stat.get(field)) for key, field in COUNTS.items()})
         item.update({key: nonnegative(stat.get(field), 10000) for key, field in RATES.items()})
-        # The newer integer field has been observed live. Do not guess seconds vs
-        # milliseconds or use the sometimes-zero legacy statistic in its place.
-        item["average_watch_time_raw"] = nonnegative(stat.get("avg_play_time_int"))
+        item["average_watch_seconds"] = None
         if item["plays"] is None or item["new_follows"] is None:
             continue
         result.append(item)
@@ -101,6 +136,9 @@ def main():
         public_items = json.loads((ROOT / "site/stats.json").read_text(encoding="utf-8"))["top"]
         snapshot = public_projection(data.get("list"), public_items,
                                      datetime.now(timezone.utc).isoformat(timespec="seconds"))
+        enrich_watch_time(snapshot["videos"], header, opener)
+        available = sum(v["average_watch_seconds"] is not None for v in snapshot["videos"])
+        print(f"[creator-metrics] watch-time coverage {available}/{len(snapshot['videos'])}")
         target = ROOT / "site/creator_metrics.json"
         temporary = target.with_suffix(".tmp")
         temporary.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n",
