@@ -667,7 +667,7 @@ def cover_qualifier_error(title, cover):
     return None
 
 
-def review_source_quote_error(reason, transcript):
+def review_source_quote_error(reason, transcript, speaker='林园'):
     """A judge's purported verbatim source quotes must exist in the source.
 
     Candidate quotes and ordinary paraphrases remain allowed. Only quoted
@@ -676,7 +676,10 @@ def review_source_quote_error(reason, transcript):
     if not isinstance(reason,str) or not transcript:
         return None
     quote = r'''[“‘「『"']([^”’」』"'\n]{2,160})[”’」』"']'''
-    attributed = (r'(?:原文|原话|字幕)(?:中|里)?(?:的|提到|写道|说道|说|是|为)?'
+    named_attribution = (rf'(?:{re.escape(speaker)}|嘉宾|受访者|发言人)\s*'
+                         r'(?:明确|直接|亲口)?\s*(?:说出|说过|说道|提到|表示|指出|强调|写道|说)')
+    attributed = (r'(?:原文|原话|字幕)(?:中|里)?\s*'
+                  rf'(?:的|提到|写道|说道|说|是|为|{named_attribution})?'
                   r'\s*[：:]?\s*' + quote +
                   r'(?:\s*(?:和|、|以及|及|与)\s*' + quote + r')*')
     source=compact(transcript)
@@ -2064,7 +2067,7 @@ appeal按具体看点和想点开的程度评1~5，空泛目录只能1分。相�
             accepted = []
             for row in reviews:
                 if isinstance(row,dict):
-                    quote_issue=review_source_quote_error(row.get('reason'),transcript)
+                    quote_issue=review_source_quote_error(row.get('reason'),transcript,speaker)
                     if quote_issue:
                         row['source_supported']=False
                         row['reason']=quote_issue
@@ -2228,7 +2231,7 @@ def error(title, proof, transcript=None, speaker='林园'):
             return '标题审核缺少原文依据说明'
         # A cached proof's selected evidence may omit other real source lines.
         # Only declare a source quote absent when the full transcript is given.
-        quote_issue=review_source_quote_error(review['reason'], transcript)
+        quote_issue=review_source_quote_error(review['reason'], transcript, speaker)
         if quote_issue:
             return quote_issue
         item = dict(title=title, cover_title=proof['cover'], subject=proof.get('subject'), evidence=evidence,
