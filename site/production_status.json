@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795518165,
-  "inventory_updated_at": 1795518088,
+  "updated_at": 1795518406,
+  "inventory_updated_at": 1795518399,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5186,
-      "shortfall": 4814
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 6,
+    "active_or_recovering_sources": 7,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -464,18 +464,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795518162,
+    "updated_at": 1795518404,
     "records": 20415,
     "video_records": 17784,
-    "initial_candidates": 214,
-    "duration_eligible_records": 6,
-    "candidate_count": 6,
-    "known_duration_candidates": 6,
+    "initial_candidates": 208,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10290,
-      "already_attempted_or_cooling": 4743,
-      "clip_title": 1655,
+      "speaker_unconfirmed": 10249,
+      "already_attempted_or_cooling": 4791,
+      "clip_title": 1654,
       "ai_content": 38,
       "no_video": 2631,
       "unrelated": 110,
@@ -485,56 +485,7 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1eF4m1M7oe",
-        "title": "林园 P1 【林园·长江商学院演讲】什么是价值投资 2020.12",
-        "source": "bilibili_collection",
-        "author": "投资思维室",
-        "url": "https://www.bilibili.com/video/BV1eF4m1M7oe",
-        "duration_sec": 2659.0
-      },
-      {
-        "key": "weibo_search:4403724539760740",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "evian2015",
-        "url": "https://m.weibo.cn/detail/4403724539760740",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403676632094278",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "向彼得林奇看齐",
-        "url": "https://m.weibo.cn/detail/4403676632094278",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403675953141546",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "依然阳光oo",
-        "url": "https://m.weibo.cn/detail/4403675953141546",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403642528222916",
-        "title": "//@上善若水之王洪:2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获201",
-        "source": "weibo_search",
-        "author": "爱杭州创业和投资",
-        "url": "https://m.weibo.cn/detail/4403642528222916",
-        "duration_sec": 390.0
-      },
-      {
-        "key": "weibo_search:4403639977869270",
-        "title": "2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获2017年度最值得信赖私募基",
-        "source": "weibo_search",
-        "author": "王洪股金谈",
-        "url": "https://m.weibo.cn/detail/4403639977869270",
-        "duration_sec": 390.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 150,
@@ -557,9 +508,9 @@
     "experiment_fallback": 192,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2,
-    "running": 1
+    "running": 5
   },
   "tasks": [
     {
@@ -62106,14 +62057,14 @@
     },
     {
       "slug": "ly-1124-4eaf62",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795517785,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795519034,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -62121,6 +62072,96 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45379489176",
       "run_started_at": "2026-11-24T10:56:25Z",
       "run_updated_at": "2026-11-24T10:58:17Z"
+    },
+    {
+      "slug": "ly-1124-79c5a4",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795518183,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45380537755,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380537755",
+      "run_started_at": "2026-11-24T11:03:03Z",
+      "run_updated_at": "2026-11-24T11:03:08Z"
+    },
+    {
+      "slug": "ly-1124-7a0ba3",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1795518194,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45380569233,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380569233",
+      "run_started_at": "2026-11-24T11:03:14Z",
+      "run_updated_at": "2026-11-24T11:04:31Z"
+    },
+    {
+      "slug": "ly-1124-87b3e2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795518203,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45380590720,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380590720",
+      "run_started_at": "2026-11-24T11:03:23Z",
+      "run_updated_at": "2026-11-24T11:03:27Z"
+    },
+    {
+      "slug": "ly-1124-369d1f",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795518211,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45380612220,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380612220",
+      "run_started_at": "2026-11-24T11:03:31Z",
+      "run_updated_at": "2026-11-24T11:03:35Z"
+    },
+    {
+      "slug": "ly-1124-4e4e40",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795518219,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45380636126,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380636126",
+      "run_started_at": "2026-11-24T11:03:39Z",
+      "run_updated_at": "2026-11-24T11:03:43Z"
     }
   ],
   "runs": {
@@ -95354,6 +95395,61 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45379489176",
       "run_number": 5265,
       "display_title": "中文源出片 · ly-1124-4eaf62"
+    },
+    "ly-1124-4e4e40": {
+      "id": 45380636126,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T11:03:39Z",
+      "updated_at": "2026-11-24T11:03:43Z",
+      "run_started_at": "2026-11-24T11:03:39Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380636126",
+      "run_number": 5270,
+      "display_title": "中文源出片 · ly-1124-4e4e40"
+    },
+    "ly-1124-369d1f": {
+      "id": 45380612220,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T11:03:31Z",
+      "updated_at": "2026-11-24T11:03:35Z",
+      "run_started_at": "2026-11-24T11:03:31Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380612220",
+      "run_number": 5269,
+      "display_title": "中文源出片 · ly-1124-369d1f"
+    },
+    "ly-1124-87b3e2": {
+      "id": 45380590720,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T11:03:23Z",
+      "updated_at": "2026-11-24T11:03:27Z",
+      "run_started_at": "2026-11-24T11:03:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380590720",
+      "run_number": 5268,
+      "display_title": "中文源出片 · ly-1124-87b3e2"
+    },
+    "ly-1124-7a0ba3": {
+      "id": 45380569233,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-24T11:03:14Z",
+      "updated_at": "2026-11-24T11:04:31Z",
+      "run_started_at": "2026-11-24T11:03:14Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380569233",
+      "run_number": 5267,
+      "display_title": "中文源出片 · ly-1124-7a0ba3"
+    },
+    "ly-1124-79c5a4": {
+      "id": 45380537755,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T11:03:03Z",
+      "updated_at": "2026-11-24T11:03:08Z",
+      "run_started_at": "2026-11-24T11:03:03Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45380537755",
+      "run_number": 5266,
+      "display_title": "中文源出片 · ly-1124-79c5a4"
     },
     "ly-1124-ab87e5": {
       "id": 45377451620,
