@@ -10,63 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v4
-      - name: Inspect official creator assets and read-only response shapes
-        env:
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      - name: Trace official data-center module and duration formatter
         run: |
           python - <<'PY'
-          import json,os,re
-          from concurrent.futures import ThreadPoolExecutor
+          import re,html
+          from urllib.request import urlopen, Request
           from urllib.parse import urljoin,urlsplit
-          from urllib.request import Request, build_opener
-          from linyuan.collect_creator_metrics import credentials,read_api,NAV,COMPARE,NoRedirect,OWNER
-          origin='https://member.bilibili.com'
-          def get(url,limit):
-              p=urlsplit(url)
-              assert p.scheme=='https' and p.hostname in {'member.bilibili.com','s1.hdslb.com','s2.hdslb.com','s3.hdslb.com','s4.hdslb.com','s1.hdslb.com','i0.hdslb.com'}
-              with build_opener(NoRedirect()).open(Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=8) as f:
-                  return f.read(limit).decode('utf-8','replace')
-          def asset(url):
+          from concurrent.futures import ThreadPoolExecutor
+          def get(u,limit=5000000):
+              if urlsplit(u).hostname not in {'member.bilibili.com','s1.hdslb.com'} or not u.startswith('https:'): return ''
               try:
-                  src=get(url,6500000)
-                  needles=r'avg_play_time_int|average_play_time|avg_play_time|平均播放时长|平均观看时长|/x/web/data/[a-zA-Z0-9_/-]+'
-                  matches=set(re.findall(needles,src))
-                  print('ASSET',url,'fields/endpoints',sorted(matches)[:140])
-                  for term in ('avg_play_time_int','avg_play_time','平均播放时长','平均观看时长'):
-                      for m in list(re.finditer(term,src))[:5]:
-                          print('SOURCE',re.sub(r'[\r\n]',' ',src[max(0,m.start()-145):m.end()+200]))
-                  # Modern chunk maps can reveal the data-center entry; no execution.
-                  nested=re.findall(r'https://s[1-4]\.hdslb\.com/[^"\x27\s<>]{5,220}\.js',src)
-                  return nested
-              except Exception as e:
-                  print('asset unavailable',type(e).__name__)
-                  return []
-          scripts=set()
-          for path in ('/platform/home','/platform/data-up/archive','/platform/upload-manager/article'):
-              try:
-                  src=get(origin+path,500000)
-                  urls=re.findall(r'<script[^>]+src=["\x27]([^"\x27]+)',src)
-                  urls=[urljoin(origin,u) for u in urls if '?' not in u]
-                  scripts.update(urls)
-                  print('ENTRY',path,len(src),urls[:15])
-              except Exception as e: print('ENTRY unavailable',path,type(e).__name__)
-          with ThreadPoolExecutor(max_workers=8) as pool:
-              nested={u for lst in pool.map(asset,sorted(scripts)[:14]) for u in lst}
-              list(pool.map(asset,sorted(nested-scripts)[:12]))
-          raw=os.environ.pop('BILIBILI_COOKIES','')
-          op=build_opener(NoRedirect())
-          header=credentials(raw)
-          identity=read_api(NAV,header,op)
-          if identity.get('isLogin') is not True or str(identity.get('mid'))!=OWNER: raise SystemExit('identity not verified')
-          rows=read_api(COMPARE,header,op)['list']
-          public={v['bvid'] for v in json.load(open('site/stats.json'))['top']}
-          rows=[r for r in rows if r.get('bvid') in public and r.get('is_only_self') in (0,False)]
-          for key in ('stat','hour_stat'):
-              obj=[r[key] for r in rows if isinstance(r.get(key),dict)]
-              keys={k for d in obj for k in d if re.search(r'time|duration|vt|progress',k,re.I)}
-              for k in sorted(keys):
-                  numbers=[d.get(k) for d in obj if type(d.get(k)) in (float,int)]
-                  strings=[d[k] for d in obj if isinstance(d.get(k),str)]
-                  print('shape',key,k,'numeric count/positive',len(numbers),sum(x>0 for x in numbers),'strings',len(strings),'time-formatted',sum(bool(re.fullmatch(r'[0-9:.]+',s)) for s in strings))
+                  with urlopen(Request(u,headers={'User-Agent':'Mozilla/5.0'}),timeout=8) as f: return f.read(limit).decode('utf-8','replace')
+              except Exception: return ''
+          start='https://member.bilibili.com/platform/home'
+          root=get(start,300000)
+          terms=r'archive_diagnose|avg_play_time|averagePlayDuration|average_play_duration|平均播放时长|data-up|data-center|importmap|webpack|video-analysis'
+          def links(u,s):
+              raw=re.findall(r'''["']([^"'<>&\s]{2,230}\.js)["']''',s)
+              return {urljoin(u,x) for x in raw if x.startswith(('https://s1.hdslb.com/','//s1.hdslb.com/','./','../')) or '/' not in x}
+          def check(u):
+              s=get(u)
+              for k in ('archive_diagnose','avg_play_time','averagePlayDuration','average_play_duration','data-up','data-center','importmap','video-analysis'):
+                  for m in list(re.finditer(k,s))[:8]:
+                      print('TRACE',u.rsplit('/',1)[-1],k,re.sub(r'[\r\n]',' ',s[max(0,m.start()-145):m.end()+150]))
+              return links(u,s)
+          urls=links(start,root)
+          for m in list(re.finditer(terms,root))[:30]:
+              print('HTML TRACE',root[max(0,m.start()-60):m.end()+170].splitlines()[0])
+          for j in range(3):
+              urls=sorted((set(urls)-set(locals().get('seen',[]))),key=lambda u: (not bool(re.search('data|diagnos|analysis|index',u,re.I)),u))[:30]
+              seen=set(locals().get('seen',[]))|set(urls)
+              with ThreadPoolExecutor(max_workers=8) as pool:
+                  urls={a for result in pool.map(check,urls) for a in result}
           PY
