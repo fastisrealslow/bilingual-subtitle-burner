@@ -6,7 +6,7 @@
   搜索接口配合 fetch_bilibili 的指纹会话可稳定拿到数据（监控每天在用）。
 局限（页面上也会标注）：
   搜索只返回被索引到的稿件，实测 60/78，会漏约两成，总量偏低；
-  但漏的是随机的，趋势与中位数的相对比较仍可靠。
+  搜索遗漏未必随机；跨号比较只代表可见样本，不冒充完整投稿列表。
 
 「新规则片 / 旧规则片」怎么区分：
   按投稿时间切分 —— FC 新代码 2026-09-02 11:00 部署，之后投出去的才走
@@ -87,11 +87,40 @@ def fetch_by_author(name, keywords, max_pages=6):
     return list(seen.values())
 
 
+def latest30_summary(videos, fans, now):
+    """Most recent 30 relevant, distinct search-indexed public uploads."""
+    rows = {}
+    for v in videos:
+        bvid, ts = v.get("bvid"), v.get("pubdate")
+        if not (isinstance(bvid, str) and re.fullmatch(r"BV[A-Za-z0-9]{10}", bvid)
+                and type(ts) is int and 0 < ts <= now
+                and is_relevant(strip_tags(v.get("title", "")))):
+            continue
+        rows.setdefault(bvid, v)
+    newest = sorted(rows.values(), key=lambda r: (-r["pubdate"], r["bvid"]))[:30]
+    play = [r["play"] for r in newest if type(r.get("play")) is int and r["play"] >= 0]
+    paired = [(r["play"], r["like"]) for r in newest
+              if type(r.get("play")) is int and r["play"] > 0
+              and type(r.get("like")) is int and r["like"] >= 0]
+    med = statistics.median(play) if play else None
+    dates = [datetime.fromtimestamp(r["pubdate"], CST).strftime("%Y-%m-%d") for r in newest]
+    return dict(sample_count=len(newest), play_count=len(play),
+                from_date=dates[-1] if dates else None, to_date=dates[0] if dates else None,
+                play_median=med, play_total=sum(play) if play else None,
+                play_max=max(play, default=None),
+                over_1k=sum(p >= 1000 for p in play) if play else None,
+                play_per_fan=round(med / fans, 3) if med is not None and fans else None,
+                likes_count=len(paired),
+                likes_per_1k=round(statistics.median(1000 * like / views for views, like in paired), 1)
+                if paired else None)
+
+
 def peer_summary(name):
     """竞品概览：近 30 天表现 + 播放/粉丝比。"""
     vids = fetch_by_author(name, [name, "林园"], max_pages=4)
     info = fetch_fans(name)
-    cutoff = time.time() - 30 * 86400
+    now = time.time()
+    cutoff = now - 30 * 86400
     rows = [{"play": v.get("play", 0) or 0, "pubdate": v.get("pubdate", 0) or 0,
              "title": strip_tags(v.get("title", ""))}
             for v in vids if is_relevant(strip_tags(v.get("title", "")))]
@@ -102,6 +131,7 @@ def peer_summary(name):
     return {
         "name": name, "fans": fans, "videos_total": info["videos"],
         "indexed": len(rows),
+        "latest30": latest30_summary(vids, fans, now),
         "recent30_count": len(recent),
         "recent30_total": sum(r["play"] for r in recent),
         "recent30_median": round(med, 1),
@@ -278,7 +308,8 @@ def main():
         except Exception as e:
             print(f"  {nm} 失败: {e}", file=sys.stderr)
     # 把我们自己也算进同一张表，口径一致才能比
-    cutoff = time.time() - 30 * 86400
+    now = time.time()
+    cutoff = now - 30 * 86400
     mine = [x["play"] for x in data["top"] if x["pubdate"] >= cutoff]
     sf = data["self_fans"]["fans"] or 1
     mymed = statistics.median(mine) if mine else 0
@@ -287,6 +318,7 @@ def main():
                      "recent30_count": len(mine), "recent30_total": sum(mine),
                      "recent30_median": round(mymed, 1),
                      "play_per_fan": round(mymed / sf, 3),
+                     "latest30": latest30_summary(videos, data["self_fans"]["fans"], now),
                      **top_video_fields(data['top']), "is_self": True})
     data["peers"] = sorted(peers, key=lambda x: -x["play_per_fan"])
     try:previous=json.loads(OUT.read_text()) if OUT.exists() else {}
