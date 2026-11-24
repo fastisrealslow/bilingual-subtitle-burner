@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795517459,
-  "inventory_updated_at": 1795517289,
+  "updated_at": 1795517687,
+  "inventory_updated_at": 1795517681,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5182,
-      "shortfall": 4818
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -464,20 +464,20 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795517457,
-    "records": 20390,
-    "video_records": 17760,
-    "initial_candidates": 208,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1795517685,
+    "records": 20399,
+    "video_records": 17768,
+    "initial_candidates": 209,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 10242,
-      "already_attempted_or_cooling": 4782,
+      "already_attempted_or_cooling": 4789,
       "clip_title": 1652,
       "ai_content": 38,
-      "no_video": 2630,
+      "no_video": 2631,
       "unrelated": 110,
       "noise": 48,
       "reference_only": 680,
@@ -485,7 +485,16 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1ucyEzhEH3",
+        "title": "林园2010.3.12微观视界_06_再简单一点看哪两个指标？林园：一个是毛利率要高，八九十甚至没有成本最好；还有就是毛",
+        "source": "bilibili_search",
+        "author": "投资就是滚雪球",
+        "url": "https://www.bilibili.com/video/BV1ucyEzhEH3",
+        "duration_sec": 64.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 150,
@@ -505,12 +514,12 @@
     "paused": 5,
     "interrupted": 10,
     "excluded": 107,
-    "experiment_fallback": 191,
+    "experiment_fallback": 192,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -61985,8 +61994,8 @@
     },
     {
       "slug": "ly-1124-79b71b",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1795516145,
         "failed": null,
@@ -61999,7 +62008,7 @@
       "run_id": 45375213794,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45375213794",
       "run_started_at": "2026-11-24T10:29:05Z",
-      "run_updated_at": "2026-11-24T10:29:10Z"
+      "run_updated_at": "2026-11-24T10:51:34Z"
     },
     {
       "slug": "ly-1124-ab87e5",
@@ -95279,10 +95288,10 @@
     },
     "ly-1124-79b71b": {
       "id": 45375213794,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-24T10:29:05Z",
-      "updated_at": "2026-11-24T10:29:10Z",
+      "updated_at": "2026-11-24T10:51:34Z",
       "run_started_at": "2026-11-24T10:29:05Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45375213794",
       "run_number": 5261,
