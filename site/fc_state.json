@@ -156238,7 +156238,8 @@
    "failure_stage": "quality-service",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5015016573765297",
@@ -156341,7 +156342,8 @@
    },
    "last_error": "来源角标无法避开且保留完整人脸，须换取景或素材",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5251111427513345",
@@ -156364,7 +156366,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-03T21:13:08+08:00"
+   "publish_time": "2026-01-03T21:13:08+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-8b688c",
+    "run_id": 45465339024,
+    "artifact_id": 14955374753,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "5c10d510de4cf3a61a795652ed10490b965787d6237acc76c00fc7faab2d639c",
+     "duration_sec": 237.47,
+     "resolution": {
+      "width": 1080,
+      "height": 1484,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5251111427513345"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 115.23s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 185.83s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45465339024,
+    "artifact_id": 14955374753,
+    "name": "production-reject-ly-1124-8b688c",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 115.23s，原始画面不足以保留完整人脸及头顶余量",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5012823562257492",
@@ -282144,6 +282183,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/MYh1oPhWgx08ddPotbJe010412012if90E010.mp4",
    "ts": 1795547730,
    "error": "来源角标无法避开且保留完整人脸，须换取景或素材"
+  },
+  {
+   "slug": "ly-1124-8b688c",
+   "key": "weibo_search:5251111427513345",
+   "video_id": "https://f.video.weibocdn.com/o0/9YCwuG8Glx08ugpAESp201041204Gg1v0E020.mp4",
+   "ts": 1795548112,
+   "error": "整段取景预检：源 115.23s，原始画面不足以保留完整人脸及头顶余量"
   }
  ],
  "reviewed_third_video_0910": {
