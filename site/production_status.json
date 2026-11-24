@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795516451,
+  "updated_at": 1795516673,
   "inventory_updated_at": 1795516441,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5180,
+      "shortfall": 4820
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 3,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 2,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -464,17 +464,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795516449,
+    "updated_at": 1795516671,
     "records": 20376,
     "video_records": 17746,
-    "initial_candidates": 208,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "initial_candidates": 212,
+    "duration_eligible_records": 4,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 10233,
-      "already_attempted_or_cooling": 4780,
+      "already_attempted_or_cooling": 4776,
       "clip_title": 1652,
       "ai_content": 38,
       "no_video": 2630,
@@ -483,9 +483,18 @@
       "reference_only": 677,
       "too_short": 161,
       "over_limit": 47,
-      "duplicate_source": 0
+      "duplicate_source": 3
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:4685391015710321",
+        "title": "#财经#,#财经资讯#【2007年林园：寻找中国的巴菲特】\n\n当时做这期节目的初衷：寻找和采访在中国股市实践价值理念投资",
+        "source": "weibo_search",
+        "author": "紫文说财经",
+        "url": "https://m.weibo.cn/detail/4685391015710321",
+        "duration_sec": 3684.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 150,
@@ -501,16 +510,16 @@
   },
   "counts": {
     "complete": 221,
-    "failed": 2835,
+    "failed": 2837,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 107,
     "experiment_fallback": 191,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -61949,11 +61958,11 @@
     },
     {
       "slug": "ly-1124-ba4f60",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795516124,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61967,11 +61976,11 @@
     },
     {
       "slug": "ly-1124-0929cd",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "failed",
+      "detail": "工作流步骤失败，未形成素材不合格结论：render",
       "signature": {
         "ts": 1795516135,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61981,7 +61990,7 @@
       "run_id": 45375187401,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45375187401",
       "run_started_at": "2026-11-24T10:28:54Z",
-      "run_updated_at": "2026-11-24T10:28:58Z"
+      "run_updated_at": "2026-11-24T10:32:51Z"
     },
     {
       "slug": "ly-1124-79b71b",
@@ -95168,17 +95177,6 @@
       "run_number": 5257,
       "display_title": "中文源出片 · ly-1124-e1bb2b"
     },
-    "ly-1124-0929cd": {
-      "id": 45375187401,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-24T10:28:54Z",
-      "updated_at": "2026-11-24T10:28:58Z",
-      "run_started_at": "2026-11-24T10:28:54Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45375187401",
-      "run_number": 5260,
-      "display_title": "中文源出片 · ly-1124-0929cd"
-    },
     "ly-1124-995baa": {
       "id": 45345681290,
       "status": "completed",
@@ -95200,6 +95198,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45375213794",
       "run_number": 5261,
       "display_title": "中文源出片 · ly-1124-79b71b"
+    },
+    "ly-1124-0929cd": {
+      "id": 45375187401,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-24T10:28:54Z",
+      "updated_at": "2026-11-24T10:32:51Z",
+      "run_started_at": "2026-11-24T10:28:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45375187401",
+      "run_number": 5260,
+      "display_title": "中文源出片 · ly-1124-0929cd"
     }
   }
 }
