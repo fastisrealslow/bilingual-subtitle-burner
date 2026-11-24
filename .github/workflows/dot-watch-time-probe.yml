@@ -10,36 +10,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Validate the single-video watch-time field with real public samples
-        env:
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      - name: Verify watch time and the existing public dashboard
         run: |
           python - <<'PY'
-          import json, os
-          from urllib.request import Request,build_opener
-          from urllib.error import HTTPError
-          from urllib.parse import urlencode
-          from linyuan.collect_creator_metrics import credentials,read_api,NAV,COMPARE,NoRedirect,OWNER,BV
-          op=build_opener(NoRedirect())
-          header=credentials(os.environ.pop('BILIBILI_COOKIES',''))
-          identity=read_api(NAV,header,op)
-          assert identity.get('isLogin') is True and str(identity.get('mid'))==OWNER
-          rows=read_api(COMPARE,header,op)['list']
-          public={v['bvid'] for v in json.load(open('site/stats.json'))['top']}
-          rows=[r for r in rows if r.get('bvid') in public and BV.fullmatch(r['bvid']) and type(r.get('is_only_self')) in (bool,int) and r['is_only_self']==0]
-          for r in (rows[:3]+rows[7:9]+rows[19:20]):
-              bvid=r['bvid']
-              u='https://member.bilibili.com/x/web/data/archive?'+urlencode({'bvid':bvid})
+          from urllib.request import urlopen, Request
+          from datetime import datetime,timezone
+          from time import monotonic,sleep
+          import json
+          base='https://fastisrealslow.github.io/bilingual-subtitle-burner/'
+          until=monotonic()+155
+          while monotonic()<until:
               try:
-                  with op.open(Request(u,headers={'Cookie':header,'User-Agent':'Mozilla/5.0','Referer':'https://member.bilibili.com/platform/home'}),timeout=8) as resp: p=json.load(resp)
-              except HTTPError as e:
-                  print('HTTP',e.code);break
-              if p.get('code') != 0: print('platform code',p.get('code'));break
-              d=p.get('data') or {}
-              play=d.get('play') or {}
-              safe={k:play.get(k) for k in ('avg_duration','duration','rate') if type(play.get(k)) in (int,float)}
-              print('single-video sample',bvid,safe,'compare_duration',r.get('duration'),'plays',r.get('stat',{}).get('play'))
+                  def get(path):
+                      req=Request(base+path+'?probe='+str(int(datetime.now(timezone.utc).timestamp())),headers={'Cache-Control':'no-cache'})
+                      with urlopen(req,timeout=8) as f: return f.read().decode()
+                  page=get('log.html')
+                  script=get('site/creator-metrics.js')
+                  snapshot=json.loads(get('site/creator_metrics.json'))
+                  rows=snapshot['videos']
+                  available=sum(type(v.get('average_watch_seconds')) is int and v['average_watch_seconds']>0 for v in rows)
+                  if 'creator-metrics.js' in page and 'duration(row.average_watch_seconds)' in script and available:
+                      print('Verified live: updated watch-time rendering, positive durations',available,'of',len(rows),'snapshot',snapshot['observed_at'])
+                      break
+                  print('Waiting for public deployment: usable durations',available,'of',len(rows))
+              except (OSError,ValueError,KeyError) as e: print('Public deployment not verified yet:',type(e).__name__)
+              sleep(10)
+          else: raise SystemExit('Public watch-time deployment not verified')
           PY
