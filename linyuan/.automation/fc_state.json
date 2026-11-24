@@ -155185,7 +155185,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV14G411t72q",
@@ -155209,7 +155210,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-08-12T14:37:24+00:00"
+   "publish_time": "2022-08-12T14:37:24+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45345617155,
+    "artifact_id": 14898002509,
+    "name": "source-reject-ly-1124-4dd61e",
+    "retained": true
+   },
+   "last_error": "清理后预计短边 398 < 480",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1jk4y197oJ",
@@ -280647,6 +280658,13 @@
    "video_id": "BV1yD9dBNE7y",
    "ts": 1795504449,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 478 < 480（854x478），画质不达标"
+  },
+  {
+   "slug": "ly-1124-4dd61e",
+   "key": "bilibili_search:BV14G411t72q",
+   "video_id": "BV14G411t72q",
+   "ts": 1795504461,
+   "error": "清理后预计短边 398 < 480"
   }
  ],
  "reviewed_third_video_0910": {
