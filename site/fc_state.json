@@ -156286,7 +156286,64 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-26T15:56:06+08:00"
+   "publish_time": "2025-12-26T15:56:06+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-60e7e5",
+    "run_id": 45465285837,
+    "artifact_id": 14956668249,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6febc3b8262678f2cfdcb5c9f66f2225329efb7928c2f64a61e409798acc4ef2",
+     "duration_sec": 678.21,
+     "resolution": {
+      "width": 1024,
+      "height": 576,
+      "short_edge": 576
+     },
+     "source_url": "https://m.weibo.cn/detail/5248132539482818"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1782/2358，总帧数2876；身份匹配但人脸短边不足96px的帧数390"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/137，总帧数680；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 54%（BV1jfxK67EhB）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配448/726，总帧数1388；身份匹配但人脸短边不足96px的帧数117"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾的实际判断（claim_quote），仅有对过往经历的确认和开场寒暄，无法构成完整表达；结尾处主持人提出关于资本市场回报预期的问题，嘉宾未作答，属于未回答的新问题结尾。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/599，总帧数2992；身份匹配但人脸短边不足96px的帧数280"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/154，总帧数768；身份匹配但人脸短边不足96px的帧数0"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45465285837,
+    "artifact_id": 14956668249,
+    "name": "production-reject-ly-1124-60e7e5",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1782/2358，总帧数2876；身份匹配但人脸短边不足96px的帧数390",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5011433202387960",
@@ -156403,7 +156460,8 @@
    },
    "last_error": "整段取景预检：源 115.23s，原始画面不足以保留完整人脸及头顶余量",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5012823562257492",
@@ -282190,6 +282248,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/9YCwuG8Glx08ugpAESp201041204Gg1v0E020.mp4",
    "ts": 1795548112,
    "error": "整段取景预检：源 115.23s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1124-60e7e5",
+   "key": "weibo_search:5248132539482818",
+   "video_id": "https://f.video.weibocdn.com/o0/Ltlv1Cmvlx08u3bM5STC010412022Av30E010.mp4",
+   "ts": 1795549428,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1782/2358，总帧数2876；身份匹配但人脸短边不足96px的帧数390"
   }
  ],
  "reviewed_third_video_0910": {
