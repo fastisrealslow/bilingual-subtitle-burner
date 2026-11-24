@@ -1,13 +1,14 @@
 {
-  "run_id": "45379376234",
+  "run_id": "45429363087",
   "processed": 3,
-  "inspected": 6,
-  "historical_media_verified": 255,
+  "inspected": 7,
+  "historical_media_verified": 256,
   "cache_recovery_pending": 249,
-  "pending": 308,
+  "pending": 307,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -5723,15 +5724,37 @@
       "role": "mother",
       "family": "historical_long_leads_20261010",
       "priority": 5,
-      "status": "retry_wait",
+      "status": "inspected",
       "attempts": 18,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
+      "fingerprint_cache_available": true,
       "cache_recovery_needed": false,
-      "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795229807.9902542,
-      "next_retry_at": 1795316207.9902542,
-      "download_partial_bytes": 0
+      "last_error": null,
+      "last_attempt_at": 1795536099.8213892,
+      "next_retry_at": 0,
+      "download_partial_bytes": 0,
+      "evidence": {
+        "sha256": "8c96cf01d895a28f3f57c4e5197792abf7cb931325b4925b55fa22b7c865d1a7",
+        "duration_sec": 3145.999,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 1573.0
+          }
+        ],
+        "audio_fingerprint_count": 25388,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "45429363087"
     },
     "448a83154c9d7b3900cd": {
       "url": "https://www.bilibili.com/video/BV1ZLzbBGERh",
@@ -6253,12 +6276,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 36,
+      "attempts": 37,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795429867.8222363,
-      "next_retry_at": 1795516267.8222363,
+      "last_attempt_at": 1795535542.0341525,
+      "next_retry_at": 1795621942.0341525,
       "download_partial_bytes": 0
     },
     "72bd5fcbae3e3d297c17": {
@@ -8854,13 +8877,13 @@
       "family": "investor_call",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 5,
+      "attempts": 6,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795228610.1355054,
-      "next_retry_at": 1795315010.1355054,
+      "last_attempt_at": 1795535842.0489361,
+      "next_retry_at": 1795622242.0489361,
       "download_partial_bytes": 0
     },
     "37d3a6a468b205fb665d": {
@@ -10029,21 +10052,24 @@
       "new_ids": []
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
-      "status": "searched",
-      "checked_at": 1795476295.6159472,
-      "next_retry_at": 1795519495.6159472,
-      "found": 4,
-      "new_ids": []
-    },
-    "gelong_conversation|格隆对话林园 完整版": {
       "status": "retry_wait",
-      "checked_at": 1795429821.495126,
-      "next_retry_at": 1795503450.9881644,
+      "checked_at": 1795476295.6159472,
+      "next_retry_at": 1795557122.881063,
       "found": 4,
       "new_ids": [],
       "attempts": 1,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795481850.9881644
+      "last_attempt_at": 1795535522.881063
+    },
+    "gelong_conversation|格隆对话林园 完整版": {
+      "status": "retry_wait",
+      "checked_at": 1795429821.495126,
+      "next_retry_at": 1795578722.881063,
+      "found": 4,
+      "new_ids": [],
+      "attempts": 2,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795535522.881063
     },
     "gelong_conversation|格隆博士会客厅 林园": {
       "status": "retry_wait",
@@ -10125,11 +10151,14 @@
       "new_ids": []
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795476295.6159472,
-      "next_retry_at": 1795519495.6159472,
+      "next_retry_at": 1795557122.881063,
       "found": 1,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795535522.881063
     }
   }
 }
