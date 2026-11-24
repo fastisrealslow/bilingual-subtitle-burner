@@ -1,5 +1,5 @@
 {
-  "run_id": "45300552170",
+  "run_id": "45311298857",
   "processed": 3,
   "inspected": 4,
   "historical_media_verified": 253,
@@ -12,9 +12,34 @@
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 4,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -2716,7 +2741,7 @@
     "f9de46f7e09975ca209c": {
       "url": "https://www.bilibili.com/video/BV1nieS6hEpY",
       "role": "mother",
-      "family": "simuwang_2026_10_15",
+      "family": "phoenix_2026_09",
       "priority": 0,
       "status": "pending",
       "attempts": 1,
@@ -3596,8 +3621,8 @@
     "216c7e1ed426835568d1": {
       "url": "https://www.bilibili.com/video/BV1Wuez6uEzS",
       "role": "mother",
-      "family": "investor_call",
-      "priority": 5,
+      "family": "phoenix_2026_09",
+      "priority": 0,
       "status": "pending",
       "attempts": 3,
       "last_error": null,
@@ -5673,13 +5698,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 18,
+      "attempts": 19,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795206568.9873042,
-      "next_retry_at": 1795292968.9873042,
+      "last_attempt_at": 1795486985.883223,
+      "next_retry_at": 1795573385.883223,
       "download_partial_bytes": 0
     },
     "02181a238706ad19ad68": {
@@ -6807,12 +6832,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 32,
+      "attempts": 33,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795383008.1366494,
-      "next_retry_at": 1795469408.1366494,
+      "last_attempt_at": 1795486981.181158,
+      "next_retry_at": 1795573381.181158,
       "download_partial_bytes": 0
     },
     "e30a9b72bb23342e51e2": {
@@ -9593,13 +9618,13 @@
       "family": "tianyu_linyuan_2026_11",
       "priority": 2,
       "status": "retry_wait",
-      "attempts": 9,
+      "attempts": 10,
       "publisher_status": "catalog_lead_not_primary_proof",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795384251.209135,
-      "next_retry_at": 1795470651.209135,
+      "last_attempt_at": 1795486983.5577211,
+      "next_retry_at": 1795573383.5577211,
       "download_partial_bytes": 0
     },
     "58f92e7b62df29bb135b": {
@@ -9767,7 +9792,7 @@
     "aac4aacb14472ceab61f": {
       "url": "https://www.bilibili.com/video/BV1gsfVY3Ews",
       "role": "mother",
-      "family": "gelong_conversation",
+      "family": "phoenix_2026_09",
       "priority": 0,
       "status": "pending",
       "attempts": 1,
@@ -10002,21 +10027,24 @@
       "last_attempt_at": 1795481850.9881644
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795437320.5607784,
-      "next_retry_at": 1795480520.5607784,
+      "next_retry_at": 1795508570.462856,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795486970.462856
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "retry_wait",
       "checked_at": 1795206469.7952023,
-      "next_retry_at": 1795478213.4351614,
+      "next_retry_at": 1795573370.462856,
       "found": 4,
       "new_ids": [],
-      "attempts": 3,
+      "attempts": 4,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795391813.4351614
+      "last_attempt_at": 1795486970.462856
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
       "status": "retry_wait",
@@ -10030,9 +10058,9 @@
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
-      "checked_at": 1795438304.5344968,
-      "next_retry_at": 1795481504.5344968,
-      "found": 1,
+      "checked_at": 1795486970.462856,
+      "next_retry_at": 1795530170.462856,
+      "found": 3,
       "new_ids": []
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
