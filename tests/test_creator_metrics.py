@@ -1,6 +1,8 @@
 import unittest
 
-from linyuan.collect_creator_metrics import public_projection
+from unittest.mock import patch
+
+from linyuan.collect_creator_metrics import enrich_watch_time, public_projection, watch_seconds
 
 
 BV = "BV1wJyazdEtQ"
@@ -22,7 +24,8 @@ class TestPublicProjection(unittest.TestCase):
         self.assertEqual(v["title"], "public title")
         self.assertEqual(v["new_follows"], 0)
         self.assertEqual(v["thumbnail_ctr_bps"], 700)
-        self.assertEqual(v["average_watch_time_raw"], 24)
+        self.assertIsNone(v["average_watch_seconds"])
+        self.assertNotIn("average_watch_time_raw", v)
         self.assertNotIn("unfollow", v)
         self.assertNotIn("private", v)
         self.assertNotIn("hour_stat", v)
@@ -32,6 +35,26 @@ class TestPublicProjection(unittest.TestCase):
                                                 "tm_rate": 10001}}], PUB, "time")
         self.assertIsNone(s["videos"][0]["thumbnail_ctr_bps"])
         self.assertEqual(s["videos"][0]["new_follows"], 0)
+
+    def test_archive_duration_is_not_a_zero_placeholder(self):
+        self.assertEqual(watch_seconds({"play": {"avg_duration": 44, "duration": 105}}), 44)
+        for value in (None, 0, -1, True, "44"):
+            self.assertIsNone(watch_seconds({"play": {"avg_duration": value}}))
+        self.assertIsNone(watch_seconds({"stat": {"avg_play_time_int": 24}}))
+
+    @patch("linyuan.collect_creator_metrics.sleep")
+    @patch("linyuan.collect_creator_metrics.fetch_data")
+    def test_only_queries_projected_rows_and_stops_on_failure(self, fetch, _sleep):
+        second, third = "BV1Z9yWzbEpo", "BV11psv6rEYR"
+        rows = [ROW, {**ROW, "bvid": second}, {**ROW, "bvid": third}]
+        public = PUB + [{"bvid": second}, {"bvid": third}]
+        out = public_projection(rows, public, "time")
+        fetch.side_effect = [{"play": {"avg_duration": 44}}, OSError("stop")]
+        enrich_watch_time(out["videos"], "header", object())
+        self.assertEqual([v["average_watch_seconds"] for v in out["videos"]], [44, None, None])
+        self.assertEqual(fetch.call_count, 2)
+        self.assertTrue(fetch.call_args_list[0].args[0].endswith(BV))
+        self.assertTrue(fetch.call_args_list[1].args[0].endswith(second))
 
     def test_no_private_or_unverified_video(self):
         for row, allowed in [({**ROW, "is_only_self": 1}, PUB),
