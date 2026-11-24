@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795506546,
+  "updated_at": 1795506745,
   "inventory_updated_at": 1795506541,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5180,
+      "shortfall": 4820
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 151,
-    "active_or_recovering_sources": 4,
+    "active_or_recovering_sources": 5,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -464,7 +464,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795506545,
+    "updated_at": 1795506743,
     "records": 20376,
     "video_records": 17746,
     "initial_candidates": 208,
@@ -501,16 +501,16 @@
   },
   "counts": {
     "complete": 221,
-    "failed": 2830,
+    "failed": 2834,
     "paused": 5,
-    "interrupted": 15,
+    "interrupted": 10,
     "excluded": 107,
     "experiment_fallback": 190,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 3,
     "unknown": 2,
-    "running": 1
+    "running": 2
   },
   "tasks": [
     {
@@ -61768,24 +61768,6 @@
       "run_updated_at": "2026-11-24T05:16:31Z"
     },
     {
-      "slug": "ly-1124-e1bb2b",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1795503619,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1795505811,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 45344634672,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45344634672",
-      "run_started_at": "2026-11-24T07:00:19Z",
-      "run_updated_at": "2026-11-24T07:01:32Z"
-    },
-    {
       "slug": "ly-1124-a77a0d",
       "status": "failed",
       "detail": "取源未完成：RuntimeError: 音视频尾部差异不在安全修复范围：保留38.87s，裁切3.43s",
@@ -61895,14 +61877,14 @@
     },
     {
       "slug": "ly-1124-ba4f60",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795506226,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795508434,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -61913,11 +61895,11 @@
     },
     {
       "slug": "ly-1124-1aaa7f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403370976601161']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795506235,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61931,11 +61913,11 @@
     },
     {
       "slug": "ly-1124-9088d4",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403366572344756']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795506246,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61949,11 +61931,11 @@
     },
     {
       "slug": "ly-1124-fe38eb",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403364903059719']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795506255,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61967,11 +61949,11 @@
     },
     {
       "slug": "ly-1124-bb202f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403363397050234']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795506265,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -61982,6 +61964,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45350317983",
       "run_started_at": "2026-11-24T07:44:24Z",
       "run_updated_at": "2026-11-24T07:45:51Z"
+    },
+    {
+      "slug": "ly-1124-e1bb2b",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795506683,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45351224631,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45351224631",
+      "run_started_at": "2026-11-24T07:51:23Z",
+      "run_updated_at": "2026-11-24T07:51:27Z"
     }
   ],
   "runs": {
@@ -95030,14 +95030,14 @@
       "display_title": "中文源出片 · ly-1124-d6281f"
     },
     "ly-1124-e1bb2b": {
-      "id": 45344634672,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-24T07:00:19Z",
-      "updated_at": "2026-11-24T07:01:32Z",
-      "run_started_at": "2026-11-24T07:00:19Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45344634672",
-      "run_number": 5240,
+      "id": 45351224631,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-24T07:51:23Z",
+      "updated_at": "2026-11-24T07:51:27Z",
+      "run_started_at": "2026-11-24T07:51:23Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45351224631",
+      "run_number": 5257,
       "display_title": "中文源出片 · ly-1124-e1bb2b"
     },
     "ly-1124-849161": {
