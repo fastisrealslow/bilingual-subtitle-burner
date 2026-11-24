@@ -517,6 +517,23 @@ async function load() {
                <td title="${(p.top_title || '').replace(/"/g, '')}">${(p.top_play || 0).toLocaleString()}</td>
              </tr>`).join('')}
            </table>
+           <div id="peer-latest-30" style="font-size:13px;color:#666;margin:16px 0 6px">🆚 对标账号（最近 30 条林园视频）</div>
+           <div style="overflow-x:auto"><table class="ps-table">
+             <tr><th>账号</th><th>样本</th><th>发布日期（北京时间）</th><th>播放中位</th><th>总播放</th><th>过千</th><th>最高</th><th>播放/粉丝</th><th>每千播放点赞中位</th></tr>
+             ${(st.peers || []).map(p => {
+               const x = p.latest30 || {};
+               const n = v => Number.isFinite(v) && v >= 0 ? v.toLocaleString('zh-CN') : '—';
+               const d = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '—';
+               const escaped = String(p.name || '').replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]));
+               return `<tr${p.is_self ? ' style="background:#fffbea;font-weight:600"' : ''}>
+                 <td>${escaped}</td><td>${n(x.sample_count)} / 30${Number.isInteger(x.play_count) && x.play_count < x.sample_count ? '（有播放 ' + n(x.play_count) + '）' : ''}</td>
+                 <td>${d(x.from_date)} ~ ${d(x.to_date)}</td><td>${n(x.play_median)}</td><td>${n(x.play_total)}</td>
+                 <td>${n(x.over_1k)}</td><td>${n(x.play_max)}</td><td>${n(x.play_per_fan)}</td>
+                 <td>${n(x.likes_per_1k)}${x.likes_count > 0 ? '（' + n(x.likes_count) + ' 条）' : ''}</td>
+               </tr>`;
+             }).join('')}
+           </table></div>
+           <div class="ps-note">按发布时间从新到旧取搜索可见的相关稿件，不按热度凑数；不足 30 条明示。播放是采集时的累计值，各账号样本日期不同，不是同龄比较。「播放/粉丝」为播放中位除以粉丝数，不是转粉率。</div>
            <div style="font-size:13px;color:#666;margin:16px 0 6px">📅 本号近 10 天</div>
            <table class="ps-table">
              <tr><th>日期</th><th>条数</th><th>新规则</th><th>总播放</th><th>中位</th><th>最高</th><th style="width:26%"></th></tr>
