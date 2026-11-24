@@ -2738,10 +2738,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 54,
+      "attempts": 55,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795465827.6944623,
-      "next_retry_at": 1795552227.6944623,
+      "last_attempt_at": 1795553689.393364,
+      "next_retry_at": 1795640089.393364,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -9374,13 +9374,13 @@
       "family": "simuwang_2026_10_15",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 12,
+      "attempts": 13,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795465788.1401277,
-      "next_retry_at": 1795552188.1401277,
+      "last_attempt_at": 1795553664.4119556,
+      "next_retry_at": 1795640064.4119556,
       "download_partial_bytes": 0
     },
     "6c13140a102fb9791d16": {
@@ -10023,11 +10023,36 @@
       "role": "mother",
       "family": "hnw_course",
       "priority": 5,
-      "status": "pending",
+      "status": "inspected",
       "attempts": 0,
       "family_status": "search_clue_not_verified",
-      "fingerprint_cache_available": false,
-      "cache_recovery_needed": false
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "last_attempt_at": 1795553969.305696,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "35c54f96ed324399174bbd13cbd0f98608a9f3d41947c15b57efa61775915f8b",
+        "duration_sec": 5100.328957,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 2550.16
+          }
+        ],
+        "audio_fingerprint_count": 41176,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "45484697259"
     }
   },
   "searches": {
@@ -10090,11 +10115,14 @@
       "last_attempt_at": 1795486970.462856
     },
     "phoenix_2026_09|林园 凤凰湾区财经论坛 2026 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795504825.514282,
-      "next_retry_at": 1795548025.514282,
+      "next_retry_at": 1795575261.8720486,
       "found": 3,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795553661.8720486
     },
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "searched",
@@ -10150,7 +10178,8 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
@@ -10159,8 +10188,8 @@
       "errors": []
     }
   },
-  "search_cursor": 8,
-  "updated_at": 1795543570,
-  "last_run_id": "45454614797",
+  "search_cursor": 10,
+  "updated_at": 1795553969,
+  "last_run_id": "45484697259",
   "audio_match_candidates": []
 }
