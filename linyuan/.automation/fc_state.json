@@ -156555,7 +156555,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-31T16:12:19+00:00"
+   "publish_time": "2025-12-31T16:12:19+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-d6b68a",
+    "run_id": 45485863053,
+    "artifact_id": 14969473899,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6f897790d74d0a6960022a54973ad0b31c670f19647aaa0a68ec03e73b260435",
+     "duration_sec": 2840.07,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1oxiGBSEGp"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 10, \"quote\": \"我们炒股绝对不会去看一百，呃，一倍的利润，几倍的利润，我们就是看上百倍的。\", \"suspect_quote\": \"一百\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"上下文为“看上百倍的利润”，前句“一百”极可能为口语填充或误转，与后文“几倍”、“上百倍”逻辑冲突，需核实是否应为‘不’、‘一’或其他否定/数量词。\"}, {\"sentence_id\": 11, \"quote\": \"啊，你一一万倍、一一亿，那才是有一价值。\", \"suspect_quote\": \"一一万"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2797.67s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 74%（BV1uvxQ6hEKd）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45485863053,
+    "artifact_id": 14969473899,
+    "name": "production-reject-ly-1124-d6b68a",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1ce4y1H7sM",
@@ -156639,7 +156688,8 @@
    },
    "last_error": "与已发布内容文字指纹重复：转写片段重合 82%（BV1SGxD64Exs）",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -282413,6 +282463,13 @@
    "video_id": "BV1ce4y1H7sM",
    "ts": 1795559173,
    "error": "与已发布内容文字指纹重复：转写片段重合 82%（BV1SGxD64Exs）"
+  },
+  {
+   "slug": "ly-1124-d6b68a",
+   "key": "bilibili_search:BV1oxiGBSEGp",
+   "video_id": "BV1oxiGBSEGp",
+   "ts": 1795559528,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
