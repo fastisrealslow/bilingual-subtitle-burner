@@ -96,6 +96,8 @@ a:hover { text-decoration: underline; }
   <div class="section">
     <h2>📊 播放数据</h2>
     <div id="playstats"></div>
+    <h3 style="margin-top:24px">单稿表现 · 园来滚雪球</h3>
+    <div id="creator-metrics" aria-live="polite">正在读取单稿指标…</div>
   </div>
   <div class="section">
     <h2>每日四条 · 实验执行对比</h2>
@@ -132,6 +134,7 @@ a:hover { text-decoration: underline; }
   </div>
 </div>
 <script src="./site/production-status.js"></script>
+<script src="./site/creator-metrics.js" defer></script>
 <script>
 // 优先走 GitHub Pages 同域镜像（FC 会同步写 site/fc_state.json），
 // 避免 raw.githubusercontent.com 的跨域/加载失败问题。
