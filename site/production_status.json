@@ -1,16 +1,16 @@
 {
   "version": 1,
-  "updated_at": 1795507996,
+  "updated_at": 1795508258,
   "inventory_updated_at": 1795507986,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
     "ordinary": {
       "target": 900,
-      "verified": 151,
-      "shortfall": 749,
+      "verified": 150,
+      "shortfall": 750,
       "by_layout": {
-        "portrait": 29,
+        "portrait": 28,
         "landscape": 122
       },
       "layout_policy": "native_geometry_flexible_control_slots"
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5180,
+      "shortfall": 4820
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 151,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -452,9 +452,9 @@
       },
       {
         "date": "2026-11-24",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 0,
         "valid_comparison": false
       }
@@ -464,7 +464,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795507994,
+    "updated_at": 1795508255,
     "records": 20376,
     "video_records": 17746,
     "initial_candidates": 208,
@@ -503,12 +503,12 @@
     "complete": 221,
     "failed": 2835,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 107,
     "experiment_fallback": 191,
     "ready": 38,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 3,
     "unknown": 2
   },
   "tasks": [
@@ -44573,12 +44573,12 @@
     {
       "slug": "ly-1105-50590a",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793914865,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
@@ -44771,7 +44771,7 @@
     {
       "slug": "ly-story-a2f85d4c0f",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1793919028,
         "failed": null,
@@ -56855,7 +56855,7 @@
     {
       "slug": "ly-1120-a947a1",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1795198249,
         "failed": null,
@@ -61823,7 +61823,7 @@
     {
       "slug": "ly-1124-995baa",
       "status": "experiment_fallback",
-      "detail": "实验未达标；2 条常规成片可补位，不计入实验库存",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1795504102,
         "failed": null,
@@ -61966,14 +61966,14 @@
     },
     {
       "slug": "ly-1124-0929cd",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795507115,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795509681,
         "weekly_full_week": ""
       },
       "history_count": 1,
