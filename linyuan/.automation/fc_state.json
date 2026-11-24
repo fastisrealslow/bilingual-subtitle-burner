@@ -155963,7 +155963,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-04-05T11:24:49+00:00"
+   "publish_time": "2026-04-05T11:24:49+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-4fb275",
+    "run_id": 45431400500,
+    "artifact_id": 14940849484,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "66c927a0ca3be6a06d44831ae36e8435554c23c5c062b9fcd316a0932deb392e",
+     "duration_sec": 2409.03,
+     "resolution": {
+      "width": 826,
+      "height": 716,
+      "short_edge": 716
+     },
+     "source_url": "https://www.bilibili.com/video/BV18RSDBHE1r"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45431400500,
+    "artifact_id": 14940849484,
+    "name": "production-reject-ly-1124-4fb275",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Kf421B77u",
@@ -281769,6 +281814,13 @@
    "video_id": "BV1eF4m1M7oe",
    "ts": 1795521971,
    "error": "整段取景预检：源 222.40s，原始画面不足以保留完整人脸及头顶余量"
+  },
+  {
+   "slug": "ly-1124-4fb275",
+   "key": "bilibili_search:BV18RSDBHE1r",
+   "video_id": "BV18RSDBHE1r",
+   "ts": 1795538876,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
