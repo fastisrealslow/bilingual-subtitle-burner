@@ -156096,7 +156096,63 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2020-09-12T08:17:24+08:00"
+   "publish_time": "2020-09-12T08:17:24+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-27a0f3",
+    "run_id": 45438395313,
+    "artifact_id": 14945481819,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "b62ad17c49dfc8f5c73cc40417c46f32a6cb160768f90aca254a260d95a0f28b",
+     "duration_sec": 618.37,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4548246141142089"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1bGnb6JE7s）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/265，总帧数1320；身份匹配但人脸短边不足96px的帧数265"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1214/1563，总帧数1742；身份匹配但人脸短边不足96px的帧数349"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"但是我们就是考虑到全世界沉隐性的商品，它的平均的这个估值都在三十七倍以上，甚至过头了，它会到六十倍啊。\", \"suspect_quote\": \"沉隐性\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似将“隐形”误识别为“沉隐”，且“沉隐性商品”语义不通，需核实原音。\"}, {\"sentence_id\": 5, \"quote\": \"所以我这个东西我不做判断啊，因为我们的投资方法就是要等它泡沫，等等了半天，泡沫还没来了，我都走了，那不可能的。\", \"suspect_quote\": \"等它泡"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 81%（BV1pNnt6KE1o）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1bGnb6JE7s）"
+     }
+    ]
+   },
+   "source_check_report_id": 14945481819,
+   "source_check_run_id": 45438395313,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795540989
   }
  ],
  "makeup_receipts": {
