@@ -154328,7 +154328,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-10-30T13:01:34+00:00"
+   "publish_time": "2024-10-30T13:01:34+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1123-ed53ab",
+    "run_id": 45289621969,
+    "artifact_id": 14876053374,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "850a59784f249e9b78ef7398f064bdc74dd8f60aa74fa9ee1c64ade2683495ce",
+     "duration_sec": 755.2,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV11gS3YzEPm"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 50.73s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 386.77s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 501.83s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 250.73s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 411.63s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 564.70s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 723.63s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 164.87s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45289621969,
+    "artifact_id": 14876053374,
+    "name": "production-reject-ly-1123-ed53ab",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 50.73s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -279158,6 +279219,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/X1YQE8RMlx08CBjyQwUE01041202ClW30E010.mp4",
    "ts": 1795475938,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1123-ed53ab",
+   "key": "bilibili_search:BV11gS3YzEPm",
+   "video_id": "BV11gS3YzEPm",
+   "ts": 1795479902,
+   "error": "整段取景预检：源 50.73s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
