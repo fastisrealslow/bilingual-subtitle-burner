@@ -156578,7 +156578,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2022-09-25T06:22:13+00:00"
+   "publish_time": "2022-09-25T06:22:13+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1124-2616b0",
+    "run_id": 45490647482,
+    "artifact_id": 14969767734,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "639adfddaff473479760ba81adeeb13967fc02a2af43a3a35d316d2909ace398",
+     "duration_sec": 1098.26,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1ce4y1H7sM"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 82%（BV1SGxD64Exs）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1129/1646，总帧数2581；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配270/488，总帧数1089；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 75%（BV1yxxX6xEAU）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配536/731，总帧数971；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 428.04s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 90%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45490647482,
+    "artifact_id": 14969767734,
+    "name": "production-reject-ly-1124-2616b0",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 82%（BV1SGxD64Exs）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -282345,6 +282406,13 @@
    "video_id": "BV1aNoUBYECR",
    "ts": 1795554340,
    "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 352 < 480（640x352），画质不达标"
+  },
+  {
+   "slug": "ly-1124-2616b0",
+   "key": "bilibili_search:BV1ce4y1H7sM",
+   "video_id": "BV1ce4y1H7sM",
+   "ts": 1795559173,
+   "error": "与已发布内容文字指纹重复：转写片段重合 82%（BV1SGxD64Exs）"
   }
  ],
  "reviewed_third_video_0910": {
