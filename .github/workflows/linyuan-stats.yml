@@ -12,6 +12,7 @@ on:
     paths:
       - .github/workflows/linyuan-stats.yml
       - linyuan/collect_stats.py
+      - linyuan/collect_creator_metrics.py
   workflow_dispatch:
 
 permissions:
@@ -35,16 +36,25 @@ jobs:
         working-directory: linyuan
         run: python3 -u collect_stats.py
 
+      - name: 验证单稿指标采集
+        run: python3 -m unittest discover -s tests -p test_creator_metrics.py
+
+      - name: 采集已公开稿件的创作指标（只读）
+        env:
+          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+        run: |
+          python3 linyuan/collect_creator_metrics.py || echo "::warning::单稿指标未刷新，保留上一次结果"
+
       - name: 提交
         run: |
           set -euo pipefail
-          if git diff --quiet -- site/stats.json; then
+          if git diff --quiet -- site/stats.json site/creator_metrics.json; then
             echo "数据无变化，跳过提交"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add site/stats.json
+          git add site/stats.json site/creator_metrics.json
           git commit -m "chore(stats): 更新播放数据 $(date -u +%Y-%m-%dT%H:%MZ)"
           # 并发提交失败必须报错，避免采集成功但网页一直保留旧数据。
           for i in 1 2 3; do
