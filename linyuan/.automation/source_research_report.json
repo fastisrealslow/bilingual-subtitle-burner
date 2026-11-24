@@ -1,5 +1,5 @@
 {
-  "run_id": "45488577794",
+  "run_id": "45506960314",
   "processed": 3,
   "inspected": 8,
   "historical_media_verified": 257,
@@ -7,13 +7,39 @@
   "pending": 307,
   "audio_matches": [],
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
   "jobs": {
@@ -3721,10 +3747,10 @@
       "family": "phoenix_2026_09",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 19,
+      "attempts": 20,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795256146.4193215,
-      "next_retry_at": 1795342546.4193215,
+      "last_attempt_at": 1795561857.0559905,
+      "next_retry_at": 1795648257.0559905,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -3983,10 +4009,10 @@
       "family": "hnw_course",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 19,
+      "attempts": 20,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795265039.2668116,
-      "next_retry_at": 1795351439.2668116,
+      "last_attempt_at": 1795561859.5355175,
+      "next_retry_at": 1795648259.5355175,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -6776,13 +6802,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 14,
+      "attempts": 15,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795265041.5987306,
-      "next_retry_at": 1795351441.5987306,
+      "last_attempt_at": 1795561861.9154444,
+      "next_retry_at": 1795648261.9154444,
       "download_partial_bytes": 0
     },
     "cad2c09c8e1344fddcb5": {
@@ -10161,18 +10187,24 @@
       "last_attempt_at": 1795555011.5715382
     },
     "zhejiang_2026_01|林园 浙江大学 2026 1月9日 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795504825.514282,
-      "next_retry_at": 1795548025.514282,
+      "next_retry_at": 1795583453.5975485,
       "found": 1,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795561853.5975485
     },
     "historical_long_leads_20261010|林园 2025 5 采访 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795516940.308176,
-      "next_retry_at": 1795560140.308176,
+      "next_retry_at": 1795583453.5975485,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795561853.5975485
     },
     "historical_long_leads_20261010|林园 2006 走进资本市场 完整版": {
       "status": "searched",
@@ -10191,12 +10223,12 @@
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "retry_wait",
       "checked_at": 1795476295.6159472,
-      "next_retry_at": 1795557122.881063,
+      "next_retry_at": 1795605053.5975485,
       "found": 1,
       "new_ids": [],
-      "attempts": 1,
+      "attempts": 2,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795535522.881063
+      "last_attempt_at": 1795561853.5975485
     }
   }
 }
