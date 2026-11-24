@@ -154999,7 +154999,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-24T10:35"
+   "publish_time": "2026-11-24T10:35",
+   "production_failure_summary": {
+    "slug": "ly-1124-d6281f",
+    "run_id": 45331343025,
+    "artifact_id": 14891753392,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "d2edc53987f01346dd22e18e6959b7803227c217e3faf8ddf8414096356a7d17",
+     "duration_sec": 25.47,
+     "resolution": {
+      "width": 720,
+      "height": 960,
+      "short_edge": 720
+     },
+     "source_url": "https://www.163.com/v/video/VEBIH8NLT.html"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45331343025,
+    "artifact_id": 14891753392,
+    "name": "production-reject-ly-1124-d6281f",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -280290,6 +280323,13 @@
    "video_id": "BV1ozRPBCEJa",
    "ts": 1795491346,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1124-d6281f",
+   "key": "netease_video:VEBIH8NLT",
+   "video_id": "https://flv3.bn.netease.com/videolib1/2611/24/5gjw9j0mw3y/SD/5gjw9j0mw3y-mobile.mp4",
+   "ts": 1795497728,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
   }
  ],
  "reviewed_third_video_0910": {
