@@ -1,4 +1,4 @@
-name: Dot watch-time read-only probe
+name: Dot peer latest-30 verification
 on:
   push:
     branches: ['dot/probe-bili-watch-time-20261124']
@@ -8,83 +8,28 @@ permissions:
 jobs:
   sample:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: 80b9776e2f70b3b79ff46bb74dd96d73b11721a4
-          persist-credentials: false
-      - name: Read matched publication analytics without publishing individual values
-        env:
-          BILIBILI_COOKIES: ${{ secrets.BILIBILI_COOKIES }}
+      - name: Verify both peer panels and latest-30 values on Pages
         run: |
           python - <<'PY'
-          import json, os, time, subprocess, tempfile, base64
-          from urllib.parse import urlencode
-          from urllib.error import HTTPError
-          from urllib.request import build_opener
-          from linyuan.collect_creator_metrics import credentials,read_api,fetch_data,NAV,NoRedirect,OWNER,ARCHIVE,BV
-          snapshot=json.load(open('site/stats.json'))
-          experiment=snapshot['publishing_experiment']
-          public={r['bvid'] for r in snapshot['top']}
-          group=[r for r in experiment['receipts'] if r['bvid'] in public and BV.fullmatch(r['bvid']) and r['slot_number'] in (2,4)]
-          stories=[r for r in group if r['actual']=='field-story-v1']
-          controls=[r for r in group if r['actual']=='baseline']
-          query={r['bvid']:r for r in stories}
-          for s in stories:
-              choices=[r for r in controls if r['slot_number']==s['slot_number'] and r.get('duration_sec') and s.get('duration_sec')]
-              def score(r):
-                  length=abs(r['duration_sec']-s['duration_sec'])/s['duration_sec']
-                  days=abs(r['published_at']-s['published_at'])/86400
-                  return length + days/14
-              for r in sorted(choices,key=score)[:2]:
-                  query[r['bvid']]=r
-          op=build_opener(NoRedirect())
-          header=credentials(os.environ.pop('BILIBILI_COOKIES',''))
-          identity=read_api(NAV,header,op)
-          assert identity.get('isLogin') is True and str(identity.get('mid'))==OWNER
-          # The documented creator comparison accepts a requested recent row count.
-          url='https://member.bilibili.com/x/web/data/archive_diagnose/compare?size=120'
-          fatal=False
-          meta={}
-          rates={}
-          try:
-              response=fetch_data(url,header,op,10)
-              rr=response.get('list') or []
-              meta['comparison_rows']=len(rr)
-              for r in rr:
-                  if r.get('bvid') not in query or type(r.get('is_only_self')) not in (bool,int) or r['is_only_self']!=0: continue
-                  st=r.get('stat') or {}
-                  allowed=('play','total_new_attention_cnt','play_trans_fan_rate','tm_rate','crash_rate','full_play_ratio','interact_rate')
-                  skip=st.get('not_ready_field') or []
-                  rates[r['bvid']]={k:st[k] for k in allowed if type(st.get(k)) is int and st[k]>=0 and k not in skip}
-          except HTTPError as e:
-              meta['comparison_http']=e.code
-              fatal=True
-          except (OSError, ValueError):
-              meta['comparison_failed']=True
-              fatal=True
-          detail={}
-          if not fatal:
-              until=time.monotonic()+110
-              for i,b in enumerate(query):
-                  if i: time.sleep(.55)
-                  if time.monotonic()>until: break
-                  try:
-                      d=fetch_data(ARCHIVE+'?'+urlencode({'bvid':b}),header,op,5)
-                      p=d.get('play') or {}
-                      detail[b]={x:p[x] for x in ('avg_duration','duration','rate') if type(p.get(x)) is int and p[x]>=0}
-                  except HTTPError as exc:
-                      meta['detail_http']=exc.code
+          import json
+          from time import monotonic,sleep,time
+          from urllib.request import urlopen,Request
+          base='https://fastisrealslow.github.io/bilingual-subtitle-burner/'
+          until=monotonic()+230
+          while monotonic()<until:
+              try:
+                  def get(path):
+                      req=Request(base+path+'?probe='+str(int(time())),headers={'Cache-Control':'no-cache'})
+                      with urlopen(req,timeout=8) as f: return f.read().decode()
+                  page=get('log.html')
+                  st=json.loads(get('site/stats.json'))
+                  peer=st['peers']
+                  if 'id="peer-latest-30"' in page and '对标账号（近 30 天' in page and len(peer)>=2 and all('latest30' in p for p in peer):
+                      print('PEER_LIVE',json.dumps({'generated_at':st['generated_at'],'peers':peer},ensure_ascii=False))
                       break
-                  except (OSError,ValueError):
-                      meta['detail_failed']=True
-                      break
-          result=json.dumps({'meta':meta,'rates':rates,'detail':detail},separators=(',',':')).encode()
-          with tempfile.TemporaryDirectory() as tmp:
-              cert=tmp+'/cert.pem'
-              open(cert,'w').write("-----BEGIN CERTIFICATE-----\nMIIDKzCCAhOgAwIBAgIURF8YvUZ4GA2zZXdcFYmMKMoBk1MwDQYJKoZIhvcNAQEL\nBQAwJTEjMCEGA1UEAwwaVGVtcG9yYXJ5IGFuYWx5dGljcyByZXBvcnQwHhcNMjYx\nMTI0MDUwNTM2WhcNMjYxMTI1MDUwNTM2WjAlMSMwIQYDVQQDDBpUZW1wb3Jhcnkg\nYW5hbHl0aWNzIHJlcG9ydDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\nAK5mbbxdOyxt64IuIINAbUp+E7+1vUg7trz5IXsc7PnnWmwqsMBGkGy4eNU+2ONA\n3WxXKErXH8M/yJsyfjqDU/vtadhNr/TPD5YhADuEk/Fnze289pcI7M8X91C2RaRu\n3wE4P0gQYlJs3YPfkNagmYVJwlA9Dn0l3feC28YStbGeNiZRNtRNGLe1MFIrHjVz\ntBto9klioH8h+nOmHjmKteetiWSP8eVm8RO4rcJzCCH4JAo52XinaVU4gz5H3R9H\nvun2GOQu2pe/mzdQbQSVS2trPUA3g+yOovcIvfO1Lu80JZaeSvYExiwuGbSGBxz5\n81VXuOSaFaUIsV1V0wYNRsECAwEAAaNTMFEwHQYDVR0OBBYEFJhiwUPG+d5FJCvJ\n8mllF3zijHGyMB8GA1UdIwQYMBaAFJhiwUPG+d5FJCvJ8mllF3zijHGyMA8GA1Ud\nEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAFeDEXrEDWKtvC9pxub9FyNo\nuYi4WnR9fskDpOpy1X4urOiuKf9w0CXhhDWyvbEV5P27U0oy28P5N9YAgpFQGoVY\nqH17YevjlXrXo02smmCaNayuRUA2oxU4sCo89BBfIWn/qacuUtkvSsp/GThA2axj\nty1qCdqCUsdbjoFD/Cx8s1TruiYR6RgfTeIh69fWRS5NpdbwTL5NSLt2WwL9O4/k\nnXp75l7wtjA7pcEaqJgwyQ6gy9HSvcNtG/xKl1SQE7mL3Qssv9n9dtj+lQezfX3B\nZ8SjXXzHGOs5eIljx69WWI1Cfa+KIzVPchAvJPIb4vJpciUe7H0KiZJn5LdYWjc=\n-----END CERTIFICATE-----\n")
-              sealed=subprocess.run(['openssl','cms','-encrypt','-binary','-aes-256-cbc','-outform','DER',cert],input=result,stdout=subprocess.PIPE,check=True).stdout
-              encoded=base64.b64encode(sealed).decode()
-              for i in range(0,len(encoded),1500): print('SEALED',encoded[i:i+1500])
+              except (OSError,ValueError,KeyError): pass
+              sleep(12)
+          else: raise SystemExit('Latest 30 was not verified on Pages')
           PY
