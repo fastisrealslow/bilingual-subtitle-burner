@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795647378,
-  "inventory_updated_at": 1795647200,
+  "updated_at": 1795650116,
+  "inventory_updated_at": 1795650106,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5299,
-      "shortfall": 4701
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 153,
-    "active_or_recovering_sources": 3,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -472,16 +472,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795647376,
-    "records": 20734,
-    "video_records": 18098,
+    "updated_at": 1795650113,
+    "records": 20737,
+    "video_records": 18101,
     "initial_candidates": 209,
     "duration_eligible_records": 0,
     "candidate_count": 0,
     "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10427,
+      "speaker_unconfirmed": 10430,
       "already_attempted_or_cooling": 4838,
       "unrelated": 111,
       "clip_title": 1686,
@@ -511,12 +511,12 @@
     "complete": 223,
     "failed": 2876,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 11,
     "excluded": 110,
     "experiment_fallback": 193,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 2,
+    "retry_queued": 1,
     "unknown": 2,
     "running": 1
   },
@@ -62838,24 +62838,6 @@
       "run_updated_at": "2026-11-25T15:31:05Z"
     },
     {
-      "slug": "ly-1125-4d9a9a",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1795646135,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1795647329,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 45714550740,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45714550740",
-      "run_started_at": "2026-11-25T22:35:34Z",
-      "run_updated_at": "2026-11-25T22:37:46Z"
-    },
-    {
       "slug": "ly-1125-9f6628",
       "status": "running",
       "detail": "正在出片",
@@ -62872,6 +62854,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45716299631",
       "run_started_at": "2026-11-25T22:48:16Z",
       "run_updated_at": "2026-11-25T22:48:20Z"
+    },
+    {
+      "slug": "ly-1125-4d9a9a",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
+      "signature": {
+        "ts": 1795649824,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45722743859,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45722743859",
+      "run_started_at": "2026-11-25T23:37:04Z",
+      "run_updated_at": "2026-11-25T23:38:47Z"
     }
   ],
   "runs": {
@@ -96580,14 +96580,14 @@
       "display_title": "中文源出片 · ly-1125-38104a"
     },
     "ly-1125-4d9a9a": {
-      "id": 45714550740,
+      "id": 45722743859,
       "status": "completed",
       "conclusion": "failure",
-      "created_at": "2026-11-25T22:35:34Z",
-      "updated_at": "2026-11-25T22:37:46Z",
-      "run_started_at": "2026-11-25T22:35:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45714550740",
-      "run_number": 5334,
+      "created_at": "2026-11-25T23:37:04Z",
+      "updated_at": "2026-11-25T23:38:47Z",
+      "run_started_at": "2026-11-25T23:37:04Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45722743859",
+      "run_number": 5336,
       "display_title": "中文源出片 · ly-1125-4d9a9a"
     },
     "ly-1125-9f6628": {
