@@ -158048,7 +158048,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-03-27T10:00:10+00:00"
+   "publish_time": "2025-03-27T10:00:10+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1125-b08426",
+    "run_id": 45637170714,
+    "artifact_id": 15038885506,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e70698c506683fea1693ea648201745bf87db1ca5601356916d7a6e3edc21d1d",
+     "duration_sec": 1653.5,
+     "resolution": {
+      "width": 1440,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1x6Z3YtEBe"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1184/2792，总帧数8035；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配155/635，总帧数2395；身份匹配但人脸短边不足96px的帧数0"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配273/424，总帧数751；身份匹配但人脸短边不足96px的帧数10"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45637170714,
+    "artifact_id": 15038885506,
+    "name": "production-reject-ly-1125-b08426",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1Xg411a7zF",
@@ -158124,7 +158185,8 @@
    },
    "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -284796,6 +284858,13 @@
    "video_id": "BV1Xg411a7zF",
    "ts": 1795620918,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1125-b08426",
+   "key": "bilibili_search:BV1x6Z3YtEBe",
+   "video_id": "BV1x6Z3YtEBe",
+   "ts": 1795621373,
+   "error": "封面生成/人物/角标复检失败：封面组帧仍有无法安全逐帧排除的持久角标"
   }
  ],
  "reviewed_third_video_0910": {
