@@ -15,6 +15,7 @@ COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气�
 标题和封面各自保留假设条件；“如果发生某事”不是“已经发生某事”。逐项核对谁做了什么：本人没买不等于国家或企业不买；不需要不等于没有购买。不能从不同分句拼接主体和行动。
 保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
+按零增长假设测算的回报或回收周期，标题和封面各自保留假设或询问测算的前提；也可以选不依赖该假设的其他原文观点。
 数字的范围不能压成一个端点：“十二三年”不能写成“十二年”，“两三倍”不能写成“两倍”；标题和封面都逐字核对数字与单位。
 “我要赚够一万倍”是本人目标，不能改写为公司“能赚到一万倍”；标题和封面各自保留目标或意愿，不把愿望当已经验证的回报。
 “十二个月”是时长，不是“十二月”；点位时间的“可能性很大、不好预测”不能在封面省掉。
@@ -708,22 +709,33 @@ def subject_attribute_error(title, cover, transcript):
     return None
 
 
-def source_payback_condition_error(title, cover, transcript):
-    """Source7 can omit the income premise from BOTH title and evidence.
+_FLAT_GROWTH = (r'(?<![非不无])(?:零增长|0增长|没有增长|不增长|停止增长|'
+                r'增长(?:率)?(?:是|为|等于)?[零0](?![.\d]))')
+_PAYBACK_PERIOD = (r'(?:回报|回收)周期|(?:收回(?:投资)?成本|回本)'
+                   r'|(?:成本|本金)回收期')
+_DURATION = r'[零〇一二两三四五六七八九十百半\d]+(?:年|个月|季度|周|天)'
+_TIMED_PAYBACK = rf'(?:{_PAYBACK_PERIOD}).{{0,18}}{_DURATION}|{_DURATION}.{{0,8}}(?:{_PAYBACK_PERIOD})'
+_ASKS_PREMISE = r'(?:什么|哪些|怎样的|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)'
 
-    Inspect the complete transcript, not just model-selected snippets. This
-    narrow observed construction does not claim general entailment checking.
-    """
+
+def source_payback_condition_error(title, cover, transcript):
+    """Check payback premises against the complete source, including unselected lines."""
     source=compact(transcript)
-    if not re.search(r'(?:基于|前提).{0,65}人均收入.{0,14}不(?:减少|下降|降低)',source):
-        return None
+    income_premise = re.search(r'(?:基于|前提).{0,65}人均收入.{0,14}不(?:减少|下降|降低)', source)
+    flat_growth_payback = any(
+        re.search(rf'(?:假设|假定|如果|倘若).{{0,50}}{_FLAT_GROWTH}.{{0,70}}(?:{_TIMED_PAYBACK})',
+                  compact(sentence))
+        for sentence in re.split(r'[。！？!?；;\n]', transcript)
+    )
     for copy in (title,cover):
-        if '回本' not in copy:
+        if re.search(_ASKS_PREMISE, copy):
             continue
-        question=re.search(r'(?:什么|哪些|怎样的|何种)(?:前提|条件)|(?:前提|条件)(?:是什么|有哪些)',copy)
-        income_floor=re.search(r'(?:人均)?收入.{0,8}(?:不减|不降|持平|至少不低)',compact(copy))
-        if not question and not income_floor:
+        stated = compact(copy)
+        if (income_premise and '回本' in copy
+                and not re.search(r'(?:人均)?收入.{0,8}(?:不减|不降|持平|至少不低)', stated)):
             return '回本判断遗漏完整原文中的收入前提；标题与封面不能一起省掉条件，证据选句也不能避开限定'
+        if flat_growth_payback and re.search(_TIMED_PAYBACK, stated) and not re.search(_FLAT_GROWTH, copy):
+            return '回收或回报周期遗漏原文的零增长假设；标题和封面各自保留条件，或询问测算的前提'
     return None
 
 
