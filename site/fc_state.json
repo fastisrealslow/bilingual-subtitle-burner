@@ -157757,7 +157757,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-07-26T01:22:04+00:00"
+   "publish_time": "2024-07-26T01:22:04+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1125-01fa68",
+    "run_id": 45599594738,
+    "artifact_id": 15017787612,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "68f87894a10182cdcf499861c4acb2be89e37a8af3fbee9974557427a491c1ca",
+     "duration_sec": 934.08,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1bS42197qm"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在整段对话中回避了核心问题（即与 2008 年金融危机相比哪次更严重），仅用‘差不多’、‘区别不大’等模糊表述带过，随后转向描述市场下跌的普遍性和投资者心态变化，未形成针对提问的完整观点或结论。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 46.68s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45599594738,
+    "artifact_id": 15017787612,
+    "name": "production-reject-ly-1125-01fa68",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在整段对话中回避了核心问题（即与 2008 年金融危机相比哪次更严重），仅用‘差不多’、‘区别不大’等模糊表述带过，随后转向描述市场下跌的普遍性和投资者心态变化，未形成针对提问的完整观点或结论。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1T5UbBjESp",
@@ -157788,7 +157837,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV15c411x7oy",
@@ -157819,7 +157869,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -284463,6 +284514,13 @@
    "video_id": "BV11G41167Yz",
    "ts": 1795585109,
    "error": "与已发布内容文字指纹重复：转写片段重合 100%（BV1toyfz5E6Z）"
+  },
+  {
+   "slug": "ly-1125-01fa68",
+   "key": "bilibili_search:BV1bS42197qm",
+   "video_id": "BV1bS42197qm",
+   "ts": 1795607077,
+   "error": "完整观点验收未通过：complete_argument；完整性理由：嘉宾在整段对话中回避了核心问题（即与 2008 年金融危机相比哪次更严重），仅用‘差不多’、‘区别不大’等模糊表述带过，随后转向描述市场下跌的普遍性和投资者心态变化，未形成针对提问的完整观点或结论。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
