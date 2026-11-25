@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795569386,
+  "updated_at": 1795569774,
   "inventory_updated_at": 1795569376,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5227,
+      "shortfall": 4773
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 151,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -464,7 +464,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795569383,
+    "updated_at": 1795569771,
     "records": 20615,
     "video_records": 17982,
     "initial_candidates": 208,
@@ -503,12 +503,12 @@
     "complete": 221,
     "failed": 2856,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 107,
     "experiment_fallback": 194,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2,
     "running": 1
   },
@@ -62417,14 +62417,14 @@
     },
     {
       "slug": "ly-1125-eab625",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795569088,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795571430,
         "weekly_full_week": ""
       },
       "history_count": 1,
