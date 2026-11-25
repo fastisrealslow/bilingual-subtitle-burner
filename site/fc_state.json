@@ -156799,7 +156799,47 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-03-08T07:00:00+00:00"
+   "publish_time": "2024-03-08T07:00:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1125-1a7383",
+    "run_id": 45537242894,
+    "artifact_id": 14993830898,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e36a19cecc9489ccf8696029ace1ce25d33d6a546819ecc152f47d3663cfc3b3",
+     "duration_sec": 3496.1,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1fi421Z7Nq"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）。请重新按原文输出全部字幕。"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：片段以嘉宾关于‘书本只能告诉了过去’的比喻结束，随后主持人或旁白提及让员工卖基金创造业绩（句 13），这属于新的指令或话题延伸，而非对前述‘生活体验难聚集’这一核心观点的自然收束或完整解释。原话在句 12 后虽有‘是吧？’作为过渡，但句 13 的内容已转向具体行动指令，导致关于‘学习本质’的论述被切断，未形成完整的闭环表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 76%（BV11psv6rEYR）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 178.60s，原始画面不足以保留完整人脸及头顶余量"
+     }
+    ]
+   },
+   "source_check_report_id": 14993830898,
+   "source_check_run_id": 45537242894,
+   "last_error": "字幕分屏未完成，保留原始转写供重试；\n第3次输出未通过严格校验：每屏末词编号必须有效且严格递增，最后一项必须等于总词数（首项不必为1）。请重新按原文输出全部字幕。",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795584192
   },
   {
    "key": "bilibili_search:BV11y4y1Z7hC",
@@ -156989,7 +157029,8 @@
    },
    "last_error": "整段取景预检：源 638.20s，来源角标覆盖必须保留的人脸或头顶区域",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1wj421S7c1",
@@ -157072,7 +157113,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-04T15:39:14+00:00"
+   "publish_time": "2026-01-04T15:39:14+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1125-6ce563",
+    "run_id": 45545978712,
+    "artifact_id": 14993248768,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6e95630bf2648144ea9a9d50be30de5073d8fcdefeab514ab4d86be4abd08a49",
+     "duration_sec": 1649.1,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1cainBUEvc"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1181/2789，总帧数8035；身份匹配但人脸短边不足96px的帧数7"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配273/424，总帧数751；身份匹配但人脸短边不足96px的帧数4"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45545978712,
+    "artifact_id": 14993248768,
+    "name": "production-reject-ly-1125-6ce563",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1181/2789，总帧数8035；身份匹配但人脸短边不足96px的帧数7",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1HD4y1o73H",
@@ -283221,6 +283311,13 @@
    "video_id": "BV1qV6gBREgn",
    "ts": 1795582435,
    "error": "整段取景预检：源 638.20s，来源角标覆盖必须保留的人脸或头顶区域"
+  },
+  {
+   "slug": "ly-1125-6ce563",
+   "key": "bilibili_search:BV1cainBUEvc",
+   "video_id": "BV1cainBUEvc",
+   "ts": 1795583285,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1181/2789，总帧数8035；身份匹配但人脸短边不足96px的帧数7"
   }
  ],
  "reviewed_third_video_0910": {
