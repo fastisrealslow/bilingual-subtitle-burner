@@ -156956,7 +156956,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-27T12:02:19+00:00"
+   "publish_time": "2026-01-27T12:02:19+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1125-8ec369",
+    "run_id": 45545934095,
+    "artifact_id": 14992833064,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "647de3d2b09ecaf157e2812b2cb63e1f2e7d4233e5023931e00f5c05badfc236",
+     "duration_sec": 1343.43,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1qV6gBREgn"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 638.20s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45545934095,
+    "artifact_id": 14992833064,
+    "name": "production-reject-ly-1125-8ec369",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 638.20s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1wj421S7c1",
@@ -283157,6 +283190,13 @@
    "video_id": "BV1qhqFBQEse",
    "ts": 1795580875,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1125-8ec369",
+   "key": "bilibili_search:BV1qV6gBREgn",
+   "video_id": "BV1qV6gBREgn",
+   "ts": 1795582435,
+   "error": "整段取景预检：源 638.20s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
