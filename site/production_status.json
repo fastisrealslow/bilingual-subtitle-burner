@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795589129,
+  "updated_at": 1795589329,
   "inventory_updated_at": 1795589119,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5255,
+      "shortfall": 4745
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 154,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 1,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -472,7 +472,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795589126,
+    "updated_at": 1795589327,
     "records": 20684,
     "video_records": 18048,
     "initial_candidates": 209,
@@ -509,7 +509,7 @@
   },
   "counts": {
     "complete": 222,
-    "failed": 2866,
+    "failed": 2867,
     "paused": 5,
     "interrupted": 11,
     "excluded": 110,
@@ -517,8 +517,7 @@
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
-    "unknown": 2,
-    "running": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -62659,11 +62658,11 @@
     },
     {
       "slug": "ly-1125-16aa67",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795588840,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -62677,8 +62676,8 @@
     },
     {
       "slug": "ly-1125-1a7383",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795588853,
         "failed": null,
@@ -62691,7 +62690,7 @@
       "run_id": 45562401481,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45562401481",
       "run_started_at": "2026-11-25T06:40:53Z",
-      "run_updated_at": "2026-11-25T06:40:56Z"
+      "run_updated_at": "2026-11-25T06:48:08Z"
     }
   ],
   "runs": {
@@ -96289,17 +96288,6 @@
       "run_number": 5312,
       "display_title": "中文源出片 · ly-1125-ff07ef"
     },
-    "ly-1125-1a7383": {
-      "id": 45562401481,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-25T06:40:53Z",
-      "updated_at": "2026-11-25T06:40:56Z",
-      "run_started_at": "2026-11-25T06:40:53Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45562401481",
-      "run_number": 5321,
-      "display_title": "中文源出片 · ly-1125-1a7383"
-    },
     "ly-1125-16aa67": {
       "id": 45562375597,
       "status": "completed",
@@ -96310,6 +96298,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45562375597",
       "run_number": 5320,
       "display_title": "中文源出片 · ly-1125-16aa67"
+    },
+    "ly-1125-1a7383": {
+      "id": 45562401481,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-25T06:40:53Z",
+      "updated_at": "2026-11-25T06:48:08Z",
+      "run_started_at": "2026-11-25T06:40:53Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45562401481",
+      "run_number": 5321,
+      "display_title": "中文源出片 · ly-1125-1a7383"
     }
   }
 }
