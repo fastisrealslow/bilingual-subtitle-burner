@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795617107,
+  "updated_at": 1795617445,
   "inventory_updated_at": 1795617099,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5283,
+      "shortfall": 4717
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -40,7 +40,7 @@
     "reserve_target": 12,
     "verified_daily_stock": 153,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 1,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -472,16 +472,16 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795617105,
+    "updated_at": 1795617443,
     "records": 20699,
     "video_records": 18063,
-    "initial_candidates": 210,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 209,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "already_attempted_or_cooling": 4832,
+      "already_attempted_or_cooling": 4833,
       "speaker_unconfirmed": 10399,
       "clip_title": 1685,
       "ai_content": 39,
@@ -493,16 +493,7 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1QC4y1J7BN",
-        "title": "林园 P1 2023.11.4民间股神林园：把握时代的脉搏",
-        "source": "bilibili_collection",
-        "author": "基金经理说",
-        "url": "https://www.bilibili.com/video/BV1QC4y1J7BN",
-        "duration_sec": 1762.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 153,
@@ -518,7 +509,7 @@
   },
   "counts": {
     "complete": 223,
-    "failed": 2872,
+    "failed": 2873,
     "paused": 5,
     "interrupted": 10,
     "excluded": 110,
@@ -62772,6 +62763,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45616223877",
       "run_started_at": "2026-11-25T12:41:42Z",
       "run_updated_at": "2026-11-25T14:12:08Z"
+    },
+    {
+      "slug": "ly-1125-b8168c",
+      "status": "failed",
+      "detail": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 270 < 480（270x480），画质不达标",
+      "signature": {
+        "ts": 1795617019,
+        "failed": true,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 45634771494,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45634771494",
+      "run_started_at": "2026-11-25T14:30:19Z",
+      "run_updated_at": "2026-11-25T14:31:42Z"
     }
   ],
   "runs": {
@@ -96434,6 +96443,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45616223877",
       "run_number": 5329,
       "display_title": "中文源出片 · ly-1125-814aa6"
+    },
+    "ly-1125-b8168c": {
+      "id": 45634771494,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-25T14:30:19Z",
+      "updated_at": "2026-11-25T14:31:42Z",
+      "run_started_at": "2026-11-25T14:30:19Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45634771494",
+      "run_number": 5330,
+      "display_title": "中文源出片 · ly-1125-b8168c"
     }
   }
 }
