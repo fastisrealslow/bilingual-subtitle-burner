@@ -156847,7 +156847,60 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-01-06T07:53:33+00:00"
+   "publish_time": "2026-01-06T07:53:33+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1125-964279",
+    "run_id": 45537280407,
+    "artifact_id": 14990499235,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "948d7b45e421e1b06ef77688830110213093ff2746eeac85c2b0708501c94233",
+     "duration_sec": 2281.63,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1qhqFBQEse"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2113.00s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1936.77s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1999.30s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1320.93s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1050.90s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45537280407,
+    "artifact_id": 14990499235,
+    "name": "production-reject-ly-1125-964279",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "bilibili_search:BV1UL411W7JE",
@@ -156877,7 +156930,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1qV6gBREgn",
@@ -156949,7 +157003,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-03-06T20:11:52+00:00"
+   "publish_time": "2021-03-06T20:11:52+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45545964445,
+    "artifact_id": 14991033612,
+    "name": "source-reject-ly-1125-da9a3f",
+    "retained": true
+   },
+   "last_error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 270 < 480（360x270），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1cainBUEvc",
@@ -283029,6 +283093,20 @@
    "video_id": "BV1oxiGBSEGp",
    "ts": 1795559528,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1125-da9a3f",
+   "key": "bilibili_search:BV1pb4y197D1",
+   "video_id": "BV1pb4y197D1",
+   "ts": 1795580874,
+   "error": "取源未完成：SourceResolutionUnavailable: 最高可用流短边 270 < 480（360x270），画质不达标"
+  },
+  {
+   "slug": "ly-1125-964279",
+   "key": "bilibili_search:BV1qhqFBQEse",
+   "video_id": "BV1qhqFBQEse",
+   "ts": 1795580875,
+   "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
   }
  ],
  "reviewed_third_video_0910": {
