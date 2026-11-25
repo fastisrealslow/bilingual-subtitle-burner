@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795621875,
-  "inventory_updated_at": 1795621794,
+  "updated_at": 1795637644,
+  "inventory_updated_at": 1795637634,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5290,
-      "shortfall": 4710
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -52,13 +52,13 @@
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
       "dates": [
-        "2026-11-25",
         "2026-11-26",
         "2026-11-27",
         "2026-11-28",
         "2026-11-29",
         "2026-11-30",
-        "2026-12-01"
+        "2026-12-01",
+        "2026-12-02"
       ],
       "requires_publish_time_revalidation": true,
       "includes_unfinished_production": false,
@@ -88,7 +88,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -99,21 +99,15 @@
       "policy_id": "daily-two-field-stories-20261114",
       "policy_version": 2026111401,
       "active": true,
-      "date": "2026-11-25",
+      "date": "2026-11-26",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 2,
-      "gap_by_now": 2,
+      "expected_by_now": 0,
+      "gap_by_now": 0,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
       "complete_days": [
-        {
-          "date": "2026-11-18",
-          "actual_treatment": 0,
-          "target": 2,
-          "passed": false
-        },
         {
           "date": "2026-11-19",
           "actual_treatment": 0,
@@ -146,6 +140,12 @@
         },
         {
           "date": "2026-11-24",
+          "actual_treatment": 0,
+          "target": 2,
+          "passed": false
+        },
+        {
+          "date": "2026-11-25",
           "actual_treatment": 0,
           "target": 2,
           "passed": false
@@ -468,11 +468,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "daily_treatment_gap"
+    "alert": "no_verified_treatment"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795621872,
+    "updated_at": 1795637641,
     "records": 20714,
     "video_records": 18078,
     "initial_candidates": 209,
