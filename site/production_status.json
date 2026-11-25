@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updated_at": 1795586148,
-  "inventory_updated_at": 1795585968,
+  "updated_at": 1795588729,
+  "inventory_updated_at": 1795588723,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
     "ordinary": {
       "target": 900,
-      "verified": 153,
-      "shortfall": 747,
+      "verified": 154,
+      "shortfall": 746,
       "by_layout": {
         "portrait": 27,
-        "landscape": 126
+        "landscape": 127
       },
       "layout_policy": "native_geometry_flexible_control_slots"
     },
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5255,
-      "shortfall": 4745
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -38,8 +38,8 @@
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 153,
-    "active_or_recovering_sources": 4,
+    "verified_daily_stock": 154,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -47,7 +47,7 @@
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 153,
+      "verified_stock_snapshot": 154,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -70,7 +70,7 @@
       },
       "verified_by_layout": {
         "portrait": 27,
-        "landscape": 126
+        "landscape": 127
       },
       "full_schedule_days": 9,
       "required_week_shortfall": 0,
@@ -88,7 +88,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -102,8 +102,8 @@
       "date": "2026-11-25",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 0,
-      "gap_by_now": 0,
+      "expected_by_now": 1,
+      "gap_by_now": 1,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
@@ -468,11 +468,11 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795586146,
+    "updated_at": 1795588728,
     "records": 20684,
     "video_records": 18048,
     "initial_candidates": 209,
@@ -496,14 +496,14 @@
     "candidates": []
   },
   "inventory": {
-    "verified_live": 153,
+    "verified_live": 154,
     "verified_audio_card": 0,
-    "verified_landscape": 126,
+    "verified_landscape": 127,
     "verified_portrait": 27,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 153,
+    "daily_mix_usable": 154,
     "target_reserve": 12,
     "publishable_now": 0
   },
@@ -513,12 +513,11 @@
     "paused": 5,
     "interrupted": 10,
     "excluded": 110,
-    "experiment_fallback": 193,
+    "experiment_fallback": 194,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 3,
-    "unknown": 2,
-    "running": 1
+    "unknown": 2
   },
   "tasks": [
     {
@@ -62569,8 +62568,8 @@
     },
     {
       "slug": "ly-1125-ff07ef",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1795580927,
         "failed": null,
@@ -62583,7 +62582,7 @@
       "run_id": 45547047796,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45547047796",
       "run_started_at": "2026-11-25T04:28:47Z",
-      "run_updated_at": "2026-11-25T04:28:51Z"
+      "run_updated_at": "2026-11-25T06:35:51Z"
     },
     {
       "slug": "ly-1125-026e1b",
@@ -96302,10 +96301,10 @@
     },
     "ly-1125-ff07ef": {
       "id": 45547047796,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-25T04:28:47Z",
-      "updated_at": "2026-11-25T04:28:51Z",
+      "updated_at": "2026-11-25T06:35:51Z",
       "run_started_at": "2026-11-25T04:28:47Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45547047796",
       "run_number": 5312,
