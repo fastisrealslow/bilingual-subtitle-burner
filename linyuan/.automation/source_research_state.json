@@ -2738,10 +2738,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 55,
+      "attempts": 56,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795553689.393364,
-      "next_retry_at": 1795640089.393364,
+      "last_attempt_at": 1795646870.917501,
+      "next_retry_at": 1795733270.917501,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -7607,12 +7607,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 31,
+      "attempts": 32,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795543570.603856,
-      "next_retry_at": 1795629970.603856,
+      "last_attempt_at": 1795646848.6175613,
+      "next_retry_at": 1795733248.6175613,
       "download_partial_bytes": 0
     },
     "439244b17afcffc66936": {
@@ -9374,13 +9374,13 @@
       "family": "simuwang_2026_10_15",
       "priority": 0,
       "status": "retry_wait",
-      "attempts": 13,
+      "attempts": 14,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795553664.4119556,
-      "next_retry_at": 1795640064.4119556,
+      "last_attempt_at": 1795646831.4406996,
+      "next_retry_at": 1795733231.4406996,
       "download_partial_bytes": 0
     },
     "6c13140a102fb9791d16": {
@@ -10087,18 +10087,24 @@
   },
   "searches": {
     "maotai_table_exchange|林园 茅台 股东 聚餐": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795580258.5875185,
-      "next_retry_at": 1795623458.5875185,
+      "next_retry_at": 1795668427.483463,
       "found": 1,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795646827.483463
     },
     "maotai_table_exchange|林园 茅台 晚宴 红衬衫": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795580258.5875185,
-      "next_retry_at": 1795623458.5875185,
+      "next_retry_at": 1795668427.483463,
       "found": 0,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795646827.483463
     },
     "fudan_2026_05|林园 复旦 2026 5月23 完整版": {
       "status": "retry_wait",
@@ -10157,12 +10163,12 @@
     "phoenix_2026_09|凤凰网财经 林园 AI 2026 9月": {
       "status": "retry_wait",
       "checked_at": 1795486970.462856,
-      "next_retry_at": 1795625018.682882,
+      "next_retry_at": 1795733227.483463,
       "found": 3,
       "new_ids": [],
-      "attempts": 2,
+      "attempts": 3,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795581818.682882
+      "last_attempt_at": 1795646827.483463
     },
     "dadao_2026_06|大道财经 对话林园 2026 6 完整版": {
       "status": "retry_wait",
@@ -10217,17 +10223,43 @@
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 3,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
-  "search_cursor": 2,
-  "updated_at": 1795638278,
-  "last_run_id": "45693512672",
+  "search_cursor": 4,
+  "updated_at": 1795646870,
+  "last_run_id": "45715355888",
   "audio_match_candidates": []
 }
