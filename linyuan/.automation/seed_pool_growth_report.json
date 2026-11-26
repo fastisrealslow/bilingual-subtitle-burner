@@ -7,9 +7,9 @@
       "netease": 2,
       "yicai": 9,
       "weibo": 1114,
-      "bilibili": 4165
+      "bilibili": 4166
     },
-    "total": 5352,
+    "total": 5353,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -20,19 +20,59 @@
       "netease": 2,
       "yicai": 9,
       "weibo": 1114,
-      "bilibili": 4166
+      "bilibili": 4167
     },
-    "total": 5353,
+    "total": 5354,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
   "added_count": 1,
   "providers": {
     "known_long_refresh": {
-      "checked_count": 0,
+      "checked_count": 3,
       "refreshed_count": 0,
       "denied_count": 0,
-      "rows": [],
+      "rows": [
+        {
+          "bvid": "BV17M4y1M7jw",
+          "status": "native_scene_geometry_unavailable",
+          "pages": [
+            {
+              "page": 1,
+              "cid": 367278989,
+              "width": 640,
+              "height": 352,
+              "native_geometry_available": false
+            }
+          ]
+        },
+        {
+          "bvid": "BV1AQ4y1t7Z4",
+          "status": "native_scene_geometry_unavailable",
+          "pages": [
+            {
+              "page": 1,
+              "cid": 1341575583,
+              "width": 640,
+              "height": 322,
+              "native_geometry_available": false
+            }
+          ]
+        },
+        {
+          "bvid": "BV1AWjs6QEPJ",
+          "status": "native_scene_geometry_unavailable",
+          "pages": [
+            {
+              "page": 1,
+              "cid": 39275791574,
+              "width": 360,
+              "height": 270,
+              "native_geometry_available": false
+            }
+          ]
+        }
+      ],
       "accepted_mp4_count": 0,
       "production_dispatch": false,
       "media_approved": false,
@@ -47,9 +87,9 @@
           "netease": 2,
           "yicai": 9,
           "weibo": 1114,
-          "bilibili": 4165
+          "bilibili": 4166
         },
-        "total": 5352,
+        "total": 5353,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
@@ -60,21 +100,25 @@
       "added_count": 1,
       "errors": [],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
-      "long_discovery_priority": false,
-      "search_query_policy": "three_general",
+      "long_discovery_priority": true,
+      "search_query_policy": "two_long_one_breadth",
       "search_pages": {
-        "林园 2019": [
-          5,
-          6
+        "林园 红周刊": [
+          9,
+          10
         ],
-        "林园 投资经历": [
-          5,
-          6
+        "林园 央视": [
+          9,
+          10
         ],
-        "林园 投资者交流": [
-          5,
-          6
+        "林园 华南农大": [
+          7,
+          8
         ]
+      },
+      "search_duration_filters": {
+        "林园 红周刊": 3,
+        "林园 央视": 2
       },
       "discovery_excluded": {
         "ineligible_author": 3
@@ -84,19 +128,20 @@
         "ineligible_author": 145
       },
       "pending_eligible_lead_count": 24,
-      "verification_ready_lead_count": 1,
-      "verification_deferred_lead_count": 24,
-      "exact_checks": 1,
+      "verification_ready_lead_count": 3,
+      "verification_deferred_lead_count": 22,
+      "exact_checks": 3,
       "added_bvids": [
-        "BV1qHVa6sEUM"
+        "BV1av8x6MEAg"
       ],
       "pending_lead_count": 180,
       "roles": {
-        "mother_candidate": 1
+        "catalog_only": 1
       },
       "new_long_parent_count": 0,
       "verification": {
-        "verified_metadata": 1
+        "verified_metadata": 1,
+        "not_verified": 2
       },
       "after": {
         "counts": {
@@ -105,42 +150,154 @@
           "netease": 2,
           "yicai": 9,
           "weibo": 1114,
-          "bilibili": 4166
+          "bilibili": 4167
         },
-        "total": 5353,
+        "total": 5354,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_errors": {},
-      "verification_rejections": {},
+      "verification_errors": {
+        "ValueError": 2
+      },
+      "verification_rejections": {
+        "no_eligible_video_pages": 1,
+        "exact_metadata_unavailable": 1
+      },
       "verification_http_status": {},
-      "verification_api_codes": {}
+      "verification_api_codes": {
+        "0": 1,
+        "62002": 1
+      }
     },
     "weibo": {
       "provider": "weibo",
       "target": 10000,
-      "before": 5353,
+      "before": 5354,
       "added_count": 0,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "4599742158084413",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5011433202387960",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466203919969931",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467635184061443",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467835356816499",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4468169991013603",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4229382468498328",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4504411995067230",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4504454415678523",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4801202435393127",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467270737102698",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467445907947131",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5087650824588990",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5249542410209480",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4711292583543495",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4461042795389609",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        }
+      ],
       "discovery_leads": 878,
-      "eligible_checks": 0,
-      "deferred_checks": 102,
-      "exact_checks": 0,
-      "known_duplicate_leads": 776
+      "eligible_checks": 16,
+      "deferred_checks": 86,
+      "exact_checks": 16,
+      "known_duplicate_leads": 776,
+      "long_checks": 0,
+      "after": 5354
     }
   },
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "remaining_to_target": 4647,
+  "remaining_to_target": 4646,
   "counting_policy": "unique_parent_video_ids_not_parts_queries_or_accepted_stock",
   "priority_milestone": {
     "baseline": 5096,
     "target": 7096,
-    "net_added": 257,
-    "remaining": 1743
+    "net_added": 258,
+    "remaining": 1742
   }
 }

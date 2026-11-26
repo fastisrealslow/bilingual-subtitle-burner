@@ -6,9 +6,9 @@
       "netease": 2,
       "yicai": 9,
       "weibo": 1114,
-      "bilibili": 4165
+      "bilibili": 4166
     },
-    "total": 5352,
+    "total": 5353,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
@@ -19,21 +19,25 @@
   "added_count": 1,
   "errors": [],
   "counting_policy": "unique_parent_id_not_parts_or_stock",
-  "long_discovery_priority": false,
-  "search_query_policy": "three_general",
+  "long_discovery_priority": true,
+  "search_query_policy": "two_long_one_breadth",
   "search_pages": {
-    "林园 2019": [
-      5,
-      6
+    "林园 红周刊": [
+      9,
+      10
     ],
-    "林园 投资经历": [
-      5,
-      6
+    "林园 央视": [
+      9,
+      10
     ],
-    "林园 投资者交流": [
-      5,
-      6
+    "林园 华南农大": [
+      7,
+      8
     ]
+  },
+  "search_duration_filters": {
+    "林园 红周刊": 3,
+    "林园 央视": 2
   },
   "discovery_excluded": {
     "ineligible_author": 3
@@ -43,19 +47,20 @@
     "ineligible_author": 145
   },
   "pending_eligible_lead_count": 24,
-  "verification_ready_lead_count": 1,
-  "verification_deferred_lead_count": 24,
-  "exact_checks": 1,
+  "verification_ready_lead_count": 3,
+  "verification_deferred_lead_count": 22,
+  "exact_checks": 3,
   "added_bvids": [
-    "BV1qHVa6sEUM"
+    "BV1av8x6MEAg"
   ],
   "pending_lead_count": 180,
   "roles": {
-    "mother_candidate": 1
+    "catalog_only": 1
   },
   "new_long_parent_count": 0,
   "verification": {
-    "verified_metadata": 1
+    "verified_metadata": 1,
+    "not_verified": 2
   },
   "after": {
     "counts": {
@@ -64,14 +69,22 @@
       "netease": 2,
       "yicai": 9,
       "weibo": 1114,
-      "bilibili": 4166
+      "bilibili": 4167
     },
-    "total": 5353,
+    "total": 5354,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "verification_errors": {},
-  "verification_rejections": {},
+  "verification_errors": {
+    "ValueError": 2
+  },
+  "verification_rejections": {
+    "no_eligible_video_pages": 1,
+    "exact_metadata_unavailable": 1
+  },
   "verification_http_status": {},
-  "verification_api_codes": {}
+  "verification_api_codes": {
+    "0": 1,
+    "62002": 1
+  }
 }
