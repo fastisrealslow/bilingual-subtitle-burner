@@ -159253,7 +159253,64 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2023-12-10T20:27:15+08:00"
+   "publish_time": "2023-12-10T20:27:15+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-437625",
+    "run_id": 45905121971,
+    "artifact_id": 15159893726,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9cd4361bd33212dc50880dd71527170722529d5eed788a5df0d0068b66c24256",
+     "duration_sec": 1779.18,
+     "resolution": {
+      "width": 720,
+      "height": 1556,
+      "short_edge": 720
+     },
+     "source_url": "https://m.weibo.cn/detail/4977497041276972"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我们觉得这个赛道，呃，呃未来三十年到二零二零五七年，都有。\", \"suspect_quote\": \"二零二零五七年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别存在严重污染，'二零二零五七年'不符合逻辑（202057 年），疑似将'2020 到 2037 年’或类似区间误读为连续数字，且前后文提到'未来三十年’，此处数值异常。\"}, {\"sentence_id\": 8, \"quote\": \"那么到今年三季度，我们我们看的它它的这个，呃这个工业利润，工业工业利润"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配860/1443，总帧数2914；身份匹配但人脸短边不足96px的帧数583"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1w6sz61EuV）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/458，总帧数2285；身份匹配但人脸短边不足96px的帧数458"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：主持人提问（句 0）被排除在观点证据外；嘉宾回答中缺乏明确的‘可以买’或‘不可以买’的结论性判断，属于未回答新问题的结尾情况，无法构成独立成片的完整表达。；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/351，总帧数1752；身份匹配但人脸短边不足96px的帧数351"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配0/303，总帧数1510；身份匹配但人脸短边不足96px的帧数303"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45905121971,
+    "artifact_id": 15159893726,
+    "name": "production-reject-ly-1126-437625",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我们觉得这个赛道，呃，呃未来三十年到二零二零五七年，都有。\", \"suspect_quote\": \"二零二零五七年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别存在严重污染，'二零二零五七年'不符合逻辑（202057 年），疑似将'2020 到 2037 年’或类似区间误读为连续数字，且前后文提到'未来三十年’，此处数值异常。\"}, {\"sentence_id\": 8, \"quote\": \"那么到今年三季度，我们我们看的它它的这个，呃这个工业利润，工业工业利润，把它去到了四十四十二亿、十三亿的十三亿啊，可谓是十三亿。\", \"suspect_quote\": \"四十四十二亿、十三亿的十三亿\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额识别混乱，'四十四十二亿’非标准数字表达，且后半句'十三亿的十三亿’存在重复或截断，无法确定实际数值。\"}, {\"sentence_id\": 12, \"quote\": \"反腐，这些呃取消的这个成绩，这就是证实，它符合我们的研究成果，就是这个中国社会现在已经进入老龄化。\", \"suspect_quote\": \"取消的这个成绩\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似将专有名词或政策名称（如'集采’、'VBP’等）误识别为'成绩’，导致语义不通，需核实原音确认是否为特定术语。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4981475858713296",
@@ -159396,7 +159453,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5215601912972135",
@@ -159419,7 +159477,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-09-27T21:31:00+08:00"
+   "publish_time": "2025-09-27T21:31:00+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-e56de8",
+    "run_id": 45910564627,
+    "artifact_id": 15160171712,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "665110c08f786eed3a0a75a69a6694aac111c704f7a35ca08fb5187e28533d4a",
+     "duration_sec": 44.63,
+     "resolution": {
+      "width": 480,
+      "height": 854,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/5215601912972135"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.09651898734177215, 0.7936170212765957, 0.22151898734177214, 0.8893617021276595)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45910564627,
+    "artifact_id": 15160171712,
+    "name": "production-reject-ly-1126-e56de8",
+    "retained": true
+   },
+   "last_error": "真人动态区仍有稳定来源角标：[(0.09651898734177215, 0.7936170212765957, 0.22151898734177214, 0.8893617021276595)]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5223764318489451",
@@ -159475,7 +159566,8 @@
    },
    "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:5225976099504132",
@@ -159498,7 +159590,44 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-10-26T12:34:18+08:00"
+   "publish_time": "2025-10-26T12:34:18+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-a96337",
+    "run_id": 45911157875,
+    "artifact_id": 15160132230,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "a28d1ed73485f513abeaac206a17ea48771f76212d1d0beba6590290e97b8d3d",
+     "duration_sec": 544.13,
+     "resolution": {
+      "width": 888,
+      "height": 496,
+      "short_edge": 496
+     },
+     "source_url": "https://m.weibo.cn/detail/5225976099504132"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     },
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45911157875,
+    "artifact_id": 15160132230,
+    "name": "production-reject-ly-1126-a96337",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5229300817331828",
@@ -159521,7 +159650,40 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2025-11-04T16:45:33+08:00"
+   "publish_time": "2025-11-04T16:45:33+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-40c39d",
+    "run_id": 45911170593,
+    "artifact_id": 15161005259,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "8f04917a17d8109a2f3c81f4ccd24516f27c44a416cb6038ebcf56a4e0359dc7",
+     "duration_sec": 257.03,
+     "resolution": {
+      "width": 856,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://m.weibo.cn/detail/5229300817331828"
+    },
+    "failures": [
+     {
+      "stage": "editorial-selection",
+      "reason": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45911170593,
+    "artifact_id": 15161005259,
+    "name": "production-reject-ly-1126-40c39d",
+    "retained": true
+   },
+   "last_error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5227848395656468",
@@ -286865,6 +287027,34 @@
    "video_id": "http://f.video.weibocdn.com/o0/DbREM50Hlx08rHJXcfLW010412007grP0E010.mp4",
    "ts": 1795735671,
    "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1126-40c39d",
+   "key": "weibo_search:5229300817331828",
+   "video_id": "http://f.video.weibocdn.com/o0/BuIUqBZVlx08sIpK7vy001041200mJCK0E010.mp4",
+   "ts": 1795736062,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1126-a96337",
+   "key": "weibo_search:5225976099504132",
+   "video_id": "http://f.video.weibocdn.com/o0/U8cK6DPFlx08sqn8Oen601041201gtGL0E010.mp4",
+   "ts": 1795736063,
+   "error": "原文中未找到满足20秒且起止边界明确的连续候选；需核对边界或换源，重复模型请求无助于恢复"
+  },
+  {
+   "slug": "ly-1126-e56de8",
+   "key": "weibo_search:5215601912972135",
+   "video_id": "http://f.video.weibocdn.com/o0/MCWvZ3Eulx08rHLLEwIE010412005dZl0E010.mp4",
+   "ts": 1795736066,
+   "error": "真人动态区仍有稳定来源角标：[(0.09651898734177215, 0.7936170212765957, 0.22151898734177214, 0.8893617021276595)]"
+  },
+  {
+   "slug": "ly-1126-437625",
+   "key": "weibo_search:4977497041276972",
+   "video_id": "https://f.video.weibocdn.com/u0/Lk85ScwDgx08aQ7TW3Da01041204k5nM0E020.mp4",
+   "ts": 1795736070,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"我们觉得这个赛道，呃，呃未来三十年到二零二零五七年，都有。\", \"suspect_quote\": \"二零二零五七年\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"年份识别存在严重污染，'二零二零五七年'不符合逻辑（202057 年），疑似将'2020 到 2037 年’或类似区间误读为连续数字，且前后文提到'未来三十年’，此处数值异常。\"}, {\"sentence_id\": 8, \"quote\": \"那么到今年三季度，我们我们看的它它的这个，呃这个工业利润，工业工业利润，把它去到了四十四十二亿、十三亿的十三亿啊，可谓是十三亿。\", \"suspect_quote\": \"四十四十二亿、十三亿的十三亿\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"金额识别混乱，'四十四十二亿’非标准数字表达，且后半句'十三亿的十三亿’存在重复或截断，无法确定实际数值。\"}, {\"sentence_id\": 12, \"quote\": \"反腐，这些呃取消的这个成绩，这就是证实，它符合我们的研究成果，就是这个中国社会现在已经进入老龄化。\", \"suspect_quote\": \"取消的这个成绩\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"疑似将专有名词或政策名称（如'集采’、'VBP’等）误识别为'成绩’，导致语义不通，需核实原音确认是否为特定术语。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
