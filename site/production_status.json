@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795694277,
+  "updated_at": 1795694441,
   "inventory_updated_at": 1795694270,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5332,
+      "shortfall": 4668
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 152,
-    "active_or_recovering_sources": 5,
+    "active_or_recovering_sources": 4,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -480,7 +480,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795694275,
+    "updated_at": 1795694439,
     "records": 20778,
     "video_records": 18142,
     "initial_candidates": 209,
@@ -518,16 +518,16 @@
   },
   "counts": {
     "complete": 224,
-    "failed": 2881,
+    "failed": 2883,
     "paused": 5,
-    "interrupted": 12,
+    "interrupted": 11,
     "excluded": 110,
     "experiment_fallback": 194,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 2,
     "unknown": 2,
-    "running": 3
+    "running": 2
   },
   "tasks": [
     {
@@ -62902,8 +62902,8 @@
     },
     {
       "slug": "ly-1126-d68455",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795689215,
         "failed": null,
@@ -62916,7 +62916,7 @@
       "run_id": 45802452393,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45802452393",
       "run_started_at": "2026-11-26T10:33:34Z",
-      "run_updated_at": "2026-11-26T10:33:38Z"
+      "run_updated_at": "2026-11-26T11:59:30Z"
     },
     {
       "slug": "ly-1126-4047ea",
@@ -63046,11 +63046,11 @@
     },
     {
       "slug": "ly-1126-b1998c",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403323329194602']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795693970,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -63064,11 +63064,11 @@
     },
     {
       "slug": "ly-1126-0fe8a0",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：CalledProcessError: Command '['/opt/hostedtoolcache/Python/3.11.18/x64/bin/python3', '-m', 'yt_dlp', '--no-playlist', '--continue', '--socket-timeout', '120', '--retries', '10', '--fragment-retries', '10', '--concurrent-fragments', '4', '-f', '(bv*[width<=?1920][height<=1920]+ba/b[width<=?1920][height<=1920]/b)[ext!=jpg][ext!=jpeg][ext!=png][ext!=webp][ext!=gif][ext!=mhtml]', '--merge-output-format', 'mp4', '--format-sort', 'res:1080', '--print-to-file', 'after_move:filepath', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/downloaded-path.txt', '-o', '/home/runner/work/bilingual-subtitle-burner/bilingual-subtitle-burner/linyuan/_src/video.%(ext)s', 'https://m.weibo.cn/detail/4403349581046666']' returned non-zero exit status 1.",
       "signature": {
         "ts": 1795693978,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -96920,10 +96920,10 @@
     },
     "ly-1126-d68455": {
       "id": 45802452393,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-26T10:33:34Z",
-      "updated_at": "2026-11-26T10:33:38Z",
+      "updated_at": "2026-11-26T11:59:30Z",
       "run_started_at": "2026-11-26T10:33:34Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45802452393",
       "run_number": 5344,
