@@ -2823,10 +2823,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 55,
+      "attempts": 56,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795580318.1601055,
-      "next_retry_at": 1795666718.1601055,
+      "last_attempt_at": 1795671411.474457,
+      "next_retry_at": 1795757811.474457,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -2837,10 +2837,10 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 55,
+      "attempts": 56,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795580333.2207756,
-      "next_retry_at": 1795666733.2207756,
+      "last_attempt_at": 1795671427.1442647,
+      "next_retry_at": 1795757827.1442647,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0
@@ -3315,7 +3315,7 @@
     "aa950ceb43475d2ada85": {
       "url": "https://www.bilibili.com/video/BV1pShz6cE6a",
       "role": "mother",
-      "family": "investor_call",
+      "family": "simuwang_2026_10_15",
       "priority": 0,
       "status": "pending",
       "attempts": 0,
@@ -3579,7 +3579,7 @@
     "216c7e1ed426835568d1": {
       "url": "https://www.bilibili.com/video/BV1Wuez6uEzS",
       "role": "mother",
-      "family": "phoenix_2026_09",
+      "family": "simuwang_2026_10_15",
       "priority": 0,
       "status": "pending",
       "attempts": 3,
@@ -7258,12 +7258,12 @@
       "family": "unresolved",
       "priority": 1,
       "status": "retry_wait",
-      "attempts": 32,
+      "attempts": 33,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "CalledProcessError",
-      "last_attempt_at": 1795580277.1896732,
-      "next_retry_at": 1795666677.1896732,
+      "last_attempt_at": 1795671327.8468273,
+      "next_retry_at": 1795757727.8468273,
       "download_partial_bytes": 0
     },
     "f96db97e6f05b0475296": {
@@ -10213,19 +10213,22 @@
     "zhejiang_2026_01|林园 浙江大学 2026 1月9日 完整版": {
       "status": "retry_wait",
       "checked_at": 1795504825.514282,
-      "next_retry_at": 1795659904.901858,
+      "next_retry_at": 1795757710.8717961,
       "found": 1,
       "new_ids": [],
-      "attempts": 2,
+      "attempts": 3,
       "last_error": "RuntimeError",
-      "last_attempt_at": 1795616704.901858
+      "last_attempt_at": 1795671310.8717961
     },
     "historical_long_leads_20261010|林园 2025 5 采访 完整版": {
-      "status": "searched",
+      "status": "retry_wait",
       "checked_at": 1795617690.69078,
-      "next_retry_at": 1795660890.69078,
+      "next_retry_at": 1795692910.8717961,
       "found": 4,
-      "new_ids": []
+      "new_ids": [],
+      "attempts": 1,
+      "last_error": "RuntimeError",
+      "last_attempt_at": 1795671310.8717961
     },
     "historical_long_leads_20261010|林园 2006 走进资本市场 完整版": {
       "status": "searched",
@@ -10243,24 +10246,50 @@
     },
     "simuwang_2026_10_15|林园 看好AI大时代 但我不会投个股 完整版": {
       "status": "searched",
-      "checked_at": 1795617690.69078,
-      "next_retry_at": 1795660890.69078,
-      "found": 1,
+      "checked_at": 1795671310.8717961,
+      "next_retry_at": 1795714510.8717961,
+      "found": 3,
       "new_ids": []
     }
   },
   "reference_refresh": {
-    "status": "searched",
+    "status": "retry_next_run",
+    "error": "RuntimeError",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
-  "search_cursor": 12,
-  "updated_at": 1795663013,
-  "last_run_id": "45747172577",
+  "search_cursor": 14,
+  "updated_at": 1795671427,
+  "last_run_id": "45761978482",
   "audio_match_candidates": []
 }
