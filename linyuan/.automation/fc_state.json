@@ -158653,7 +158653,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-26T02:28:00+00:00"
+   "publish_time": "2026-11-26T02:28:00+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-c3d590",
+    "run_id": 45807855870,
+    "artifact_id": 15115154827,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "26ff4185614ab093cf7c4d704c27638f443099fa321afd59d0c5f2dc4535e77a",
+     "duration_sec": 3124.57,
+     "resolution": {
+      "width": 852,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1mXWo6iEQR"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2782.30s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 2849.57s，来源角标覆盖必须保留的人脸或头顶区域"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 273.47s，来源角标覆盖必须保留的人脸或头顶区域"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45807855870,
+    "artifact_id": 15115154827,
+    "name": "production-reject-ly-1126-c3d590",
+    "retained": true
+   },
+   "last_error": "整段取景预检：源 2782.30s，来源角标覆盖必须保留的人脸或头顶区域",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4685391016233265",
@@ -158736,7 +158785,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4403329557564479",
@@ -158766,7 +158816,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4403328064619531",
@@ -158796,7 +158847,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4403323329194602",
@@ -158826,7 +158878,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "weibo_search:4403349581046666",
@@ -158861,7 +158914,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -286133,6 +286187,13 @@
    "video_id": "BV1pVa6zUE9K",
    "ts": 1795692171,
    "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+  },
+  {
+   "slug": "ly-1126-c3d590",
+   "key": "bilibili_search:BV1mXWo6iEQR",
+   "video_id": "BV1mXWo6iEQR",
+   "ts": 1795695655,
+   "error": "整段取景预检：源 2782.30s，来源角标覆盖必须保留的人脸或头顶区域"
   }
  ],
  "reviewed_third_video_0910": {
