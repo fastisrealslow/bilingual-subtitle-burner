@@ -159211,8 +159211,8 @@
    "publish_time": "2025-05-19T10:47:49+08:00",
    "production_failure_summary": {
     "slug": "ly-1126-2e23be",
-    "run_id": 45900346250,
-    "artifact_id": 15156475148,
+    "run_id": 45905104606,
+    "artifact_id": 15157702594,
     "accepted": 0,
     "source_context": null,
     "failures": [
@@ -159222,11 +159222,13 @@
      }
     ]
    },
-   "source_check_report_id": 15156475148,
-   "source_check_run_id": 45900346250,
+   "source_check_report_id": 15157702594,
+   "source_check_run_id": 45905104606,
    "last_error": "工作流步骤失败，未形成素材不合格结论：render",
    "failure_stage": "quality-service",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:4977497041276972",
@@ -159273,7 +159275,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-12-21T19:57:39+08:00"
+   "publish_time": "2023-12-21T19:57:39+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45905139217,
+    "artifact_id": 15156879515,
+    "name": "source-reject-ly-1126-9cc375",
+    "retained": true
+   },
+   "last_error": "原始素材短边 360 < 480（640x360），画质不达标",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   },
   {
    "key": "bilibili_search:BV1oY17zkEb4",
@@ -286601,6 +286613,13 @@
    "video_id": "BV1jVvaBqE4v",
    "ts": 1795702392,
    "error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+  },
+  {
+   "slug": "ly-1126-9cc375",
+   "key": "weibo_search:4981475858713296",
+   "video_id": "https://f.video.weibocdn.com/u0/4q1JpcJogx08b7rYtdT201041202xE7x0E010.mp4",
+   "ts": 1795732585,
+   "error": "原始素材短边 360 < 480（640x360），画质不达标"
   }
  ],
  "reviewed_third_video_0910": {
