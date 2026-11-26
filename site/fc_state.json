@@ -158999,7 +158999,48 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-05-24T03:16:56+00:00"
+   "publish_time": "2026-05-24T03:16:56+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-67ca1d",
+    "run_id": 45821371693,
+    "artifact_id": 15121581464,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "f9f72872a5f4d92da7cfb0d252f92313ee257eb38acc900a55e646bcc205d650",
+     "duration_sec": 916.53,
+     "resolution": {
+      "width": 960,
+      "height": 1920,
+      "short_edge": 960
+     },
+     "source_url": "https://www.bilibili.com/video/BV1aoGL6YE3s"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区检出持续黑边/错误取景"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45821371693,
+    "artifact_id": 15121581464,
+    "name": "production-reject-ly-1126-67ca1d",
+    "retained": true
+   },
+   "last_error": "真人动态区检出持续黑边/错误取景",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4403639977869270",
@@ -286343,6 +286384,13 @@
    "video_id": "https://f.video.weibocdn.com/u0/V4m34sdGgx08udYYOsqY01041200VMhl0E010.mp4",
    "ts": 1795696988,
    "error": "原始素材短边 354 < 480（640x354），画质不达标"
+  },
+  {
+   "slug": "ly-1126-67ca1d",
+   "key": "bilibili_search:BV1aoGL6YE3s",
+   "video_id": "BV1aoGL6YE3s",
+   "ts": 1795699944,
+   "error": "真人动态区检出持续黑边/错误取景"
   }
  ],
  "reviewed_third_video_0910": {
