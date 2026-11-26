@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795694820,
-  "inventory_updated_at": 1795694641,
+  "updated_at": 1795695595,
+  "inventory_updated_at": 1795695587,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5332,
-      "shortfall": 4668
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 152,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -480,19 +480,19 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795694818,
+    "updated_at": 1795695593,
     "records": 20778,
     "video_records": 18142,
-    "initial_candidates": 209,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "initial_candidates": 210,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10460,
-      "already_attempted_or_cooling": 4846,
+      "speaker_unconfirmed": 10501,
+      "already_attempted_or_cooling": 4803,
       "unrelated": 111,
-      "clip_title": 1689,
+      "clip_title": 1690,
       "ai_content": 39,
       "no_video": 2636,
       "noise": 48,
@@ -502,7 +502,16 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:4403639977869270",
+        "title": "2018年3月17日，第十二届中国（深圳）私募基金高峰论坛在深圳五洲宾馆举行，#林园# 荣获2017年度最值得信赖私募基",
+        "source": "weibo_search",
+        "author": "王洪股金谈",
+        "url": "https://m.weibo.cn/detail/4403639977869270",
+        "duration_sec": 390.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 152,
@@ -520,14 +529,14 @@
     "complete": 224,
     "failed": 2883,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 11,
     "excluded": 110,
     "experiment_fallback": 195,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 2,
     "unknown": 2,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -62938,8 +62947,8 @@
     },
     {
       "slug": "ly-1126-c3d590",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795691319,
         "failed": null,
@@ -62952,7 +62961,7 @@
       "run_id": 45807855870,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45807855870",
       "run_started_at": "2026-11-26T11:08:39Z",
-      "run_updated_at": "2026-11-26T11:08:43Z"
+      "run_updated_at": "2026-11-26T12:16:28Z"
     },
     {
       "slug": "ly-1126-c575fa",
@@ -96920,10 +96929,10 @@
     },
     "ly-1126-c3d590": {
       "id": 45807855870,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-26T11:08:39Z",
-      "updated_at": "2026-11-26T11:08:43Z",
+      "updated_at": "2026-11-26T12:16:28Z",
       "run_started_at": "2026-11-26T11:08:39Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45807855870",
       "run_number": 5351,
