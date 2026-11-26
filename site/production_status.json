@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795694441,
-  "inventory_updated_at": 1795694270,
+  "updated_at": 1795694648,
+  "inventory_updated_at": 1795694641,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5332,
-      "shortfall": 4668
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -480,7 +480,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795694439,
+    "updated_at": 1795694647,
     "records": 20778,
     "video_records": 18142,
     "initial_candidates": 209,
@@ -520,9 +520,9 @@
     "complete": 224,
     "failed": 2883,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 110,
-    "experiment_fallback": 194,
+    "experiment_fallback": 195,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 2,
@@ -62902,8 +62902,8 @@
     },
     {
       "slug": "ly-1126-d68455",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "experiment_fallback",
+      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
       "signature": {
         "ts": 1795689215,
         "failed": null,
@@ -96896,6 +96896,17 @@
       "run_number": 5358,
       "display_title": "中文源出片 · ly-1126-b1998c"
     },
+    "ly-1126-d68455": {
+      "id": 45802452393,
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-11-26T10:33:34Z",
+      "updated_at": "2026-11-26T11:59:30Z",
+      "run_started_at": "2026-11-26T10:33:34Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45802452393",
+      "run_number": 5344,
+      "display_title": "中文源出片 · ly-1126-d68455"
+    },
     "ly-1126-c575fa": {
       "id": 45807879416,
       "status": "in_progress",
@@ -96917,17 +96928,6 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45807855870",
       "run_number": 5351,
       "display_title": "中文源出片 · ly-1126-c3d590"
-    },
-    "ly-1126-d68455": {
-      "id": 45802452393,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-26T10:33:34Z",
-      "updated_at": "2026-11-26T11:59:30Z",
-      "run_started_at": "2026-11-26T10:33:34Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45802452393",
-      "run_number": 5344,
-      "display_title": "中文源出片 · ly-1126-d68455"
     }
   }
 }
