@@ -158583,7 +158583,52 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-09-03T09:42:14+00:00"
+   "publish_time": "2025-09-03T09:42:14+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-4047ea",
+    "run_id": 45802477541,
+    "artifact_id": 15111540177,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "071ef5b3523f88a1583f64af445cc8ea85119d561b57de44933cdf5c77717bb4",
+     "duration_sec": 2409.03,
+     "resolution": {
+      "width": 826,
+      "height": 716,
+      "short_edge": 716
+     },
+     "source_url": "https://www.bilibili.com/video/BV1pVa6zUE9K"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45802477541,
+    "artifact_id": 15111540177,
+    "name": "production-reject-ly-1126-4047ea",
+    "retained": true
+   },
+   "last_error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4403323329194602",
@@ -286074,6 +286119,13 @@
    "video_id": "BV1Xg411a7zF:p2",
    "ts": 1795637786,
    "error": "封面生成/人物/角标复检失败：现场封面原像素取景未通过：现场封面未找到与林园参考照匹配的人脸；原始像素中没有避开来源文字且保留完整人物的清晰现场封面"
+  },
+  {
+   "slug": "ly-1126-4047ea",
+   "key": "bilibili_search:BV1pVa6zUE9K",
+   "video_id": "BV1pVa6zUE9K",
+   "ts": 1795692171,
+   "error": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
   }
  ],
  "reviewed_third_video_0910": {
