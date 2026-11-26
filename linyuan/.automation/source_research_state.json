@@ -1154,10 +1154,10 @@
       "family": "investor_call",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 23,
+      "attempts": 24,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795283068.1718924,
-      "next_retry_at": 1795369468.1718924,
+      "last_attempt_at": 1795654708.0573912,
+      "next_retry_at": 1795741108.0573912,
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "download_partial_bytes": 0,
@@ -2083,7 +2083,7 @@
     "b782ac0c362a9fb7da95": {
       "url": "https://www.bilibili.com/video/BV1UB5s6WE2B",
       "role": "mother",
-      "family": "fudan_2026_05",
+      "family": "investor_call",
       "priority": 0,
       "status": "retry_wait",
       "attempts": 2,
@@ -6157,13 +6157,13 @@
       "family": "historical_long_leads_20261010",
       "priority": 5,
       "status": "retry_wait",
-      "attempts": 17,
+      "attempts": 18,
       "family_status": "search_clue_not_verified",
       "fingerprint_cache_available": false,
       "cache_recovery_needed": false,
       "last_error": "TimeoutExpired",
-      "last_attempt_at": 1795303669.5904093,
-      "next_retry_at": 1795390069.5904093,
+      "last_attempt_at": 1795655008.071729,
+      "next_retry_at": 1795741408.071729,
       "download_partial_bytes": 0
     },
     "053a3a8dba0097d3d7d1": {
@@ -7753,7 +7753,7 @@
     "6b714830fd12292bc2bb": {
       "url": "https://www.bilibili.com/video/BV1TBUnBZEo5",
       "role": "mother",
-      "family": "historical_long_leads_20261010",
+      "family": "hnw_course",
       "priority": 5,
       "status": "pending",
       "attempts": 0,
@@ -10083,6 +10083,42 @@
       "last_attempt_at": 1795617992.5922306,
       "next_retry_at": 1795639592.5922306,
       "download_partial_bytes": 0
+    },
+    "7e251ed33ae96537f2d1": {
+      "url": "https://www.bilibili.com/video/BV1gBfCBpEFj",
+      "role": "mother",
+      "family": "investor_call",
+      "priority": 5,
+      "status": "inspected",
+      "attempts": 0,
+      "family_status": "search_clue_not_verified",
+      "fingerprint_cache_available": true,
+      "cache_recovery_needed": false,
+      "last_attempt_at": 1795654408.0406835,
+      "next_retry_at": 0,
+      "last_error": null,
+      "evidence": {
+        "sha256": "ae09f19fea563be65e87bf16dfeb631b1f61209b34e158377b471acd102c00d3",
+        "duration_sec": 1257.133,
+        "frames": [
+          {
+            "file": "frame-0.jpg",
+            "seconds": 5
+          },
+          {
+            "file": "frame-1.jpg",
+            "seconds": 15
+          },
+          {
+            "file": "frame-2.jpg",
+            "seconds": 628.57
+          }
+        ],
+        "audio_fingerprint_count": 10132,
+        "media_integrity": "passed",
+        "production_quality": "not_evaluated"
+      },
+      "evidence_run_id": "45731176352"
     }
   },
   "searches": {
@@ -10137,19 +10173,16 @@
       "last_attempt_at": 1795650157.8151906
     },
     "hnw_course|林园 高净值研究院 2026 完整版": {
-      "status": "retry_wait",
-      "checked_at": 1795543522.9336255,
-      "next_retry_at": 1795611210.7631085,
+      "status": "searched",
+      "checked_at": 1795654348.3646655,
+      "next_retry_at": 1795697548.3646655,
       "found": 4,
-      "new_ids": [],
-      "attempts": 1,
-      "last_error": "RuntimeError",
-      "last_attempt_at": 1795589610.7631085
+      "new_ids": []
     },
     "investor_call|林园 投资者连线 完整版": {
       "status": "searched",
-      "checked_at": 1795603913.3961992,
-      "next_retry_at": 1795647113.3961992,
+      "checked_at": 1795654348.3646655,
+      "next_retry_at": 1795697548.3646655,
       "found": 4,
       "new_ids": []
     },
@@ -10223,18 +10256,42 @@
     }
   },
   "reference_refresh": {
-    "status": "retry_next_run",
-    "error": "RuntimeError",
+    "status": "searched",
     "new_bvids": [],
     "collections": {
       "account_feed_complete": false,
-      "collection_listing_complete": true,
+      "collection_listing_complete": false,
       "discovery": "public_collections_plus_existing_reference_catalog",
-      "errors": []
+      "errors": [
+        {
+          "stage": "collection_page",
+          "season_id": 6285434,
+          "page": 4,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 8098861,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 5016608,
+          "page": 1,
+          "error": "ValueError"
+        },
+        {
+          "stage": "collection_page",
+          "season_id": 6836119,
+          "page": 1,
+          "error": "ValueError"
+        }
+      ]
     }
   },
-  "search_cursor": 7,
-  "updated_at": 1795650182,
-  "last_run_id": "45722805646",
+  "search_cursor": 10,
+  "updated_at": 1795655008,
+  "last_run_id": "45731176352",
   "audio_match_candidates": []
 }
