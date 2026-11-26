@@ -12,6 +12,7 @@ ABSTRACT_ANCHORS = frozenset({'原因', '标准', '问题', '情况', '结果', 
 
 # These are factual invariants, outside the replaceable style block.
 COPY_FACT_CONSTRAINTS = """原话明确作出的判断也必须保留其语气，不能为了显得审慎而替嘉宾添加不确定性或观察建议。内容声明与嘉宾观点是两件事，不把编辑的态度写成嘉宾的话。
+原话只说价格可能波动、上涨或下跌时，标题和封面各自保留该价格变化的可能性；另一分句的限定词不能代替。
 标题和封面各自保留假设条件；“如果发生某事”不是“已经发生某事”。逐项核对谁做了什么：本人没买不等于国家或企业不买；不需要不等于没有购买。不能从不同分句拼接主体和行动。
 保留“再、追加、利润扩大”等范围：经营上不必追加投资，不等于企业赚钱不需成本，也不等于投资者不用本金。不能把企业生意的描述改成股价收益承诺。选方向“不会错”不能在封面压缩成“不亏、保本”；保留原话实际表达的判断。
 如果标题含“前提是”“条件是”，封面也必须保留该完整条件，不能仅留下结果；字数不足时可询问“有什么前提”，不把条件藏掉或换成其他条件。
@@ -1065,6 +1066,34 @@ def market_order_scope_error(title, cover, transcript):
     return None
 
 
+_PRICE_TERM = r'(?:价格|股价|售价|报价|房价|油价|金价|药价)'
+_PRICE_MODALITY = r'有可能|可能|也许|或许|或将|或|有望|不排除|不一定|会不会|能否|是否'
+_PRICE_MOVEMENT = re.compile(
+    rf'(?P<before>{_PRICE_MODALITY})?(?P<price>{_PRICE_TERM})'
+    rf'(?P<after>{_PRICE_MODALITY})?(?:会|将要|将)?(?P<change>波动|上涨|下跌)'
+    rf'(?P<ending>吧|吗|么|[？?])?')
+
+
+def _price_movement_claims(text):
+    for match in _PRICE_MOVEMENT.finditer(text):
+        yield (match['price'], match['change']), bool(
+            match['before'] or match['after'] or match['ending'])
+
+
+def price_forecast_modality_error(title, cover, transcript):
+    """Require uncertainty on the same explicit price-change claim."""
+    uncertain, definite = set(), set()
+    for claim, hedged in _price_movement_claims(transcript):
+        (uncertain if hedged else definite).add(claim)
+    only_uncertain = uncertain - definite
+    if only_uncertain and any(
+            claim in only_uncertain and not hedged
+            for copy in (title, cover)
+            for claim, hedged in _price_movement_claims(copy)):
+        return '原话只说价格可能变化；标题和封面各自保留该变化的不确定性'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -1072,6 +1101,9 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    price_issue = price_forecast_modality_error(title, cover, transcript)
+    if price_issue:
+        return price_issue
     market_issue=market_order_scope_error(title,cover,transcript)
     if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
