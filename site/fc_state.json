@@ -158942,7 +158942,56 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-12-30T11:20:01+00:00"
+   "publish_time": "2025-12-30T11:20:01+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1126-34e894",
+    "run_id": 45821317909,
+    "artifact_id": 15124562899,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "10a38154e1af5ffeab8532a636f28e8f4d12cd9ee1f13e27602b63e63e3815f6",
+     "duration_sec": 2993.33,
+     "resolution": {
+      "width": 1280,
+      "height": 720,
+      "short_edge": 720
+     },
+     "source_url": "https://www.bilibili.com/video/BV1jVvaBqE4v"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 18, \"quote\": \"啊，当然你说康美那个，我们知道这个公司，但是我为什么我们连看都不会去。\", \"suspect_quote\": \"连看都不会去\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定结构混乱，“连看都不会去”语义不清，可能应为“连看都不会考虑”。\"}, {\"sentence_id\": 38, \"quote\": \"我们一个财务杠杆可能都把它给全部否决了，不会去提高是康美事件发生了以后，我才知道它是个丑陋的企业。\", \"suspect_quote\": \"全部否决了，不会去提高是"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 20, \"quote\": \"啊，当然你说康美那个，我们知道这个公司，但是我为什么我们连看都不会去。\", \"suspect_quote\": \"连看都不会去\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"否定结构混乱，“连看都不会去”语义不清，可能应为“连看都不会考虑”。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有原素材字幕或免责声明条，不能只检查四角水印"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：主持人提问后，嘉宾未正面回应‘五道门槛’的具体内容，而是转向泛泛而谈财务指标和估值，最后提出‘买入和持有是两回事’这一结论性陈述，但未展开说明如何把握门槛，导致核心问题未被解答。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45821317909,
+    "artifact_id": 15124562899,
+    "name": "production-reject-ly-1126-34e894",
+    "retained": true
+   },
+   "last_error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5250559511628484",
@@ -159040,7 +159089,8 @@
    },
    "last_error": "真人动态区检出持续黑边/错误取景",
    "source_quality_rejected": true,
-   "failure_stage": "editorial-or-render"
+   "failure_stage": "editorial-or-render",
+   "automatic_rule_recoveries": {}
   },
   {
    "key": "bilibili_search:BV1vAySz8Efb",
@@ -159099,7 +159149,8 @@
    "failure_stage": "source-fetch",
    "source_check_attempts": 2,
    "failed": true,
-   "source_check_exhausted": true
+   "source_check_exhausted": true,
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
@@ -286392,6 +286443,13 @@
    "video_id": "BV1aoGL6YE3s",
    "ts": 1795699944,
    "error": "真人动态区检出持续黑边/错误取景"
+  },
+  {
+   "slug": "ly-1126-34e894",
+   "key": "bilibili_search:BV1jVvaBqE4v",
+   "video_id": "BV1jVvaBqE4v",
+   "ts": 1795702392,
+   "error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
   }
  ],
  "reviewed_third_video_0910": {
