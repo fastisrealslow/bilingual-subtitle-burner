@@ -160914,7 +160914,25 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2023-03-30T07:29:23+00:00"
+   "publish_time": "2023-03-30T07:29:23+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1127-18b456",
+    "run_id": 46070195589,
+    "artifact_id": 15232607660,
+    "accepted": 0,
+    "source_context": null,
+    "failures": [
+     {
+      "stage": "workflow-runtime",
+      "reason": "工作流步骤失败，未形成素材不合格结论：asr_prepare"
+     }
+    ]
+   },
+   "source_check_report_id": 15232607660,
+   "source_check_run_id": 46070195589,
+   "last_error": "工作流步骤失败，未形成素材不合格结论：asr_prepare",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795816320
   },
   {
    "key": "bilibili_search:BV1F5xCeCE6G",
@@ -160948,7 +160966,8 @@
    },
    "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[9, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{9: -0.0726, 18: -0.0338}",
    "source_quality_rejected": true,
-   "failure_stage": "source-quality"
+   "failure_stage": "source-quality",
+   "automatic_rule_recoveries": {}
   }
  ],
  "makeup_receipts": {
