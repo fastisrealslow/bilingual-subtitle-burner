@@ -160642,7 +160642,43 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-01-04T02:25:40+00:00"
+   "publish_time": "2024-01-04T02:25:40+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1127-fc071f",
+    "run_id": 45971669791,
+    "artifact_id": 15187298551,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "55413bebe36e68bd8d2a06377837160f458dca45f80629e8ba79c070af4dcec2",
+     "duration_sec": 2808.13,
+     "resolution": {
+      "width": 854,
+      "height": 480,
+      "short_edge": 480
+     },
+     "source_url": "https://www.bilibili.com/video/BV1hg4y1D7Kq"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 100%（BV1toyfz5E6Z）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1UByzzREXH）"
+     }
+    ]
+   },
+   "source_check_report_id": 15187298551,
+   "source_check_run_id": 45971669791,
+   "last_error": "标题文案待重试：未提炼出有原文支撑的完整观点标题；保留素材和转写，等待标题重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795774507
   }
  ],
  "makeup_receipts": {
