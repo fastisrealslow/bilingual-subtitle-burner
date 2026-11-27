@@ -160268,7 +160268,51 @@
     "verified": false,
     "basis": "source_metadata_unverified"
    },
-   "publish_time": "2024-01-21T02:00:44+00:00"
+   "publish_time": "2024-01-21T02:00:44+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1127-60bcd8",
+    "run_id": 45934051030,
+    "artifact_id": 15172539201,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "801b6e77e2f698e0df4eb5da27bb9680b082c39ec0808a9e843c1b3d4fecde8a",
+     "duration_sec": 1205.9,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1D64y1A7VU"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "封面生成/人物/角标复检失败：持续黑区超过安全裁边范围"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     }
+    ]
+   },
+   "source_check_report_id": 15172539201,
+   "source_check_run_id": 45934051030,
+   "last_error": "标题文案待重试：未确认嘉宾原话归属，不能用全文摘句代替标题审核；保留素材等待重试",
+   "failure_stage": "quality-service",
+   "source_check_retry_after": 1795756661
   },
   {
    "key": "bilibili_search:BV1fNBjBqE1m",
