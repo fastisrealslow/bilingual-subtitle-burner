@@ -160938,7 +160938,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-09-29T10:21:43+00:00"
+   "publish_time": "2024-09-29T10:21:43+00:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 46070212718,
+    "artifact_id": 15232687406,
+    "name": "source-reject-ly-1127-f10c36",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[9, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{9: -0.0726, 18: -0.0338}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -289185,6 +289195,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/v655rrTIlx08CGhqnNna01041206e43f0E030.mp4",
    "ts": 1795752488,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配915/1148，总帧数1164；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1127-f10c36",
+   "key": "bilibili_search:BV1F5xCeCE6G",
+   "video_id": "BV1F5xCeCE6G",
+   "ts": 1795815050,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[9, 18]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{9: -0.0726, 18: -0.0338}"
   }
  ],
  "reviewed_third_video_0910": {
