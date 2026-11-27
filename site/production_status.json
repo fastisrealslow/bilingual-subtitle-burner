@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updated_at": 1795745912,
-  "inventory_updated_at": 1795745850,
+  "updated_at": 1795746738,
+  "inventory_updated_at": 1795746730,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
     "ordinary": {
       "target": 900,
-      "verified": 152,
-      "shortfall": 748,
+      "verified": 151,
+      "shortfall": 749,
       "by_layout": {
         "portrait": 26,
-        "landscape": 126
+        "landscape": 125
       },
       "layout_policy": "native_geometry_flexible_control_slots"
     },
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5368,
-      "shortfall": 4632
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -38,16 +38,16 @@
   "continuity": {
     "daily_target": 4,
     "reserve_target": 12,
-    "verified_daily_stock": 152,
+    "verified_daily_stock": 151,
     "active_or_recovering_sources": 2,
-    "waiting_candidates": 0,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
       "daily_minimum": 2,
       "daily_preferred": 3,
       "planning_days": 7,
-      "verified_stock_snapshot": 152,
+      "verified_stock_snapshot": 151,
       "minimum_week_shortfall": 0,
       "preferred_week_shortfall": 0,
       "reserve_shortfall": 0,
@@ -70,7 +70,7 @@
       },
       "verified_by_layout": {
         "portrait": 26,
-        "landscape": 126
+        "landscape": 125
       },
       "full_schedule_days": 8,
       "required_week_shortfall": 0,
@@ -473,6 +473,14 @@
         "controls": 2,
         "fallback": 0,
         "valid_comparison": false
+      },
+      {
+        "date": "2026-11-27",
+        "published": 1,
+        "treatment": 0,
+        "controls": 1,
+        "fallback": 0,
+        "valid_comparison": false
       }
     ],
     "status": "needs_attention",
@@ -480,49 +488,58 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795745910,
-    "records": 20818,
-    "video_records": 18178,
-    "initial_candidates": 209,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1795746736,
+    "records": 20823,
+    "video_records": 18183,
+    "initial_candidates": 210,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10492,
+      "speaker_unconfirmed": 10495,
       "already_attempted_or_cooling": 4852,
       "unrelated": 109,
       "clip_title": 1686,
       "ai_content": 39,
       "no_video": 2640,
       "noise": 48,
-      "reference_only": 741,
+      "reference_only": 742,
       "published_topic_cooldown": 2,
       "too_short": 162,
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5369805318129154",
+        "title": "林园早年精彩采访，讲述自己的选股思路！\n\n#微博视频精选大赏##科普有答案##价值投资# http://t.cn/AXT",
+        "source": "weibo_search",
+        "author": "厚恩投资张延昆",
+        "url": "https://m.weibo.cn/detail/5369805318129154",
+        "duration_sec": 1194.0
+      }
+    ]
   },
   "inventory": {
-    "verified_live": 152,
+    "verified_live": 151,
     "verified_audio_card": 0,
-    "verified_landscape": 126,
+    "verified_landscape": 125,
     "verified_portrait": 26,
     "verified_weekly_full": 0,
     "portrait_target": 10,
     "landscape_target": 2,
-    "daily_mix_usable": 152,
+    "daily_mix_usable": 151,
     "target_reserve": 12,
-    "publishable_now": 1
+    "publishable_now": 0
   },
   "counts": {
-    "complete": 224,
+    "complete": 225,
     "failed": 2902,
     "paused": 5,
     "interrupted": 10,
-    "excluded": 110,
-    "experiment_fallback": 196,
+    "excluded": 114,
+    "experiment_fallback": 191,
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
@@ -42970,8 +42987,8 @@
     },
     {
       "slug": "ly-1104-6626e1",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793772895,
         "failed": null,
@@ -42988,8 +43005,8 @@
     },
     {
       "slug": "ly-1104-d62f72",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793772903,
         "failed": null,
@@ -43006,8 +43023,8 @@
     },
     {
       "slug": "ly-1104-f9b136",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793772914,
         "failed": null,
@@ -43024,8 +43041,8 @@
     },
     {
       "slug": "ly-1104-c45e29",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793772924,
         "failed": null,
@@ -43042,13 +43059,13 @@
     },
     {
       "slug": "ly-story-8d67eefc51",
-      "status": "experiment_fallback",
-      "detail": "实验未达标；1 条常规成片可补位，不计入实验库存",
+      "status": "complete",
+      "detail": "本批次已处理完毕",
       "signature": {
         "ts": 1793778064,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": null
       },
