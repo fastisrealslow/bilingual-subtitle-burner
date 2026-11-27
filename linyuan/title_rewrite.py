@@ -1065,6 +1065,26 @@ def market_order_scope_error(title, cover, transcript):
     return None
 
 
+def investment_exclusivity_error(title, cover, transcript):
+    """Keep a stated investment focus from becoming an exclusive purchase rule."""
+    source = str(transcript or '')
+    if not re.search(
+            r'(?:主要|重点|优先|倾向|例如|比如)[^。！？!?；;]{0,100}(?:买|投|配置)'
+            r'|(?:买(?:入)?|投资|配置)(?:一些|一部分|一类|其中)', source):
+        return None
+
+    # Compare the objects, so an explicit restriction on one holding does not
+    # turn an unrelated example into an exclusive investment rule.
+    exclusive = re.compile(
+        r'(?<![不非岂何])(?:只|仅仅|仅)\s*(?:买入|买(?!入)|投资|投(?!资)|配置)'
+        r'(?![了过的])\s*([^：:。！？!?；;，,、\n]+)')
+    source_objects = {compact(match[1]) for match in exclusive.finditer(source)}
+    for copy in (str(title or ''), str(cover or '')):
+        if any(compact(match[1]) not in source_objects for match in exclusive.finditer(copy)):
+            return '原话给出投资重点或买入示例；标题和封面使用只买、只投等排他判断时须有同一对象的明确原文'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -1152,7 +1172,7 @@ def forecast_copy_error(title, cover, transcript):
         qualified=re.search(r'可能|不确定|不好预测|判断不了|(?:我|个人)(?:的)?(?:判断|预测|估计)|多久|何时|什么时候|能否|[？?]',copy)
         if forecast and uncertain and not qualified:
             return '点位或牛市的时间判断丢失原文不确定性；标题和封面都不能写成确定的时间承诺'
-    return None
+    return investment_exclusivity_error(title, cover, transcript)
 
 
 def unresolved_subject_error(title, cover):
