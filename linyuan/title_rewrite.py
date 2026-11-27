@@ -1271,6 +1271,31 @@ def personal_action_error(title, cover, evidence):
     return None
 
 
+def exclusive_action_modality_error(title, cover, transcript):
+    """Keep an expressed choice distinct from saying it is all one dares to do."""
+    if not re.search(r'(?:只|仅)敢', title + '。' + cover):
+        return None
+    action = r'买入|购买|卖出|持有|参与|投资|买|卖|投'
+    first_person = r'^(?:但(?:是)?|而|所以)?我(?:们)?(?:现在|目前|当时|就)?'
+    clauses = [
+        compact(clause) for clause in re.findall(r'[^，,。；;：:！？!?\n]+[？?]?', transcript)
+        if not clause.endswith(('？', '?'))
+    ]
+    ending = r'(?:而已|罢了|啊|呀|呢)?'
+    for clause in clauses:
+        choice = re.match(first_person + rf'(?:只|仅)({action})([\u4e00-\u9fff]{{2,12}}?){ending}$', clause)
+        if not choice:
+            continue
+        verb, subject = choice.groups()
+        claim = rf'(?:只|仅)敢{verb}(?:[0-9\u4e00-\u9fff]{{1,18}}的)?{re.escape(subject)}'
+        if any(re.fullmatch(first_person + claim + ending, source) for source in clauses):
+            continue
+        asserted = rf'(?<!不)(?<!并非){claim}{ending}(?=$|[，,。！？!?；;：:\n])'
+        if any(re.search(asserted, copy) for copy in (title, cover)):
+            return '原文只说明本人选择该对象；标题和封面不能改成只敢采取该行动'
+    return None
+
+
 def loss_claim_error(title, cover, transcript):
     """A directional choice is not an explicit no-loss outcome.
 
@@ -1480,6 +1505,9 @@ def _candidate_error(item, transcript, speaker, existing_titles, check_layout=Tr
     action_issue = personal_action_error(title, cover, evidence)
     if action_issue:
         return action_issue
+    modality_issue = exclusive_action_modality_error(title, cover, transcript)
+    if modality_issue:
+        return modality_issue
     # An observed 4B-model false positive inferred "更安全" from position sizing.
     # Such financial claims need explicit evidence even if a reviewer says true.
     risk_claims=('更安全','更稳妥','更稳健','风险更低','风险小','降低风险','避险',
@@ -1628,6 +1656,7 @@ def _extractive(transcript, speaker, existing_titles, preferred=None, guest_pass
                 or population_scope_error(title, cover['text'], transcript)
                 or loss_claim_error(title, cover['text'], transcript)
                 or participation_phase_error(title, cover['text'], transcript)
+                or exclusive_action_modality_error(title, cover['text'], transcript)
                 or incremental_cost_error(title, cover['text'], [transcript])
                 or product_contrast_error(title, cover['text'], transcript)
                 or unsupported_hedge_error(title, cover['text'], [quote])):
@@ -2198,6 +2227,7 @@ def error(title, proof, transcript=None, speaker='林园'):
                   population_scope_error(title, proof['cover'], transcript or ''.join(evidence)),
                   loss_claim_error(title, proof['cover'], transcript or ''.join(evidence)),
                   participation_phase_error(title, proof['cover'], transcript or ''.join(evidence)),
+                  exclusive_action_modality_error(title, proof['cover'], transcript or ''.join(evidence)),
                   incremental_cost_error(title, proof['cover'], [transcript or ''.join(evidence)]),
                   unsupported_hedge_error(title, proof['cover'], evidence)):
         if issue:
