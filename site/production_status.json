@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795752930,
+  "updated_at": 1795753147,
   "inventory_updated_at": 1795752921,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5378,
+      "shortfall": 4622
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 151,
-    "active_or_recovering_sources": 2,
+    "active_or_recovering_sources": 3,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -488,7 +488,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795752928,
+    "updated_at": 1795753145,
     "records": 20830,
     "video_records": 18190,
     "initial_candidates": 209,
@@ -528,12 +528,12 @@
     "complete": 225,
     "failed": 2904,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 114,
     "experiment_fallback": 191,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2,
     "running": 1
   },
@@ -63450,14 +63450,14 @@
     },
     {
       "slug": "ly-1127-b13b69",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795752548,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795754828,
         "weekly_full_week": ""
       },
       "history_count": 1,
