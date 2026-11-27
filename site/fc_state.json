@@ -160062,7 +160062,88 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-01-15T03:00:42+00:00"
+   "publish_time": "2024-01-15T03:00:42+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1127-3ada33",
+    "run_id": 45927459563,
+    "artifact_id": 15169535132,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e915e9834e0f98d7023e5f45cfea6211e6d5171d60080d1025adc3ea377c48d1",
+     "duration_sec": 1493.4,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1YW4y1c7Jf"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配581/746，总帧数821；身份匹配但人脸短边不足96px的帧数20"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 151.90s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 71%（BV1YAn46mEgJ）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配581/746，总帧数821；身份匹配但人脸短边不足96px的帧数20"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 94%（BV1Y9Wk6zEzp）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1kSYk6yEx7）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 71%（BV13QHA6DEar）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：complete_argument；完整性理由：未回答新问题结尾（关于产品浮亏和舆情的部分），导致表达不完整；原文问题：[]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 85%（BV1MEe46yE8F）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 91%（BV1Aan96CEyB）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景剩余帧即使全部匹配也达不到80%：已匹配1030/1433，总帧数2014；身份匹配但人脸短边不足96px的帧数162"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 1268.03s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 83%（BV1cHeE66Euf）"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 45927459563,
+    "artifact_id": 15169535132,
+    "name": "production-reject-ly-1127-3ada33",
+    "retained": true
+   },
+   "last_error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配581/746，总帧数821；身份匹配但人脸短边不足96px的帧数20",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:5369805318129154",
@@ -287905,6 +287986,13 @@
    "video_id": "http://f.video.weibocdn.com/o0/SKPfHJHvlx08sC1lqprW01041200BzgE0E010.mp4",
    "ts": 1795736809,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配854/1334，总帧数2395；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1127-3ada33",
+   "key": "bilibili_search:BV1YW4y1c7Jf",
+   "video_id": "BV1YW4y1c7Jf",
+   "ts": 1795749369,
+   "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配581/746，总帧数821；身份匹配但人脸短边不足96px的帧数20"
   }
  ],
  "reviewed_third_video_0910": {
