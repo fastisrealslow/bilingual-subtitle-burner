@@ -26,6 +26,52 @@ def test_plan_counts_existing_stock_once_and_keeps_unknown_unknown():
     assert result['continuity']['plan']['verified_stock_snapshot'] is None
 
 
+PROFILE_NOW=datetime(2026,11,22,14,tzinfo=status.fc.experiment.CST).timestamp()
+
+
+@pytest.mark.parametrize('ordinary,stories,days,gap',[
+    ((26,123),(0,0),0,14),  # Actual Nov22: 149 ordinary files cannot fill T.
+    ((0,14),(0,14),7,0),   # Native landscape controls and stories are usable.
+    ((14,0),(14,0),0,7),   # Portrait stories cannot fill the 14:00 slot.
+    ((14,0),(7,7),7,0),
+    ((2,0),(0,2),1,24),
+])
+def test_current_plan_requires_two_actual_stories_and_native_wide_story_each_day(ordinary,stories,days,gap):
+    counts=dict(ordinary_ready=dict(zip(('portrait','landscape'),ordinary)),
+        experiment_ready=dict(zip(('portrait','landscape'),stories)),
+        verified_portrait=ordinary[0]+stories[0],verified_landscape=ordinary[1]+stories[1])
+    p=status.supply_plan(sum(ordinary)+sum(stories),PROFILE_NOW,counts)
+    assert p['version']==3 and p['full_schedule_days']==days
+    assert p['required_week_shortfall']==gap
+    assert p['daily_by_profile']==dict(ordinary=2,experiment=2)
+    assert p['daily_landscape_stories']==1
+
+
+@pytest.mark.parametrize('change',[
+    dict(experiment_ready=None),dict(experiment_ready=dict(portrait=True,landscape=0)),
+    dict(ordinary_ready=dict(portrait=26,landscape=124)),
+])
+def test_current_plan_does_not_infer_story_stock_from_totals(change):
+    stock=dict(verified_portrait=26,verified_landscape=123,
+        ordinary_ready=dict(portrait=26,landscape=123),experiment_ready=dict(portrait=0,landscape=0))
+    stock.update(change)
+    p=status.supply_plan(149,PROFILE_NOW,stock)
+    assert p['full_schedule_days'] is p['required_week_shortfall'] is None
+
+
+def test_current_projection_uses_validated_disjoint_stock_for_complete_day_plan(monkeypatch):
+    inv=inventory([]);inv['updated_at']=PROFILE_NOW
+    inv['inventory']=dict(daily_mix_usable=149,verified_portrait=26,verified_landscape=123)
+    actual=dict(inventory_fresh=True,**inv['inventory'],ordinary_ready=dict(portrait=26,landscape=123),
+        experiment_ready=dict(portrait=0,landscape=0))
+    monkeypatch.setattr(status.fc,'source_inventory',lambda *a:actual)
+    result=status.build(dict(dispatched=[],published={}),inv,{},PROFILE_NOW)
+    assert result['continuity']['status']=='at_risk'
+    assert result['continuity']['plan']['full_schedule_days']==0
+    assert result['continuity']['plan']['required_week_shortfall_by_profile']==dict(ordinary=0,experiment=14)
+    assert result['backlog']['ordinary']['verified']==149
+
+
 def run(slug='mother', id=101, result='success', state='completed', ts=NOW-30):
     stamp = datetime.fromtimestamp(ts, timezone.utc).isoformat()
     return dict(id=id, display_title='中文源出片 · '+slug, status=state, conclusion=result,

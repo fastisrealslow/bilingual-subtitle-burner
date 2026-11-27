@@ -56,6 +56,34 @@ def supply_plan(usable, now, stock=None):
         reserve_targets_by_layout=reserves,
         reserve_shortfall_by_layout=missing,
         reserve_shortfall=sum(missing.values()) if valid else None)
+    if inventory_targets.active(now):
+        # Controls accept native geometry; 14:00 needs a landscape story and
+        # 21:00 accepts either story layout. Ordinary stock cannot fill T.
+        profiles={k:stock.get(k+'_ready') for k in ('ordinary','experiment')}
+        known=(valid and all(isinstance(row,dict) and all(
+            type(row.get(k)) is int and row[k]>=0 for k in needs)
+            for row in profiles.values()) and all(
+            sum(row[k] for row in profiles.values())==available[k] for k in needs))
+        totals={k:sum(row[layout] for layout in needs) for k,row in profiles.items()} if known else None
+        gaps=(dict(ordinary=max(0,14-totals['ordinary']),
+            experiment=max(0,14-totals['experiment'],7-profiles['experiment']['landscape']))
+            if known else None)
+        reserve_days=(fc.TARGET_READY_RESERVE+fc.MAX_PUBLISH_PER_DAY-1)//fc.MAX_PUBLISH_PER_DAY
+        profile_reserves=(dict(ordinary=max(0,2*reserve_days-totals['ordinary']),
+            experiment=max(0,2*reserve_days-totals['experiment'],
+                reserve_days-profiles['experiment']['landscape'])) if known else None)
+        plan.update(version=3, daily_by_profile=dict(ordinary=2,experiment=2),
+            verified_by_profile=profiles if known else None,
+            daily_landscape_stories=1,
+            full_schedule_days=(min(totals['ordinary']//2,totals['experiment']//2,
+                profiles['experiment']['landscape']) if known else None),
+            required_week_shortfall_by_profile=gaps,
+            required_week_shortfall=sum(gaps.values()) if known else None,
+            reserve_schedule_days=reserve_days,reserve_shortfall_by_profile=profile_reserves,
+            reserve_shortfall=sum(profile_reserves.values()) if known else None)
+        for key in ('daily_by_layout','required_week_shortfall_by_layout',
+                    'reserve_targets_by_layout','reserve_shortfall_by_layout'):
+            plan.pop(key,None)
     return plan
 
 
@@ -197,7 +225,9 @@ def build(state, inventory, runs, now=None,seed_count=None):
            and inventory.get('editorial_policy_version')==fc.editorial.VERSION)
     usable=int(stock.get('daily_mix_usable') or 0)
     activity=sum(t['status'] in {'running','queued','retry_queued','awaiting_validation'} for t in tasks)
-    plan=supply_plan(usable if fresh else None,now,stock)
+    actual_stock=fc.source_inventory(state,inventory)
+    plan=supply_plan(usable if fresh else None,now,{**stock,
+        **{k:actual_stock.get(k) for k in ('ordinary_ready','experiment_ready')}})
     continuity=dict(daily_target=fc.MAX_PUBLISH_PER_DAY,reserve_target=fc.TARGET_READY_RESERVE,
         verified_daily_stock=usable if fresh else None,active_or_recovering_sources=activity,
         waiting_candidates=admission.get('candidate_count'),
@@ -231,7 +261,7 @@ def build(state, inventory, runs, now=None,seed_count=None):
         continuity['alert']=(experiment_status.get('alert') or
             ('daily_delivery_not_yet_stable' if delivery_unstable else 'experiment_status_unconfirmed'))
     return dict(version=1, updated_at=now, inventory_updated_at=inventory.get('updated_at'),
-                backlog=inventory_targets.progress(fc.source_inventory(state,inventory),seed_count),
+                backlog=inventory_targets.progress(actual_stock,seed_count),
                 continuity=continuity,
                 publishing_experiment=experiment_status,
                 source_admission=inventory.get('source_admission'),

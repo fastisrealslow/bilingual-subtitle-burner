@@ -64,7 +64,7 @@ test('noncontiguous processed indices and single published receipts close batche
 
 function supply(stock, target = 4) {
   return {updated_at:now, inventory_updated_at:now,
-    continuity:{verified_daily_stock:stock,daily_target:target,quality_gates_relaxed:false}};
+    continuity:{verified_daily_stock:stock,daily_target:target,reserve_target:12,quality_gates_relaxed:false}};
 }
 test('zero daily stock warns even when a weekly interview and active jobs exist',()=>{
   const data=supply(0);
@@ -159,4 +159,29 @@ test('current daily target replaces obsolete two-to-three floor in new zero-stoc
   const data=supply(0);data.continuity.plan={version:2};
   assert.match(continuity(data,now).message,/未来七天目标共 28 条/);
   assert.doesNotMatch(continuity(data,now).message,/争取 3 条/);
+});
+
+test('149 ordinary files and zero stories cannot promise eight complete days',()=>{
+  const data=supply(149);
+  data.continuity.plan={version:3, daily_by_profile:{ordinary:2,experiment:2},daily_landscape_stories:1,
+    verified_by_profile:{ordinary:{portrait:26,landscape:123},experiment:{portrait:0,landscape:0}}};
+  data.source_admission={known_long_candidates:0};
+  const result=continuity(data,now);
+  assert.equal(result.status,'at_risk');
+  assert.match(result.message,/可覆盖 0 个完整日/);
+  assert.match(result.message,/未来七天还缺普通稿 0、故事稿 14 条/);
+  assert.match(result.message,/长母片候选为 0/);
+  data.continuity.plan.verified_by_profile=null;
+  assert.equal(continuity(data,now).status,'unknown');
+});
+
+test('native wide controls and stories cover seven days; portrait stories still need wide stock',()=>{
+  const data=supply(28);
+  data.continuity.plan={version:3,daily_by_profile:{ordinary:2,experiment:2},daily_landscape_stories:1,
+    verified_by_profile:{ordinary:{portrait:0,landscape:14},experiment:{portrait:0,landscape:14}}};
+  assert.equal(continuity(data,now).status,'covered');
+  assert.match(continuity(data,now).message,/可覆盖 7 个完整日/);
+  data.continuity.plan.verified_by_profile.experiment={portrait:14,landscape:0};
+  assert.equal(continuity(data,now).status,'at_risk');
+  assert.match(continuity(data,now).message,/故事稿 7 条/);
 });

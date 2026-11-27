@@ -1771,6 +1771,8 @@ def source_admission_audit(items, state):
     """Read-only ledger of the exact dispatch gate, not a second approximation."""
     audit = {}
     candidates = pick(items, state, len(items), audit=audit)
+    audit['known_long_candidates'] = sum(experiment.long_candidate(c) for c in candidates)
+    audit['long_mother_min_seconds'] = experiment.MIN_MOTHER_SECONDS
     audit['candidates'] = [dict(key=c['key'], title=c['title'], source=c['source'],
         author=c['author'], url=c['page_url'], duration_sec=candidate_duration(c)) for c in candidates]
     return audit

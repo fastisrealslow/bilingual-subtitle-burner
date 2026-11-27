@@ -40,6 +40,14 @@ def test_same_title_and_prefix_cannot_erase_different_recordings():
     assert {r['key'] for r in fc.pick(rows, state(), 10)} == {'BVone', 'BVtwo'}
 
 
+def test_short_candidate_pool_cannot_be_reported_as_long_story_supply():
+    rows=[row('BVshort',80),row('BVmedium',1199),row('BVlong',1200),row('BVunknown',None)]
+    audit=fc.source_admission_audit(rows,state())
+    assert audit['known_long_candidates']==1
+    assert audit['long_mother_min_seconds']==1200
+    assert audit['candidate_count']>audit['known_long_candidates']
+
+
 def test_duplicate_url_tracking_is_removed_but_collection_pages_remain():
     rows = [row('BVsource', 240), row('BVsource', 241), row('BVsource', 300)]
     rows[1]['id'] = 'other-crawler'
