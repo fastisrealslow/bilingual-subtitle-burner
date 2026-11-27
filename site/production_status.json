@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795778314,
+  "updated_at": 1795778577,
   "inventory_updated_at": 1795778305,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5396,
+      "shortfall": 4604
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,7 +39,7 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 151,
-    "active_or_recovering_sources": 1,
+    "active_or_recovering_sources": 2,
     "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
@@ -488,7 +488,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795778312,
+    "updated_at": 1795778575,
     "records": 20857,
     "video_records": 18217,
     "initial_candidates": 209,
@@ -528,12 +528,12 @@
     "complete": 225,
     "failed": 2906,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 115,
     "experiment_fallback": 192,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 2,
     "unknown": 2
   },
   "tasks": [
@@ -63503,14 +63503,14 @@
     },
     {
       "slug": "ly-1127-fc071f",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795777151,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795780285,
         "weekly_full_week": ""
       },
       "history_count": 1,
