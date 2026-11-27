@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795749323,
+  "updated_at": 1795749461,
   "inventory_updated_at": 1795749318,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5368,
+      "shortfall": 4632
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -488,7 +488,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795749321,
+    "updated_at": 1795749460,
     "records": 20823,
     "video_records": 18183,
     "initial_candidates": 209,
@@ -526,9 +526,9 @@
   },
   "counts": {
     "complete": 225,
-    "failed": 2902,
+    "failed": 2903,
     "paused": 5,
-    "interrupted": 11,
+    "interrupted": 10,
     "excluded": 114,
     "experiment_fallback": 191,
     "ready": 39,
@@ -63396,11 +63396,11 @@
     },
     {
       "slug": "ly-1127-3ada33",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "动态取景剩余帧即使全部匹配也达不到80%：已匹配581/746，总帧数821；身份匹配但人脸短边不足96px的帧数20",
       "signature": {
         "ts": 1795745855,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -97466,17 +97466,6 @@
       "run_number": 5387,
       "display_title": "中文源出片 · ly-1126-77e264"
     },
-    "ly-1127-4fe6e6": {
-      "id": 45929104696,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-27T02:34:15Z",
-      "updated_at": "2026-11-27T02:34:19Z",
-      "run_started_at": "2026-11-27T02:34:15Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45929104696",
-      "run_number": 5389,
-      "display_title": "中文源出片 · ly-1127-4fe6e6"
-    },
     "ly-1127-3ada33": {
       "id": 45927459563,
       "status": "completed",
@@ -97487,6 +97476,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45927459563",
       "run_number": 5388,
       "display_title": "中文源出片 · ly-1127-3ada33"
+    },
+    "ly-1127-4fe6e6": {
+      "id": 45929104696,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-27T02:34:15Z",
+      "updated_at": "2026-11-27T02:34:19Z",
+      "run_started_at": "2026-11-27T02:34:15Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/45929104696",
+      "run_number": 5389,
+      "display_title": "中文源出片 · ly-1127-4fe6e6"
     }
   }
 }
