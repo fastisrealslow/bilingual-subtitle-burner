@@ -20,13 +20,13 @@
       "netease": 2,
       "yicai": 9,
       "weibo": 1117,
-      "bilibili": 4206
+      "bilibili": 4208
     },
-    "total": 5396,
+    "total": 5398,
     "reference_only": 1086,
     "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
   },
-  "added_count": 0,
+  "added_count": 2,
   "providers": {
     "known_long_refresh": {
       "checked_count": 0,
@@ -57,45 +57,53 @@
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "added_count": 0,
+      "added_count": 2,
       "errors": [],
       "counting_policy": "unique_parent_id_not_parts_or_stock",
       "long_discovery_priority": true,
       "search_query_policy": "two_long_one_breadth",
       "search_pages": {
-        "林园 2025 完整访谈": [
+        "林园 演讲": [
           11,
           12
         ],
-        "林园 完整访谈": [
+        "林园 第一财经": [
           11,
           12
         ],
-        "林园 圆桌会议": [
+        "林园 投资讲座": [
           5,
           6
         ]
       },
       "search_duration_filters": {
-        "林园 2025 完整访谈": 3,
-        "林园 完整访谈": 2
+        "林园 演讲": 3,
+        "林园 第一财经": 2
       },
       "discovery_excluded": {
-        "ineligible_author": 4
+        "ineligible_author": 3
       },
       "preverification_excluded": {
         "unrelated_or_non_live_title": 11,
         "ineligible_author": 145
       },
       "pending_eligible_lead_count": 24,
-      "verification_ready_lead_count": 0,
-      "verification_deferred_lead_count": 24,
-      "exact_checks": 0,
-      "added_bvids": [],
+      "verification_ready_lead_count": 12,
+      "verification_deferred_lead_count": 14,
+      "exact_checks": 12,
+      "added_bvids": [
+        "BV14z4y1D7YX",
+        "BV1YV4y1Q7SS"
+      ],
       "pending_lead_count": 180,
-      "roles": {},
-      "new_long_parent_count": 0,
-      "verification": {},
+      "roles": {
+        "catalog_only": 2
+      },
+      "new_long_parent_count": 2,
+      "verification": {
+        "verified_metadata": 2,
+        "not_verified": 10
+      },
       "after": {
         "counts": {
           "douyin": 51,
@@ -103,42 +111,147 @@
           "netease": 2,
           "yicai": 9,
           "weibo": 1117,
-          "bilibili": 4206
+          "bilibili": 4208
         },
-        "total": 5396,
+        "total": 5398,
         "reference_only": 1086,
         "counting_policy": "unique_parent_video_id_not_parts_or_search_queries"
       },
-      "verification_errors": {},
-      "verification_rejections": {},
+      "verification_errors": {
+        "ValueError": 10
+      },
+      "verification_rejections": {
+        "exact_metadata_unavailable": 4,
+        "no_eligible_video_pages": 3,
+        "unrelated_or_non_live_title": 3
+      },
       "verification_http_status": {},
-      "verification_api_codes": {}
+      "verification_api_codes": {
+        "-404": 1,
+        "0": 6,
+        "62002": 3
+      }
     },
     "weibo": {
       "provider": "weibo",
       "target": 10000,
-      "before": 5396,
+      "before": 5398,
       "added_count": 0,
       "accepted_mp4_count": 0,
       "rights_approved_count": 0,
       "production_dispatch": false,
-      "errors": [],
+      "errors": [
+        {
+          "stage": "exact_video",
+          "mid": "5068997521834075",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5292316664531713",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5355034250578939",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5322310462735466",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4454870318713950",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4454897887688346",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4454987713043218",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4497736256342520",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4982168537534052",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5345787401994450",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "5294252451956413",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4525616831871323",
+          "error": "ValueError"
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4466184130778229",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4470314463565480",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4236096134589103",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        },
+        {
+          "stage": "exact_video",
+          "mid": "4467633124598048",
+          "error": "SeedMetadataRejected",
+          "checks": [
+            "stable_video_identity"
+          ]
+        }
+      ],
       "discovery_leads": 888,
-      "eligible_checks": 0,
-      "deferred_checks": 103,
-      "exact_checks": 0,
-      "known_duplicate_leads": 785
+      "eligible_checks": 30,
+      "deferred_checks": 73,
+      "exact_checks": 16,
+      "known_duplicate_leads": 785,
+      "long_checks": 9,
+      "after": 5398
     }
   },
   "accepted_mp4_count": 0,
   "rights_approved_count": 0,
   "production_dispatch": false,
-  "remaining_to_target": 4604,
+  "remaining_to_target": 4602,
   "counting_policy": "unique_parent_video_ids_not_parts_queries_or_accepted_stock",
   "priority_milestone": {
     "baseline": 5096,
     "target": 7096,
-    "net_added": 300,
-    "remaining": 1700
+    "net_added": 302,
+    "remaining": 1698
   }
 }
