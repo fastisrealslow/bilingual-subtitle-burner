@@ -36,3 +36,28 @@ def test_actual_cpu_accepted_title_is_rejected_by_source_semantics():
     case=json.loads((ROOT/'tests/fixtures/linyuan_title_example_duration.json').read_text())
     assert all(case['proof']['review'][k] is True for k in T.CHECKS)
     assert '期限只是举例' in T.error(case['title'],case['proof'],case['transcript'])
+
+
+@pytest.mark.parametrize('source,title,cover', [
+    (
+        '那么假设未来十三年或者十二年，中国经济的增长是零，那么我们可以判断，'
+        '就是综合平均来说的话，那就是股市的回报周期，就时间就是十二到十三年。',
+        '林园：当前股市估值低估，零增长下回报周期仅十二三年',
+        '股市低估，回报周期仅十二三年',
+    ),
+    ('假定业务没有增长，收回投资成本得四年。', '林园：四年回本', '业务不增长要四年回本'),
+    ('如果增长率为0，本金回收期为八年。', '林园：零增长下本金回收期八年', '本金回收期八年'),
+])
+def test_timed_payback_copy_retains_flat_growth_premise(source, title, cover):
+    assert '零增长假设' in T.source_payback_condition_error(title, cover, source)
+
+
+@pytest.mark.parametrize('source,title,cover', [
+    ('如果经济不增长，回报周期十二年。', '林园：经济没有增长时回报周期十二年', '零增长时回报周期十二年'),
+    ('假设经济零增长，回报周期是十二年。', '林园：零增长下回报周期十二年', '测算回报周期的条件是什么？'),
+    ('估值偏低。假设经济零增长，回报周期是十二年。', '林园：零增长时回报周期十二年', '股市估值偏低'),
+    ('如果经济零增长，经营也不受影响。我们用了四年回本。', '林园：我们四年回本', '我们四年回本'),
+    ('如果经济非零增长，回报周期是十二年。', '林园：回报周期十二年', '回报周期十二年'),
+])
+def test_flat_growth_payback_check_preserves_properly_scoped_copy(source, title, cover):
+    assert T.source_payback_condition_error(title, cover, source) is None
