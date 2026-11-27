@@ -160953,22 +160953,61 @@
    "publish_time": "2023-03-30T07:29:23+00:00",
    "production_failure_summary": {
     "slug": "ly-1127-18b456",
-    "run_id": 46070195589,
-    "artifact_id": 15232607660,
+    "run_id": 46074186354,
+    "artifact_id": 15237564232,
     "accepted": 0,
-    "source_context": null,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "e430ad079af65c7166a9dd912ba2c1eb936020615371995c6c9dbe18f42540f6",
+     "duration_sec": 1309.2,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV19a4y1T7g6"
+    },
     "failures": [
      {
-      "stage": "workflow-runtime",
-      "reason": "工作流步骤失败，未形成素材不合格结论：asr_prepare"
+      "stage": "editorial-service",
+      "reason": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.0, 0.03404255319148936, 0.15981012658227847, 0.08085106382978724), (0.014240506329113924, 0.9553191489361702, 0.14715189873417722, 0.997872340425532)]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 0, \"quote\": \"我的老师我说：你呀，还比不上我那司机。\", \"suspect_quote\": \"我的老师我说：你呀，还比不上我那司机。\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"“我的老师我说”存在身份指代不清与语句粘连污染，无法确定是称呼还是误识；“还比不上”中“还”字在口语语境下可能为填充或否定逻辑不明，需核实原音确认是否应为“你呀，还不如我那司机”或其他表达。\"}, {\"sentence_id\": 4, \"quote\": \"一个孩子甚至没有孩子，再有钱都没有。\", \"susp"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "来源角标无法避开且保留完整人脸，须换取景或素材"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 2, \"quote\": \"他这个就日本的道路已经告诉我们，实际上像五十年代，咱们买日本的货，都感觉是一个伪劣产品。\", \"suspect_quote\": \"五十年代\", \"kind\": \"ambiguous_number_or_negation\", \"reason\": \"时间指代不明，无法确认是“五十年代”还是其他年代，需原音核实。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "动态取景连续2.03秒缺少人脸"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 700.70s，来源角标覆盖必须保留的人脸或头顶区域"
      }
     ]
    },
-   "source_check_report_id": 15232607660,
-   "source_check_run_id": 46070195589,
-   "last_error": "工作流步骤失败，未形成素材不合格结论：asr_prepare",
+   "source_check_report_id": 15237564232,
+   "source_check_run_id": 46074186354,
+   "last_error": "长演讲候选推理尚未完成；保留原始转写及实际响应，不判为全源无可用片段",
    "failure_stage": "quality-service",
-   "source_check_attempts": 1
+   "source_check_attempts": 1,
+   "source_check_retry_after": 1795824199
   }
  ],
  "makeup_receipts": {
