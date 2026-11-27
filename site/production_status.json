@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updated_at": 1795770664,
+  "updated_at": 1795770722,
   "inventory_updated_at": 1795770656,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
     "ordinary": {
       "target": 900,
-      "verified": 152,
-      "shortfall": 748,
+      "verified": 151,
+      "shortfall": 749,
       "by_layout": {
         "portrait": 26,
-        "landscape": 126
+        "landscape": 125
       },
       "layout_policy": "native_geometry_flexible_control_slots"
     },
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5394,
+      "shortfall": 4606
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -40,7 +40,7 @@
     "reserve_target": 12,
     "verified_daily_stock": 152,
     "active_or_recovering_sources": 1,
-    "waiting_candidates": 0,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -476,9 +476,9 @@
       },
       {
         "date": "2026-11-27",
-        "published": 1,
+        "published": 2,
         "treatment": 0,
-        "controls": 1,
+        "controls": 2,
         "fallback": 0,
         "valid_comparison": false
       }
@@ -488,13 +488,13 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795770662,
-    "records": 20834,
-    "video_records": 18194,
-    "initial_candidates": 209,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1795770720,
+    "records": 20835,
+    "video_records": 18195,
+    "initial_candidates": 210,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
       "clip_title": 1688,
@@ -510,7 +510,16 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "bilibili_search:BV1hg4y1D7Kq",
+        "title": "林园 P1 2023.12.29私募大咖林园：从8000元到百亿，如何做到？",
+        "source": "bilibili_collection",
+        "author": "B站商学院",
+        "url": "https://www.bilibili.com/video/BV1hg4y1D7Kq",
+        "duration_sec": 2809.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 152,
@@ -529,9 +538,9 @@
     "failed": 2906,
     "paused": 5,
     "interrupted": 10,
-    "excluded": 114,
+    "excluded": 115,
     "experiment_fallback": 192,
-    "ready": 40,
+    "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
     "unknown": 2
@@ -39431,8 +39440,8 @@
     },
     {
       "slug": "ly-1101-4d8ae5",
-      "status": "ready",
-      "detail": "1 条成片已验收，等待发布时段及配额",
+      "status": "excluded",
+      "detail": "已有成片，但剩余片段受去重或发布规则限制",
       "signature": {
         "ts": 1793532336,
         "failed": null,
@@ -50830,7 +50839,7 @@
     {
       "slug": "ly-1110-919b9f",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1794305940,
         "failed": null,
@@ -63468,12 +63477,12 @@
     {
       "slug": "ly-1127-3f0479",
       "status": "ready",
-      "detail": "2 条成片已验收，等待发布时段及配额",
+      "detail": "1 条成片已验收，等待发布时段及配额",
       "signature": {
         "ts": 1795757683,
         "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
+        "published_parts": 1,
+        "processed_part_indices": [],
         "source_check_retry_after": null,
         "weekly_full_week": ""
       },
