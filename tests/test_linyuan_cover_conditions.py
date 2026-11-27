@@ -123,6 +123,36 @@ def test_real_short_source34_contrast_is_not_an_investment_refusal():
                                        '经营不好，再便宜也不买',['经营不好的公司我是不会买入的。'])
 
 
+def test_published_cover_buy_claim_fails_even_with_a_positive_review():
+    evidence = ['医药指数投资，我自己也是有这个医药股，',
+                '今天也是跌的稀里糊涂的，最近一段时间']
+    source = ('嗯，啊，我看有网友问这个医药，' + ''.join(evidence)
+              + '跌得稀里糊涂的，您怎么看啊？那这个板块是这样，长期来说是，现在这个位置也是非常低的。')
+    item = dict(title='林园：医药指数跌得稀里糊涂，我照样持有',
+                cover_title='医药指数跌我也买', subject='医药', evidence=evidence)
+    verdict = dict(method='cpu_text_review', appeal=4,
+                   reason='复现已发布稿件将持有改买入的独立审核结果',
+                   **{key: True for key in T.CHECKS})
+    proof = T._package(item, source, verdict, [item])['title_rewrite']
+    assert '新增第一人称买入' in T._candidate_error(item, source, '林园', (), check_layout=False)
+    assert '新增第一人称买入' in T.error(item['title'], proof, source)
+    assert '新增第一人称买入' in T.metadata_error(item['title'], proof)
+
+
+@pytest.mark.parametrize('evidence, cover, rejected', [
+    ('我持有消费股，觉得当前估值低。', '消费股跌我仍然买入', True),
+    ('我看好银行股，现在位置低。', '银行股跌了我还加仓', True),
+    ('这些银行股我们也买进过。', '这些银行股我们也买', False),
+    ('银行股我买了。', '银行股跌了我又加仓', True),
+    ('银行股跌了，我们又增持了。', '银行股跌了我们又增持', False),
+    ('我也买了银行股吗？', '银行股我也买', True),
+    ('这些银行股我还买不起。', '银行股我还买', True),
+    ('我还有消费股。', '消费股我仍持有', False),
+])
+def test_first_person_purchase_requires_explicit_matching_action(evidence, cover, rejected):
+    assert bool(T.personal_action_error('林园：谈股市里的投资判断', cover, [evidence])) is rejected
+
+
 def test_real_source13_refusal_cannot_become_reassurance():
     source='中石油我没买，因为它不符合我的标准。石油也可能有替代产品，这个我把握不住。'
     item=dict(title='林园：中石油垄断地位让我安心，但石油有替代品风险',
