@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795810332,
+  "updated_at": 1795810554,
   "inventory_updated_at": 1795810324,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5424,
+      "shortfall": 4576
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 151,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 6,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -488,17 +488,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795810330,
-    "records": 20890,
-    "video_records": 18250,
-    "initial_candidates": 210,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "updated_at": 1795810553,
+    "records": 20896,
+    "video_records": 18256,
+    "initial_candidates": 209,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10536,
-      "already_attempted_or_cooling": 4873,
+      "speaker_unconfirmed": 10542,
+      "already_attempted_or_cooling": 4874,
       "clip_title": 1688,
       "unrelated": 110,
       "ai_content": 39,
@@ -510,16 +510,7 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "bilibili_search:BV1HfjE6YENy",
-        "title": "林园 P1 lv_0_20260618170027",
-        "source": "bilibili_collection",
-        "author": "复利财务自由",
-        "url": "https://www.bilibili.com/video/BV1HfjE6YENy",
-        "duration_sec": 175.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 151,
@@ -535,16 +526,16 @@
   },
   "counts": {
     "complete": 225,
-    "failed": 2907,
+    "failed": 2909,
     "paused": 5,
-    "interrupted": 15,
+    "interrupted": 10,
     "excluded": 115,
     "experiment_fallback": 192,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 1,
+    "retry_queued": 4,
     "unknown": 2,
-    "running": 1
+    "running": 2
   },
   "tasks": [
     {
@@ -63549,14 +63540,14 @@
     },
     {
       "slug": "ly-1127-993080",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795810011,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795812235,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -63567,14 +63558,14 @@
     },
     {
       "slug": "ly-1127-66c1db",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795810021,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795812225,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -63585,11 +63576,11 @@
     },
     {
       "slug": "ly-1127-f793a1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795810030,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -63603,11 +63594,11 @@
     },
     {
       "slug": "ly-1127-60a71e",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795810039,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -63621,14 +63612,14 @@
     },
     {
       "slug": "ly-1127-271298",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "retry_queued",
+      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
       "signature": {
         "ts": 1795810047,
         "failed": null,
         "published_parts": null,
         "processed_part_indices": null,
-        "source_check_retry_after": null,
+        "source_check_retry_after": 1795812196,
         "weekly_full_week": ""
       },
       "history_count": 1,
@@ -63636,6 +63627,24 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46061436095",
       "run_started_at": "2026-11-27T20:07:27Z",
       "run_updated_at": "2026-11-27T20:09:25Z"
+    },
+    {
+      "slug": "ly-1127-1036a2",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795810491,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 46062304089,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46062304089",
+      "run_started_at": "2026-11-27T20:14:50Z",
+      "run_updated_at": "2026-11-27T20:14:54Z"
     }
   ],
   "runs": {
@@ -97804,6 +97813,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46061364446",
       "run_number": 5409,
       "display_title": "中文源出片 · ly-1127-993080"
+    },
+    "ly-1127-1036a2": {
+      "id": 46062304089,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-27T20:14:50Z",
+      "updated_at": "2026-11-27T20:14:54Z",
+      "run_started_at": "2026-11-27T20:14:50Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46062304089",
+      "run_number": 5414,
+      "display_title": "中文源出片 · ly-1127-1036a2"
     },
     "ly-1127-b7d246": {
       "id": 46055871251,
