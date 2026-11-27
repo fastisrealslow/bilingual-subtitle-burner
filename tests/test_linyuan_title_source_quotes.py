@@ -78,6 +78,29 @@ def test_true_source_quotes_and_explicit_paraphrases_remain_allowed(reason):
     assert not T.review_source_quote_error(reason,'需求一直增长，产能充足。')
 
 
+@pytest.mark.parametrize('speaker,reason', [
+    ('林园', '字幕里嘉宾直接说：“产能充足”，这一点支持候选。'),
+    ('周女士', '原话中周女士亲口说过「产能充足」和「需求一直增长」。'),
+    ('王先生', '原文中受访者明确指出\'产能充足\'。'),
+])
+def test_named_source_attribution_requires_verbatim_quote(speaker, reason):
+    assert '产能充足' in T.review_source_quote_error(reason, '需求一直增长。', speaker)
+    assert not T.review_source_quote_error(reason, '需求一直增长，产能充足。', speaker)
+
+
+def test_candidate_paraphrase_with_named_source_context_is_allowed():
+    reason='原文中嘉宾的意思可概括为“需求强劲”，候选标题也沿用这一概括。'
+    assert not T.review_source_quote_error(reason, '需求一直增长。')
+
+
+def test_published_named_attribution_cannot_certify_a_nonverbatim_quote():
+    case=json.loads((ROOT/'tests/fixtures/linyuan_published_attributed_quote.json').read_text())
+    proof=case['proof']
+    assert all(proof['review'][k] is True for k in T.CHECKS)
+    assert T.metadata_error(case['title'], proof) is None
+    assert '原文中不存在的话：折略远于长远' in T.error(case['title'],proof,case['transcript'])
+
+
 def test_real_published_proof_fails_current_gate_even_with_all_model_flags_true():
     case=json.loads((ROOT/'tests/fixtures/linyuan_published_condition_regression.json').read_text())
     proof=case['proof']
