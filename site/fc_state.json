@@ -161998,11 +161998,13 @@
     "basis": "unknown"
    },
    "publish_time": "2026-11-28T05:36:00+00:00",
-   "source_check_report_id": 15259052294,
-   "source_check_run_id": 46134485241,
+   "source_check_report_id": 15260544709,
+   "source_check_run_id": 46139354385,
    "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
    "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "source_check_attempts": 2,
+   "failed": true,
+   "source_check_exhausted": true
   },
   {
    "key": "weibo_search:4673709300253160",
@@ -162049,7 +162051,17 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2021-06-10T18:24:04+08:00"
+   "publish_time": "2021-06-10T18:24:04+08:00",
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 46139376716,
+    "artifact_id": 15260778668,
+    "name": "source-reject-ly-1128-883654",
+    "retained": true
+   },
+   "last_error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1973, 2: 0.1272, 3: 0.0939, 4: 0.1497, 5: 0.1323, 6: 0.0984, 7: 0.0809, 8: 0.1739, 9: 0.1497, 10: 0.1598, 12: 0.1725, 13: 0.1828, 14: 0.1231, 15: 0.2156, 16: 0.1924, 17: 0.2781}",
+   "source_quality_rejected": true,
+   "failure_stage": "source-quality"
   }
  ],
  "makeup_receipts": {
@@ -291130,6 +291142,13 @@
    "video_id": "BV1DC4y1C782",
    "ts": 1795864741,
    "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"大家对再泡一个药，那行吧。\", \"suspect_quote\": \"再泡一个药\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘再泡’不符合口语习惯且无明确指代，无法确定是否为行业术语或人名误识。\"}]"
+  },
+  {
+   "slug": "ly-1128-883654",
+   "key": "weibo_search:4646605926433447",
+   "video_id": "https://f.video.weibocdn.com/000gP5bJgx07Nky8qZeT010412019TeX0E010.mp4",
+   "ts": 1795865203,
+   "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1973, 2: 0.1272, 3: 0.0939, 4: 0.1497, 5: 0.1323, 6: 0.0984, 7: 0.0809, 8: 0.1739, 9: 0.1497, 10: 0.1598, 12: 0.1725, 13: 0.1828, 14: 0.1231, 15: 0.2156, 16: 0.1924, 17: 0.2781}"
   }
  ],
  "reviewed_third_video_0910": {
