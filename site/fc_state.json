@@ -161549,7 +161549,68 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2025-02-15T15:34:15+00:00"
+   "publish_time": "2025-02-15T15:34:15+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1128-bae8df",
+    "run_id": 46100256047,
+    "artifact_id": 15245948311,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "9598e7452e0f32b7443cd40da472926b3a215780f1031adad396f2ce932fc700",
+     "duration_sec": 1196.67,
+     "resolution": {
+      "width": 1446,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://www.bilibili.com/video/BV1rZANeJER6"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 86%（BV1yxxX6xEAU）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 76%（BV1SGxD64Exs）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "与已发布内容文字指纹重复：转写片段重合 95%（BV1AZxv6rEpG）"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "整段取景预检：源 392.27s，原始画面不足以保留完整人脸及头顶余量"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原画无法通过真人画面清理门禁；当前自动发布禁用音频卡，不生成静态回退成片"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "原话存在影响观点的识别歧义，须听辨或更换素材；完整性理由：嘉宾从第 3 句开始解释老字号模式（少产品支撑公司运作），到第 5 句引入云南白药案例，第 7-9 句给出核心判断：投入小、开店成本高但一定赚。第 10-12 句进一步用设备 vs 门店的对比强化理由。整体表达完整，无切断或歧义阻碍理解。；原文问题：[[\"这个很简单，就云浪杯啊，它投入是小的。\", \"‘云浪杯’明显为‘云南白药’的同音误识，影响实体识别和理解，需音频复核确认原话发音。\"]]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 46100256047,
+    "artifact_id": 15245948311,
+    "name": "production-reject-ly-1128-bae8df",
+    "retained": true
+   },
+   "last_error": "与已发布内容文字指纹重复：转写片段重合 86%（BV1yxxX6xEAU）",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -290374,6 +290435,13 @@
    "video_id": "BV1Gj9ZYdExt",
    "ts": 1795827498,
    "error": "封面生成/人物/角标复检失败：现场原画封面人物身份或清晰度不足"
+  },
+  {
+   "slug": "ly-1128-bae8df",
+   "key": "bilibili_search:BV1rZANeJER6",
+   "video_id": "BV1rZANeJER6",
+   "ts": 1795837245,
+   "error": "与已发布内容文字指纹重复：转写片段重合 86%（BV1yxxX6xEAU）"
   }
  ],
  "reviewed_third_video_0910": {
