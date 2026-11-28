@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795862306,
-  "inventory_updated_at": 1795862163,
+  "updated_at": 1795864681,
+  "inventory_updated_at": 1795864671,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5477,
-      "shortfall": 4523
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 149,
-    "active_or_recovering_sources": 4,
-    "waiting_candidates": 0,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 2,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -496,29 +496,46 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795862305,
-    "records": 20960,
-    "video_records": 18320,
-    "initial_candidates": 210,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1795864678,
+    "records": 21003,
+    "video_records": 18363,
+    "initial_candidates": 214,
+    "duration_eligible_records": 3,
+    "candidate_count": 2,
+    "known_duration_candidates": 2,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10590,
-      "already_attempted_or_cooling": 4886,
+      "speaker_unconfirmed": 10627,
+      "already_attempted_or_cooling": 4887,
       "clip_title": 1688,
       "unrelated": 110,
       "ai_content": 39,
       "no_video": 2640,
       "noise": 49,
-      "reference_only": 746,
+      "reference_only": 747,
       "published_topic_cooldown": 2,
-      "too_short": 162,
+      "too_short": 163,
       "over_limit": 48,
-      "duplicate_source": 0
+      "duplicate_source": 1
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:4673709300253160",
+        "title": "【2007年林园：寻找中国的巴菲特】\n\n当时做这期节目的初衷：寻找和采访在中国股市实践价值理念投资者。希望通过讲述他们的",
+        "source": "weibo_search",
+        "author": "股林虾客",
+        "url": "https://m.weibo.cn/detail/4673709300253160",
+        "duration_sec": 3684.0
+      },
+      {
+        "key": "weibo_search:4646605926433447",
+        "title": "【林园吐槽买不到酒：我持有300亿茅台，还跟个叫花子一样抽签买酒】#林园称像叫花子一样抽签买酒# 6月9日，在茅台股东大",
+        "source": "weibo_search",
+        "author": "投资金手指GZ",
+        "url": "https://m.weibo.cn/detail/4646605926433447",
+        "duration_sec": 72.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 149,
@@ -536,14 +553,14 @@
     "complete": 227,
     "failed": 2922,
     "paused": 5,
-    "interrupted": 10,
+    "interrupted": 11,
     "excluded": 115,
     "experiment_fallback": 192,
     "ready": 38,
     "validation_failed": 2,
     "retry_queued": 2,
     "unknown": 2,
-    "running": 2
+    "running": 1
   },
   "tasks": [
     {
@@ -63836,8 +63853,8 @@
     },
     {
       "slug": "ly-1128-2f2b0c",
-      "status": "running",
-      "detail": "正在出片",
+      "status": "interrupted",
+      "detail": "运行已结束：failure",
       "signature": {
         "ts": 1795861949,
         "failed": null,
@@ -63850,7 +63867,7 @@
       "run_id": 46135664939,
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46135664939",
       "run_started_at": "2026-11-28T10:32:29Z",
-      "run_updated_at": "2026-11-28T10:32:33Z"
+      "run_updated_at": "2026-11-28T11:15:07Z"
     },
     {
       "slug": "ly-1128-201745",
@@ -98183,10 +98200,10 @@
     },
     "ly-1128-2f2b0c": {
       "id": 46135664939,
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "created_at": "2026-11-28T10:32:29Z",
-      "updated_at": "2026-11-28T10:32:33Z",
+      "updated_at": "2026-11-28T11:15:07Z",
       "run_started_at": "2026-11-28T10:32:29Z",
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46135664939",
       "run_number": 5438,
