@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795851583,
+  "updated_at": 1795851742,
   "inventory_updated_at": 1795851575,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5470,
+      "shortfall": 4530
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 2,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -496,17 +496,17 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795851581,
+    "updated_at": 1795851741,
     "records": 20947,
     "video_records": 18307,
-    "initial_candidates": 211,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "initial_candidates": 210,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
       "speaker_unconfirmed": 10580,
-      "already_attempted_or_cooling": 4883,
+      "already_attempted_or_cooling": 4884,
       "clip_title": 1688,
       "unrelated": 110,
       "ai_content": 39,
@@ -518,16 +518,7 @@
       "over_limit": 48,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5370203921975024",
-        "title": "【林园谈牛市本质：赚钱人数超半数才算牛市！】在接受采访时，私募大佬林园语出惊人：今年根本不算真正意义上的牛市！牛熊是一种",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5370203921975024",
-        "duration_sec": 61.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 150,
@@ -550,8 +541,9 @@
     "experiment_fallback": 192,
     "ready": 39,
     "validation_failed": 2,
-    "retry_queued": 2,
-    "unknown": 2
+    "retry_queued": 1,
+    "unknown": 2,
+    "running": 2
   },
   "tasks": [
     {
@@ -63753,24 +63745,6 @@
       "run_updated_at": "2026-11-28T01:59:09Z"
     },
     {
-      "slug": "ly-1128-fa526a",
-      "status": "retry_queued",
-      "detail": "等待自动恢复调度（受并发和横屏库存配额约束）",
-      "signature": {
-        "ts": 1795834412,
-        "failed": null,
-        "published_parts": null,
-        "processed_part_indices": null,
-        "source_check_retry_after": 1795845455,
-        "weekly_full_week": ""
-      },
-      "history_count": 1,
-      "run_id": 46100243742,
-      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46100243742",
-      "run_started_at": "2026-11-28T02:53:32Z",
-      "run_updated_at": "2026-11-28T05:38:42Z"
-    },
-    {
       "slug": "ly-1128-bae8df",
       "status": "failed",
       "detail": "与已发布内容文字指纹重复：转写片段重合 86%（BV1yxxX6xEAU）",
@@ -63805,6 +63779,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46110148621",
       "run_started_at": "2026-11-28T05:00:58Z",
       "run_updated_at": "2026-11-28T05:02:25Z"
+    },
+    {
+      "slug": "ly-1128-fa526a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795851671,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 46122338520,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46122338520",
+      "run_started_at": "2026-11-28T07:41:10Z",
+      "run_updated_at": "2026-11-28T07:41:15Z"
+    },
+    {
+      "slug": "ly-1128-ceec3c",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795851680,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 46122351220,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46122351220",
+      "run_started_at": "2026-11-28T07:41:20Z",
+      "run_updated_at": "2026-11-28T07:41:24Z"
     }
   ],
   "runs": {
@@ -98074,15 +98084,26 @@
       "display_title": "中文源出片 · ly-1128-64b8f7"
     },
     "ly-1128-fa526a": {
-      "id": 46100243742,
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-28T02:53:32Z",
-      "updated_at": "2026-11-28T05:38:42Z",
-      "run_started_at": "2026-11-28T02:53:32Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46100243742",
-      "run_number": 5431,
+      "id": 46122338520,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-28T07:41:10Z",
+      "updated_at": "2026-11-28T07:41:15Z",
+      "run_started_at": "2026-11-28T07:41:10Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46122338520",
+      "run_number": 5434,
       "display_title": "中文源出片 · ly-1128-fa526a"
+    },
+    "ly-1128-ceec3c": {
+      "id": 46122351220,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-28T07:41:20Z",
+      "updated_at": "2026-11-28T07:41:24Z",
+      "run_started_at": "2026-11-28T07:41:20Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46122351220",
+      "run_number": 5435,
+      "display_title": "中文源出片 · ly-1128-ceec3c"
     }
   }
 }
