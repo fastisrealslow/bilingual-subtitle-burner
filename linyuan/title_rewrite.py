@@ -1065,6 +1065,34 @@ def market_order_scope_error(title, cover, transcript):
     return None
 
 
+_PRICE_TERM = r'(?:价格|股价|售价|报价|房价|油价|金价|药价)'
+_PRICE_MODALITY = r'有可能|可能|也许|或许|或将|或|有望|不排除|不一定|会不会|能否|是否'
+_PRICE_MOVEMENT = re.compile(
+    rf'(?P<before>{_PRICE_MODALITY})?(?P<price>{_PRICE_TERM})'
+    rf'(?P<after>{_PRICE_MODALITY})?(?:会|将要|将)?(?P<change>波动|上涨|下跌)'
+    rf'(?P<ending>吧|吗|么|[？?])?')
+
+
+def _price_movement_claims(text):
+    for match in _PRICE_MOVEMENT.finditer(text):
+        yield (match['price'], match['change']), bool(
+            match['before'] or match['after'] or match['ending'])
+
+
+def price_forecast_modality_error(title, cover, transcript):
+    """Require uncertainty on the same explicit price-change claim."""
+    uncertain, definite = set(), set()
+    for claim, hedged in _price_movement_claims(transcript):
+        (uncertain if hedged else definite).add(claim)
+    only_uncertain = uncertain - definite
+    if only_uncertain and any(
+            claim in only_uncertain and not hedged
+            for copy in (title, cover)
+            for claim, hedged in _price_movement_claims(copy)):
+        return '原话只说价格可能变化；标题和封面各自保留该变化的不确定性'
+    return None
+
+
 def forecast_copy_error(title, cover, transcript):
     """Preserve duration units and uncertainty in the observed point forecast.
 
@@ -1072,6 +1100,9 @@ def forecast_copy_error(title, cover, transcript):
     missing index level/date nor claims to solve general semantic entailment.
     """
     from title_market_impression import impression_error
+    price_issue = price_forecast_modality_error(title, cover, transcript)
+    if price_issue:
+        return price_issue
     market_issue=market_order_scope_error(title,cover,transcript)
     if market_issue:return market_issue
     cause_issue=personal_cause_qualifier_error(title,cover,transcript)
