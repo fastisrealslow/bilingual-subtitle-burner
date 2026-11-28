@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795834118,
+  "updated_at": 1795834484,
   "inventory_updated_at": 1795834107,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5460,
+      "shortfall": 4540
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -39,8 +39,8 @@
     "daily_target": 4,
     "reserve_target": 12,
     "verified_daily_stock": 150,
-    "active_or_recovering_sources": 1,
-    "waiting_candidates": 1,
+    "active_or_recovering_sources": 3,
+    "waiting_candidates": 0,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -496,18 +496,18 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795834116,
-    "records": 20926,
-    "video_records": 18286,
-    "initial_candidates": 210,
-    "duration_eligible_records": 1,
-    "candidate_count": 1,
-    "known_duration_candidates": 1,
+    "updated_at": 1795834482,
+    "records": 20928,
+    "video_records": 18288,
+    "initial_candidates": 209,
+    "duration_eligible_records": 0,
+    "candidate_count": 0,
+    "known_duration_candidates": 0,
     "unknown_duration_candidates": 0,
     "excluded": {
+      "already_attempted_or_cooling": 4881,
       "speaker_unconfirmed": 10566,
-      "already_attempted_or_cooling": 4879,
-      "clip_title": 1688,
+      "clip_title": 1689,
       "unrelated": 110,
       "ai_content": 39,
       "no_video": 2640,
@@ -518,16 +518,7 @@
       "over_limit": 47,
       "duplicate_source": 0
     },
-    "candidates": [
-      {
-        "key": "weibo_search:5370167641245065",
-        "title": "【1小时完整版】林园：市场周期与人生哲学！#热点聚焦##微博视频精选大赏##圣叹财经# http://t.cn/AXTr",
-        "source": "weibo_search",
-        "author": "圣叹财经",
-        "url": "https://m.weibo.cn/detail/5370167641245065",
-        "duration_sec": 3184.0
-      }
-    ]
+    "candidates": []
   },
   "inventory": {
     "verified_live": 150,
@@ -551,7 +542,8 @@
     "ready": 39,
     "validation_failed": 2,
     "retry_queued": 1,
-    "unknown": 2
+    "unknown": 2,
+    "running": 2
   },
   "tasks": [
     {
@@ -63751,6 +63743,42 @@
       "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46095636252",
       "run_started_at": "2026-11-28T01:57:06Z",
       "run_updated_at": "2026-11-28T01:59:09Z"
+    },
+    {
+      "slug": "ly-1128-fa526a",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795834412,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 46100243742,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46100243742",
+      "run_started_at": "2026-11-28T02:53:32Z",
+      "run_updated_at": "2026-11-28T02:53:36Z"
+    },
+    {
+      "slug": "ly-1128-bae8df",
+      "status": "running",
+      "detail": "正在出片",
+      "signature": {
+        "ts": 1795834422,
+        "failed": null,
+        "published_parts": null,
+        "processed_part_indices": null,
+        "source_check_retry_after": null,
+        "weekly_full_week": ""
+      },
+      "history_count": 1,
+      "run_id": 46100256047,
+      "run_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46100256047",
+      "run_started_at": "2026-11-28T02:53:42Z",
+      "run_updated_at": "2026-11-28T02:53:47Z"
     }
   ],
   "runs": {
@@ -97996,6 +98024,28 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46095623674",
       "run_number": 5429,
       "display_title": "中文源出片 · ly-1127-260b55"
+    },
+    "ly-1128-bae8df": {
+      "id": 46100256047,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-28T02:53:42Z",
+      "updated_at": "2026-11-28T02:53:47Z",
+      "run_started_at": "2026-11-28T02:53:42Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46100256047",
+      "run_number": 5432,
+      "display_title": "中文源出片 · ly-1128-bae8df"
+    },
+    "ly-1128-fa526a": {
+      "id": 46100243742,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-28T02:53:32Z",
+      "updated_at": "2026-11-28T02:53:36Z",
+      "run_started_at": "2026-11-28T02:53:32Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46100243742",
+      "run_number": 5431,
+      "display_title": "中文源出片 · ly-1128-fa526a"
     }
   }
 }
