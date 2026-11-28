@@ -162143,9 +162143,17 @@
    "publish_time": "2025-08-13T08:50:16+00:00",
    "source_check_report_id": 15265934143,
    "source_check_run_id": 46151978009,
-   "last_error": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
-   "failure_stage": "source-fetch",
-   "source_check_attempts": 2
+   "last_error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制",
+   "failure_stage": "source-quality",
+   "source_check_attempts": 2,
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 46155517760,
+    "artifact_id": 15267054916,
+    "name": "source-reject-ly-1128-4c3305",
+    "retained": true
+   },
+   "source_quality_rejected": true
   },
   {
    "key": "weibo_search:4403315548443535",
@@ -291358,6 +291366,13 @@
    "video_id": "https://f.video.weibocdn.com/000gP5bJgx07Nky8qZeT010412019TeX0E010.mp4",
    "ts": 1795865203,
    "error": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1973, 2: 0.1272, 3: 0.0939, 4: 0.1497, 5: 0.1323, 6: 0.0984, 7: 0.0809, 8: 0.1739, 9: 0.1497, 10: 0.1598, 12: 0.1725, 13: 0.1828, 14: 0.1231, 15: 0.2156, 16: 0.1924, 17: 0.2781}"
+  },
+  {
+   "slug": "ly-1128-4c3305",
+   "key": "bilibili_search:BV16rbaz1EwH",
+   "video_id": "BV16rbaz1EwH",
+   "ts": 1795876975,
+   "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
   }
  ],
  "reviewed_third_video_0910": {
