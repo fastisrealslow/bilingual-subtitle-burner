@@ -161942,7 +161942,44 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2024-01-20T07:38:16+00:00"
+   "publish_time": "2024-01-20T07:38:16+00:00",
+   "production_failure_summary": {
+    "slug": "ly-1128-2f2b0c",
+    "run_id": 46135664939,
+    "artifact_id": 15260563702,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "c430547c45e87ce94b446dfbadffb67fc9b66a68e2b6e419918d9fd92bc903c4",
+     "duration_sec": 1061.47,
+     "resolution": {
+      "width": 1920,
+      "height": 984,
+      "short_edge": 984
+     },
+     "source_url": "https://www.bilibili.com/video/BV1DC4y1C782"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"大家对再泡一个药，那行吧。\", \"suspect_quote\": \"再泡一个药\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘再泡’不符合口语习惯且无明确指代，无法确定是否为行业术语或人名误识。\"}]"
+     },
+     {
+      "stage": "part-quality",
+      "reason": "真人动态区仍有稳定来源角标：[(0.9161392405063291, 0.8957446808510638, 0.9984177215189873, 0.9893617021276596)]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 46135664939,
+    "artifact_id": 15260563702,
+    "name": "production-reject-ly-1128-2f2b0c",
+    "retained": true
+   },
+   "last_error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"大家对再泡一个药，那行吧。\", \"suspect_quote\": \"再泡一个药\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘再泡’不符合口语习惯且无明确指代，无法确定是否为行业术语或人名误识。\"}]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   },
   {
    "key": "weibo_search:4858771988546016",
@@ -291040,6 +291077,13 @@
    "video_id": "https://f.video.weibocdn.com/o0/b8Fu9h8elx08CHNYFLLy0104120oSvAN0E090.mp4",
    "ts": 1795857947,
    "error": "动态取景剩余帧即使全部匹配也达不到80%：已匹配197/382，总帧数922；身份匹配但人脸短边不足96px的帧数0"
+  },
+  {
+   "slug": "ly-1128-2f2b0c",
+   "key": "bilibili_search:BV1DC4y1C782",
+   "video_id": "BV1DC4y1C782",
+   "ts": 1795864741,
+   "error": "原始ASR存在影响理解的疑点，禁止猜改后发布：[{\"sentence_id\": 3, \"quote\": \"大家对再泡一个药，那行吧。\", \"suspect_quote\": \"再泡一个药\", \"kind\": \"unintelligible_term\", \"reason\": \"疑似识别污染，‘再泡’不符合口语习惯且无明确指代，无法确定是否为行业术语或人名误识。\"}]"
   }
  ],
  "reviewed_third_video_0910": {
