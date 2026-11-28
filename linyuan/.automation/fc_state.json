@@ -161760,7 +161760,40 @@
     "verified": false,
     "basis": "unknown"
    },
-   "publish_time": "2026-11-28T12:24:11+08:00"
+   "publish_time": "2026-11-28T12:24:11+08:00",
+   "production_failure_summary": {
+    "slug": "ly-1128-ceec3c",
+    "run_id": 46122351220,
+    "artifact_id": 15253654147,
+    "accepted": 0,
+    "source_context": {
+     "passed": true,
+     "source_sha256": "6ab499233c14859e2353739d8e75862de2e1dfe439a6659ee438697bdd4b61f7",
+     "duration_sec": 61.07,
+     "resolution": {
+      "width": 1920,
+      "height": 1080,
+      "short_edge": 1080
+     },
+     "source_url": "https://m.weibo.cn/detail/5370203921975024"
+    },
+    "failures": [
+     {
+      "stage": "part-quality",
+      "reason": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾的明确观点陈述：主持人提问后，嘉宾仅描述了科技股行情的存在及板块轮动现象，未给出对‘今年是否来过牛市’的最终定性判断（如‘是局部牛市’或‘整体仍是熊市’等），导致表达不完整，无法构成独立观点。；原文问题：[]"
+     }
+    ]
+   },
+   "failed": true,
+   "failure_evidence": {
+    "run_id": 46122351220,
+    "artifact_id": 15253654147,
+    "name": "production-reject-ly-1128-ceec3c",
+    "retained": true
+   },
+   "last_error": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾的明确观点陈述：主持人提问后，嘉宾仅描述了科技股行情的存在及板块轮动现象，未给出对‘今年是否来过牛市’的最终定性判断（如‘是局部牛市’或‘整体仍是熊市’等），导致表达不完整，无法构成独立观点。；原文问题：[]",
+   "source_quality_rejected": true,
+   "failure_stage": "editorial-or-render"
   }
  ],
  "makeup_receipts": {
@@ -290599,6 +290632,13 @@
    "video_id": "BV1kr4y1y7Dn",
    "ts": 1795842433,
    "error": "已知源页禁止转载；不得通过旧任务重试绕过准入限制"
+  },
+  {
+   "slug": "ly-1128-ceec3c",
+   "key": "weibo_search:5370203921975024",
+   "video_id": "https://f.video.weibocdn.com/o0/MLO953oZlx08CIwa5odO01041200t1vk0E010.mp4",
+   "ts": 1795852407,
+   "error": "完整观点验收未通过：standalone_opening；完整性理由：缺少嘉宾的明确观点陈述：主持人提问后，嘉宾仅描述了科技股行情的存在及板块轮动现象，未给出对‘今年是否来过牛市’的最终定性判断（如‘是局部牛市’或‘整体仍是熊市’等），导致表达不完整，无法构成独立观点。；原文问题：[]"
   }
  ],
  "reviewed_third_video_0910": {
