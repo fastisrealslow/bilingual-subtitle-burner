@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updated_at": 1795844628,
-  "inventory_updated_at": 1795844485,
+  "updated_at": 1795851583,
+  "inventory_updated_at": 1795851575,
   "backlog": {
     "version": 2026112001,
     "status": "replenishing",
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": 5466,
-      "shortfall": 4534
+      "verified": null,
+      "shortfall": null
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -40,7 +40,7 @@
     "reserve_target": 12,
     "verified_daily_stock": 150,
     "active_or_recovering_sources": 2,
-    "waiting_candidates": 0,
+    "waiting_candidates": 1,
     "status": "at_risk",
     "quality_gates_relaxed": false,
     "plan": {
@@ -88,7 +88,7 @@
       }
     },
     "normal_stock_status": "covered",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "publishing_experiment": {
     "experiment_id": "field-story-30d-20261018",
@@ -102,8 +102,8 @@
       "date": "2026-11-28",
       "daily_target": 2,
       "actual_treatment": 0,
-      "expected_by_now": 0,
-      "gap_by_now": 0,
+      "expected_by_now": 1,
+      "gap_by_now": 1,
       "remaining_today": 2,
       "today_passed": false,
       "stable_7_complete_days": false,
@@ -492,20 +492,20 @@
       }
     ],
     "status": "needs_attention",
-    "alert": "no_verified_treatment"
+    "alert": "daily_treatment_gap"
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795844626,
-    "records": 20945,
-    "video_records": 18305,
-    "initial_candidates": 210,
-    "duration_eligible_records": 0,
-    "candidate_count": 0,
-    "known_duration_candidates": 0,
+    "updated_at": 1795851581,
+    "records": 20947,
+    "video_records": 18307,
+    "initial_candidates": 211,
+    "duration_eligible_records": 1,
+    "candidate_count": 1,
+    "known_duration_candidates": 1,
     "unknown_duration_candidates": 0,
     "excluded": {
-      "speaker_unconfirmed": 10579,
+      "speaker_unconfirmed": 10580,
       "already_attempted_or_cooling": 4883,
       "clip_title": 1688,
       "unrelated": 110,
@@ -518,7 +518,16 @@
       "over_limit": 48,
       "duplicate_source": 0
     },
-    "candidates": []
+    "candidates": [
+      {
+        "key": "weibo_search:5370203921975024",
+        "title": "【林园谈牛市本质：赚钱人数超半数才算牛市！】在接受采访时，私募大佬林园语出惊人：今年根本不算真正意义上的牛市！牛熊是一种",
+        "source": "weibo_search",
+        "author": "圣叹财经",
+        "url": "https://m.weibo.cn/detail/5370203921975024",
+        "duration_sec": 61.0
+      }
+    ]
   },
   "inventory": {
     "verified_live": 150,
