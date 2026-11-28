@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": 1795865091,
+  "updated_at": 1795865313,
   "inventory_updated_at": 1795865081,
   "backlog": {
     "version": 2026112001,
@@ -27,8 +27,8 @@
     },
     "seeds": {
       "target": 10000,
-      "verified": null,
-      "shortfall": null
+      "verified": 5477,
+      "shortfall": 4523
     },
     "seed_target": 10000,
     "in_flight_counted": false,
@@ -496,7 +496,7 @@
   },
   "source_admission": {
     "version": 1,
-    "updated_at": 1795865089,
+    "updated_at": 1795865311,
     "records": 21003,
     "video_records": 18363,
     "initial_candidates": 211,
@@ -534,9 +534,9 @@
   },
   "counts": {
     "complete": 227,
-    "failed": 2923,
+    "failed": 2925,
     "paused": 5,
-    "interrupted": 12,
+    "interrupted": 10,
     "excluded": 115,
     "experiment_fallback": 192,
     "ready": 38,
@@ -63854,11 +63854,11 @@
     },
     {
       "slug": "ly-1128-7850a1",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "取源未完成：RuntimeError: 所有 CDN 镜像下载失败：HTTP Error 567: Unknown Status",
       "signature": {
         "ts": 1795864785,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -63890,11 +63890,11 @@
     },
     {
       "slug": "ly-1128-883654",
-      "status": "interrupted",
-      "detail": "运行已结束：failure",
+      "status": "failed",
+      "detail": "人物不一致或无法确认：林园；initial_same=[]，scan_same=[]，scan_different=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]，confidence=0.0，reason=CPU SFace逐帧比对；匹配0/18帧；confidence仅针对匹配帧，并非整段身份概率；阈值0.363；分数{1: 0.1973, 2: 0.1272, 3: 0.0939, 4: 0.1497, 5: 0.1323, 6: 0.0984, 7: 0.0809, 8: 0.1739, 9: 0.1497, 10: 0.1598, 12: 0.1725, 13: 0.1828, 14: 0.1231, 15: 0.2156, 16: 0.1924, 17: 0.2781}",
       "signature": {
         "ts": 1795864802,
-        "failed": null,
+        "failed": true,
         "published_parts": null,
         "processed_part_indices": null,
         "source_check_retry_after": null,
@@ -98217,17 +98217,6 @@
       "run_number": 5442,
       "display_title": "中文源出片 · ly-1128-883654"
     },
-    "ly-1128-819c03": {
-      "id": 46139365702,
-      "status": "in_progress",
-      "conclusion": null,
-      "created_at": "2026-11-28T11:19:54Z",
-      "updated_at": "2026-11-28T11:19:57Z",
-      "run_started_at": "2026-11-28T11:19:54Z",
-      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46139365702",
-      "run_number": 5441,
-      "display_title": "中文源出片 · ly-1128-819c03"
-    },
     "ly-1128-7850a1": {
       "id": 46139354385,
       "status": "completed",
@@ -98238,6 +98227,17 @@
       "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46139354385",
       "run_number": 5440,
       "display_title": "中文源出片 · ly-1128-7850a1"
+    },
+    "ly-1128-819c03": {
+      "id": 46139365702,
+      "status": "in_progress",
+      "conclusion": null,
+      "created_at": "2026-11-28T11:19:54Z",
+      "updated_at": "2026-11-28T11:19:57Z",
+      "run_started_at": "2026-11-28T11:19:54Z",
+      "html_url": "https://github.com/fastisrealslow/bilingual-subtitle-burner/actions/runs/46139365702",
+      "run_number": 5441,
+      "display_title": "中文源出片 · ly-1128-819c03"
     },
     "ly-1128-201745": {
       "id": 46136055778,
